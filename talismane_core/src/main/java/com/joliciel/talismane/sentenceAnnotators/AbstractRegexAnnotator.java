@@ -79,8 +79,8 @@ public abstract class AbstractRegexAnnotator implements RegexAnnotator {
   private final TalismaneSession session;
 
   /**
-   * A constructor with the minimum required data. This is the constructor to
-   * be used when creating annotators directly in code.
+   * A constructor with the minimum required data. This is the constructor to be
+   * used when creating annotators directly in code.
    */
   public AbstractRegexAnnotator(String regex, int groupIndex, boolean caseSensitive, boolean diacricticSensitive, boolean autoWordBoundaries,
       boolean singleToken, TalismaneSession session) throws SentenceAnnotatorLoadException {
@@ -99,15 +99,14 @@ public abstract class AbstractRegexAnnotator implements RegexAnnotator {
    * descriptors.
    * 
    * @param descriptor
-   *            the full descriptor used to construct the annotator
+   *          the full descriptor used to construct the annotator
    * @param handledParameters
-   *            any parameters handled by the sub-class - any additional
-   *            parameters are either handled here, or added as token
-   *            attributes
+   *          any parameters handled by the sub-class - any additional
+   *          parameters are either handled here, or added as token attributes
    * @param singleToken
-   *            whether this annotator identifies a single token's boundaries
+   *          whether this annotator identifies a single token's boundaries
    * @param session
-   *            the current talismane session
+   *          the current talismane session
    * 
    * @throws SentenceAnnotatorLoadException
    */
@@ -119,19 +118,22 @@ public abstract class AbstractRegexAnnotator implements RegexAnnotator {
     String[] tabs = descriptor.split("\t");
 
     if (tabs.length < 2)
-      throw new SentenceAnnotatorLoadException("Wrong number of tabs for " + RegexAnnotator.class.getSimpleName() + ". Expected at least 2, but was "
-          + tabs.length + " in: " + descriptor);
+      throw new SentenceAnnotatorLoadException(
+          "Wrong number of tabs for " + RegexAnnotator.class.getSimpleName() + ". Expected at least 2, but was " + tabs.length + " in: " + descriptor);
     this.regex = tabs[1];
 
     parameters.putAll(defaultParams);
     for (int i = 2; i < tabs.length; i++) {
       String tab = tabs[i];
-      int equalsPos = tab.indexOf('=');
-      if (equalsPos < 0)
-        throw new SentenceAnnotatorLoadException("No equals sign in parameter " + (i + 1) + " [" + tab + "] in: " + descriptor);
-      String paramName = tab.substring(0, tab.indexOf('='));
-      String paramValue = tab.substring(tab.indexOf('=') + 1);
-      parameters.put(paramName, paramValue);
+      // allow empty tabs
+      if (tab.length() > 0) {
+        int equalsPos = tab.indexOf('=');
+        if (equalsPos < 0)
+          throw new SentenceAnnotatorLoadException("No equals sign in parameter " + (i + 1) + " [" + tab + "] in: " + descriptor);
+        String paramName = tab.substring(0, tab.indexOf('='));
+        String paramValue = tab.substring(tab.indexOf('=') + 1);
+        parameters.put(paramName, paramValue);
+      }
     }
 
     int groupIndex = 0;
@@ -479,8 +481,7 @@ public abstract class AbstractRegexAnnotator implements RegexAnnotator {
 
         if (LOG.isTraceEnabled()) {
           LOG.trace("Regex: " + this.regex);
-          LOG.trace("Next match: "
-              + annotatedText.getText().subSequence(matcher.start(), matcher.end()).toString().replace('\n', '¶').replace('\r', '¶'));
+          LOG.trace("Next match: " + annotatedText.getText().subSequence(matcher.start(), matcher.end()).toString().replace('\n', '¶').replace('\r', '¶'));
           if (matcher.start() != start || matcher.end() != end) {
             LOG.trace("But matching group: " + annotatedText.getText().subSequence(start, end).toString().replace('\n', '¶').replace('\r', '¶'));
           }

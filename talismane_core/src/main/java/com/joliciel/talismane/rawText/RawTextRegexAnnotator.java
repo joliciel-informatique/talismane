@@ -95,18 +95,16 @@ public class RawTextRegexAnnotator implements RawTextAnnotator {
       if (LOG.isTraceEnabled()) {
         LOG.trace("Next match: " + matchText.toString().replace('\n', '¶').replace('\r', '¶'));
         if (matcher.start() != matcherStart || matcher.end() != matcherEnd) {
-          LOG.trace("But matching group: "
-              + textBlock.getText().subSequence(matcherStart, matcherEnd).toString().replace('\n', '¶').replace('\r', '¶'));
+          LOG.trace("But matching group: " + textBlock.getText().subSequence(matcherStart, matcherEnd).toString().replace('\n', '¶').replace('\r', '¶'));
         }
-        LOG.trace("matcher.start()=" + matcher.start() + ", matcher.end()=" + matcher.end() + ", matcherStart=" + matcherStart + ", matcherEnd="
-            + matcherEnd + ", analysisStart=" + textBlock.getAnalysisStart() + ", analysisEnd=" + textBlock.getAnalysisEnd());
+        LOG.trace("matcher.start()=" + matcher.start() + ", matcher.end()=" + matcher.end() + ", matcherStart=" + matcherStart + ", matcherEnd=" + matcherEnd
+            + ", analysisStart=" + textBlock.getAnalysisStart() + ", analysisEnd=" + textBlock.getAnalysisEnd());
       }
 
-      if (matcherEnd - matcherStart > blockSize) {
+      if (blockSize > 0 && matcherEnd - matcherStart > blockSize) {
         String errorString = "Match size (" + (matcherEnd - matcherStart) + ") bigger than block size (" + blockSize + "). "
-            + "Increase blockSize or change filter. "
-            + "Maybe you need to change a greedy quantifier (e.g. .*) to a reluctant quantifier (e.g. .*?)? " + "Regex: " + regex + ". Text: "
-            + matchText;
+            + "Increase blockSize or change filter. " + "Maybe you need to change a greedy quantifier (e.g. .*) to a reluctant quantifier (e.g. .*?)? "
+            + "Regex: " + regex + ". Text: " + matchText;
         throw new MatchTooLargeException(errorString);
       }
 

@@ -28,9 +28,9 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 
-public class RawTextFilterFactory {
+public class RawTextAnnotatorFactory {
   @SuppressWarnings("unused")
-  private static final Logger LOG = LoggerFactory.getLogger(RawTextFilterFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RawTextAnnotatorFactory.class);
 
   /**
    * 
@@ -40,7 +40,7 @@ public class RawTextFilterFactory {
    * @throws TalismaneException
    *             if a descriptor is incorrectly configured
    */
-  public RawTextAnnotator getTextMarkerFilter(String descriptor, int blockSize) throws TalismaneException {
+  public RawTextAnnotator getAnnotator(String descriptor, int blockSize) throws TalismaneException {
     RawTextAnnotator filter = null;
 
     List<Class<? extends RawTextAnnotator>> classes = new ArrayListNoNulls<Class<? extends RawTextAnnotator>>();

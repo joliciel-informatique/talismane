@@ -78,25 +78,25 @@ import com.joliciel.talismane.TalismaneSession;
  * segments.add("");
  * segments.add("");
  * for (String segment : segments) {
- *  // roll in a new block 4, and roll the other blocks leftwards
- *  rollingTextBlock = rollingTextBlock.roll(segment);
+ *   // roll in a new block 4, and roll the other blocks leftwards
+ *   rollingTextBlock = rollingTextBlock.roll(segment);
  * 
- *  // annotate block 3 with raw text filters
- *  AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
+ *   // annotate block 3 with raw text filters
+ *   AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
  * 
- *  for (RawTextFilter textMarkerFilter : session.getTextFilters()) {
- *    textMarkerFilter.annotate(rawTextBlock);
- *  }
+ *   for (RawTextAnnotator annotator : session.getTextAnnotators()) {
+ *     annotator.annotate(rawTextBlock);
+ *   }
  * 
- *  // detect sentences in block 2 using the sentence detector
- *  AnnotatedText processedText = rollingTextBlock.getProcessedText();
- *  sentenceDetector.detectSentences(processedText);
+ *   // detect sentences in block 2 using the sentence detector
+ *   AnnotatedText processedText = rollingTextBlock.getProcessedText();
+ *   sentenceDetector.detectSentences(processedText);
  * 
- *  // get the sentences detected in block 2
- *  List&lt;Sentence&gt; theSentences = rollingTextBlock.getDetectedSentences();
- *  for (Sentence sentence : theSentences) {
- *    sentences.add(sentence);
- *  }
+ *   // get the sentences detected in block 2
+ *   List&lt;Sentence&gt; theSentences = rollingTextBlock.getDetectedSentences();
+ *   for (Sentence sentence : theSentences) {
+ *     sentences.add(sentence);
+ *   }
  * }
  * </pre>
  * 
@@ -121,8 +121,8 @@ public class RollingTextBlock extends RawTextProcessor {
   private final TalismaneSession session;
 
   /**
-   * Creates a new RollingTextBlock with prev, current and next all set to
-   * empty strings.
+   * Creates a new RollingTextBlock with prev, current and next all set to empty
+   * strings.
    */
   public RollingTextBlock(boolean processByDefault, TalismaneSession session) {
     super("", processByDefault, session);
@@ -178,7 +178,7 @@ public class RollingTextBlock extends RawTextProcessor {
    * <br/>
    * 
    * @param nextText
-   *            the next text segment to add onto this rolling text block
+   *          the next text segment to add onto this rolling text block
    * @return a new text block as described above
    */
   public RollingTextBlock roll(String nextText) {
@@ -213,10 +213,10 @@ public class RollingTextBlock extends RawTextProcessor {
   }
 
   /**
-   * Get a raw text block for annotation by filters. This covers blocks 3 and
-   * 4 only of the current RollingTextBlock, with analysis end at the end of
-   * block3. It is assumed that annotations crossing block 2 and 3 were
-   * already added by a predecessor.
+   * Get a raw text block for annotation by filters. This covers blocks 3 and 4
+   * only of the current RollingTextBlock, with analysis end at the end of
+   * block3. It is assumed that annotations crossing block 2 and 3 were already
+   * added by a predecessor.
    */
   public AnnotatedText getRawTextBlock() {
     AnnotatedText rawTextBlock = new AnnotatedText(this.block3 + this.block4, 0, this.block3.length());

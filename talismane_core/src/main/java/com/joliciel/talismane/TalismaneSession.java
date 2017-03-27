@@ -57,7 +57,7 @@ import com.joliciel.talismane.rawText.NewlineEndOfSentenceMarker;
 import com.joliciel.talismane.rawText.NewlineSpaceMarker;
 import com.joliciel.talismane.rawText.OtherWhiteSpaceFilter;
 import com.joliciel.talismane.rawText.RawTextAnnotator;
-import com.joliciel.talismane.rawText.RawTextFilterFactory;
+import com.joliciel.talismane.rawText.RawTextAnnotatorFactory;
 import com.joliciel.talismane.rawText.RawTextMarkType;
 import com.joliciel.talismane.rawText.RawTextRegexAnnotator;
 import com.joliciel.talismane.resources.WordListFinder;
@@ -116,21 +116,21 @@ public class TalismaneSession {
   /**
    * 
    * @param config
-   *            The configuration to use for the current session
+   *          The configuration to use for the current session
    * @param sessionId
-   *            A unique session id, which should be tied to a unique
-   *            configuration - options include the path to the configuration
-   *            file. This id can be used for caching objects related to this
-   *            configuration.
+   *          A unique session id, which should be tied to a unique
+   *          configuration - options include the path to the configuration
+   *          file. This id can be used for caching objects related to this
+   *          configuration.
    * @throws IOException
-   *             if a problem occurred when reading resources referred to by
-   *             the configuration
+   *           if a problem occurred when reading resources referred to by the
+   *           configuration
    * @throws ClassNotFoundException
-   *             if a resource contains the wrong serialized class or version
+   *           if a resource contains the wrong serialized class or version
    * @throws TalismaneException
-   *             if an unknown transition system was set in the configuration.
+   *           if an unknown transition system was set in the configuration.
    * @throws SentenceAnnotatorLoadException
-   *             if configuration error loading sentence annotators
+   *           if configuration error loading sentence annotators
    */
   public TalismaneSession(Config config, String sessionId) throws IOException, ClassNotFoundException, TalismaneException, SentenceAnnotatorLoadException {
     this.sessionId = sessionId;
@@ -357,7 +357,7 @@ public class TalismaneSession {
     // replace tabs with white space
     this.textAnnotators.add(new OtherWhiteSpaceFilter(blockSize));
 
-    RawTextFilterFactory factory = new RawTextFilterFactory();
+    RawTextAnnotatorFactory factory = new RawTextAnnotatorFactory();
 
     configPath = "talismane.core.annotators.text-annotators";
     List<String> textAnnotatorPaths = config.getStringList(configPath);
@@ -369,8 +369,8 @@ public class TalismaneSession {
           String descriptor = scanner.nextLine();
           LOG.debug(descriptor);
           if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-            RawTextAnnotator textMarkerFilter = factory.getTextMarkerFilter(descriptor, blockSize);
-            this.textAnnotators.add(textMarkerFilter);
+            RawTextAnnotator textAnnotator = factory.getAnnotator(descriptor, blockSize);
+            this.textAnnotators.add(textAnnotator);
           }
         }
       }
@@ -466,8 +466,8 @@ public class TalismaneSession {
 
   /**
    * A string inserted between any two segments of raw text that have been
-   * marked for output in the Talismane analysis. This could, for example, be
-   * a newline.
+   * marked for output in the Talismane analysis. This could, for example, be a
+   * newline.
    */
 
   public String getOutputDivider() {
@@ -562,8 +562,8 @@ public class TalismaneSession {
   }
 
   /**
-   * The module for which to apply the command (for single-module commands,
-   * such as train).
+   * The module for which to apply the command (for single-module commands, such
+   * as train).
    */
   public Module getModule() {
     return module;
@@ -578,14 +578,14 @@ public class TalismaneSession {
   }
 
   /**
-   * The minimum block size, in characters, to process by the sentence
-   * detector. Filters are applied to a concatenation of the previous block,
-   * the current block, and the next block prior to sentence detection, in
-   * order to ensure that a filter which crosses block boundaries is correctly
-   * applied. It is not legal to have a filter which matches text greater than
-   * a block size, since this could result in a filter which stops analysis
-   * but doesn't start it again correctly, or vice versa. Block size can be
-   * increased if really big filters are really required. Default is 1000.
+   * The minimum block size, in characters, to process by the sentence detector.
+   * Filters are applied to a concatenation of the previous block, the current
+   * block, and the next block prior to sentence detection, in order to ensure
+   * that a filter which crosses block boundaries is correctly applied. It is
+   * not legal to have a filter which matches text greater than a block size,
+   * since this could result in a filter which stops analysis but doesn't start
+   * it again correctly, or vice versa. Block size can be increased if really
+   * big filters are really required. Default is 1000.
    */
   public int getBlockSize() {
     return blockSize;
