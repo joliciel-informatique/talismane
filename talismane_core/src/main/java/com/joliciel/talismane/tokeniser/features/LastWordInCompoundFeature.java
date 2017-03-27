@@ -33,28 +33,28 @@ import com.joliciel.talismane.tokeniser.Token;
  */
 public final class LastWordInCompoundFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
 
-	public LastWordInCompoundFeature() {
-	}
+  public LastWordInCompoundFeature() {
+  }
 
-	public LastWordInCompoundFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public LastWordInCompoundFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<String> result = null;
+  @Override
+  public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<String> result = null;
 
-		String string = token.getAnalyisText().trim();
+    String string = token.getAnalyisText().trim();
 
-		if (string.indexOf(' ') >= 0) {
-			int lastSpace = string.lastIndexOf(' ');
-			String lastWord = string.substring(lastSpace + 1);
-			result = this.generateResult(lastWord);
-		}
-		return result;
-	}
+    if (string.indexOf(' ') >= 0) {
+      int lastSpace = string.lastIndexOf(' ');
+      String lastWord = string.substring(lastSpace + 1);
+      result = this.generateResult(lastWord);
+    }
+    return result;
+  }
 }

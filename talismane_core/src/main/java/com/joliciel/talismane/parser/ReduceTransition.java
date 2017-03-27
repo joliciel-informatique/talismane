@@ -29,49 +29,49 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class ReduceTransition extends AbstractTransition implements Transition {
-	private static final Logger LOG = LoggerFactory.getLogger(ReduceTransition.class);
-	private static String name = "Reduce";
-	
-	public ReduceTransition() {
-		super();
-	}
+  private static final Logger LOG = LoggerFactory.getLogger(ReduceTransition.class);
+  private static String name = "Reduce";
+  
+  public ReduceTransition() {
+    super();
+  }
 
-	@Override
-	protected void applyInternal(ParseConfiguration configuration) {
-		configuration.getStack().pop();
-	}
-
-
-	@Override
-	public boolean checkPreconditions(ParseConfiguration configuration) {
-		if (configuration.getStack().isEmpty()) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": stack is empty");
-			}
-			return false;
-		}
-		
-		// top of stack must already have a governor
-		PosTaggedToken topOfStack = configuration.getStack().peek();
-		PosTaggedToken governor = configuration.getHead(topOfStack);
-		if (governor==null) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": top of stack " + topOfStack + " doesn't yet have a governor.");
-			}
-			return false;
-		}
-
-		return true;
-	}
-
-	public String getCode() {
-		return name;
-	}
+  @Override
+  protected void applyInternal(ParseConfiguration configuration) {
+    configuration.getStack().pop();
+  }
 
 
-	@Override
-	public boolean doesReduce() {
-		return true;
-	}
+  @Override
+  public boolean checkPreconditions(ParseConfiguration configuration) {
+    if (configuration.getStack().isEmpty()) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": stack is empty");
+      }
+      return false;
+    }
+    
+    // top of stack must already have a governor
+    PosTaggedToken topOfStack = configuration.getStack().peek();
+    PosTaggedToken governor = configuration.getHead(topOfStack);
+    if (governor==null) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": top of stack " + topOfStack + " doesn't yet have a governor.");
+      }
+      return false;
+    }
+
+    return true;
+  }
+
+  public String getCode() {
+    return name;
+  }
+
+
+  @Override
+  public boolean doesReduce() {
+    return true;
+  }
 
 }

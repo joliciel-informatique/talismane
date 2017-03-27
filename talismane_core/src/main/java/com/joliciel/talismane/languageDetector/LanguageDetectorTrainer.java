@@ -53,67 +53,67 @@ import com.typesafe.config.ConfigFactory;
  *
  */
 public class LanguageDetectorTrainer {
-	private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectorTrainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectorTrainer.class);
 
-	private final TalismaneSession session;
-	private final Config languageConfig;
-	private final File modelFile;
-	private final ClassificationEventStream eventStream;
-	private final Map<String, List<String>> descriptors;
+  private final TalismaneSession session;
+  private final Config languageConfig;
+  private final File modelFile;
+  private final ClassificationEventStream eventStream;
+  private final Map<String, List<String>> descriptors;
 
-	public LanguageDetectorTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
-		Config config = session.getConfig();
-		this.languageConfig = config.getConfig("talismane.core.language-detector");
-		this.session = session;
-		this.modelFile = new File(languageConfig.getString("model"));
+  public LanguageDetectorTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
+    Config config = session.getConfig();
+    this.languageConfig = config.getConfig("talismane.core.language-detector");
+    this.session = session;
+    this.modelFile = new File(languageConfig.getString("model"));
 
-		this.descriptors = new HashMap<>();
+    this.descriptors = new HashMap<>();
 
-		String configPath = "talismane.core.language-detector.train.features";
-		InputStream featureFile = ConfigUtils.getFileFromConfig(config, configPath);
-		List<String> featureDescriptors = new ArrayList<>();
-		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(featureFile, "UTF-8")))) {
+    String configPath = "talismane.core.language-detector.train.features";
+    InputStream featureFile = ConfigUtils.getFileFromConfig(config, configPath);
+    List<String> featureDescriptors = new ArrayList<>();
+    try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(featureFile, "UTF-8")))) {
 
-			while (scanner.hasNextLine()) {
-				String descriptor = scanner.nextLine();
-				featureDescriptors.add(descriptor);
-				LOG.debug(descriptor);
-			}
-		}
-		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		LanguageDetectorAnnotatedCorpusReader corpusReader = LanguageDetectorAnnotatedCorpusReader.getCorpusReader(languageConfig.getConfig("train"), session);
+      while (scanner.hasNextLine()) {
+        String descriptor = scanner.nextLine();
+        featureDescriptors.add(descriptor);
+        LOG.debug(descriptor);
+      }
+    }
+    descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+    LanguageDetectorAnnotatedCorpusReader corpusReader = LanguageDetectorAnnotatedCorpusReader.getCorpusReader(languageConfig.getConfig("train"), session);
 
-		LanguageDetectorFeatureFactory featureParser = new LanguageDetectorFeatureFactory();
-		Set<LanguageDetectorFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
-		eventStream = new LanguageDetectorEventStream(corpusReader, features);
-	}
+    LanguageDetectorFeatureFactory featureParser = new LanguageDetectorFeatureFactory();
+    Set<LanguageDetectorFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
+    eventStream = new LanguageDetectorEventStream(corpusReader, features);
+  }
 
-	public ClassificationModel train() throws TalismaneException, IOException {
-		ModelTrainerFactory factory = new ModelTrainerFactory();
-		ClassificationModelTrainer trainer = factory.constructTrainer(languageConfig.getConfig("train.machine-learning"));
+  public ClassificationModel train() throws TalismaneException, IOException {
+    ModelTrainerFactory factory = new ModelTrainerFactory();
+    ClassificationModelTrainer trainer = factory.constructTrainer(languageConfig.getConfig("train.machine-learning"));
 
-		ClassificationModel model = trainer.trainModel(eventStream, descriptors);
-		model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
+    ClassificationModel model = trainer.trainModel(eventStream, descriptors);
+    model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 
-		File modelDir = modelFile.getParentFile();
-		if (modelDir != null)
-			modelDir.mkdirs();
-		model.persist(modelFile);
-		return model;
-	}
+    File modelDir = modelFile.getParentFile();
+    if (modelDir != null)
+      modelDir.mkdirs();
+    model.persist(modelFile);
+    return model;
+  }
 
-	public static void main(String[] args) throws Exception {
-		Map<String, String> argsMap = StringUtils.convertArgs(args);
+  public static void main(String[] args) throws Exception {
+    Map<String, String> argsMap = StringUtils.convertArgs(args);
 
-		String logConfigPath = argsMap.get("logConfigFile");
-		argsMap.remove("logConfigFile");
-		LogUtils.configureLogging(logConfigPath);
+    String logConfigPath = argsMap.get("logConfigFile");
+    argsMap.remove("logConfigFile");
+    LogUtils.configureLogging(logConfigPath);
 
-		Config config = ConfigFactory.load();
-		String sessionId = "";
-		TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
+    Config config = ConfigFactory.load();
+    String sessionId = "";
+    TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
 
-		LanguageDetectorTrainer trainer = new LanguageDetectorTrainer(talismaneSession);
-		trainer.train();
-	}
+    LanguageDetectorTrainer trainer = new LanguageDetectorTrainer(talismaneSession);
+    trainer.train();
+  }
 }

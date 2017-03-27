@@ -38,24 +38,24 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public final class TokeniserPatternsAndIndexesFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>
-		implements StringCollectionFeature<TokenWrapper> {
+    implements StringCollectionFeature<TokenWrapper> {
 
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		Token token = tokenWrapper.getToken();
-		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-		for (TokenPatternMatch tokenMatch : token.getMatches()) {
-			if (tokenMatch.getIndex() != tokenMatch.getPattern().getIndexesToTest().get(0)) {
-				resultList.add(new WeightedOutcome<String>(tokenMatch.getPattern().getName() + "¤" + tokenMatch.getIndex(), 1.0));
-			}
-		}
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    Token token = tokenWrapper.getToken();
+    List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+    for (TokenPatternMatch tokenMatch : token.getMatches()) {
+      if (tokenMatch.getIndex() != tokenMatch.getPattern().getIndexesToTest().get(0)) {
+        resultList.add(new WeightedOutcome<String>(tokenMatch.getPattern().getName() + "¤" + tokenMatch.getIndex(), 1.0));
+      }
+    }
 
-		return this.generateResult(resultList);
-	}
+    return this.generateResult(resultList);
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return StringCollectionFeature.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return StringCollectionFeature.class;
+  }
 }

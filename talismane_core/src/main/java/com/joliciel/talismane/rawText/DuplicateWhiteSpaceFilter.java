@@ -27,7 +27,7 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class DuplicateWhiteSpaceFilter extends RawTextRegexAnnotator {
-	public DuplicateWhiteSpaceFilter(int blockSize) throws TalismaneException {
-		super(RawTextMarkType.SKIP, "[" + Sentence.WHITE_SPACE + "]([" + Sentence.WHITE_SPACE + "]+)", 1, blockSize);
-	}
+  public DuplicateWhiteSpaceFilter(int blockSize) throws TalismaneException {
+    super(RawTextMarkType.SKIP, "[" + Sentence.WHITE_SPACE + "]([" + Sentence.WHITE_SPACE + "]+)", 1, blockSize);
+  }
 }

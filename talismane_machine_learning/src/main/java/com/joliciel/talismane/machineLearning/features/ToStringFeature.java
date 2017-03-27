@@ -27,32 +27,32 @@ import com.joliciel.talismane.TalismaneException;
  * @author Assaf Urieli
  */
 public class ToStringFeature<T> extends AbstractCachableFeature<T, String>implements StringFeature<T> {
-	Feature<T, ?> featureToString;
+  Feature<T, ?> featureToString;
 
-	public ToStringFeature(Feature<T, ?> feature1) {
-		super();
-		this.featureToString = feature1;
-		this.setName(super.getName() + "(" + feature1.getName() + ")");
-	}
+  public ToStringFeature(Feature<T, ?> feature1) {
+    super();
+    this.featureToString = feature1;
+    this.setName(super.getName() + "(" + feature1.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<String> featureResult = null;
+  @Override
+  public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> featureResult = null;
 
-		FeatureResult<?> result1 = featureToString.check(context, env);
+    FeatureResult<?> result1 = featureToString.check(context, env);
 
-		if (result1 != null) {
-			featureResult = this.generateResult(result1.getOutcome().toString());
-		}
-		return featureResult;
-	}
+    if (result1 != null) {
+      featureResult = this.generateResult(result1.getOutcome().toString());
+    }
+    return featureResult;
+  }
 
-	public Feature<T, ?> getFeatureToString() {
-		return featureToString;
-	}
+  public Feature<T, ?> getFeatureToString() {
+    return featureToString;
+  }
 
-	public void setFeatureToString(Feature<T, ?> featureToString) {
-		this.featureToString = featureToString;
-	}
+  public void setFeatureToString(Feature<T, ?> featureToString) {
+    this.featureToString = featureToString;
+  }
 
 }

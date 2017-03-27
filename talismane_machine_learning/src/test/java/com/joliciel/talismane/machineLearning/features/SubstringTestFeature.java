@@ -27,49 +27,49 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class SubstringTestFeature extends AbstractFeature<String, String>implements StringFeature<String> {
-	private IntegerFeature<String> startFeature;
-	private IntegerFeature<String> endFeature;
+  private IntegerFeature<String> startFeature;
+  private IntegerFeature<String> endFeature;
 
-	public SubstringTestFeature(IntegerFeature<String> startFeature, IntegerFeature<String> endFeature) {
-		super();
-		this.startFeature = startFeature;
-		this.endFeature = endFeature;
+  public SubstringTestFeature(IntegerFeature<String> startFeature, IntegerFeature<String> endFeature) {
+    super();
+    this.startFeature = startFeature;
+    this.endFeature = endFeature;
 
-		this.setName(this.getName() + "(" + this.startFeature.getName() + "," + this.endFeature.getName() + ")");
-	}
+    this.setName(this.getName() + "(" + this.startFeature.getName() + "," + this.endFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<String> check(String context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<String> result = null;
-		FeatureResult<Integer> startResult = startFeature.check(context, env);
-		FeatureResult<Integer> endResult = endFeature.check(context, env);
+  @Override
+  public FeatureResult<String> check(String context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> result = null;
+    FeatureResult<Integer> startResult = startFeature.check(context, env);
+    FeatureResult<Integer> endResult = endFeature.check(context, env);
 
-		if (startResult != null && endResult != null) {
-			int start = startResult.getOutcome();
-			int end = endResult.getOutcome();
+    if (startResult != null && endResult != null) {
+      int start = startResult.getOutcome();
+      int end = endResult.getOutcome();
 
-			if (start >= 0 && end <= context.length() && start <= end) {
-				String subString = context.substring(start, end);
-				result = this.generateResult(subString);
-			}
-		}
-		return result;
-	}
+      if (start >= 0 && end <= context.length() && start <= end) {
+        String subString = context.substring(start, end);
+        result = this.generateResult(subString);
+      }
+    }
+    return result;
+  }
 
-	public IntegerFeature<String> getStartFeature() {
-		return startFeature;
-	}
+  public IntegerFeature<String> getStartFeature() {
+    return startFeature;
+  }
 
-	public void setStartFeature(IntegerFeature<String> startFeature) {
-		this.startFeature = startFeature;
-	}
+  public void setStartFeature(IntegerFeature<String> startFeature) {
+    this.startFeature = startFeature;
+  }
 
-	public IntegerFeature<String> getEndFeature() {
-		return endFeature;
-	}
+  public IntegerFeature<String> getEndFeature() {
+    return endFeature;
+  }
 
-	public void setEndFeature(IntegerFeature<String> endFeature) {
-		this.endFeature = endFeature;
-	}
+  public void setEndFeature(IntegerFeature<String> endFeature) {
+    this.endFeature = endFeature;
+  }
 
 }

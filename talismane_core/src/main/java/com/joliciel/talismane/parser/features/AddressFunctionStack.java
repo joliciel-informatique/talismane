@@ -35,34 +35,34 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class AddressFunctionStack extends AbstractAddressFunction {
-	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
+  private IntegerFeature<ParseConfigurationWrapper> indexFeature;
 
-	public AddressFunctionStack(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
-		super();
-		this.indexFeature = indexFeature;
-		this.setName("Stack[" + indexFeature.getName() + "]");
-	}
+  public AddressFunctionStack(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
+    super();
+    this.indexFeature = indexFeature;
+    this.setName("Stack[" + indexFeature.getName() + "]");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		PosTaggedToken resultToken = null;
-		FeatureResult<Integer> indexResult = indexFeature.check(wrapper, env);
-		if (indexResult != null) {
-			int index = indexResult.getOutcome();
-			Iterator<PosTaggedToken> stackIterator = configuration.getStack().iterator();
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    PosTaggedToken resultToken = null;
+    FeatureResult<Integer> indexResult = indexFeature.check(wrapper, env);
+    if (indexResult != null) {
+      int index = indexResult.getOutcome();
+      Iterator<PosTaggedToken> stackIterator = configuration.getStack().iterator();
 
-			for (int i = 0; i <= index; i++) {
-				if (!stackIterator.hasNext()) {
-					resultToken = null;
-					break;
-				}
-				resultToken = stackIterator.next();
-			}
-		}
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken != null)
-			featureResult = this.generateResult(resultToken);
-		return featureResult;
-	}
+      for (int i = 0; i <= index; i++) {
+        if (!stackIterator.hasNext()) {
+          resultToken = null;
+          break;
+        }
+        resultToken = stackIterator.next();
+      }
+    }
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+    if (resultToken != null)
+      featureResult = this.generateResult(resultToken);
+    return featureResult;
+  }
 }

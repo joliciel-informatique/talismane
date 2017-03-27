@@ -25,20 +25,20 @@ package com.joliciel.talismane.machineLearning.features;
  *
  */
 public class BooleanLiteralFeature<T> extends AbstractFeature<T, Boolean>implements BooleanFeature<T> {
-	private boolean literal;
+  private boolean literal;
 
-	public BooleanLiteralFeature(boolean literal) {
-		super();
-		this.literal = literal;
-		this.setName("" + literal);
-	}
+  public BooleanLiteralFeature(boolean literal) {
+    super();
+    this.literal = literal;
+    this.setName("" + literal);
+  }
 
-	@Override
-	public FeatureResult<Boolean> check(T context, RuntimeEnvironment env) {
-		return this.generateResult(literal);
-	}
+  @Override
+  public FeatureResult<Boolean> check(T context, RuntimeEnvironment env) {
+    return this.generateResult(literal);
+  }
 
-	public boolean isLiteral() {
-		return literal;
-	}
+  public boolean isLiteral() {
+    return literal;
+  }
 }

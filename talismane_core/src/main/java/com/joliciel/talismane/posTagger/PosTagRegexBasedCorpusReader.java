@@ -61,96 +61,96 @@ import com.typesafe.config.Config;
  *
  */
 public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader {
-	private static final Logger LOG = LoggerFactory.getLogger(PosTagRegexBasedCorpusReader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PosTagRegexBasedCorpusReader.class);
 
-	protected PosTagSequence posTagSequence = null;
-	protected Map<Integer, PosTaggedToken> idTokenMap = new HashMap<>();
+  protected PosTagSequence posTagSequence = null;
+  protected Map<Integer, PosTaggedToken> idTokenMap = new HashMap<>();
 
-	/**
-	 * Reads the values described in
-	 * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
-	 */
-	public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
-		super(reader, config, session);
-	}
+  /**
+   * Reads the values described in
+   * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
+   */
+  public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
+    super(reader, config, session);
+  }
 
-	@Override
-	protected CorpusElement[] getRequiredElements() {
-		return new CorpusElement[] { CorpusElement.TOKEN, CorpusElement.POSTAG };
-	}
+  @Override
+  protected CorpusElement[] getRequiredElements() {
+    return new CorpusElement[] { CorpusElement.TOKEN, CorpusElement.POSTAG };
+  }
 
-	@Override
-	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException, IOException {
-		try {
-			super.processSentence(corpusLines);
-			posTagSequence = new PosTagSequence(tokenSequence);
-			int i = 0;
-			for (CorpusLine corpusLine : corpusLines) {
-				PosTaggedToken posTaggedToken = this.convertToPosTaggedToken(corpusLine, posTagSequence, i++, this.getCurrentFile());
-				this.idTokenMap.put(corpusLine.getIndex(), posTaggedToken);
-			}
-		} catch (TalismaneException e) {
-			this.clearSentence();
-			throw e;
-		}
-	}
+  @Override
+  protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException, IOException {
+    try {
+      super.processSentence(corpusLines);
+      posTagSequence = new PosTagSequence(tokenSequence);
+      int i = 0;
+      for (CorpusLine corpusLine : corpusLines) {
+        PosTaggedToken posTaggedToken = this.convertToPosTaggedToken(corpusLine, posTagSequence, i++, this.getCurrentFile());
+        this.idTokenMap.put(corpusLine.getIndex(), posTaggedToken);
+      }
+    } catch (TalismaneException e) {
+      this.clearSentence();
+      throw e;
+    }
+  }
 
-	@Override
-	public PosTagSequence nextPosTagSequence() throws TalismaneException, IOException {
-		PosTagSequence nextSentence = null;
-		if (this.hasNextSentence()) {
-			nextSentence = posTagSequence;
-			this.clearSentence();
-		}
-		return nextSentence;
-	}
+  @Override
+  public PosTagSequence nextPosTagSequence() throws TalismaneException, IOException {
+    PosTagSequence nextSentence = null;
+    if (this.hasNextSentence()) {
+      nextSentence = posTagSequence;
+      this.clearSentence();
+    }
+    return nextSentence;
+  }
 
-	@Override
-	protected void clearSentence() {
-		super.clearSentence();
-		this.posTagSequence = null;
-		this.idTokenMap = new HashMap<>();
-	}
+  @Override
+  protected void clearSentence() {
+    super.clearSentence();
+    this.posTagSequence = null;
+    this.idTokenMap = new HashMap<>();
+  }
 
-	@Override
-	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = super.getCharacteristics();
-		attributes.put("tagset", session.getPosTagSet().getName());
-		return attributes;
-	}
+  @Override
+  public Map<String, String> getCharacteristics() {
+    Map<String, String> attributes = super.getCharacteristics();
+    attributes.put("tagset", session.getPosTagSet().getName());
+    return attributes;
+  }
 
-	protected PosTaggedToken convertToPosTaggedToken(CorpusLine corpusLine, PosTagSequence posTagSequence, int index, File currentFile)
-			throws TalismaneException {
-		Token token = posTagSequence.getTokenSequence().get(index);
+  protected PosTaggedToken convertToPosTaggedToken(CorpusLine corpusLine, PosTagSequence posTagSequence, int index, File currentFile)
+      throws TalismaneException {
+    Token token = posTagSequence.getTokenSequence().get(index);
 
-		PosTagSet posTagSet = session.getPosTagSet();
-		PosTag posTag = null;
-		try {
-			posTag = posTagSet.getPosTag(corpusLine.getElement(CorpusElement.POSTAG));
-		} catch (UnknownPosTagException upte) {
-			String fileName = "";
-			if (currentFile != null)
-				fileName = currentFile.getPath();
+    PosTagSet posTagSet = session.getPosTagSet();
+    PosTag posTag = null;
+    try {
+      posTag = posTagSet.getPosTag(corpusLine.getElement(CorpusElement.POSTAG));
+    } catch (UnknownPosTagException upte) {
+      String fileName = "";
+      if (currentFile != null)
+        fileName = currentFile.getPath();
 
-			throw new TalismaneException(
-					"Unknown posTag, " + fileName + ", on line " + corpusLine.getLineNumber() + ": " + corpusLine.getElement(CorpusElement.POSTAG));
-		}
-		Decision posTagDecision = new Decision(posTag.getCode());
-		PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, session);
-		if (LOG.isTraceEnabled()) {
-			LOG.trace(posTaggedToken.toString());
-		}
+      throw new TalismaneException(
+          "Unknown posTag, " + fileName + ", on line " + corpusLine.getLineNumber() + ": " + corpusLine.getElement(CorpusElement.POSTAG));
+    }
+    Decision posTagDecision = new Decision(posTag.getCode());
+    PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, session);
+    if (LOG.isTraceEnabled()) {
+      LOG.trace(posTaggedToken.toString());
+    }
 
-		if (corpusLine.hasElement(CorpusElement.POSTAG_COMMENT))
-			posTaggedToken.setComment(corpusLine.getElement(CorpusElement.POSTAG_COMMENT));
+    if (corpusLine.hasElement(CorpusElement.POSTAG_COMMENT))
+      posTaggedToken.setComment(corpusLine.getElement(CorpusElement.POSTAG_COMMENT));
 
-		// set the lexical entry if we have one
-		if (corpusLine.getLexicalEntry() != null) {
-			List<LexicalEntry> lexicalEntrySet = new ArrayList<LexicalEntry>(1);
-			lexicalEntrySet.add(corpusLine.getLexicalEntry());
-			posTaggedToken.setLexicalEntries(lexicalEntrySet);
-		}
-		posTagSequence.addPosTaggedToken(posTaggedToken);
-		return posTaggedToken;
-	}
+    // set the lexical entry if we have one
+    if (corpusLine.getLexicalEntry() != null) {
+      List<LexicalEntry> lexicalEntrySet = new ArrayList<LexicalEntry>(1);
+      lexicalEntrySet.add(corpusLine.getLexicalEntry());
+      posTaggedToken.setLexicalEntries(lexicalEntrySet);
+    }
+    posTagSequence.addPosTaggedToken(posTaggedToken);
+    return posTaggedToken;
+  }
 }

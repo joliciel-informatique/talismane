@@ -45,61 +45,61 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>
-		implements StringCollectionFeature<TokenWrapper>, NeedsTalismaneSession {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagsForStringFeature.class);
-	private StringFeature<TokenWrapper> wordToCheckFeature;
+    implements StringCollectionFeature<TokenWrapper>, NeedsTalismaneSession {
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagsForStringFeature.class);
+  private StringFeature<TokenWrapper> wordToCheckFeature;
 
-	TalismaneSession talismaneSession;
+  TalismaneSession talismaneSession;
 
-	public LexiconPosTagsForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature) {
-		this.wordToCheckFeature = wordToCheckFeature;
-		this.setName(super.getName() + "(" + this.wordToCheckFeature.getName() + ")");
-	}
+  public LexiconPosTagsForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature) {
+    this.wordToCheckFeature = wordToCheckFeature;
+    this.setName(super.getName() + "(" + this.wordToCheckFeature.getName() + ")");
+  }
 
-	public LexiconPosTagsForStringFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> wordToCheckFeature) {
-		this(wordToCheckFeature);
-		this.setAddressFunction(addressFunction);
-	}
+  public LexiconPosTagsForStringFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> wordToCheckFeature) {
+    this(wordToCheckFeature);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
 
-		FeatureResult<List<WeightedOutcome<String>>> result = null;
-		FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(innerWrapper, env);
-		if (wordToCheckResult != null) {
-			String wordToCheck = wordToCheckResult.getOutcome();
-			List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-			PosTaggerLexicon lexicon = talismaneSession.getMergedLexicon();
-			Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
+    FeatureResult<List<WeightedOutcome<String>>> result = null;
+    FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(innerWrapper, env);
+    if (wordToCheckResult != null) {
+      String wordToCheck = wordToCheckResult.getOutcome();
+      List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+      PosTaggerLexicon lexicon = talismaneSession.getMergedLexicon();
+      Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
 
-			for (PosTag posTag : posTags) {
-				resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
-			}
+      for (PosTag posTag : posTags) {
+        resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
+      }
 
-			if (resultList.size() > 0)
-				result = this.generateResult(resultList);
-		}
+      if (resultList.size() > 0)
+        result = this.generateResult(resultList);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return StringCollectionFeature.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return StringCollectionFeature.class;
+  }
 
-	@Override
-	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
-	}
+  @Override
+  public TalismaneSession getTalismaneSession() {
+    return talismaneSession;
+  }
 
-	@Override
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-	}
+  @Override
+  public void setTalismaneSession(TalismaneSession talismaneSession) {
+    this.talismaneSession = talismaneSession;
+  }
 }

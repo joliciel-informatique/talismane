@@ -11,5 +11,5 @@ import java.util.List;
  *
  */
 public interface TextReplacer {
-	public void replace(List<String> tokens);
+  public void replace(List<String> tokens);
 }

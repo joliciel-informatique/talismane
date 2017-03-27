@@ -30,65 +30,65 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel;
  *
  */
 public interface TransitionSystem {
-	/**
-	 * Predict the transitions required to generate the set of targe
-	 * dependencies for a given initial configuration, also transforms the
-	 * configuration so that it becomes a terminal configuration.
-	 * 
-	 * @throws UnknownDependencyLabelException
-	 *             if an unknown dependency label is encountered
-	 * @throws NonPredictableParseTreeException
-	 *             if its impossible to predict the current parse tree using
-	 *             this transition system.
-	 * @throws CircularDependencyException
-	 *             if parse tree contains a circular dependency
-	 */
-	void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies)
-			throws UnknownDependencyLabelException, NonPredictableParseTreeException, CircularDependencyException;
+  /**
+   * Predict the transitions required to generate the set of targe
+   * dependencies for a given initial configuration, also transforms the
+   * configuration so that it becomes a terminal configuration.
+   * 
+   * @throws UnknownDependencyLabelException
+   *             if an unknown dependency label is encountered
+   * @throws NonPredictableParseTreeException
+   *             if its impossible to predict the current parse tree using
+   *             this transition system.
+   * @throws CircularDependencyException
+   *             if parse tree contains a circular dependency
+   */
+  void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies)
+      throws UnknownDependencyLabelException, NonPredictableParseTreeException, CircularDependencyException;
 
-	/**
-	 * Get the transition corresponding to a particular code.
-	 * 
-	 * @throws UnknownDependencyLabelException
-	 *             if the code includes an unknown dependency label
-	 * @throws UnknownTransitionException
-	 *             if the code includes an unknown transition
-	 */
-	public Transition getTransitionForCode(String code) throws UnknownDependencyLabelException, UnknownTransitionException;
+  /**
+   * Get the transition corresponding to a particular code.
+   * 
+   * @throws UnknownDependencyLabelException
+   *             if the code includes an unknown dependency label
+   * @throws UnknownTransitionException
+   *             if the code includes an unknown transition
+   */
+  public Transition getTransitionForCode(String code) throws UnknownDependencyLabelException, UnknownTransitionException;
 
-	/**
-	 * Get all possible transitions for this system.
-	 */
-	public Set<Transition> getTransitions();
+  /**
+   * Get all possible transitions for this system.
+   */
+  public Set<Transition> getTransitions();
 
-	/**
-	 * A set of dependency labels for this transition system.
-	 */
-	public DependencyLabelSet getDependencyLabelSet();
+  /**
+   * A set of dependency labels for this transition system.
+   */
+  public DependencyLabelSet getDependencyLabelSet();
 
-	public void setDependencyLabelSet(DependencyLabelSet dependencyLabelSet);
+  public void setDependencyLabelSet(DependencyLabelSet dependencyLabelSet);
 
-	/**
-	 * The dependency labels allowed by the {@link DependencyLabelSet}, or an
-	 * empty set if no dependency label set has been set.
-	 * 
-	 * @return
-	 */
-	public Set<String> getDependencyLabels();
+  /**
+   * The dependency labels allowed by the {@link DependencyLabelSet}, or an
+   * empty set if no dependency label set has been set.
+   * 
+   * @return
+   */
+  public Set<String> getDependencyLabels();
 
-	/**
-	 * Get the transition system corresponding to the model provided.
-	 */
-	public static TransitionSystem getTransitionSystem(MachineLearningModel model) {
-		TransitionSystem transitionSystem = null;
-		String transitionSystemClassName = (String) model.getModelAttributes().get("transitionSystem");
-		if (ShiftReduceTransitionSystem.class.getSimpleName().equalsIgnoreCase(transitionSystemClassName)) {
-			transitionSystem = new ShiftReduceTransitionSystem();
-		} else if (ArcEagerTransitionSystem.class.getSimpleName().equalsIgnoreCase(transitionSystemClassName)) {
-			transitionSystem = new ArcEagerTransitionSystem();
-		} else {
-			throw new RuntimeException("Unknown transition system: " + transitionSystemClassName);
-		}
-		return transitionSystem;
-	}
+  /**
+   * Get the transition system corresponding to the model provided.
+   */
+  public static TransitionSystem getTransitionSystem(MachineLearningModel model) {
+    TransitionSystem transitionSystem = null;
+    String transitionSystemClassName = (String) model.getModelAttributes().get("transitionSystem");
+    if (ShiftReduceTransitionSystem.class.getSimpleName().equalsIgnoreCase(transitionSystemClassName)) {
+      transitionSystem = new ShiftReduceTransitionSystem();
+    } else if (ArcEagerTransitionSystem.class.getSimpleName().equalsIgnoreCase(transitionSystemClassName)) {
+      transitionSystem = new ArcEagerTransitionSystem();
+    } else {
+      throw new RuntimeException("Unknown transition system: " + transitionSystemClassName);
+    }
+    return transitionSystem;
+  }
 }

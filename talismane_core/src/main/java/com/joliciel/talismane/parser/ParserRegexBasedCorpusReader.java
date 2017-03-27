@@ -61,160 +61,160 @@ import com.typesafe.config.Config;
  *
  */
 public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader implements ParserAnnotatedCorpusReader {
-	private static final Logger LOG = LoggerFactory.getLogger(ParserRegexBasedCorpusReader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ParserRegexBasedCorpusReader.class);
 
-	private ParseConfiguration configuration = null;
+  private ParseConfiguration configuration = null;
 
-	private final boolean predictTransitions;
+  private final boolean predictTransitions;
 
-	/**
-	 * In addition to the values read in
-	 * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
-	 * , reads the following setting from the config:
-	 * <ul>
-	 * <li>predict-transitions</li>
-	 * </ul>
-	 * 
-	 * @throws TalismaneException
-	 */
-	public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
-		super(reader, config, session);
-		this.predictTransitions = config.getBoolean("predict-transitions");
-	}
+  /**
+   * In addition to the values read in
+   * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
+   * , reads the following setting from the config:
+   * <ul>
+   * <li>predict-transitions</li>
+   * </ul>
+   * 
+   * @throws TalismaneException
+   */
+  public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
+    super(reader, config, session);
+    this.predictTransitions = config.getBoolean("predict-transitions");
+  }
 
-	@Override
-	protected CorpusElement[] getRequiredElements() {
-		return new CorpusElement[] { CorpusElement.INDEX, CorpusElement.TOKEN, CorpusElement.POSTAG, CorpusElement.LABEL, CorpusElement.GOVERNOR };
-	}
+  @Override
+  protected CorpusElement[] getRequiredElements() {
+    return new CorpusElement[] { CorpusElement.INDEX, CorpusElement.TOKEN, CorpusElement.POSTAG, CorpusElement.LABEL, CorpusElement.GOVERNOR };
+  }
 
-	@Override
-	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException, IOException {
-		try {
-			super.processSentence(corpusLines);
-			PosTaggedToken rootToken = posTagSequence.prependRoot();
-			idTokenMap.put(0, rootToken);
+  @Override
+  protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException, IOException {
+    try {
+      super.processSentence(corpusLines);
+      PosTaggedToken rootToken = posTagSequence.prependRoot();
+      idTokenMap.put(0, rootToken);
 
-			TransitionSystem transitionSystem = session.getTransitionSystem();
-			Set<DependencyArc> dependencies = new TreeSet<DependencyArc>();
-			for (CorpusLine dataLine : corpusLines) {
-				int headIndex = 0;
-				if (dataLine.hasElement(CorpusElement.GOVERNOR))
-					headIndex = Integer.parseInt(dataLine.getElement(CorpusElement.GOVERNOR));
-				PosTaggedToken head = idTokenMap.get(headIndex);
-				PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
+      TransitionSystem transitionSystem = session.getTransitionSystem();
+      Set<DependencyArc> dependencies = new TreeSet<DependencyArc>();
+      for (CorpusLine dataLine : corpusLines) {
+        int headIndex = 0;
+        if (dataLine.hasElement(CorpusElement.GOVERNOR))
+          headIndex = Integer.parseInt(dataLine.getElement(CorpusElement.GOVERNOR));
+        PosTaggedToken head = idTokenMap.get(headIndex);
+        PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
 
-				String dependencyLabel = dataLine.getElement(CorpusElement.LABEL);
-				if (transitionSystem.getDependencyLabels().size() > 1) {
-					if (dependencyLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(dependencyLabel)) {
-						throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()),
-								dataLine.getLineNumber(), dependencyLabel);
-					}
+        String dependencyLabel = dataLine.getElement(CorpusElement.LABEL);
+        if (transitionSystem.getDependencyLabels().size() > 1) {
+          if (dependencyLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(dependencyLabel)) {
+            throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()),
+                dataLine.getLineNumber(), dependencyLabel);
+          }
 
-					String nonProjectiveLabel = dataLine.getElement(CorpusElement.NON_PROJ_LABEL);
-					if (nonProjectiveLabel != null && nonProjectiveLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(nonProjectiveLabel)) {
-						throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()),
-								dataLine.getLineNumber(), dependencyLabel);
-					}
+          String nonProjectiveLabel = dataLine.getElement(CorpusElement.NON_PROJ_LABEL);
+          if (nonProjectiveLabel != null && nonProjectiveLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(nonProjectiveLabel)) {
+            throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()),
+                dataLine.getLineNumber(), dependencyLabel);
+          }
 
-				}
-				DependencyArc arc = new DependencyArc(head, dependent, dependencyLabel);
-				if (LOG.isTraceEnabled())
-					LOG.trace(arc.toString());
-				dependencies.add(arc);
-				if (dataLine.hasElement(CorpusElement.DEP_COMMENT))
-					arc.setComment(dataLine.getElement(CorpusElement.DEP_COMMENT));
-			}
+        }
+        DependencyArc arc = new DependencyArc(head, dependent, dependencyLabel);
+        if (LOG.isTraceEnabled())
+          LOG.trace(arc.toString());
+        dependencies.add(arc);
+        if (dataLine.hasElement(CorpusElement.DEP_COMMENT))
+          arc.setComment(dataLine.getElement(CorpusElement.DEP_COMMENT));
+      }
 
-			configuration = new ParseConfiguration(posTagSequence);
-			if (this.predictTransitions) {
-				transitionSystem.predictTransitions(configuration, dependencies);
-			} else {
-				for (DependencyArc arc : dependencies) {
-					configuration.addDependency(arc.getHead(), arc.getDependent(), arc.getLabel(), null);
-				}
-			}
+      configuration = new ParseConfiguration(posTagSequence);
+      if (this.predictTransitions) {
+        transitionSystem.predictTransitions(configuration, dependencies);
+      } else {
+        for (DependencyArc arc : dependencies) {
+          configuration.addDependency(arc.getHead(), arc.getDependent(), arc.getLabel(), null);
+        }
+      }
 
-			// Add manual non-projective dependencies,
-			// if there are any
-			if (this.getCorpusLineReader().hasPlaceholder(CorpusElement.NON_PROJ_GOVERNOR)) {
-				Set<DependencyArc> nonProjDeps = new TreeSet<DependencyArc>();
-				if (LOG.isTraceEnabled())
-					LOG.trace("Non projective dependencies: ");
+      // Add manual non-projective dependencies,
+      // if there are any
+      if (this.getCorpusLineReader().hasPlaceholder(CorpusElement.NON_PROJ_GOVERNOR)) {
+        Set<DependencyArc> nonProjDeps = new TreeSet<DependencyArc>();
+        if (LOG.isTraceEnabled())
+          LOG.trace("Non projective dependencies: ");
 
-				for (CorpusLine dataLine : corpusLines) {
-					int headIndex = 0;
-					if (dataLine.hasElement(CorpusElement.NON_PROJ_GOVERNOR))
-						headIndex = Integer.parseInt(dataLine.getElement(CorpusElement.NON_PROJ_GOVERNOR));
+        for (CorpusLine dataLine : corpusLines) {
+          int headIndex = 0;
+          if (dataLine.hasElement(CorpusElement.NON_PROJ_GOVERNOR))
+            headIndex = Integer.parseInt(dataLine.getElement(CorpusElement.NON_PROJ_GOVERNOR));
 
-					PosTaggedToken head = idTokenMap.get(headIndex);
-					PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
-					DependencyArc nonProjArc = new DependencyArc(head, dependent, dataLine.getElement(CorpusElement.NON_PROJ_LABEL));
-					if (LOG.isTraceEnabled())
-						LOG.trace(nonProjArc.toString());
-					nonProjDeps.add(nonProjArc);
-					if (dataLine.hasElement(CorpusElement.DEP_COMMENT))
-						nonProjArc.setComment(dataLine.getElement(CorpusElement.DEP_COMMENT));
-				}
+          PosTaggedToken head = idTokenMap.get(headIndex);
+          PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
+          DependencyArc nonProjArc = new DependencyArc(head, dependent, dataLine.getElement(CorpusElement.NON_PROJ_LABEL));
+          if (LOG.isTraceEnabled())
+            LOG.trace(nonProjArc.toString());
+          nonProjDeps.add(nonProjArc);
+          if (dataLine.hasElement(CorpusElement.DEP_COMMENT))
+            nonProjArc.setComment(dataLine.getElement(CorpusElement.DEP_COMMENT));
+        }
 
-				for (DependencyArc nonProjArc : nonProjDeps) {
-					configuration.addManualNonProjectiveDependency(nonProjArc.getHead(), nonProjArc.getDependent(), nonProjArc.getLabel());
-				}
-			}
-		} catch (TalismaneException e) {
-			this.clearSentence();
-			throw e;
-		}
-	}
+        for (DependencyArc nonProjArc : nonProjDeps) {
+          configuration.addManualNonProjectiveDependency(nonProjArc.getHead(), nonProjArc.getDependent(), nonProjArc.getLabel());
+        }
+      }
+    } catch (TalismaneException e) {
+      this.clearSentence();
+      throw e;
+    }
+  }
 
-	/**
-	 * Returns true if the data line is valid, false otherwise.
-	 */
-	protected boolean checkDataLine(CorpusLine dataLine) {
-		return true;
-	}
+  /**
+   * Returns true if the data line is valid, false otherwise.
+   */
+  protected boolean checkDataLine(CorpusLine dataLine) {
+    return true;
+  }
 
-	/**
-	 * Updates the data line prior to processing. At this point, empty lines may
-	 * have been added to correspond to empty tokens that were added by filters.
-	 */
-	protected void updateDataLine(List<CorpusLine> dataLines, int index) {
-		// nothing to do in the base class
-	}
+  /**
+   * Updates the data line prior to processing. At this point, empty lines may
+   * have been added to correspond to empty tokens that were added by filters.
+   */
+  protected void updateDataLine(List<CorpusLine> dataLines, int index) {
+    // nothing to do in the base class
+  }
 
-	@Override
-	public ParseConfiguration nextConfiguration() throws TalismaneException, IOException {
-		ParseConfiguration nextConfiguration = null;
-		if (this.hasNextSentence()) {
-			nextConfiguration = configuration;
-			this.clearSentence();
-		}
-		return nextConfiguration;
-	}
+  @Override
+  public ParseConfiguration nextConfiguration() throws TalismaneException, IOException {
+    ParseConfiguration nextConfiguration = null;
+    if (this.hasNextSentence()) {
+      nextConfiguration = configuration;
+      this.clearSentence();
+    }
+    return nextConfiguration;
+  }
 
-	@Override
-	protected void clearSentence() {
-		super.clearSentence();
-		this.configuration = null;
-	}
+  @Override
+  protected void clearSentence() {
+    super.clearSentence();
+    this.configuration = null;
+  }
 
-	@Override
-	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = super.getCharacteristics();
-		attributes.put("transitionSystem", session.getTransitionSystem().getClass().getSimpleName());
+  @Override
+  public Map<String, String> getCharacteristics() {
+    Map<String, String> attributes = super.getCharacteristics();
+    attributes.put("transitionSystem", session.getTransitionSystem().getClass().getSimpleName());
 
-		return attributes;
-	}
+    return attributes;
+  }
 
-	protected String readWord(String rawWord) {
-		return session.getCoNLLFormatter().fromCoNLL(rawWord);
-	}
+  protected String readWord(String rawWord) {
+    return session.getCoNLLFormatter().fromCoNLL(rawWord);
+  }
 
-	/**
-	 * Should an attempt be made to the predict the transitions that led to this
-	 * configuration, or should dependencies simply be added with null
-	 * transitions.
-	 */
-	public boolean isPredictTransitions() {
-		return predictTransitions;
-	}
+  /**
+   * Should an attempt be made to the predict the transitions that led to this
+   * configuration, or should dependencies simply be added with null
+   * transitions.
+   */
+  public boolean isPredictTransitions() {
+    return predictTransitions;
+  }
 }

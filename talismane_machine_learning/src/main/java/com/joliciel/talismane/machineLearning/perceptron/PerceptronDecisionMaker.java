@@ -32,121 +32,121 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.JolicielException;
 
 class PerceptronDecisionMaker implements DecisionMaker {
-	private PerceptronModelParameters modelParameters;
-	private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
-	private transient PerceptronScoring perceptronScoring = null;
+  private PerceptronModelParameters modelParameters;
+  private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
+  private transient PerceptronScoring perceptronScoring = null;
 
-	public PerceptronDecisionMaker(PerceptronModelParameters params, PerceptronScoring perceptronScoring) {
-		super();
-		this.modelParameters = params;
-		this.perceptronScoring = perceptronScoring;
-	}
+  public PerceptronDecisionMaker(PerceptronModelParameters params, PerceptronScoring perceptronScoring) {
+    super();
+    this.modelParameters = params;
+    this.perceptronScoring = perceptronScoring;
+  }
 
-	@Override
-	public List<Decision> decide(List<FeatureResult<?>> featureResults) {
-		List<Integer> featureIndexList = new ArrayList<Integer>();
-		List<Double> featureValueList = new ArrayList<Double>();
-		modelParameters.prepareData(featureResults, featureIndexList, featureValueList);
+  @Override
+  public List<Decision> decide(List<FeatureResult<?>> featureResults) {
+    List<Integer> featureIndexList = new ArrayList<Integer>();
+    List<Double> featureValueList = new ArrayList<Double>();
+    modelParameters.prepareData(featureResults, featureIndexList, featureValueList);
 
-		double[] results = this.predict(featureIndexList, featureValueList);
-		double[] probs = new double[results.length];
+    double[] results = this.predict(featureIndexList, featureValueList);
+    double[] probs = new double[results.length];
 
-		if (this.getPerceptronScoring() == PerceptronScoring.normalisedExponential) {
-			// e^(x/absmax)/sum(e^(x/absmax))
-			// where x/absmax is in [-1,1]
-			// e^(x/absmax) is in [1/e,e]
-			double absoluteMax = 1;
-			for (int i = 0; i < results.length; i++) {
-				if (Math.abs(results[i]) > absoluteMax)
-					absoluteMax = Math.abs(results[i]);
-			}
+    if (this.getPerceptronScoring() == PerceptronScoring.normalisedExponential) {
+      // e^(x/absmax)/sum(e^(x/absmax))
+      // where x/absmax is in [-1,1]
+      // e^(x/absmax) is in [1/e,e]
+      double absoluteMax = 1;
+      for (int i = 0; i < results.length; i++) {
+        if (Math.abs(results[i]) > absoluteMax)
+          absoluteMax = Math.abs(results[i]);
+      }
 
-			double total = 0.0;
-			for (int i = 0; i < results.length; i++) {
-				probs[i] = Math.exp(results[i] / absoluteMax);
-				total += probs[i];
-			}
+      double total = 0.0;
+      for (int i = 0; i < results.length; i++) {
+        probs[i] = Math.exp(results[i] / absoluteMax);
+        total += probs[i];
+      }
 
-			for (int i = 0; i < probs.length; i++) {
-				probs[i] /= total;
-			}
-		} else {
-			// make all results >= 1
-			double min = Double.MAX_VALUE;
-			for (int i = 0; i < results.length; i++) {
-				if (results[i] < min)
-					min = results[i];
-			}
+      for (int i = 0; i < probs.length; i++) {
+        probs[i] /= total;
+      }
+    } else {
+      // make all results >= 1
+      double min = Double.MAX_VALUE;
+      for (int i = 0; i < results.length; i++) {
+        if (results[i] < min)
+          min = results[i];
+      }
 
-			if (min < 0) {
-				for (int i = 0; i < results.length; i++) {
-					probs[i] = (results[i] - min) + 1;
-				}
-			}
+      if (min < 0) {
+        for (int i = 0; i < results.length; i++) {
+          probs[i] = (results[i] - min) + 1;
+        }
+      }
 
-			// then divide by total to get a probability distribution
-			double total = 0.0;
-			for (int i = 0; i < probs.length; i++) {
-				total += probs[i];
-			}
+      // then divide by total to get a probability distribution
+      double total = 0.0;
+      for (int i = 0; i < probs.length; i++) {
+        total += probs[i];
+      }
 
-			for (int i = 0; i < probs.length; i++) {
-				probs[i] /= total;
-			}
-		}
+      for (int i = 0; i < probs.length; i++) {
+        probs[i] /= total;
+      }
+    }
 
-		int i = 0;
-		TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
-		for (String outcome : modelParameters.getOutcomes()) {
-			Decision decision = new Decision(outcome, results[i], probs[i]);
-			outcomeSet.add(decision);
-			i++;
-		}
+    int i = 0;
+    TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
+    for (String outcome : modelParameters.getOutcomes()) {
+      Decision decision = new Decision(outcome, results[i], probs[i]);
+      outcomeSet.add(decision);
+      i++;
+    }
 
-		List<Decision> decisions = new ArrayList<Decision>(outcomeSet);
+    List<Decision> decisions = new ArrayList<Decision>(outcomeSet);
 
-		return decisions;
+    return decisions;
 
-	}
+  }
 
-	public double[] predict(List<Integer> featureIndexList, List<Double> featureValueList) {
-		double[] results = new double[modelParameters.getOutcomeCount()];
-		for (int i = 0; i < featureIndexList.size(); i++) {
-			int featureIndex = featureIndexList.get(i);
-			double value = featureValueList.get(i);
+  public double[] predict(List<Integer> featureIndexList, List<Double> featureValueList) {
+    double[] results = new double[modelParameters.getOutcomeCount()];
+    for (int i = 0; i < featureIndexList.size(); i++) {
+      int featureIndex = featureIndexList.get(i);
+      double value = featureValueList.get(i);
 
-			for (int j = 0; j < results.length; j++) {
-				double[] classWeights = modelParameters.getFeatureWeights()[featureIndex];
-				double weight = classWeights[j];
-				results[j] += value * weight;
-			}
-		}
+      for (int j = 0; j < results.length; j++) {
+        double[] classWeights = modelParameters.getFeatureWeights()[featureIndex];
+        double weight = classWeights[j];
+        results[j] += value * weight;
+      }
+    }
 
-		return results;
-	}
+    return results;
+  }
 
-	public PerceptronModelParameters getModelParameters() {
-		return modelParameters;
-	}
+  public PerceptronModelParameters getModelParameters() {
+    return modelParameters;
+  }
 
-	@Override
-	public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
-		if (scoringStrategy == null) {
-			if (this.getPerceptronScoring() == PerceptronScoring.normalisedLinear) {
-				scoringStrategy = new GeometricMeanScoringStrategy();
-			} else if (this.getPerceptronScoring() == PerceptronScoring.normalisedExponential) {
-				scoringStrategy = new GeometricMeanScoringStrategy();
-			} else if (this.getPerceptronScoring() == PerceptronScoring.additive) {
-				scoringStrategy = new AdditiveScoringStrategy();
-			} else {
-				throw new JolicielException("Unknown perceptron scoring strategy: " + this.getPerceptronScoring());
-			}
-		}
-		return scoringStrategy;
-	}
+  @Override
+  public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
+    if (scoringStrategy == null) {
+      if (this.getPerceptronScoring() == PerceptronScoring.normalisedLinear) {
+        scoringStrategy = new GeometricMeanScoringStrategy();
+      } else if (this.getPerceptronScoring() == PerceptronScoring.normalisedExponential) {
+        scoringStrategy = new GeometricMeanScoringStrategy();
+      } else if (this.getPerceptronScoring() == PerceptronScoring.additive) {
+        scoringStrategy = new AdditiveScoringStrategy();
+      } else {
+        throw new JolicielException("Unknown perceptron scoring strategy: " + this.getPerceptronScoring());
+      }
+    }
+    return scoringStrategy;
+  }
 
-	public PerceptronScoring getPerceptronScoring() {
-		return perceptronScoring;
-	}
+  public PerceptronScoring getPerceptronScoring() {
+    return perceptronScoring;
+  }
 
 }

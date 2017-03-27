@@ -19,21 +19,21 @@
 package com.joliciel.talismane;
 
 public class TalismaneException extends Exception {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public TalismaneException() {
-	}
+  public TalismaneException() {
+  }
 
-	public TalismaneException(String message) {
-		super(message);
-	}
+  public TalismaneException(String message) {
+    super(message);
+  }
 
-	public TalismaneException(Throwable cause) {
-		super(cause);
-	}
+  public TalismaneException(Throwable cause) {
+    super(cause);
+  }
 
-	public TalismaneException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public TalismaneException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 }

@@ -74,593 +74,593 @@ import com.typesafe.config.Config;
  *
  */
 public class Talismane {
-	/**
-	 * A module within the Talismane Suite.
-	 * 
-	 * @author Assaf Urieli
-	 *
-	 */
-	public enum Module {
-		languageDetector,
-		sentenceDetector,
-		tokeniser,
-		posTagger,
-		parser
-	}
-
-	/**
-	 * The command which Talismane is asked to perform.
-	 * 
-	 * @author Assaf Urieli
-	 *
-	 */
-	public enum Command {
-		/**
-		 * Train a model using a corpus, a feature set, a classifier +
-		 * parameters, etc.
-		 */
-		train,
-		/**
-		 * Analyse a corpus and add annotations.
-		 */
-		analyse,
-		/**
-		 * Evaluate an annotated corpus, by re-analysing the corpus and
-		 * comparing the new annotations to the existing ones.
-		 */
-		evaluate,
-		/**
-		 * Process an annotated corpus - Talismane simply reads the corpus using
-		 * the appropriate corpus reader and passes the results to the
-		 * appropriate processors.
-		 */
-		process,
-		/**
-		 * Compare two annotated corpora.
-		 */
-		compare
-	}
-
-	public enum ProcessingOption {
-		/**
-		 * Simply output what you read, usually changing the format.
-		 */
-		output,
-		/**
-		 * Test pos-tag features on a subset of words in the training set.
-		 */
-		posTagFeatureTester,
-		/**
-		 * Test parse features on the training set.
-		 */
-		parseFeatureTester
-	}
-
-	public enum Mode {
-		/**
-		 * Command line mode, reading from standard in or file, and writing to
-		 * standard out or file.
-		 */
-		normal,
-		/**
-		 * Server listening on port, and processing input as it comes.
-		 */
-		server
-	}
-
-	/**
-	 * How to output the Talismane analysis
-	 */
-	public enum BuiltInTemplate {
-		/**
-		 * Standard CoNLL-X output.
-		 */
-		standard,
-		/**
-		 * Include extra columns for the original file location of each token.
-		 */
-		with_location,
-		/**
-		 * Include extra columns for the probability of each decision.
-		 */
-		with_prob,
-		/**
-		 * Include extra columns for user-supplied comments in the training
-		 * corpus.
-		 */
-		with_comments
-	}
-
-	private static final Logger LOG = LoggerFactory.getLogger(Talismane.class);
-
-	private final List<SentenceProcessor> sentenceProcessors;
-	private final List<TokenSequenceProcessor> tokenSequenceProcessors;
-	private final List<PosTagSequenceProcessor> posTagSequenceProcessors;
-	private final List<ParseConfigurationProcessor> parseConfigurationProcessors;
-
-	private final boolean stopOnError;
-
-	private final Config config;
-	private final TalismaneSession session;
-	private final Module startModule;
-	private final Module endModule;
-
-	private final boolean processByDefault;
-
-	private final int sentenceCount;
-	private final Writer writer;
-
-	/**
-	 * 
-	 * @param writer
-	 *            a writer for writing the main output - if null, all output is
-	 *            written to the outDir with predefined filenames
-	 * @param outDir
-	 *            a directory for writing any additional output files specified
-	 *            in the configuration
-	 * @param session
-	 * @throws IOException
-	 * @throws ReflectiveOperationException
-	 * @throws TalismaneException
-	 *             if start module comes after end module in the configuration.
-	 */
-	public Talismane(Writer writer, File outDir, TalismaneSession session) throws IOException, ReflectiveOperationException, TalismaneException {
-		this.session = session;
-		this.config = session.getConfig();
-		Config analyseConfig = config.getConfig("talismane.core.analysis");
-
-		this.startModule = Module.valueOf(analyseConfig.getString("start-module"));
-		this.endModule = Module.valueOf(analyseConfig.getString("end-module"));
-
-		if (startModule.compareTo(endModule) > 0) {
-			throw new TalismaneException("Start-module (" + startModule.name() + ") cannot come after end-module (" + endModule.name() + ")");
-		}
-
-		this.processByDefault = analyseConfig.getBoolean("process-by-default");
-		this.stopOnError = analyseConfig.getBoolean("stop-on-error");
-		this.sentenceCount = config.getInt("talismane.core.input.sentence-count");
-		boolean outputIntermediateModules = analyseConfig.getBoolean("output-intermediate-modules");
-
-		if (this.endModule == Module.sentenceDetector) {
-			this.sentenceProcessors = SentenceProcessor.getProcessors(writer, outDir, session);
-		} else if (outputIntermediateModules && this.startModule.compareTo(Module.sentenceDetector) <= 0
-				&& this.endModule.compareTo(Module.sentenceDetector) >= 0) {
-			this.sentenceProcessors = SentenceProcessor.getProcessors(null, outDir, session);
-		} else {
-			this.sentenceProcessors = new ArrayList<>();
-		}
-		if (this.endModule == Module.tokeniser) {
-			this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(writer, outDir, session);
-		} else if (outputIntermediateModules && this.startModule.compareTo(Module.tokeniser) <= 0 && this.endModule.compareTo(Module.tokeniser) >= 0) {
-			this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(null, outDir, session);
-		} else {
-			this.tokenSequenceProcessors = new ArrayList<>();
-		}
-		if (this.endModule == Module.posTagger) {
-			this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(writer, outDir, session);
-		} else if (outputIntermediateModules && this.startModule.compareTo(Module.posTagger) <= 0 && this.endModule.compareTo(Module.posTagger) >= 0) {
-			this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(null, outDir, session);
-		} else {
-			this.posTagSequenceProcessors = new ArrayList<>();
-		}
-		if (this.endModule == Module.parser
-				|| (outputIntermediateModules && this.startModule.compareTo(Module.parser) <= 0 && this.endModule.compareTo(Module.parser) >= 0)) {
-			this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(writer, outDir, session);
-		} else if (outputIntermediateModules && this.startModule.compareTo(Module.parser) <= 0 && this.endModule.compareTo(Module.parser) >= 0) {
-			this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(null, outDir, session);
-		} else {
-			this.parseConfigurationProcessors = new ArrayList<>();
-		}
-
-		this.writer = writer;
-	}
-
-	/**
-	 * Analyse the data provided by this reader, as specified by the
-	 * configuration.
-	 * 
-	 * @param reader
-	 * @throws IOException
-	 * @throws ReflectiveOperationException
-	 * @throws TalismaneException
-	 *             if it's impossible to read a sentence from an annotated
-	 *             corpus
-	 */
-	public void analyse(Reader reader) throws IOException, ReflectiveOperationException, TalismaneException {
-		long startTime = System.currentTimeMillis();
-		try {
-			SentenceDetector sentenceDetector = null;
-			Tokeniser tokeniser = null;
-			PosTagger posTagger = null;
-			Parser parser = null;
-			if (this.needsSentenceDetector())
-				sentenceDetector = SentenceDetector.getInstance(session);
-			if (this.needsTokeniser())
-				tokeniser = Tokeniser.getInstance(session);
-			if (this.needsPosTagger())
-				posTagger = PosTaggers.getPosTagger(session);
-			if (this.needsParser())
-				parser = Parsers.getParser(session);
-
-			TokeniserAnnotatedCorpusReader tokenCorpusReader = null;
-			PosTagAnnotatedCorpusReader posTagCorpusReader = null;
-
-			if (this.startModule.equals(Module.posTagger)) {
-				tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.tokeniser.input"), session);
-			}
-
-			if (this.startModule.equals(Module.parser)) {
-				posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.pos-tagger.input"), session);
-			}
-
-			LinkedList<String> textSegments = new LinkedList<String>();
-			LinkedList<Sentence> sentences = new LinkedList<Sentence>();
-			TokenSequence tokenSequence = null;
-			PosTagSequence posTagSequence = null;
-
-			StringBuilder stringBuilder = new StringBuilder();
-			boolean finished = false;
-			int sentenceCount = 0;
-
-			RollingTextBlock rollingTextBlock = new RollingTextBlock(this.processByDefault, session);
-
-			if (reader instanceof CurrentFileProvider) {
-				((CurrentFileProvider) reader).addCurrentFileObserver(rollingTextBlock);
-			}
-
-			int endBlockCharacterCount = 0;
-
-			File currentFile = null;
-
-			while (!finished) {
-				if (this.startModule.equals(Module.sentenceDetector) || this.startModule.equals(Module.tokeniser)) {
-					// Note SentenceDetector and Tokeniser start modules treated
-					// identically,
-					// except that for SentenceDetector we apply a probabilistic
-					// sentence detector
-					// whereas for Tokeniser we assume all sentence breaks are
-					// marked by filters
-
-					// read characters from the reader, one at a time
-					char c;
-					int r = -1;
-					try {
-						r = reader.read();
-					} catch (IOException e) {
-						LogUtils.logError(LOG, e);
-					}
-
-					if (r == -1) {
-						finished = true;
-						c = '\n';
-					} else {
-						c = (char) r;
-					}
-
-					// Jump out if we have 3 consecutive end-block characters.
-					if (c == session.getEndBlockCharacter()) {
-						endBlockCharacterCount++;
-						if (endBlockCharacterCount == 3) {
-							LOG.info("Three consecutive end-block characters. Exiting.");
-							finished = true;
-						}
-					} else {
-						endBlockCharacterCount = 0;
-					}
-
-					// have sentence detector
-					if (finished || (Character.isWhitespace(c) && c != '\r' && c != '\n' && stringBuilder.length() > session.getBlockSize())
-							|| c == session.getEndBlockCharacter()) {
-						if (c == session.getEndBlockCharacter())
-							stringBuilder.append(c);
-						if (stringBuilder.length() > 0) {
-							String textSegment = stringBuilder.toString();
-							stringBuilder = new StringBuilder();
-
-							textSegments.add(textSegment);
-						} // is the current block > 0 characters?
-						if (c == session.getEndBlockCharacter()) {
-							textSegments.addLast("");
-						}
-					} // is there a next block available?
-
-					if (finished) {
-						if (stringBuilder.length() > 0) {
-							textSegments.addLast(stringBuilder.toString());
-							stringBuilder = new StringBuilder();
-						}
-						// add three final text segments to roll everything
-						// through processing
-						textSegments.addLast("");
-						textSegments.addLast("");
-						textSegments.addLast("");
-					}
-
-					if (c != session.getEndBlockCharacter())
-						stringBuilder.append(c);
-
-					while (textSegments.size() > 0) {
-						// roll in a new block 4, and roll the other blocks
-						// leftwards
-						String nextText = textSegments.removeFirst();
-						rollingTextBlock = rollingTextBlock.roll(nextText);
-
-						// annotate block 3 with raw text filters
-						AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
-
-						for (RawTextAnnotator textMarkerFilter : session.getTextAnnotators()) {
-							textMarkerFilter.annotate(rawTextBlock);
-						}
-
-						// detect sentences in block 2 using the sentence
-						// detector
-						AnnotatedText processedText = rollingTextBlock.getProcessedText();
-						if (LOG.isTraceEnabled()) {
-							LOG.trace("processedText: " + processedText.getText().toString().replace('\n', '¶').replace('\r', '¶'));
-						}
-
-						if (this.startModule.equals(Module.sentenceDetector)) {
-							sentenceDetector.detectSentences(processedText);
-						}
-
-						// get the sentences detected in block 2
-						List<Sentence> theSentences = rollingTextBlock.getDetectedSentences();
-						for (Sentence sentence : theSentences) {
-							sentences.add(sentence);
-							sentenceCount++;
-						}
-						if (this.sentenceCount > 0 && sentenceCount >= this.sentenceCount) {
-							finished = true;
-						}
-					} // we have at least one text segment to process
-				} else if (this.startModule.equals(Module.posTagger)) {
-					if (tokenCorpusReader.hasNextSentence()) {
-						tokenSequence = tokenCorpusReader.nextTokenSequence();
-					} else {
-						tokenSequence = null;
-						finished = true;
-					}
-				} else if (this.startModule.equals(Module.parser)) {
-					if (posTagCorpusReader.hasNextSentence()) {
-						posTagSequence = posTagCorpusReader.nextPosTagSequence();
-					} else {
-						posTagSequence = null;
-						finished = true;
-					}
-				} // which start module?
-
-				boolean needToProcess = false;
-				if (this.startModule.equals(Module.sentenceDetector) || this.startModule.equals(Module.tokeniser))
-					needToProcess = !sentences.isEmpty();
-				else if (this.startModule.equals(Module.posTagger))
-					needToProcess = tokenSequence != null;
-				else if (this.startModule.equals(Module.parser))
-					needToProcess = posTagSequence != null;
-
-				while (needToProcess) {
-					Sentence sentence = null;
-					if (this.startModule.compareTo(Module.tokeniser) <= 0 && this.endModule.compareTo(Module.sentenceDetector) >= 0) {
-						sentence = sentences.poll();
-						LOG.debug("Sentence: " + sentence);
-
-						for (SentenceAnnotator annotator : session.getSentenceAnnotators())
-							annotator.annotate(sentence);
-
-						if (sentence.getLeftoverOriginalText() != null) {
-							writer.append(sentence.getLeftoverOriginalText() + "\n");
-						}
-						if (writer instanceof CurrentFileObserver && sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
-							currentFile = sentence.getFile();
-							LOG.debug("Setting current file to " + currentFile.getPath());
-							((CurrentFileObserver) writer).onNextFile(currentFile);
-						}
-
-						for (SentenceProcessor sentenceProcessor : sentenceProcessors) {
-							sentenceProcessor.onNextSentence(sentence);
-						}
-					} // need to read next sentence
-
-					List<TokenSequence> tokenSequences = null;
-					if (this.needsTokeniser()) {
-						tokenSequences = tokeniser.tokenise(sentence);
-						tokenSequence = tokenSequences.get(0);
-
-						for (TokenSequenceProcessor tokenSequenceProcessor : tokenSequenceProcessors) {
-							tokenSequenceProcessor.onNextTokenSequence(tokenSequence);
-						}
-					} // need to tokenise ?
-
-					List<PosTagSequence> posTagSequences = null;
-					if (this.needsPosTagger()) {
-						posTagSequence = null;
-						if (tokenSequences == null) {
-							tokenSequences = new ArrayListNoNulls<>();
-							tokenSequences.add(tokenSequence);
-						}
-
-						if (posTagger instanceof NonDeterministicPosTagger) {
-							NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
-							posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
-							posTagSequence = posTagSequences.get(0);
-						} else {
-							posTagSequence = posTagger.tagSentence(tokenSequence);
-						}
-
-						for (PosTagSequenceProcessor posTagSequenceProcessor : this.posTagSequenceProcessors) {
-							posTagSequenceProcessor.onNextPosTagSequence(posTagSequence);
-						}
-
-						tokenSequence = null;
-					} // need to postag
-
-					if (this.needsParser()) {
-						if (posTagSequences == null) {
-							posTagSequences = new ArrayListNoNulls<>();
-							posTagSequences.add(posTagSequence);
-						}
-
-						ParseConfiguration parseConfiguration = null;
-						List<ParseConfiguration> parseConfigurations = null;
-						try {
-							if (parser instanceof NonDeterministicParser) {
-								NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
-								parseConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
-								parseConfiguration = parseConfigurations.get(0);
-							} else {
-								parseConfiguration = parser.parseSentence(posTagSequence);
-							}
-
-							for (ParseConfigurationProcessor parseConfigurationProcessor : this.parseConfigurationProcessors) {
-								parseConfigurationProcessor.onNextParseConfiguration(parseConfiguration);
-							}
-						} catch (Exception e) {
-							LogUtils.logError(LOG, e);
-							if (stopOnError)
-								throw new RuntimeException(e);
-						}
-						posTagSequence = null;
-					} // need to parse
-
-					if (this.startModule.equals(Module.sentenceDetector) || this.startModule.equals(Module.tokeniser))
-						needToProcess = !sentences.isEmpty();
-					else if (this.startModule.equals(Module.posTagger))
-						needToProcess = tokenSequence != null;
-					else if (this.startModule.equals(Module.parser))
-						needToProcess = posTagSequence != null;
-				} // next sentence
-			} // next character
-
-			// Check if there's any leftover output to output!
-			if (rollingTextBlock.getLeftoverOriginalText().length() > 0)
-				writer.append(rollingTextBlock.getLeftoverOriginalText());
-		} finally {
-			IOException exception = null;
-			try {
-				reader.close();
-				writer.flush();
-			} catch (IOException e) {
-				LogUtils.logError(LOG, e);
-				exception = e;
-			}
-			for (SentenceProcessor processor : this.sentenceProcessors)
-				try {
-					processor.close();
-				} catch (IOException e) {
-					LogUtils.logError(LOG, e);
-					exception = e;
-				}
-			for (TokenSequenceProcessor processor : this.tokenSequenceProcessors)
-				try {
-					processor.close();
-				} catch (IOException e) {
-					LogUtils.logError(LOG, e);
-					exception = e;
-				}
-			for (PosTagSequenceProcessor processor : this.posTagSequenceProcessors) {
-				try {
-					processor.onCompleteAnalysis();
-					processor.close();
-				} catch (IOException e) {
-					LogUtils.logError(LOG, e);
-					exception = e;
-				}
-			}
-			for (ParseConfigurationProcessor processor : this.parseConfigurationProcessors) {
-				try {
-					processor.onCompleteParse();
-					processor.close();
-				} catch (IOException e) {
-					LogUtils.logError(LOG, e);
-					exception = e;
-				}
-			}
-			long endTime = System.currentTimeMillis();
-			long totalTime = endTime - startTime;
-			LOG.debug("Total time for Talismane.process(): " + totalTime);
-
-			try {
-				writer.close();
-			} catch (IOException e) {
-				LogUtils.logError(LOG, e);
-				exception = e;
-			}
-
-			if (exception != null)
-				throw exception;
-		}
-	}
-
-	/**
-	 * Does this instance of Talismane need a sentence detector to perform the
-	 * requested processing.
-	 */
-	private boolean needsSentenceDetector() {
-		return startModule.compareTo(Module.sentenceDetector) <= 0 && endModule.compareTo(Module.sentenceDetector) >= 0;
-	}
-
-	/**
-	 * Does this instance of Talismane need a tokeniser to perform the requested
-	 * processing.
-	 */
-	private boolean needsTokeniser() {
-		return startModule.compareTo(Module.tokeniser) <= 0 && endModule.compareTo(Module.tokeniser) >= 0;
-	}
-
-	/**
-	 * Does this instance of Talismane need a pos tagger to perform the
-	 * requested processing.
-	 */
-	private boolean needsPosTagger() {
-		return startModule.compareTo(Module.posTagger) <= 0 && endModule.compareTo(Module.posTagger) >= 0;
-	}
-
-	/**
-	 * Does this instance of Talismane need a parser to perform the requested
-	 * processing.
-	 */
-	private boolean needsParser() {
-		return startModule.compareTo(Module.parser) <= 0 && endModule.compareTo(Module.parser) >= 0;
-	}
-
-	/**
-	 * If an error occurs during analysis, should Talismane stop immediately, or
-	 * try to keep going with the next sentence? Default is true (stop
-	 * immediately).
-	 */
-	public boolean isStopOnError() {
-		return stopOnError;
-	}
-
-	public Module getStartModule() {
-		return startModule;
-	}
-
-	public Module getEndModule() {
-		return endModule;
-	}
-
-	public boolean isProcessByDefault() {
-		return processByDefault;
-	}
-
-	public int getSentenceCount() {
-		return sentenceCount;
-	}
-
-	public List<SentenceProcessor> getSentenceProcessors() {
-		return sentenceProcessors;
-	}
-
-	public List<TokenSequenceProcessor> getTokenSequenceProcessors() {
-		return tokenSequenceProcessors;
-	}
-
-	public List<PosTagSequenceProcessor> getPosTagSequenceProcessors() {
-		return posTagSequenceProcessors;
-	}
-
-	public List<ParseConfigurationProcessor> getParseConfigurationProcessors() {
-		return parseConfigurationProcessors;
-	}
+  /**
+   * A module within the Talismane Suite.
+   * 
+   * @author Assaf Urieli
+   *
+   */
+  public enum Module {
+    languageDetector,
+    sentenceDetector,
+    tokeniser,
+    posTagger,
+    parser
+  }
+
+  /**
+   * The command which Talismane is asked to perform.
+   * 
+   * @author Assaf Urieli
+   *
+   */
+  public enum Command {
+    /**
+     * Train a model using a corpus, a feature set, a classifier +
+     * parameters, etc.
+     */
+    train,
+    /**
+     * Analyse a corpus and add annotations.
+     */
+    analyse,
+    /**
+     * Evaluate an annotated corpus, by re-analysing the corpus and
+     * comparing the new annotations to the existing ones.
+     */
+    evaluate,
+    /**
+     * Process an annotated corpus - Talismane simply reads the corpus using
+     * the appropriate corpus reader and passes the results to the
+     * appropriate processors.
+     */
+    process,
+    /**
+     * Compare two annotated corpora.
+     */
+    compare
+  }
+
+  public enum ProcessingOption {
+    /**
+     * Simply output what you read, usually changing the format.
+     */
+    output,
+    /**
+     * Test pos-tag features on a subset of words in the training set.
+     */
+    posTagFeatureTester,
+    /**
+     * Test parse features on the training set.
+     */
+    parseFeatureTester
+  }
+
+  public enum Mode {
+    /**
+     * Command line mode, reading from standard in or file, and writing to
+     * standard out or file.
+     */
+    normal,
+    /**
+     * Server listening on port, and processing input as it comes.
+     */
+    server
+  }
+
+  /**
+   * How to output the Talismane analysis
+   */
+  public enum BuiltInTemplate {
+    /**
+     * Standard CoNLL-X output.
+     */
+    standard,
+    /**
+     * Include extra columns for the original file location of each token.
+     */
+    with_location,
+    /**
+     * Include extra columns for the probability of each decision.
+     */
+    with_prob,
+    /**
+     * Include extra columns for user-supplied comments in the training
+     * corpus.
+     */
+    with_comments
+  }
+
+  private static final Logger LOG = LoggerFactory.getLogger(Talismane.class);
+
+  private final List<SentenceProcessor> sentenceProcessors;
+  private final List<TokenSequenceProcessor> tokenSequenceProcessors;
+  private final List<PosTagSequenceProcessor> posTagSequenceProcessors;
+  private final List<ParseConfigurationProcessor> parseConfigurationProcessors;
+
+  private final boolean stopOnError;
+
+  private final Config config;
+  private final TalismaneSession session;
+  private final Module startModule;
+  private final Module endModule;
+
+  private final boolean processByDefault;
+
+  private final int sentenceCount;
+  private final Writer writer;
+
+  /**
+   * 
+   * @param writer
+   *            a writer for writing the main output - if null, all output is
+   *            written to the outDir with predefined filenames
+   * @param outDir
+   *            a directory for writing any additional output files specified
+   *            in the configuration
+   * @param session
+   * @throws IOException
+   * @throws ReflectiveOperationException
+   * @throws TalismaneException
+   *             if start module comes after end module in the configuration.
+   */
+  public Talismane(Writer writer, File outDir, TalismaneSession session) throws IOException, ReflectiveOperationException, TalismaneException {
+    this.session = session;
+    this.config = session.getConfig();
+    Config analyseConfig = config.getConfig("talismane.core.analysis");
+
+    this.startModule = Module.valueOf(analyseConfig.getString("start-module"));
+    this.endModule = Module.valueOf(analyseConfig.getString("end-module"));
+
+    if (startModule.compareTo(endModule) > 0) {
+      throw new TalismaneException("Start-module (" + startModule.name() + ") cannot come after end-module (" + endModule.name() + ")");
+    }
+
+    this.processByDefault = analyseConfig.getBoolean("process-by-default");
+    this.stopOnError = analyseConfig.getBoolean("stop-on-error");
+    this.sentenceCount = config.getInt("talismane.core.input.sentence-count");
+    boolean outputIntermediateModules = analyseConfig.getBoolean("output-intermediate-modules");
+
+    if (this.endModule == Module.sentenceDetector) {
+      this.sentenceProcessors = SentenceProcessor.getProcessors(writer, outDir, session);
+    } else if (outputIntermediateModules && this.startModule.compareTo(Module.sentenceDetector) <= 0
+        && this.endModule.compareTo(Module.sentenceDetector) >= 0) {
+      this.sentenceProcessors = SentenceProcessor.getProcessors(null, outDir, session);
+    } else {
+      this.sentenceProcessors = new ArrayList<>();
+    }
+    if (this.endModule == Module.tokeniser) {
+      this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(writer, outDir, session);
+    } else if (outputIntermediateModules && this.startModule.compareTo(Module.tokeniser) <= 0 && this.endModule.compareTo(Module.tokeniser) >= 0) {
+      this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(null, outDir, session);
+    } else {
+      this.tokenSequenceProcessors = new ArrayList<>();
+    }
+    if (this.endModule == Module.posTagger) {
+      this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(writer, outDir, session);
+    } else if (outputIntermediateModules && this.startModule.compareTo(Module.posTagger) <= 0 && this.endModule.compareTo(Module.posTagger) >= 0) {
+      this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(null, outDir, session);
+    } else {
+      this.posTagSequenceProcessors = new ArrayList<>();
+    }
+    if (this.endModule == Module.parser
+        || (outputIntermediateModules && this.startModule.compareTo(Module.parser) <= 0 && this.endModule.compareTo(Module.parser) >= 0)) {
+      this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(writer, outDir, session);
+    } else if (outputIntermediateModules && this.startModule.compareTo(Module.parser) <= 0 && this.endModule.compareTo(Module.parser) >= 0) {
+      this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(null, outDir, session);
+    } else {
+      this.parseConfigurationProcessors = new ArrayList<>();
+    }
+
+    this.writer = writer;
+  }
+
+  /**
+   * Analyse the data provided by this reader, as specified by the
+   * configuration.
+   * 
+   * @param reader
+   * @throws IOException
+   * @throws ReflectiveOperationException
+   * @throws TalismaneException
+   *             if it's impossible to read a sentence from an annotated
+   *             corpus
+   */
+  public void analyse(Reader reader) throws IOException, ReflectiveOperationException, TalismaneException {
+    long startTime = System.currentTimeMillis();
+    try {
+      SentenceDetector sentenceDetector = null;
+      Tokeniser tokeniser = null;
+      PosTagger posTagger = null;
+      Parser parser = null;
+      if (this.needsSentenceDetector())
+        sentenceDetector = SentenceDetector.getInstance(session);
+      if (this.needsTokeniser())
+        tokeniser = Tokeniser.getInstance(session);
+      if (this.needsPosTagger())
+        posTagger = PosTaggers.getPosTagger(session);
+      if (this.needsParser())
+        parser = Parsers.getParser(session);
+
+      TokeniserAnnotatedCorpusReader tokenCorpusReader = null;
+      PosTagAnnotatedCorpusReader posTagCorpusReader = null;
+
+      if (this.startModule.equals(Module.posTagger)) {
+        tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.tokeniser.input"), session);
+      }
+
+      if (this.startModule.equals(Module.parser)) {
+        posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.pos-tagger.input"), session);
+      }
+
+      LinkedList<String> textSegments = new LinkedList<String>();
+      LinkedList<Sentence> sentences = new LinkedList<Sentence>();
+      TokenSequence tokenSequence = null;
+      PosTagSequence posTagSequence = null;
+
+      StringBuilder stringBuilder = new StringBuilder();
+      boolean finished = false;
+      int sentenceCount = 0;
+
+      RollingTextBlock rollingTextBlock = new RollingTextBlock(this.processByDefault, session);
+
+      if (reader instanceof CurrentFileProvider) {
+        ((CurrentFileProvider) reader).addCurrentFileObserver(rollingTextBlock);
+      }
+
+      int endBlockCharacterCount = 0;
+
+      File currentFile = null;
+
+      while (!finished) {
+        if (this.startModule.equals(Module.sentenceDetector) || this.startModule.equals(Module.tokeniser)) {
+          // Note SentenceDetector and Tokeniser start modules treated
+          // identically,
+          // except that for SentenceDetector we apply a probabilistic
+          // sentence detector
+          // whereas for Tokeniser we assume all sentence breaks are
+          // marked by filters
+
+          // read characters from the reader, one at a time
+          char c;
+          int r = -1;
+          try {
+            r = reader.read();
+          } catch (IOException e) {
+            LogUtils.logError(LOG, e);
+          }
+
+          if (r == -1) {
+            finished = true;
+            c = '\n';
+          } else {
+            c = (char) r;
+          }
+
+          // Jump out if we have 3 consecutive end-block characters.
+          if (c == session.getEndBlockCharacter()) {
+            endBlockCharacterCount++;
+            if (endBlockCharacterCount == 3) {
+              LOG.info("Three consecutive end-block characters. Exiting.");
+              finished = true;
+            }
+          } else {
+            endBlockCharacterCount = 0;
+          }
+
+          // have sentence detector
+          if (finished || (Character.isWhitespace(c) && c != '\r' && c != '\n' && stringBuilder.length() > session.getBlockSize())
+              || c == session.getEndBlockCharacter()) {
+            if (c == session.getEndBlockCharacter())
+              stringBuilder.append(c);
+            if (stringBuilder.length() > 0) {
+              String textSegment = stringBuilder.toString();
+              stringBuilder = new StringBuilder();
+
+              textSegments.add(textSegment);
+            } // is the current block > 0 characters?
+            if (c == session.getEndBlockCharacter()) {
+              textSegments.addLast("");
+            }
+          } // is there a next block available?
+
+          if (finished) {
+            if (stringBuilder.length() > 0) {
+              textSegments.addLast(stringBuilder.toString());
+              stringBuilder = new StringBuilder();
+            }
+            // add three final text segments to roll everything
+            // through processing
+            textSegments.addLast("");
+            textSegments.addLast("");
+            textSegments.addLast("");
+          }
+
+          if (c != session.getEndBlockCharacter())
+            stringBuilder.append(c);
+
+          while (textSegments.size() > 0) {
+            // roll in a new block 4, and roll the other blocks
+            // leftwards
+            String nextText = textSegments.removeFirst();
+            rollingTextBlock = rollingTextBlock.roll(nextText);
+
+            // annotate block 3 with raw text filters
+            AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
+
+            for (RawTextAnnotator textMarkerFilter : session.getTextAnnotators()) {
+              textMarkerFilter.annotate(rawTextBlock);
+            }
+
+            // detect sentences in block 2 using the sentence
+            // detector
+            AnnotatedText processedText = rollingTextBlock.getProcessedText();
+            if (LOG.isTraceEnabled()) {
+              LOG.trace("processedText: " + processedText.getText().toString().replace('\n', '¶').replace('\r', '¶'));
+            }
+
+            if (this.startModule.equals(Module.sentenceDetector)) {
+              sentenceDetector.detectSentences(processedText);
+            }
+
+            // get the sentences detected in block 2
+            List<Sentence> theSentences = rollingTextBlock.getDetectedSentences();
+            for (Sentence sentence : theSentences) {
+              sentences.add(sentence);
+              sentenceCount++;
+            }
+            if (this.sentenceCount > 0 && sentenceCount >= this.sentenceCount) {
+              finished = true;
+            }
+          } // we have at least one text segment to process
+        } else if (this.startModule.equals(Module.posTagger)) {
+          if (tokenCorpusReader.hasNextSentence()) {
+            tokenSequence = tokenCorpusReader.nextTokenSequence();
+          } else {
+            tokenSequence = null;
+            finished = true;
+          }
+        } else if (this.startModule.equals(Module.parser)) {
+          if (posTagCorpusReader.hasNextSentence()) {
+            posTagSequence = posTagCorpusReader.nextPosTagSequence();
+          } else {
+            posTagSequence = null;
+            finished = true;
+          }
+        } // which start module?
+
+        boolean needToProcess = false;
+        if (this.startModule.equals(Module.sentenceDetector) || this.startModule.equals(Module.tokeniser))
+          needToProcess = !sentences.isEmpty();
+        else if (this.startModule.equals(Module.posTagger))
+          needToProcess = tokenSequence != null;
+        else if (this.startModule.equals(Module.parser))
+          needToProcess = posTagSequence != null;
+
+        while (needToProcess) {
+          Sentence sentence = null;
+          if (this.startModule.compareTo(Module.tokeniser) <= 0 && this.endModule.compareTo(Module.sentenceDetector) >= 0) {
+            sentence = sentences.poll();
+            LOG.debug("Sentence: " + sentence);
+
+            for (SentenceAnnotator annotator : session.getSentenceAnnotators())
+              annotator.annotate(sentence);
+
+            if (sentence.getLeftoverOriginalText() != null) {
+              writer.append(sentence.getLeftoverOriginalText() + "\n");
+            }
+            if (writer instanceof CurrentFileObserver && sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
+              currentFile = sentence.getFile();
+              LOG.debug("Setting current file to " + currentFile.getPath());
+              ((CurrentFileObserver) writer).onNextFile(currentFile);
+            }
+
+            for (SentenceProcessor sentenceProcessor : sentenceProcessors) {
+              sentenceProcessor.onNextSentence(sentence);
+            }
+          } // need to read next sentence
+
+          List<TokenSequence> tokenSequences = null;
+          if (this.needsTokeniser()) {
+            tokenSequences = tokeniser.tokenise(sentence);
+            tokenSequence = tokenSequences.get(0);
+
+            for (TokenSequenceProcessor tokenSequenceProcessor : tokenSequenceProcessors) {
+              tokenSequenceProcessor.onNextTokenSequence(tokenSequence);
+            }
+          } // need to tokenise ?
+
+          List<PosTagSequence> posTagSequences = null;
+          if (this.needsPosTagger()) {
+            posTagSequence = null;
+            if (tokenSequences == null) {
+              tokenSequences = new ArrayListNoNulls<>();
+              tokenSequences.add(tokenSequence);
+            }
+
+            if (posTagger instanceof NonDeterministicPosTagger) {
+              NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
+              posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+              posTagSequence = posTagSequences.get(0);
+            } else {
+              posTagSequence = posTagger.tagSentence(tokenSequence);
+            }
+
+            for (PosTagSequenceProcessor posTagSequenceProcessor : this.posTagSequenceProcessors) {
+              posTagSequenceProcessor.onNextPosTagSequence(posTagSequence);
+            }
+
+            tokenSequence = null;
+          } // need to postag
+
+          if (this.needsParser()) {
+            if (posTagSequences == null) {
+              posTagSequences = new ArrayListNoNulls<>();
+              posTagSequences.add(posTagSequence);
+            }
+
+            ParseConfiguration parseConfiguration = null;
+            List<ParseConfiguration> parseConfigurations = null;
+            try {
+              if (parser instanceof NonDeterministicParser) {
+                NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
+                parseConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
+                parseConfiguration = parseConfigurations.get(0);
+              } else {
+                parseConfiguration = parser.parseSentence(posTagSequence);
+              }
+
+              for (ParseConfigurationProcessor parseConfigurationProcessor : this.parseConfigurationProcessors) {
+                parseConfigurationProcessor.onNextParseConfiguration(parseConfiguration);
+              }
+            } catch (Exception e) {
+              LogUtils.logError(LOG, e);
+              if (stopOnError)
+                throw new RuntimeException(e);
+            }
+            posTagSequence = null;
+          } // need to parse
+
+          if (this.startModule.equals(Module.sentenceDetector) || this.startModule.equals(Module.tokeniser))
+            needToProcess = !sentences.isEmpty();
+          else if (this.startModule.equals(Module.posTagger))
+            needToProcess = tokenSequence != null;
+          else if (this.startModule.equals(Module.parser))
+            needToProcess = posTagSequence != null;
+        } // next sentence
+      } // next character
+
+      // Check if there's any leftover output to output!
+      if (rollingTextBlock.getLeftoverOriginalText().length() > 0)
+        writer.append(rollingTextBlock.getLeftoverOriginalText());
+    } finally {
+      IOException exception = null;
+      try {
+        reader.close();
+        writer.flush();
+      } catch (IOException e) {
+        LogUtils.logError(LOG, e);
+        exception = e;
+      }
+      for (SentenceProcessor processor : this.sentenceProcessors)
+        try {
+          processor.close();
+        } catch (IOException e) {
+          LogUtils.logError(LOG, e);
+          exception = e;
+        }
+      for (TokenSequenceProcessor processor : this.tokenSequenceProcessors)
+        try {
+          processor.close();
+        } catch (IOException e) {
+          LogUtils.logError(LOG, e);
+          exception = e;
+        }
+      for (PosTagSequenceProcessor processor : this.posTagSequenceProcessors) {
+        try {
+          processor.onCompleteAnalysis();
+          processor.close();
+        } catch (IOException e) {
+          LogUtils.logError(LOG, e);
+          exception = e;
+        }
+      }
+      for (ParseConfigurationProcessor processor : this.parseConfigurationProcessors) {
+        try {
+          processor.onCompleteParse();
+          processor.close();
+        } catch (IOException e) {
+          LogUtils.logError(LOG, e);
+          exception = e;
+        }
+      }
+      long endTime = System.currentTimeMillis();
+      long totalTime = endTime - startTime;
+      LOG.debug("Total time for Talismane.process(): " + totalTime);
+
+      try {
+        writer.close();
+      } catch (IOException e) {
+        LogUtils.logError(LOG, e);
+        exception = e;
+      }
+
+      if (exception != null)
+        throw exception;
+    }
+  }
+
+  /**
+   * Does this instance of Talismane need a sentence detector to perform the
+   * requested processing.
+   */
+  private boolean needsSentenceDetector() {
+    return startModule.compareTo(Module.sentenceDetector) <= 0 && endModule.compareTo(Module.sentenceDetector) >= 0;
+  }
+
+  /**
+   * Does this instance of Talismane need a tokeniser to perform the requested
+   * processing.
+   */
+  private boolean needsTokeniser() {
+    return startModule.compareTo(Module.tokeniser) <= 0 && endModule.compareTo(Module.tokeniser) >= 0;
+  }
+
+  /**
+   * Does this instance of Talismane need a pos tagger to perform the
+   * requested processing.
+   */
+  private boolean needsPosTagger() {
+    return startModule.compareTo(Module.posTagger) <= 0 && endModule.compareTo(Module.posTagger) >= 0;
+  }
+
+  /**
+   * Does this instance of Talismane need a parser to perform the requested
+   * processing.
+   */
+  private boolean needsParser() {
+    return startModule.compareTo(Module.parser) <= 0 && endModule.compareTo(Module.parser) >= 0;
+  }
+
+  /**
+   * If an error occurs during analysis, should Talismane stop immediately, or
+   * try to keep going with the next sentence? Default is true (stop
+   * immediately).
+   */
+  public boolean isStopOnError() {
+    return stopOnError;
+  }
+
+  public Module getStartModule() {
+    return startModule;
+  }
+
+  public Module getEndModule() {
+    return endModule;
+  }
+
+  public boolean isProcessByDefault() {
+    return processByDefault;
+  }
+
+  public int getSentenceCount() {
+    return sentenceCount;
+  }
+
+  public List<SentenceProcessor> getSentenceProcessors() {
+    return sentenceProcessors;
+  }
+
+  public List<TokenSequenceProcessor> getTokenSequenceProcessors() {
+    return tokenSequenceProcessors;
+  }
+
+  public List<PosTagSequenceProcessor> getPosTagSequenceProcessors() {
+    return posTagSequenceProcessors;
+  }
+
+  public List<ParseConfigurationProcessor> getParseConfigurationProcessors() {
+    return parseConfigurationProcessors;
+  }
 
 }

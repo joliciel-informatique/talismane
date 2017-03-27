@@ -53,53 +53,53 @@ import com.typesafe.config.Config;
  *
  */
 public class SentenceDetectorTrainer {
-	private static final Logger LOG = LoggerFactory.getLogger(SentenceDetectorTrainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SentenceDetectorTrainer.class);
 
-	private final TalismaneSession session;
-	private final Config sentenceConfig;
-	private final File modelFile;
-	private final ClassificationEventStream eventStream;
-	private final Map<String, List<String>> descriptors;
+  private final TalismaneSession session;
+  private final Config sentenceConfig;
+  private final File modelFile;
+  private final ClassificationEventStream eventStream;
+  private final Map<String, List<String>> descriptors;
 
-	public SentenceDetectorTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
-		Config config = session.getConfig();
-		this.sentenceConfig = config.getConfig("talismane.core.sentence-detector");
-		this.session = session;
-		this.modelFile = new File(sentenceConfig.getString("model"));
+  public SentenceDetectorTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+    Config config = session.getConfig();
+    this.sentenceConfig = config.getConfig("talismane.core.sentence-detector");
+    this.session = session;
+    this.modelFile = new File(sentenceConfig.getString("model"));
 
-		this.descriptors = new HashMap<>();
+    this.descriptors = new HashMap<>();
 
-		String configPath = "talismane.core.sentence-detector.train.features";
-		InputStream featureFile = ConfigUtils.getFileFromConfig(config, configPath);
-		List<String> featureDescriptors = new ArrayList<>();
-		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(featureFile, "UTF-8")))) {
+    String configPath = "talismane.core.sentence-detector.train.features";
+    InputStream featureFile = ConfigUtils.getFileFromConfig(config, configPath);
+    List<String> featureDescriptors = new ArrayList<>();
+    try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(featureFile, "UTF-8")))) {
 
-			while (scanner.hasNextLine()) {
-				String descriptor = scanner.nextLine();
-				featureDescriptors.add(descriptor);
-				LOG.debug(descriptor);
-			}
-		}
-		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(reader, sentenceConfig.getConfig("train"),
-				session);
+      while (scanner.hasNextLine()) {
+        String descriptor = scanner.nextLine();
+        featureDescriptors.add(descriptor);
+        LOG.debug(descriptor);
+      }
+    }
+    descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+    SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(reader, sentenceConfig.getConfig("train"),
+        session);
 
-		SentenceDetectorFeatureParser featureParser = new SentenceDetectorFeatureParser(session);
-		Set<SentenceDetectorFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
-		eventStream = new SentenceDetectorEventStream(corpusReader, features, this.session);
-	}
+    SentenceDetectorFeatureParser featureParser = new SentenceDetectorFeatureParser(session);
+    Set<SentenceDetectorFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
+    eventStream = new SentenceDetectorEventStream(corpusReader, features, this.session);
+  }
 
-	public ClassificationModel train() throws TalismaneException, IOException {
-		ModelTrainerFactory factory = new ModelTrainerFactory();
-		ClassificationModelTrainer trainer = factory.constructTrainer(sentenceConfig.getConfig("train.machine-learning"));
+  public ClassificationModel train() throws TalismaneException, IOException {
+    ModelTrainerFactory factory = new ModelTrainerFactory();
+    ClassificationModelTrainer trainer = factory.constructTrainer(sentenceConfig.getConfig("train.machine-learning"));
 
-		ClassificationModel model = trainer.trainModel(eventStream, descriptors);
-		model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
+    ClassificationModel model = trainer.trainModel(eventStream, descriptors);
+    model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 
-		File modelDir = modelFile.getParentFile();
-		if (modelDir != null)
-			modelDir.mkdirs();
-		model.persist(modelFile);
-		return model;
-	}
+    File modelDir = modelFile.getParentFile();
+    if (modelDir != null)
+      modelDir.mkdirs();
+    model.persist(modelFile);
+    return model;
+  }
 }

@@ -28,59 +28,59 @@ import java.util.Map;
  *
  */
 public class TokenBoundary implements Serializable {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private final String text;
-	private final String analysisText;
-	private final Map<String, TokenAttribute<?>> attributes;
+  private final String text;
+  private final String analysisText;
+  private final Map<String, TokenAttribute<?>> attributes;
 
-	public TokenBoundary(String text, String analysisText, Map<String, TokenAttribute<?>> attributes) {
-		this.text = text;
-		this.analysisText = analysisText;
-		this.attributes = attributes;
-	}
+  public TokenBoundary(String text, String analysisText, Map<String, TokenAttribute<?>> attributes) {
+    this.text = text;
+    this.analysisText = analysisText;
+    this.attributes = attributes;
+  }
 
-	/**
-	 * The token's text for analysis purposes, see
-	 * {@link Token#getAnalyisText()}.
-	 * 
-	 * @return
-	 */
-	public String getAnalysisText() {
-		return analysisText;
-	}
+  /**
+   * The token's text for analysis purposes, see
+   * {@link Token#getAnalyisText()}.
+   * 
+   * @return
+   */
+  public String getAnalysisText() {
+    return analysisText;
+  }
 
-	/**
-	 * The token's processed text, see {@link Token#getText()}.
-	 * 
-	 * @return
-	 */
-	public String getText() {
-		return text;
-	}
+  /**
+   * The token's processed text, see {@link Token#getText()}.
+   * 
+   * @return
+   */
+  public String getText() {
+    return text;
+  }
 
-	/**
-	 * Any attributes assigned to this token.
-	 */
-	public Map<String, TokenAttribute<?>> getAttributes() {
-		return attributes;
-	}
+  /**
+   * Any attributes assigned to this token.
+   */
+  public Map<String, TokenAttribute<?>> getAttributes() {
+    return attributes;
+  }
 
-	/**
-	 * Return the attribute value corresponding to a particular key, or null if
-	 * the key is missing.
-	 */
-	public <T extends Serializable> T getAttributeValue(String key) {
-		@SuppressWarnings("unchecked")
-		TokenAttribute<T> attribute = (TokenAttribute<T>) attributes.get(key);
-		if (attribute == null)
-			return null;
-		return attribute.getValue();
-	}
+  /**
+   * Return the attribute value corresponding to a particular key, or null if
+   * the key is missing.
+   */
+  public <T extends Serializable> T getAttributeValue(String key) {
+    @SuppressWarnings("unchecked")
+    TokenAttribute<T> attribute = (TokenAttribute<T>) attributes.get(key);
+    if (attribute == null)
+      return null;
+    return attribute.getValue();
+  }
 
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName();
-	}
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName();
+  }
 
 }

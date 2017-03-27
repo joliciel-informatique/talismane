@@ -25,26 +25,26 @@ package com.joliciel.talismane.machineLearning.features;
  *
  */
 class StringCollectionFeatureProxy<T> extends AbstractFeature<T, String> implements StringFeature<T> {
-	private StringCollectionFeature<T> stringCollectionFeature;
-	
-	public StringCollectionFeatureProxy(StringCollectionFeature<T> stringCollectionFeature) {
-		super();
-		this.stringCollectionFeature = stringCollectionFeature;
-		this.setName(stringCollectionFeature.getName());
-	}
+  private StringCollectionFeature<T> stringCollectionFeature;
+  
+  public StringCollectionFeatureProxy(StringCollectionFeature<T> stringCollectionFeature) {
+    super();
+    this.stringCollectionFeature = stringCollectionFeature;
+    this.setName(stringCollectionFeature.getName());
+  }
 
-	@Override
-	public FeatureResult<String> check(T context, RuntimeEnvironment env) {
-		FeatureResult<String> result = null;
-		String outcome = (String) env.getValue(stringCollectionFeature.getName());
-		if (outcome!=null) {
-			result = this.generateResult(outcome);
-		}
-		return result;
-	}
+  @Override
+  public FeatureResult<String> check(T context, RuntimeEnvironment env) {
+    FeatureResult<String> result = null;
+    String outcome = (String) env.getValue(stringCollectionFeature.getName());
+    if (outcome!=null) {
+      result = this.generateResult(outcome);
+    }
+    return result;
+  }
 
-	public StringCollectionFeature<T> getStringCollectionFeature() {
-		return stringCollectionFeature;
-	}
-	
+  public StringCollectionFeature<T> getStringCollectionFeature() {
+    return stringCollectionFeature;
+  }
+  
 }

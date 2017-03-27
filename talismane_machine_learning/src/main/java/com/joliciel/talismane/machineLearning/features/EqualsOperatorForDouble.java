@@ -27,50 +27,50 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class EqualsOperatorForDouble<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
-	private DoubleFeature<T> operand1;
-	private DoubleFeature<T> operand2;
-	private double sigma = 0.0001;
+  private DoubleFeature<T> operand1;
+  private DoubleFeature<T> operand2;
+  private double sigma = 0.0001;
 
-	public EqualsOperatorForDouble(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
-		super();
-		this.operand1 = operand1;
-		this.operand2 = operand2;
-		this.setName(operand1.getName() + "==" + operand2.getName());
-	}
+  public EqualsOperatorForDouble(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
+    super();
+    this.operand1 = operand1;
+    this.operand2 = operand2;
+    this.setName(operand1.getName() + "==" + operand2.getName());
+  }
 
-	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		FeatureResult<Double> operand1Result = operand1.check(context, env);
-		if (operand1Result != null) {
-			FeatureResult<Double> operand2Result = operand2.check(context, env);
+    FeatureResult<Double> operand1Result = operand1.check(context, env);
+    if (operand1Result != null) {
+      FeatureResult<Double> operand2Result = operand2.check(context, env);
 
-			if (operand2Result != null) {
-				double diff = Math.abs(operand1Result.getOutcome() - operand2Result.getOutcome());
-				boolean result = diff <= sigma;
-				featureResult = this.generateResult(result);
-			}
-		}
+      if (operand2Result != null) {
+        double diff = Math.abs(operand1Result.getOutcome() - operand2Result.getOutcome());
+        boolean result = diff <= sigma;
+        featureResult = this.generateResult(result);
+      }
+    }
 
-		return featureResult;
+    return featureResult;
 
-	}
+  }
 
-	public DoubleFeature<T> getOperand1() {
-		return operand1;
-	}
+  public DoubleFeature<T> getOperand1() {
+    return operand1;
+  }
 
-	public void setOperand1(DoubleFeature<T> operand1) {
-		this.operand1 = operand1;
-	}
+  public void setOperand1(DoubleFeature<T> operand1) {
+    this.operand1 = operand1;
+  }
 
-	public DoubleFeature<T> getOperand2() {
-		return operand2;
-	}
+  public DoubleFeature<T> getOperand2() {
+    return operand2;
+  }
 
-	public void setOperand2(DoubleFeature<T> operand2) {
-		this.operand2 = operand2;
-	}
+  public void setOperand2(DoubleFeature<T> operand2) {
+    this.operand2 = operand2;
+  }
 
 }

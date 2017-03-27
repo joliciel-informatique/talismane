@@ -51,105 +51,105 @@ import com.typesafe.config.ConfigFactory;
  */
 public class TalismaneAPIExamples {
 
-	public static void main(String[] args) throws Exception {
-		int example = 1;
-		if (args.length > 0)
-			example = Integer.parseInt(args[0]);
-		if (example == 1)
-			TalismaneAPIExamples.example1();
-		else if (example == 2)
-			TalismaneAPIExamples.example2();
-	}
+  public static void main(String[] args) throws Exception {
+    int example = 1;
+    if (args.length > 0)
+      example = Integer.parseInt(args[0]);
+    if (example == 1)
+      TalismaneAPIExamples.example1();
+    else if (example == 2)
+      TalismaneAPIExamples.example2();
+  }
 
-	/**
-	 * An example tokenising, pos-tagging and parsing a pre-existing sentence.
-	 */
-	public static void example1() throws Exception {
-		String text = "Les amoureux qui se bécotent sur les bancs publics ont des petites gueules bien sympathiques.";
+  /**
+   * An example tokenising, pos-tagging and parsing a pre-existing sentence.
+   */
+  public static void example1() throws Exception {
+    String text = "Les amoureux qui se bécotent sur les bancs publics ont des petites gueules bien sympathiques.";
 
-		// arbitrary session id
-		String sessionId = "";
+    // arbitrary session id
+    String sessionId = "";
 
-		// load the Talismane configuration
-		Config conf = ConfigFactory.load();
-		TalismaneSession session = new TalismaneSession(conf, sessionId);
+    // load the Talismane configuration
+    Config conf = ConfigFactory.load();
+    TalismaneSession session = new TalismaneSession(conf, sessionId);
 
-		// tokenise the text
-		Tokeniser tokeniser = Tokeniser.getInstance(session);
-		TokenSequence tokenSequence = tokeniser.tokeniseText(text);
+    // tokenise the text
+    Tokeniser tokeniser = Tokeniser.getInstance(session);
+    TokenSequence tokenSequence = tokeniser.tokeniseText(text);
 
-		// pos-tag the token sequence
-		PosTagger posTagger = PosTaggers.getPosTagger(session);
-		PosTagSequence posTagSequence = posTagger.tagSentence(tokenSequence);
-		System.out.println(posTagSequence);
+    // pos-tag the token sequence
+    PosTagger posTagger = PosTaggers.getPosTagger(session);
+    PosTagSequence posTagSequence = posTagger.tagSentence(tokenSequence);
+    System.out.println(posTagSequence);
 
-		// parse the pos-tag sequence
-		Parser parser = Parsers.getParser(session);
-		ParseConfiguration parseConfiguration = parser.parseSentence(posTagSequence);
-		DependencyNode dependencyNode = parseConfiguration.getParseTree();
-		System.out.println(dependencyNode);
+    // parse the pos-tag sequence
+    Parser parser = Parsers.getParser(session);
+    ParseConfiguration parseConfiguration = parser.parseSentence(posTagSequence);
+    DependencyNode dependencyNode = parseConfiguration.getParseTree();
+    System.out.println(dependencyNode);
 
-	}
+  }
 
-	/**
-	 * Similar to example1, but begins with filtering and sentence detection.
-	 */
-	public static void example2() throws Exception {
-		String text = "Les gens qui voient de travers pensent que les bancs verts qu'on voit sur les trottoirs "
-				+ "sont faits pour les impotents ou les ventripotents. " + "Mais c'est une absurdité, car, à la vérité, ils sont là, c'est notoire, "
-				+ "pour accueillir quelque temps les amours débutants.";
+  /**
+   * Similar to example1, but begins with filtering and sentence detection.
+   */
+  public static void example2() throws Exception {
+    String text = "Les gens qui voient de travers pensent que les bancs verts qu'on voit sur les trottoirs "
+        + "sont faits pour les impotents ou les ventripotents. " + "Mais c'est une absurdité, car, à la vérité, ils sont là, c'est notoire, "
+        + "pour accueillir quelque temps les amours débutants.";
 
-		// arbitrary session id
-		String sessionId = "";
+    // arbitrary session id
+    String sessionId = "";
 
-		// load the Talismane configuration
-		Config conf = ConfigFactory.load();
-		TalismaneSession session = new TalismaneSession(conf, sessionId);
+    // load the Talismane configuration
+    Config conf = ConfigFactory.load();
+    TalismaneSession session = new TalismaneSession(conf, sessionId);
 
-		RawText rawText = new RawText(text, true, session);
+    RawText rawText = new RawText(text, true, session);
 
-		// filter the text - in the case where filters are defined
-		// to skip certain parts of the text (e.g. XML) or to fix encoding
-		// issues (e.g. replace &quot; with ")
-		for (RawTextAnnotator filter : session.getTextAnnotators()) {
-			filter.annotate(rawText);
-		}
+    // filter the text - in the case where filters are defined
+    // to skip certain parts of the text (e.g. XML) or to fix encoding
+    // issues (e.g. replace &quot; with ")
+    for (RawTextAnnotator filter : session.getTextAnnotators()) {
+      filter.annotate(rawText);
+    }
 
-		// retrieve the processed text after filters have been applied
-		AnnotatedText processedText = rawText.getProcessedText();
+    // retrieve the processed text after filters have been applied
+    AnnotatedText processedText = rawText.getProcessedText();
 
-		// detect sentences
-		SentenceDetector sentenceDetector = SentenceDetector.getInstance(session);
-		sentenceDetector.detectSentences(processedText);
+    // detect sentences
+    SentenceDetector sentenceDetector = SentenceDetector.getInstance(session);
+    sentenceDetector.detectSentences(processedText);
 
-		// the detected sentences can be retrieved directly from the raw text
-		// this allows annotations made on the sentences to get reflected in the
-		// raw text
-		List<Sentence> sentences = rawText.getDetectedSentences();
+    // the detected sentences can be retrieved directly from the raw text
+    // this allows annotations made on the sentences to get reflected in the
+    // raw text
+    List<Sentence> sentences = rawText.getDetectedSentences();
 
-		for (Sentence sentence : sentences) {
-			// apply any sentence annotators to prepare the text for analysis
-			// via deterministic rules (e.g. token boundaries or pos-tag
-			// assignment for a given word)
-			for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
-				annotator.annotate(sentence);
-			}
+    for (Sentence sentence : sentences) {
+      // apply any sentence annotators to prepare the text for analysis
+      // via deterministic rules (e.g. token boundaries or pos-tag
+      // assignment for a given word)
+      for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
+        annotator.annotate(sentence);
+      }
 
-			// tokenise the text
-			Tokeniser tokeniser = Tokeniser.getInstance(session);
-			TokenSequence tokenSequence = tokeniser.tokeniseSentence(sentence);
+      // tokenise the text
+      Tokeniser tokeniser = Tokeniser.getInstance(session);
+      TokenSequence tokenSequence = tokeniser.tokeniseSentence(sentence);
 
-			// pos-tag the token sequence
-			PosTagger posTagger = PosTaggers.getPosTagger(session);
-			PosTagSequence posTagSequence = posTagger.tagSentence(tokenSequence);
-			System.out.println(posTagSequence);
+      // pos-tag the token sequence
+      PosTagger posTagger = PosTaggers.getPosTagger(session);
+      PosTagSequence posTagSequence = posTagger.tagSentence(tokenSequence);
+      System.out.println(posTagSequence);
 
-			// parse the pos-tag sequence
-			Parser parser = Parsers.getParser(session);
-			ParseConfiguration parseConfiguration = parser.parseSentence(posTagSequence);
-			DependencyNode dependencyNode = parseConfiguration.getParseTree();
-			System.out.println(dependencyNode);
-		}
+      // parse the pos-tag sequence
+      Parser parser = Parsers.getParser(session);
+      ParseConfiguration parseConfiguration = parser.parseSentence(posTagSequence);
+      DependencyNode dependencyNode = parseConfiguration.getParseTree();
+      System.out.println(dependencyNode);
+    }
 
-	}
+  }
 }

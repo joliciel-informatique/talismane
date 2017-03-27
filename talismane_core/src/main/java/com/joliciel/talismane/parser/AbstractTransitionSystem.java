@@ -22,23 +22,23 @@ import java.util.Collections;
 import java.util.Set;
 
 abstract class AbstractTransitionSystem implements TransitionSystem {
-	private DependencyLabelSet dependencyLabelSet;
-	private Set<String> dependencyLabels = Collections.emptySet();
+  private DependencyLabelSet dependencyLabelSet;
+  private Set<String> dependencyLabels = Collections.emptySet();
 
-	@Override
-	public Set<String> getDependencyLabels() {
-		return dependencyLabels;
-	}
+  @Override
+  public Set<String> getDependencyLabels() {
+    return dependencyLabels;
+  }
 
-	@Override
-	public DependencyLabelSet getDependencyLabelSet() {
-		return dependencyLabelSet;
-	}
+  @Override
+  public DependencyLabelSet getDependencyLabelSet() {
+    return dependencyLabelSet;
+  }
 
-	@Override
-	public void setDependencyLabelSet(DependencyLabelSet dependencyLabelSet) {
-		this.dependencyLabelSet = dependencyLabelSet;
-		this.dependencyLabels = dependencyLabelSet.getDependencyLabels();
-	}
+  @Override
+  public void setDependencyLabelSet(DependencyLabelSet dependencyLabelSet) {
+    this.dependencyLabelSet = dependencyLabelSet;
+    this.dependencyLabels = dependencyLabelSet.getDependencyLabels();
+  }
 
 }

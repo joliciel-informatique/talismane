@@ -32,25 +32,25 @@ import com.joliciel.talismane.tokeniser.Token;
  */
 public final class TokenIndexFeature extends AbstractTokenFeature<Integer>implements IntegerFeature<TokenWrapper> {
 
-	public TokenIndexFeature() {
-	}
+  public TokenIndexFeature() {
+  }
 
-	public TokenIndexFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this();
-		this.setAddressFunction(addressFunction);
-	}
+  public TokenIndexFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this();
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Integer> result = null;
+  @Override
+  public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Integer> result = null;
 
-		int index = token.getIndex();
-		result = this.generateResult(index);
+    int index = token.getIndex();
+    result = this.generateResult(index);
 
-		return result;
-	}
+    return result;
+  }
 }

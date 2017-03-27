@@ -46,50 +46,50 @@ import com.typesafe.config.Config;
  *
  */
 public interface SentenceProcessor extends Closeable {
-	/**
-	 * Process the next sentence.
-	 * 
-	 * @throws IOException
-	 */
-	public void onNextSentence(Sentence sentence) throws IOException;
+  /**
+   * Process the next sentence.
+   * 
+   * @throws IOException
+   */
+  public void onNextSentence(Sentence sentence) throws IOException;
 
-	/**
-	 * 
-	 * @param writer
-	 *            if provided, the main processor will write to this writer, if
-	 *            null, the outDir will be used instead
-	 * @param outDir
-	 * @param session
-	 * @return
-	 * @throws IOException
-	 */
-	public static List<SentenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
-		List<SentenceProcessor> sentenceProcessors = new ArrayList<>();
-		Config config = session.getConfig();
+  /**
+   * 
+   * @param writer
+   *            if provided, the main processor will write to this writer, if
+   *            null, the outDir will be used instead
+   * @param outDir
+   * @param session
+   * @return
+   * @throws IOException
+   */
+  public static List<SentenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
+    List<SentenceProcessor> sentenceProcessors = new ArrayList<>();
+    Config config = session.getConfig();
 
-		if (outDir != null)
-			outDir.mkdirs();
+    if (outDir != null)
+      outDir.mkdirs();
 
-		Reader templateReader = null;
-		String configPath = "talismane.core.sentence-detector.output.template";
-		if (config.hasPath(configPath)) {
-			templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-		} else {
-			String sentenceTemplateName = "sentence_template.ftl";
-			String path = "output/" + sentenceTemplateName;
-			InputStream inputStream = Talismane.class.getResourceAsStream(path);
-			if (inputStream == null)
-				throw new IOException("Resource not found in classpath: " + path);
-			templateReader = new BufferedReader(new InputStreamReader(inputStream));
+    Reader templateReader = null;
+    String configPath = "talismane.core.sentence-detector.output.template";
+    if (config.hasPath(configPath)) {
+      templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
+    } else {
+      String sentenceTemplateName = "sentence_template.ftl";
+      String path = "output/" + sentenceTemplateName;
+      InputStream inputStream = Talismane.class.getResourceAsStream(path);
+      if (inputStream == null)
+        throw new IOException("Resource not found in classpath: " + path);
+      templateReader = new BufferedReader(new InputStreamReader(inputStream));
 
-		}
-		if (writer == null) {
-			File file = new File(outDir, session.getBaseName() + "_sent.txt");
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
-		}
-		FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, writer);
-		SentenceProcessor sentenceProcessor = templateWriter;
-		sentenceProcessors.add(sentenceProcessor);
-		return sentenceProcessors;
-	}
+    }
+    if (writer == null) {
+      File file = new File(outDir, session.getBaseName() + "_sent.txt");
+      writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+    }
+    FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, writer);
+    SentenceProcessor sentenceProcessor = templateWriter;
+    sentenceProcessors.add(sentenceProcessor);
+    return sentenceProcessors;
+  }
 }

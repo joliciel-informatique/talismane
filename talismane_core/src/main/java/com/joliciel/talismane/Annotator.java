@@ -29,11 +29,11 @@ import java.io.IOException;
  *
  */
 public interface Annotator<T extends AnnotatedText> {
-	/**
-	 * Annotates the text provided, and adds the labels to all annotations.
-	 * 
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public void annotate(T annotatedText, String... labels) throws TalismaneException, IOException;
+  /**
+   * Annotates the text provided, and adds the labels to all annotations.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public void annotate(T annotatedText, String... labels) throws TalismaneException, IOException;
 }

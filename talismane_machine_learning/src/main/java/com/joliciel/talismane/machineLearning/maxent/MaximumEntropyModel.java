@@ -44,45 +44,45 @@ import opennlp.model.MaxentModel;
  *
  */
 public class MaximumEntropyModel extends AbstractOpenNLPModel {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(MaximumEntropyModel.class);
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(MaximumEntropyModel.class);
 
-	/**
-	 * Default constructor for factory.
-	 */
-	public MaximumEntropyModel() {
-	}
+  /**
+   * Default constructor for factory.
+   */
+  public MaximumEntropyModel() {
+  }
 
-	/**
-	 * Construct from a newly trained model including the feature descriptors.
-	 */
-	MaximumEntropyModel(MaxentModel model, Config config, Map<String, List<String>> descriptors) {
-		super(model, config, descriptors);
-	}
+  /**
+   * Construct from a newly trained model including the feature descriptors.
+   */
+  MaximumEntropyModel(MaxentModel model, Config config, Map<String, List<String>> descriptors) {
+    super(model, config, descriptors);
+  }
 
-	@Override
-	public MachineLearningAlgorithm getAlgorithm() {
-		return MachineLearningAlgorithm.MaxEnt;
-	}
+  @Override
+  public MachineLearningAlgorithm getAlgorithm() {
+    return MachineLearningAlgorithm.MaxEnt;
+  }
 
-	@Override
-	public ClassificationObserver getDetailedAnalysisObserver(File file) throws IOException {
-		MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(this.getModel(), file);
-		return observer;
-	}
+  @Override
+  public ClassificationObserver getDetailedAnalysisObserver(File file) throws IOException {
+    MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(this.getModel(), file);
+    return observer;
+  }
 
-	@Override
-	public void writeModelToStream(OutputStream outputStream) throws IOException {
-		new MaxentModelWriterWrapper(this.getModel(), outputStream).persist();
-	}
+  @Override
+  public void writeModelToStream(OutputStream outputStream) throws IOException {
+    new MaxentModelWriterWrapper(this.getModel(), outputStream).persist();
+  }
 
-	@Override
-	public void loadModelFromStream(InputStream inputStream) throws IOException {
-		MaxentModelReaderWrapper maxentModelReader = new MaxentModelReaderWrapper(inputStream);
-		this.setModel(maxentModelReader.getModel());
-	}
+  @Override
+  public void loadModelFromStream(InputStream inputStream) throws IOException {
+    MaxentModelReaderWrapper maxentModelReader = new MaxentModelReaderWrapper(inputStream);
+    this.setModel(maxentModelReader.getModel());
+  }
 
-	@Override
-	public void onLoadComplete() {
-	}
+  @Override
+  public void onLoadComplete() {
+  }
 }

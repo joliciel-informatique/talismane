@@ -24,10 +24,10 @@ package com.joliciel.talismane.utils;
  *
  */
 public interface ObjectCache {
-	/**
-	 * Retrieve from the cache the entity corresponding to a given Class and id.
-	 * @return the entity if in the cache, or null otherwise.
-	 */
+  /**
+   * Retrieve from the cache the entity corresponding to a given Class and id.
+   * @return the entity if in the cache, or null otherwise.
+   */
     public<T> T getEntity(Class<T> clazz, Object id);
     
     /**

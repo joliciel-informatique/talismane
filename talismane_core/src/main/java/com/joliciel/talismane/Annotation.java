@@ -39,102 +39,102 @@ import java.util.List;
  *            the data added by this annotation
  */
 public final class Annotation<T extends Serializable> implements Comparable<Annotation<?>> {
-	private final int start;
-	private final int end;
-	private final T data;
-	private final List<String> labels;
+  private final int start;
+  private final int end;
+  private final T data;
+  private final List<String> labels;
 
-	public Annotation(int start, int end, T data, List<String> labels) {
-		super();
-		this.start = start;
-		this.end = end;
-		this.data = data;
-		this.labels = labels;
-	}
+  public Annotation(int start, int end, T data, List<String> labels) {
+    super();
+    this.start = start;
+    this.end = end;
+    this.data = data;
+    this.labels = labels;
+  }
 
-	public Annotation(int start, int end, T data, String[] labels) {
-		this(start, end, data, labels.length == 0 ? Collections.emptyList() : Arrays.asList(labels));
-	}
+  public Annotation(int start, int end, T data, String[] labels) {
+    this(start, end, data, labels.length == 0 ? Collections.emptyList() : Arrays.asList(labels));
+  }
 
-	/**
-	 * The first character position to which the annotation applies.
-	 */
-	public int getStart() {
-		return start;
-	}
+  /**
+   * The first character position to which the annotation applies.
+   */
+  public int getStart() {
+    return start;
+  }
 
-	/**
-	 * The position immediately after the last character to which the annotation
-	 * applied.
-	 * 
-	 */
-	public int getEnd() {
-		return end;
-	}
+  /**
+   * The position immediately after the last character to which the annotation
+   * applied.
+   * 
+   */
+  public int getEnd() {
+    return end;
+  }
 
-	/**
-	 * The annotation data.
-	 */
-	public T getData() {
-		return data;
-	}
+  /**
+   * The annotation data.
+   */
+  public T getData() {
+    return data;
+  }
 
-	/**
-	 * The labels added to this annotation.
-	 */
-	public List<String> getLabels() {
-		return labels;
-	}
+  /**
+   * The labels added to this annotation.
+   */
+  public List<String> getLabels() {
+    return labels;
+  }
 
-	/**
-	 * Return a new annotation representing the current annotation data with a
-	 * different start and end.
-	 */
-	public Annotation<T> getAnnotation(int start, int end) {
-		return new Annotation<T>(start, end, this.data, this.labels);
-	}
+  /**
+   * Return a new annotation representing the current annotation data with a
+   * different start and end.
+   */
+  public Annotation<T> getAnnotation(int start, int end) {
+    return new Annotation<T>(start, end, this.data, this.labels);
+  }
 
-	@Override
-	public int compareTo(Annotation<?> that) {
-		if (this.start != that.start)
-			return this.start - that.start;
-		return that.end - this.end;
-	}
+  @Override
+  public int compareTo(Annotation<?> that) {
+    if (this.start != that.start)
+      return this.start - that.start;
+    return that.end - this.end;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((data == null) ? 0 : data.hashCode());
-		result = prime * result + end;
-		result = prime * result + start;
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((data == null) ? 0 : data.hashCode());
+    result = prime * result + end;
+    result = prime * result + start;
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		@SuppressWarnings("rawtypes")
-		Annotation other = (Annotation) obj;
-		if (data == null) {
-			if (other.data != null)
-				return false;
-		} else if (!data.equals(other.data))
-			return false;
-		if (end != other.end)
-			return false;
-		if (start != other.start)
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    @SuppressWarnings("rawtypes")
+    Annotation other = (Annotation) obj;
+    if (data == null) {
+      if (other.data != null)
+        return false;
+    } else if (!data.equals(other.data))
+      return false;
+    if (end != other.end)
+      return false;
+    if (start != other.start)
+      return false;
+    return true;
+  }
 
-	@Override
-	public String toString() {
-		return "Annotation [start=" + start + ", end=" + end + ", data=" + data + "]";
-	}
+  @Override
+  public String toString() {
+    return "Annotation [start=" + start + ", end=" + end + ", data=" + data + "]";
+  }
 }

@@ -27,60 +27,60 @@ import java.util.regex.Matcher;
  *
  */
 public class RegexUtils {
-	/**
-	 * For a given replacement string which can include $1, $2, etc.
-	 * placeholders, and a given original text with matcher, returns a modified
-	 * replacement string which fills in the placeholders from the original
-	 * text.
-	 * 
-	 * @param replacement
-	 *            the replacment string
-	 * @param text
-	 *            the original text
-	 * @param matcher
-	 *            the matcher
-	 */
-	public static String getReplacement(String replacement, CharSequence text, Matcher matcher) {
-		String newText = replacement;
-		if (replacement != null && replacement.indexOf('$') >= 0) {
-			StringBuilder sb = new StringBuilder();
-			boolean backslash = false;
-			boolean dollar = false;
-			String group = "";
-			for (int i = 0; i < replacement.length(); i++) {
-				char c = replacement.charAt(i);
-				if (c == '\\') {
-					backslash = true;
-				} else if (c == '$' && !backslash) {
-					if (dollar) {
-						int groupNumber = Integer.parseInt(group);
-						if (matcher.start(groupNumber) >= 0)
-							sb.append(text.subSequence(matcher.start(groupNumber), matcher.end(groupNumber)));
-						group = "";
-					}
-					dollar = true;
-				} else if (Character.isDigit(c) && dollar) {
-					group += c;
-				} else {
-					if (dollar) {
-						int groupNumber = Integer.parseInt(group);
-						if (matcher.start(groupNumber) >= 0)
-							sb.append(text.subSequence(matcher.start(groupNumber), matcher.end(groupNumber)));
-						group = "";
-					}
-					sb.append(c);
-					backslash = false;
-					dollar = false;
-				} // character type
-			} // next character
-			if (dollar) {
-				int groupNumber = Integer.parseInt(group);
-				if (matcher.start(groupNumber) >= 0)
-					sb.append(text.subSequence(matcher.start(groupNumber), matcher.end(groupNumber)));
-			}
+  /**
+   * For a given replacement string which can include $1, $2, etc.
+   * placeholders, and a given original text with matcher, returns a modified
+   * replacement string which fills in the placeholders from the original
+   * text.
+   * 
+   * @param replacement
+   *            the replacment string
+   * @param text
+   *            the original text
+   * @param matcher
+   *            the matcher
+   */
+  public static String getReplacement(String replacement, CharSequence text, Matcher matcher) {
+    String newText = replacement;
+    if (replacement != null && replacement.indexOf('$') >= 0) {
+      StringBuilder sb = new StringBuilder();
+      boolean backslash = false;
+      boolean dollar = false;
+      String group = "";
+      for (int i = 0; i < replacement.length(); i++) {
+        char c = replacement.charAt(i);
+        if (c == '\\') {
+          backslash = true;
+        } else if (c == '$' && !backslash) {
+          if (dollar) {
+            int groupNumber = Integer.parseInt(group);
+            if (matcher.start(groupNumber) >= 0)
+              sb.append(text.subSequence(matcher.start(groupNumber), matcher.end(groupNumber)));
+            group = "";
+          }
+          dollar = true;
+        } else if (Character.isDigit(c) && dollar) {
+          group += c;
+        } else {
+          if (dollar) {
+            int groupNumber = Integer.parseInt(group);
+            if (matcher.start(groupNumber) >= 0)
+              sb.append(text.subSequence(matcher.start(groupNumber), matcher.end(groupNumber)));
+            group = "";
+          }
+          sb.append(c);
+          backslash = false;
+          dollar = false;
+        } // character type
+      } // next character
+      if (dollar) {
+        int groupNumber = Integer.parseInt(group);
+        if (matcher.start(groupNumber) >= 0)
+          sb.append(text.subSequence(matcher.start(groupNumber), matcher.end(groupNumber)));
+      }
 
-			newText = sb.toString();
-		} // has replacement
-		return newText;
-	}
+      newText = sb.toString();
+    } // has replacement
+    return newText;
+  }
 }

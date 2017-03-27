@@ -34,38 +34,38 @@ import com.joliciel.talismane.tokeniser.Token;
  */
 public final class HasClosedClassesOnlyFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
 
-	/**
-	 */
-	public HasClosedClassesOnlyFeature() {
-	}
+  /**
+   */
+  public HasClosedClassesOnlyFeature() {
+  }
 
-	public HasClosedClassesOnlyFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public HasClosedClassesOnlyFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> result = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Boolean> result = null;
 
-		boolean hasClosedClassesOnly = false;
+    boolean hasClosedClassesOnly = false;
 
-		if (token.getPossiblePosTags().size() > 0)
-			hasClosedClassesOnly = true;
+    if (token.getPossiblePosTags().size() > 0)
+      hasClosedClassesOnly = true;
 
-		for (PosTag posTag : token.getPossiblePosTags()) {
-			if (!posTag.getOpenClassIndicator().isClosed()) {
-				hasClosedClassesOnly = false;
-				break;
-			}
-		}
+    for (PosTag posTag : token.getPossiblePosTags()) {
+      if (!posTag.getOpenClassIndicator().isClosed()) {
+        hasClosedClassesOnly = false;
+        break;
+      }
+    }
 
-		result = this.generateResult(hasClosedClassesOnly);
+    result = this.generateResult(hasClosedClassesOnly);
 
-		return result;
-	}
+    return result;
+  }
 
 }

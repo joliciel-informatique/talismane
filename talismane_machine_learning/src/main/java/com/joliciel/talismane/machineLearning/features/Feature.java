@@ -41,57 +41,57 @@ import com.joliciel.talismane.TalismaneException;
  */
 public interface Feature<T, Y> extends Comparable<Feature<T, ?>> {
 
-	/**
-	 * Check the feature on this context and return the result.
-	 * 
-	 * @throws TalismaneException
-	 */
-	public FeatureResult<Y> check(T context, RuntimeEnvironment env) throws TalismaneException;
+  /**
+   * Check the feature on this context and return the result.
+   * 
+   * @throws TalismaneException
+   */
+  public FeatureResult<Y> check(T context, RuntimeEnvironment env) throws TalismaneException;
 
-	/**
-	 * The name of this feature.
-	 */
-	public String getName();
+  /**
+   * The name of this feature.
+   */
+  public String getName();
 
-	/**
-	 * Set a name for this feature, that will over-write the default name.
-	 */
-	public void setName(String name);
+  /**
+   * Set a name for this feature, that will over-write the default name.
+   */
+  public void setName(String name);
 
-	/**
-	 * Returns the feature's return type interface, e.g. BooleanFeature,
-	 * StringFeature or DoubleFeature.
-	 */
-	@SuppressWarnings("rawtypes")
-	public Class<? extends Feature> getFeatureType();
+  /**
+   * Returns the feature's return type interface, e.g. BooleanFeature,
+   * StringFeature or DoubleFeature.
+   */
+  @SuppressWarnings("rawtypes")
+  public Class<? extends Feature> getFeatureType();
 
-	/**
-	 * A single feature descriptor can result in the generation of multiple
-	 * features (e.g. in the case where it refers to a range of indexes). The
-	 * collection name groups all these features under one name - that of the
-	 * feature descriptor. It can used, for example, for measuring the
-	 * performance of the entire collection of features together.
-	 */
-	public String getCollectionName();
+  /**
+   * A single feature descriptor can result in the generation of multiple
+   * features (e.g. in the case where it refers to a range of indexes). The
+   * collection name groups all these features under one name - that of the
+   * feature descriptor. It can used, for example, for measuring the
+   * performance of the entire collection of features together.
+   */
+  public String getCollectionName();
 
-	public void setCollectionName(String groupName);
+  public void setCollectionName(String groupName);
 
-	/**
-	 * Explicitly add a constructor argument to this feature, so that the system
-	 * can recursively iterate through a feature's argument tree.
-	 */
-	public void addArgument(Feature<T, ?> argument);
+  /**
+   * Explicitly add a constructor argument to this feature, so that the system
+   * can recursively iterate through a feature's argument tree.
+   */
+  public void addArgument(Feature<T, ?> argument);
 
-	/**
-	 * The features fed to this feature as constructor arguments.
-	 */
-	public List<Feature<T, ?>> getArguments();
+  /**
+   * The features fed to this feature as constructor arguments.
+   */
+  public List<Feature<T, ?>> getArguments();
 
-	/**
-	 * Was this feature defined in a top-level descriptor, or as part of another
-	 * feature.
-	 */
-	public boolean isTopLevelFeature();
+  /**
+   * Was this feature defined in a top-level descriptor, or as part of another
+   * feature.
+   */
+  public boolean isTopLevelFeature();
 
-	public void setTopLevelFeature(boolean topLevelFeature);
+  public void setTopLevelFeature(boolean topLevelFeature);
 }

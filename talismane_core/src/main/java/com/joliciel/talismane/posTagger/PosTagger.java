@@ -41,69 +41,69 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  *
  */
 public interface PosTagger {
-	/**
-	 * If this attribute is added to a {@link Token} via
-	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-	 * {@link RegexAnnotator}), the token in question will get the pos-tag in
-	 * the attribute value assigned to it without consulting the statistical
-	 * model. This is an alternative to using pos-tagger rules.
-	 */
-	public static final String POS_TAG_ATTRIBUTE = "posTag";
+  /**
+   * If this attribute is added to a {@link Token} via
+   * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
+   * {@link RegexAnnotator}), the token in question will get the pos-tag in
+   * the attribute value assigned to it without consulting the statistical
+   * model. This is an alternative to using pos-tagger rules.
+   */
+  public static final String POS_TAG_ATTRIBUTE = "posTag";
 
-	/**
-	 * If this attribute is added to a {@link Token} via
-	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-	 * {@link RegexAnnotator}), and the value of this attribute is
-	 * "originalLower", then the token's lemma will be set to the original
-	 * value, forced into lowercase.
-	 */
-	public static final String LEMMA_TYPE_ATTRIBUTE = "lemmaType";
+  /**
+   * If this attribute is added to a {@link Token} via
+   * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
+   * {@link RegexAnnotator}), and the value of this attribute is
+   * "originalLower", then the token's lemma will be set to the original
+   * value, forced into lowercase.
+   */
+  public static final String LEMMA_TYPE_ATTRIBUTE = "lemmaType";
 
-	/**
-	 * If this attribute is added to a {@link Token} via
-	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-	 * {@link RegexAnnotator}), and the value of this attribute is
-	 * "originalLower", then the token's lemma will be set to the value
-	 * provided.
-	 */
-	public static final String LEMMA_ATTRIBUTE = "lemma";
+  /**
+   * If this attribute is added to a {@link Token} via
+   * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
+   * {@link RegexAnnotator}), and the value of this attribute is
+   * "originalLower", then the token's lemma will be set to the value
+   * provided.
+   */
+  public static final String LEMMA_ATTRIBUTE = "lemma";
 
-	/**
-	 * Apply PosTags to the tokens in a given sentence.
-	 * 
-	 * @param tokenSequence
-	 *            the List of tokens comprising the sentence.
-	 * @return a List of TaggedToken reflecting the PosTags applied to the
-	 *         tokens.
-	 * @throws UnknownPosTagException
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public PosTagSequence tagSentence(TokenSequence tokenSequence) throws UnknownPosTagException, TalismaneException, IOException;
+  /**
+   * Apply PosTags to the tokens in a given sentence.
+   * 
+   * @param tokenSequence
+   *            the List of tokens comprising the sentence.
+   * @return a List of TaggedToken reflecting the PosTags applied to the
+   *         tokens.
+   * @throws UnknownPosTagException
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public PosTagSequence tagSentence(TokenSequence tokenSequence) throws UnknownPosTagException, TalismaneException, IOException;
 
-	/**
-	 * Add an analysis observer to this pos tagger.
-	 */
-	public void addObserver(ClassificationObserver observer);
+  /**
+   * Add an analysis observer to this pos tagger.
+   */
+  public void addObserver(ClassificationObserver observer);
 
-	/**
-	 * The set of features used to describe the sequence of
-	 * {@link PosTaggerContextImpl} encountered while pos-tagging. These have to
-	 * be identical to the features used to train the previously trained
-	 * pos-tagging model.
-	 */
-	public Set<PosTaggerFeature<?>> getPosTaggerFeatures();
+  /**
+   * The set of features used to describe the sequence of
+   * {@link PosTaggerContextImpl} encountered while pos-tagging. These have to
+   * be identical to the features used to train the previously trained
+   * pos-tagging model.
+   */
+  public Set<PosTaggerFeature<?>> getPosTaggerFeatures();
 
-	/**
-	 * @see #getPosTaggerRules()
-	 */
-	public void setPosTaggerRules(List<PosTaggerRule> posTaggerRules);
+  /**
+   * @see #getPosTaggerRules()
+   */
+  public void setPosTaggerRules(List<PosTaggerRule> posTaggerRules);
 
-	/**
-	 * Rules to be applied during pos-tagging, used to override the statistical
-	 * model for phenomena under-represented in the training corpus.
-	 */
-	public List<PosTaggerRule> getPosTaggerRules();
+  /**
+   * Rules to be applied during pos-tagging, used to override the statistical
+   * model for phenomena under-represented in the training corpus.
+   */
+  public List<PosTaggerRule> getPosTaggerRules();
 
-	public PosTagger clonePosTagger();
+  public PosTagger clonePosTagger();
 }

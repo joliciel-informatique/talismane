@@ -38,57 +38,57 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class AndRangeFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
-	private BooleanFeature<TokenWrapper> criterion;
-	private IntegerFeature<TokenWrapper> startFeature;
-	private IntegerFeature<TokenWrapper> endFeature;
+  private BooleanFeature<TokenWrapper> criterion;
+  private IntegerFeature<TokenWrapper> startFeature;
+  private IntegerFeature<TokenWrapper> endFeature;
 
-	public AndRangeFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startFeature, IntegerFeature<TokenWrapper> endFeature) {
-		this.criterion = criterion;
-		this.startFeature = startFeature;
-		this.endFeature = endFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startFeature.getName() + "," + endFeature.getName() + ")");
-	}
+  public AndRangeFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startFeature, IntegerFeature<TokenWrapper> endFeature) {
+    this.criterion = criterion;
+    this.startFeature = startFeature;
+    this.endFeature = endFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + startFeature.getName() + "," + endFeature.getName() + ")");
+  }
 
-	public AndRangeFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion,
-			IntegerFeature<TokenWrapper> startFeature, IntegerFeature<TokenWrapper> endFeature) {
-		this(criterion, startFeature, endFeature);
-		this.setAddressFunction(addressFunction);
-	}
+  public AndRangeFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion,
+      IntegerFeature<TokenWrapper> startFeature, IntegerFeature<TokenWrapper> endFeature) {
+    this(criterion, startFeature, endFeature);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Boolean> featureResult = null;
 
-		FeatureResult<Integer> startResult = startFeature.check(innerWrapper, env);
-		FeatureResult<Integer> endResult = endFeature.check(innerWrapper, env);
-		if (startResult != null && endResult != null) {
-			int start = startResult.getOutcome();
-			int end = endResult.getOutcome();
-			if (start < 0)
-				start = 0;
-			if (end > token.getTokenSequence().size() - 1)
-				end = token.getTokenSequence().size() - 1;
-			if (start <= end) {
-				Boolean result = Boolean.TRUE;
-				for (int i = start; i <= end; i++) {
-					Token oneToken = token.getTokenSequence().get(i);
-					FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
-					if (criterionResult == null) {
-						result = null;
-						break;
-					}
-					result = result && criterionResult.getOutcome();
+    FeatureResult<Integer> startResult = startFeature.check(innerWrapper, env);
+    FeatureResult<Integer> endResult = endFeature.check(innerWrapper, env);
+    if (startResult != null && endResult != null) {
+      int start = startResult.getOutcome();
+      int end = endResult.getOutcome();
+      if (start < 0)
+        start = 0;
+      if (end > token.getTokenSequence().size() - 1)
+        end = token.getTokenSequence().size() - 1;
+      if (start <= end) {
+        Boolean result = Boolean.TRUE;
+        for (int i = start; i <= end; i++) {
+          Token oneToken = token.getTokenSequence().get(i);
+          FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
+          if (criterionResult == null) {
+            result = null;
+            break;
+          }
+          result = result && criterionResult.getOutcome();
 
-				}
-				if (result != null) {
-					featureResult = this.generateResult(result);
-				}
-			}
-		}
-		return featureResult;
-	}
+        }
+        if (result != null) {
+          featureResult = this.generateResult(result);
+        }
+      }
+    }
+    return featureResult;
+  }
 }

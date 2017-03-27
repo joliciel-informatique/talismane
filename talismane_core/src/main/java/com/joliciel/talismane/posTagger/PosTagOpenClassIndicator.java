@@ -25,17 +25,17 @@ package com.joliciel.talismane.posTagger;
  *
  */
 public enum PosTagOpenClassIndicator {
-	OPEN(0),
-	CLOSED(1),
-	PUNCTUATION(2);
-	
-	int id;
-	
-	private PosTagOpenClassIndicator(int id) {
-		this.id = id;
-	}
-	
-	public static PosTagOpenClassIndicator forId(int id) throws IllegalArgumentException  {
+  OPEN(0),
+  CLOSED(1),
+  PUNCTUATION(2);
+  
+  int id;
+  
+  private PosTagOpenClassIndicator(int id) {
+    this.id = id;
+  }
+  
+  public static PosTagOpenClassIndicator forId(int id) throws IllegalArgumentException  {
         for (PosTagOpenClassIndicator posTagClosedClassType : PosTagOpenClassIndicator.values()) {
             if (posTagClosedClassType.getId()==id)
                 return posTagClosedClassType;
@@ -43,14 +43,14 @@ public enum PosTagOpenClassIndicator {
         throw new IllegalArgumentException("No PosTagClosedClassType found for id " + id);
     }
 
-	public int getId() {
-		return id;
-	}
-	
-	public boolean isClosed() {
-		if (this==OPEN)
-			return false;
-		else
-			return true;
-	}
+  public int getId() {
+    return id;
+  }
+  
+  public boolean isClosed() {
+    if (this==OPEN)
+      return false;
+    else
+      return true;
+  }
 }

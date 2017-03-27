@@ -29,7 +29,7 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class NewlineEndOfSentenceMarker extends RawTextRegexAnnotator {
-	public NewlineEndOfSentenceMarker(int blockSize) throws TalismaneException {
-		super(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SENTENCE_BREAK }), "\r\n|[\r\n]", 0, blockSize);
-	}
+  public NewlineEndOfSentenceMarker(int blockSize) throws TalismaneException {
+    super(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SENTENCE_BREAK }), "\r\n|[\r\n]", 0, blockSize);
+  }
 }

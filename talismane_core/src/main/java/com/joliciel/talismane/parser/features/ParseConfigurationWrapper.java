@@ -28,5 +28,5 @@ import com.joliciel.talismane.parser.ParseConfiguration;
  *
  */
 public interface ParseConfigurationWrapper {
-	public ParseConfiguration getParseConfiguration();
+  public ParseConfiguration getParseConfiguration();
 }

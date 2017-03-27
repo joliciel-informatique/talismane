@@ -33,29 +33,29 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  *
  */
 public final class NextLettersFeature extends AbstractSentenceDetectorFeature<String>implements StringFeature<PossibleSentenceBoundary> {
-	IntegerFeature<PossibleSentenceBoundary> nFeature;
+  IntegerFeature<PossibleSentenceBoundary> nFeature;
 
-	public NextLettersFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {
-		this.nFeature = nFeature;
-		this.setName(super.getName() + "(" + nFeature.getName() + ")");
-	}
+  public NextLettersFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {
+    this.nFeature = nFeature;
+    this.setName(super.getName() + "(" + nFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<String> result = null;
+  @Override
+  public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> result = null;
 
-		FeatureResult<Integer> nResult = nFeature.check(context, env);
-		if (nResult != null) {
-			int n = nResult.getOutcome();
+    FeatureResult<Integer> nResult = nFeature.check(context, env);
+    if (nResult != null) {
+      int n = nResult.getOutcome();
 
-			int endIndex = context.getIndex() + n;
-			if (endIndex < context.getText().length()) {
-				String nextLetters = context.getText().subSequence(context.getIndex() + 1, endIndex + 1).toString();
-				result = this.generateResult(nextLetters);
-			}
-		} // have n
+      int endIndex = context.getIndex() + n;
+      if (endIndex < context.getText().length()) {
+        String nextLetters = context.getText().subSequence(context.getIndex() + 1, endIndex + 1).toString();
+        result = this.generateResult(nextLetters);
+      }
+    } // have n
 
-		return result;
-	}
+    return result;
+  }
 
 }

@@ -43,107 +43,107 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  *
  */
 public final class HistorySearchFeature extends AbstractPosTaggerFeature<PosTaggedTokenWrapper>implements PosTaggedTokenAddressFunction<PosTaggerContext> {
-	private BooleanFeature<PosTaggedTokenWrapper> criterion;
-	private BooleanFeature<PosTaggedTokenWrapper> stopCriterion;
-	private IntegerFeature<PosTaggerContext> startIndexFeature = null;
-	private IntegerFeature<PosTaggerContext> endIndexFeature = null;
+  private BooleanFeature<PosTaggedTokenWrapper> criterion;
+  private BooleanFeature<PosTaggedTokenWrapper> stopCriterion;
+  private IntegerFeature<PosTaggerContext> startIndexFeature = null;
+  private IntegerFeature<PosTaggerContext> endIndexFeature = null;
 
-	public HistorySearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion) {
-		this.criterion = criterion;
-		this.setName(super.getName() + "(" + criterion.getName() + ")");
-	}
+  public HistorySearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion) {
+    this.criterion = criterion;
+    this.setName(super.getName() + "(" + criterion.getName() + ")");
+  }
 
-	public HistorySearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature) {
-		this.criterion = criterion;
-		this.startIndexFeature = startIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + ")");
-	}
+  public HistorySearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature) {
+    this.criterion = criterion;
+    this.startIndexFeature = startIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + ")");
+  }
 
-	public HistorySearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature,
-			IntegerFeature<PosTaggerContext> endIndexFeature) {
-		this.criterion = criterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
-	}
+  public HistorySearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature,
+      IntegerFeature<PosTaggerContext> endIndexFeature) {
+    this.criterion = criterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
+  }
 
-	public HistorySearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion,
-			IntegerFeature<PosTaggerContext> startIndexFeature, IntegerFeature<PosTaggerContext> endIndexFeature) {
-		this.criterion = criterion;
-		this.stopCriterion = stopCriterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + ","
-				+ endIndexFeature.getName() + ")");
-	}
+  public HistorySearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion,
+      IntegerFeature<PosTaggerContext> startIndexFeature, IntegerFeature<PosTaggerContext> endIndexFeature) {
+    this.criterion = criterion;
+    this.stopCriterion = stopCriterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + ","
+        + endIndexFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 
-		int startIndex = context.getToken().getIndex() - 1;
-		int endIndex = 0;
+    int startIndex = context.getToken().getIndex() - 1;
+    int endIndex = 0;
 
-		if (startIndexFeature != null) {
-			FeatureResult<Integer> startIndexResult = startIndexFeature.check(context, env);
-			if (startIndexResult != null) {
-				startIndex = startIndexResult.getOutcome();
-			} else {
-				return featureResult;
-			}
-		}
+    if (startIndexFeature != null) {
+      FeatureResult<Integer> startIndexResult = startIndexFeature.check(context, env);
+      if (startIndexResult != null) {
+        startIndex = startIndexResult.getOutcome();
+      } else {
+        return featureResult;
+      }
+    }
 
-		if (endIndexFeature != null) {
-			FeatureResult<Integer> endIndexResult = endIndexFeature.check(context, env);
-			if (endIndexResult != null) {
-				endIndex = endIndexResult.getOutcome();
-			} else {
-				return featureResult;
-			}
-		}
+    if (endIndexFeature != null) {
+      FeatureResult<Integer> endIndexResult = endIndexFeature.check(context, env);
+      if (endIndexResult != null) {
+        endIndex = endIndexResult.getOutcome();
+      } else {
+        return featureResult;
+      }
+    }
 
-		if (startIndex < 0)
-			startIndex = 0;
+    if (startIndex < 0)
+      startIndex = 0;
 
-		if (endIndex < 0)
-			endIndex = 0;
+    if (endIndex < 0)
+      endIndex = 0;
 
-		if (startIndex >= context.getHistory().size())
-			startIndex = context.getHistory().size() - 1;
-		if (endIndex >= context.getHistory().size())
-			endIndex = context.getHistory().size() - 1;
+    if (startIndex >= context.getHistory().size())
+      startIndex = context.getHistory().size() - 1;
+    if (endIndex >= context.getHistory().size())
+      endIndex = context.getHistory().size() - 1;
 
-		int step = -1;
-		if (endIndex > startIndex)
-			step = 1;
+    int step = -1;
+    if (endIndex > startIndex)
+      step = 1;
 
-		PosTaggedToken matchingToken = null;
+    PosTaggedToken matchingToken = null;
 
-		for (int i = startIndex; (step < 0 && i >= 0 && i >= endIndex) || (step > 0 && i < context.getHistory().size() && i <= endIndex); i += step) {
-			PosTaggedToken oneToken = context.getHistory().get(i);
+    for (int i = startIndex; (step < 0 && i >= 0 && i >= endIndex) || (step > 0 && i < context.getHistory().size() && i <= endIndex); i += step) {
+      PosTaggedToken oneToken = context.getHistory().get(i);
 
-			FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
-			if (criterionResult != null && criterionResult.getOutcome()) {
-				matchingToken = oneToken;
-				break;
-			}
-			if (stopCriterion != null) {
-				FeatureResult<Boolean> stopCriterionResult = this.stopCriterion.check(oneToken, env);
-				if (stopCriterionResult != null && stopCriterionResult.getOutcome()) {
-					break;
-				}
-			}
-		}
-		if (matchingToken != null) {
-			featureResult = this.generateResult(matchingToken);
-		}
+      FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
+      if (criterionResult != null && criterionResult.getOutcome()) {
+        matchingToken = oneToken;
+        break;
+      }
+      if (stopCriterion != null) {
+        FeatureResult<Boolean> stopCriterionResult = this.stopCriterion.check(oneToken, env);
+        if (stopCriterionResult != null && stopCriterionResult.getOutcome()) {
+          break;
+        }
+      }
+    }
+    if (matchingToken != null) {
+      featureResult = this.generateResult(matchingToken);
+    }
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return PosTaggedTokenAddressFunction.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return PosTaggedTokenAddressFunction.class;
+  }
 }

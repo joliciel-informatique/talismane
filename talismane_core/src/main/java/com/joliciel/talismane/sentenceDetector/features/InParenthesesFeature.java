@@ -30,44 +30,44 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  *
  */
 public final class InParenthesesFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
-	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
-		FeatureResult<String> result = null;
+  @Override
+  public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
+    FeatureResult<String> result = null;
 
-		boolean openParenthesis = false;
-		for (int i=context.getIndex()-1;i>=0;i--) {
-			char c = context.getText().charAt(i);
-			if (c==')'||c=='.'||c=='!'||c=='?')
-				break;
-			if (c=='(') {
-				openParenthesis = true;
-				break;
-			}
-		}
+    boolean openParenthesis = false;
+    for (int i=context.getIndex()-1;i>=0;i--) {
+      char c = context.getText().charAt(i);
+      if (c==')'||c=='.'||c=='!'||c=='?')
+        break;
+      if (c=='(') {
+        openParenthesis = true;
+        break;
+      }
+    }
 
-		boolean closeParenthesis = false;
-		for (int i=context.getIndex()+1;i<context.getText().length();i++) {
-			char c = context.getText().charAt(i);
-			if (c=='('||c=='.'||c=='!'||c=='?')
-				break;
-			if (c==')') {
-				closeParenthesis = true;
-				break;
-			}
-		}
-		
-		String resultString = null;
-		if (openParenthesis&&closeParenthesis)
-			resultString = "YES";
-		else if (openParenthesis)
-			resultString = "OPEN";
-		else if (closeParenthesis)
-			resultString = "CLOSE";
-		
-		if (resultString!=null)
-			result = this.generateResult(resultString);
-		
-		return result;
-	}
+    boolean closeParenthesis = false;
+    for (int i=context.getIndex()+1;i<context.getText().length();i++) {
+      char c = context.getText().charAt(i);
+      if (c=='('||c=='.'||c=='!'||c=='?')
+        break;
+      if (c==')') {
+        closeParenthesis = true;
+        break;
+      }
+    }
+    
+    String resultString = null;
+    if (openParenthesis&&closeParenthesis)
+      resultString = "YES";
+    else if (openParenthesis)
+      resultString = "OPEN";
+    else if (closeParenthesis)
+      resultString = "CLOSE";
+    
+    if (resultString!=null)
+      result = this.generateResult(resultString);
+    
+    return result;
+  }
 
 }

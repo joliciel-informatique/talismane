@@ -54,161 +54,161 @@ import opennlp.model.FileEventStream;
  * read during the second pass.
  */
 public class TwoPassDataIndexer extends AbstractDataIndexer {
-	private static final Logger LOG = LoggerFactory.getLogger(TwoPassDataIndexer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TwoPassDataIndexer.class);
 
-	/**
-	 * One argument constructor for DataIndexer which calls the two argument
-	 * constructor assuming no cutoff.
-	 *
-	 * @param eventStream
-	 *            An Event[] which contains the a list of all the Events seen in
-	 *            the training data.
-	 */
-	public TwoPassDataIndexer(EventStream eventStream) throws IOException {
-		this(eventStream, 0);
-	}
+  /**
+   * One argument constructor for DataIndexer which calls the two argument
+   * constructor assuming no cutoff.
+   *
+   * @param eventStream
+   *            An Event[] which contains the a list of all the Events seen in
+   *            the training data.
+   */
+  public TwoPassDataIndexer(EventStream eventStream) throws IOException {
+    this(eventStream, 0);
+  }
 
-	public TwoPassDataIndexer(EventStream eventStream, int cutoff) throws IOException {
-		this(eventStream, cutoff, true);
-	}
+  public TwoPassDataIndexer(EventStream eventStream, int cutoff) throws IOException {
+    this(eventStream, cutoff, true);
+  }
 
-	/**
-	 * Two argument constructor for DataIndexer.
-	 *
-	 * @param eventStream
-	 *            An Event[] which contains the a list of all the Events seen in
-	 *            the training data.
-	 * @param cutoff
-	 *            The minimum number of times a predicate must have been
-	 *            observed in order to be included in the model.
-	 */
-	@SuppressWarnings("unchecked")
-	public TwoPassDataIndexer(EventStream eventStream, int cutoff, boolean sort) throws IOException {
-		Map<String, Integer> predicateIndex = new HashMap<String, Integer>();
-		@SuppressWarnings("rawtypes")
-		List eventsToCompare;
+  /**
+   * Two argument constructor for DataIndexer.
+   *
+   * @param eventStream
+   *            An Event[] which contains the a list of all the Events seen in
+   *            the training data.
+   * @param cutoff
+   *            The minimum number of times a predicate must have been
+   *            observed in order to be included in the model.
+   */
+  @SuppressWarnings("unchecked")
+  public TwoPassDataIndexer(EventStream eventStream, int cutoff, boolean sort) throws IOException {
+    Map<String, Integer> predicateIndex = new HashMap<String, Integer>();
+    @SuppressWarnings("rawtypes")
+    List eventsToCompare;
 
-		LOG.info("Indexing events using cutoff of " + cutoff);
+    LOG.info("Indexing events using cutoff of " + cutoff);
 
-		LOG.info("Computing event counts...  ");
-		try {
-			File tmp = File.createTempFile("events", null);
-			tmp.deleteOnExit();
-			Writer osw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmp), "UTF8"));
-			int numEvents = computeEventCounts(eventStream, osw, predicateIndex, cutoff);
-			LOG.info("done. " + numEvents + " events");
+    LOG.info("Computing event counts...  ");
+    try {
+      File tmp = File.createTempFile("events", null);
+      tmp.deleteOnExit();
+      Writer osw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmp), "UTF8"));
+      int numEvents = computeEventCounts(eventStream, osw, predicateIndex, cutoff);
+      LOG.info("done. " + numEvents + " events");
 
-			LOG.info("Indexing...  ");
+      LOG.info("Indexing...  ");
 
-			eventsToCompare = index(numEvents, this.getFileEventStream(tmp), predicateIndex);
-			// done with predicates
-			predicateIndex = null;
-			tmp.delete();
-			LOG.info("done.");
+      eventsToCompare = index(numEvents, this.getFileEventStream(tmp), predicateIndex);
+      // done with predicates
+      predicateIndex = null;
+      tmp.delete();
+      LOG.info("done.");
 
-			if (sort) {
-				System.out.print("Sorting and merging events... ");
-			} else {
-				System.out.print("Collecting events... ");
-			}
-			sortAndMerge(eventsToCompare, sort);
-			LOG.info("Done indexing.");
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-		}
-	}
+      if (sort) {
+        System.out.print("Sorting and merging events... ");
+      } else {
+        System.out.print("Collecting events... ");
+      }
+      sortAndMerge(eventsToCompare, sort);
+      LOG.info("Done indexing.");
+    } catch (IOException e) {
+      LogUtils.logError(LOG, e);
+    }
+  }
 
-	/**
-	 * Reads events from <tt>eventStream</tt> into a linked list. The predicates
-	 * associated with each event are counted and any which occur at least
-	 * <tt>cutoff</tt> times are added to the <tt>predicatesInOut</tt> map along
-	 * with a unique integer index.
-	 *
-	 * @param eventStream
-	 *            an <code>EventStream</code> value
-	 * @param eventStore
-	 *            a writer to which the events are written to for later
-	 *            processing.
-	 * @param predicatesInOut
-	 *            a <code>TObjectIntHashMap</code> value
-	 * @param cutoff
-	 *            an <code>int</code> value
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private int computeEventCounts(EventStream eventStream, Writer eventStore, Map<String, Integer> predicatesInOut, int cutoff) throws IOException {
-		Map<String, Integer> counter = new HashMap<String, Integer>();
-		int eventCount = 0;
-		Set predicateSet = new HashSet();
-		while (eventStream.hasNext()) {
-			Event ev = eventStream.next();
-			eventCount++;
-			eventStore.write(this.toLine(ev));
-			String[] ec = ev.getContext();
-			update(ec, predicateSet, counter, cutoff);
-		}
-		predCounts = new int[predicateSet.size()];
-		int index = 0;
-		for (Iterator pi = predicateSet.iterator(); pi.hasNext(); index++) {
-			String predicate = (String) pi.next();
-			predCounts[index] = counter.get(predicate);
-			predicatesInOut.put(predicate, index);
-		}
-		eventStore.close();
-		return eventCount;
-	}
+  /**
+   * Reads events from <tt>eventStream</tt> into a linked list. The predicates
+   * associated with each event are counted and any which occur at least
+   * <tt>cutoff</tt> times are added to the <tt>predicatesInOut</tt> map along
+   * with a unique integer index.
+   *
+   * @param eventStream
+   *            an <code>EventStream</code> value
+   * @param eventStore
+   *            a writer to which the events are written to for later
+   *            processing.
+   * @param predicatesInOut
+   *            a <code>TObjectIntHashMap</code> value
+   * @param cutoff
+   *            an <code>int</code> value
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private int computeEventCounts(EventStream eventStream, Writer eventStore, Map<String, Integer> predicatesInOut, int cutoff) throws IOException {
+    Map<String, Integer> counter = new HashMap<String, Integer>();
+    int eventCount = 0;
+    Set predicateSet = new HashSet();
+    while (eventStream.hasNext()) {
+      Event ev = eventStream.next();
+      eventCount++;
+      eventStore.write(this.toLine(ev));
+      String[] ec = ev.getContext();
+      update(ec, predicateSet, counter, cutoff);
+    }
+    predCounts = new int[predicateSet.size()];
+    int index = 0;
+    for (Iterator pi = predicateSet.iterator(); pi.hasNext(); index++) {
+      String predicate = (String) pi.next();
+      predCounts[index] = counter.get(predicate);
+      predicatesInOut.put(predicate, index);
+    }
+    eventStore.close();
+    return eventCount;
+  }
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected List index(int numEvents, EventStream es, Map<String, Integer> predicateIndex) throws IOException {
-		Map<String, Integer> omap = new HashMap<String, Integer>();
-		int outcomeCount = 0;
-		List eventsToCompare = new ArrayList(numEvents);
-		List<Integer> indexedContext = new ArrayList<Integer>();
-		while (es.hasNext()) {
-			Event ev = es.next();
-			String[] econtext = ev.getContext();
-			ComparableEvent ce;
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  protected List index(int numEvents, EventStream es, Map<String, Integer> predicateIndex) throws IOException {
+    Map<String, Integer> omap = new HashMap<String, Integer>();
+    int outcomeCount = 0;
+    List eventsToCompare = new ArrayList(numEvents);
+    List<Integer> indexedContext = new ArrayList<Integer>();
+    while (es.hasNext()) {
+      Event ev = es.next();
+      String[] econtext = ev.getContext();
+      ComparableEvent ce;
 
-			int ocID;
-			String oc = ev.getOutcome();
+      int ocID;
+      String oc = ev.getOutcome();
 
-			if (omap.containsKey(oc)) {
-				ocID = omap.get(oc);
-			} else {
-				ocID = outcomeCount++;
-				omap.put(oc, ocID);
-			}
+      if (omap.containsKey(oc)) {
+        ocID = omap.get(oc);
+      } else {
+        ocID = outcomeCount++;
+        omap.put(oc, ocID);
+      }
 
-			for (int i = 0; i < econtext.length; i++) {
-				String pred = econtext[i];
-				if (predicateIndex.containsKey(pred)) {
-					indexedContext.add(predicateIndex.get(pred));
-				}
-			}
+      for (int i = 0; i < econtext.length; i++) {
+        String pred = econtext[i];
+        if (predicateIndex.containsKey(pred)) {
+          indexedContext.add(predicateIndex.get(pred));
+        }
+      }
 
-			// drop events with no active features
-			if (indexedContext.size() > 0) {
-				int[] cons = new int[indexedContext.size()];
-				for (int ci = 0; ci < cons.length; ci++) {
-					cons[ci] = indexedContext.get(ci);
-				}
-				ce = new ComparableEvent(ocID, cons);
-				eventsToCompare.add(ce);
-			} else {
-				LOG.debug("Dropped event " + ev.getOutcome() + ":" + Arrays.asList(ev.getContext()));
-			}
-			// recycle the TIntArrayList
-			indexedContext.clear();
-		}
-		outcomeLabels = toIndexedStringArray(omap);
-		predLabels = toIndexedStringArray(predicateIndex);
-		return eventsToCompare;
-	}
+      // drop events with no active features
+      if (indexedContext.size() > 0) {
+        int[] cons = new int[indexedContext.size()];
+        for (int ci = 0; ci < cons.length; ci++) {
+          cons[ci] = indexedContext.get(ci);
+        }
+        ce = new ComparableEvent(ocID, cons);
+        eventsToCompare.add(ce);
+      } else {
+        LOG.debug("Dropped event " + ev.getOutcome() + ":" + Arrays.asList(ev.getContext()));
+      }
+      // recycle the TIntArrayList
+      indexedContext.clear();
+    }
+    outcomeLabels = toIndexedStringArray(omap);
+    predLabels = toIndexedStringArray(predicateIndex);
+    return eventsToCompare;
+  }
 
-	protected EventStream getFileEventStream(File file) throws IOException {
-		return new FileEventStream(file);
-	}
+  protected EventStream getFileEventStream(File file) throws IOException {
+    return new FileEventStream(file);
+  }
 
-	protected String toLine(Event ev) {
-		return FileEventStream.toLine(ev);
-	}
+  protected String toLine(Event ev) {
+    return FileEventStream.toLine(ev);
+  }
 }

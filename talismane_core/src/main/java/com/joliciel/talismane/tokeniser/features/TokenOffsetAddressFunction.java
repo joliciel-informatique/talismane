@@ -32,67 +32,67 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class TokenOffsetAddressFunction extends AbstractTokenAddressFunction {
-	IntegerFeature<TokenWrapper> offsetFeature;
+  IntegerFeature<TokenWrapper> offsetFeature;
 
-	public TokenOffsetAddressFunction(IntegerFeature<TokenWrapper> offset) {
-		this.offsetFeature = offset;
-		this.setName("TokenOffset(" + this.offsetFeature.getName() + ")");
-	}
+  public TokenOffsetAddressFunction(IntegerFeature<TokenWrapper> offset) {
+    this.offsetFeature = offset;
+    this.setName("TokenOffset(" + this.offsetFeature.getName() + ")");
+  }
 
-	public TokenOffsetAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> offset) {
-		this(offset);
-		this.setAddressFunction(addressFunction);
-	}
+  public TokenOffsetAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> offset) {
+    this(offset);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
+  @Override
+  public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
 
-		FeatureResult<TokenWrapper> result = null;
-		Token offsetToken = null;
-		FeatureResult<Integer> offsetResult = offsetFeature.check(innerWrapper, env);
-		if (offsetResult != null) {
-			int offset = offsetResult.getOutcome();
-			if (offset == 0)
-				offsetToken = token;
-			else {
-				int index = 0;
-				if (token.isWhiteSpace()) {
-					// Correctly handle index for white space:
-					// e.g. if index is negative, start counting from the next
-					// non-whitespace token
-					// and if index is positive start counting from the previous
-					// non-whitespace token
-					if (offset > 0) {
-						if (token.getIndexWithWhiteSpace() - 1 >= 0) {
-							index = token.getTokenSequence().listWithWhiteSpace().get(token.getIndexWithWhiteSpace() - 1).getIndex();
-						} else {
-							index = -1;
-						}
-					} else if (offset < 0) {
-						if (token.getIndexWithWhiteSpace() + 1 < token.getTokenSequence().listWithWhiteSpace().size()) {
-							index = token.getTokenSequence().listWithWhiteSpace().get(token.getIndexWithWhiteSpace() + 1).getIndex();
-						} else {
-							index = token.getTokenSequence().size();
-						}
-					}
-				} else {
-					// not whitespace
-					index = token.getIndex();
-				}
-				int offsetIndex = index + offset;
-				if (offsetIndex >= 0 && offsetIndex < token.getTokenSequence().size()) {
-					offsetToken = token.getTokenSequence().get(offsetIndex);
-				}
-			}
-		}
-		if (offsetToken != null) {
-			result = this.generateResult(offsetToken);
-		}
+    FeatureResult<TokenWrapper> result = null;
+    Token offsetToken = null;
+    FeatureResult<Integer> offsetResult = offsetFeature.check(innerWrapper, env);
+    if (offsetResult != null) {
+      int offset = offsetResult.getOutcome();
+      if (offset == 0)
+        offsetToken = token;
+      else {
+        int index = 0;
+        if (token.isWhiteSpace()) {
+          // Correctly handle index for white space:
+          // e.g. if index is negative, start counting from the next
+          // non-whitespace token
+          // and if index is positive start counting from the previous
+          // non-whitespace token
+          if (offset > 0) {
+            if (token.getIndexWithWhiteSpace() - 1 >= 0) {
+              index = token.getTokenSequence().listWithWhiteSpace().get(token.getIndexWithWhiteSpace() - 1).getIndex();
+            } else {
+              index = -1;
+            }
+          } else if (offset < 0) {
+            if (token.getIndexWithWhiteSpace() + 1 < token.getTokenSequence().listWithWhiteSpace().size()) {
+              index = token.getTokenSequence().listWithWhiteSpace().get(token.getIndexWithWhiteSpace() + 1).getIndex();
+            } else {
+              index = token.getTokenSequence().size();
+            }
+          }
+        } else {
+          // not whitespace
+          index = token.getIndex();
+        }
+        int offsetIndex = index + offset;
+        if (offsetIndex >= 0 && offsetIndex < token.getTokenSequence().size()) {
+          offsetToken = token.getTokenSequence().get(offsetIndex);
+        }
+      }
+    }
+    if (offsetToken != null) {
+      result = this.generateResult(offsetToken);
+    }
 
-		return result;
-	}
+    return result;
+  }
 }

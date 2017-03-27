@@ -37,32 +37,32 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  */
 public final class DependencyLabelFeature extends AbstractParseConfigurationAddressFeature<String>implements StringFeature<ParseConfigurationWrapper> {
 
-	public DependencyLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
-		super(addressFunction);
-		String name = this.getName() + "(" + addressFunction.getName() + ")";
-		this.setName(name);
-	}
+  public DependencyLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+    super(addressFunction);
+    String name = this.getName() + "(" + addressFunction.getName() + ")";
+    this.setName(name);
+  }
 
-	@Override
-	public FeatureResult<String> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(wrapper, env);
-		if (innerWrapper == null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken == null)
-			return null;
+  @Override
+  public FeatureResult<String> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(wrapper, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
 
-		FeatureResult<String> featureResult = null;
+    FeatureResult<String> featureResult = null;
 
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		DependencyArc arc = configuration.getGoverningDependency(posTaggedToken);
-		if (arc != null) {
-			String label = arc.getLabel();
-			if (label == null)
-				label = "null";
-			featureResult = this.generateResult(label);
-		}
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    DependencyArc arc = configuration.getGoverningDependency(posTaggedToken);
+    if (arc != null) {
+      String label = arc.getLabel();
+      if (label == null)
+        label = "null";
+      featureResult = this.generateResult(label);
+    }
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 }

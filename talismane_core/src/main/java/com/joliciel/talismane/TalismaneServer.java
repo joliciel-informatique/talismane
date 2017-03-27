@@ -33,55 +33,55 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class TalismaneServer {
-	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServer.class);
-	private final int port;
-	private boolean listening = true;
-	private final TalismaneSession session;
+  private static final Logger LOG = LoggerFactory.getLogger(TalismaneServer.class);
+  private final int port;
+  private boolean listening = true;
+  private final TalismaneSession session;
 
-	public TalismaneServer(TalismaneSession session) throws IOException, ReflectiveOperationException {
-		this.session = session;
-		this.port = session.getPort();
-	}
+  public TalismaneServer(TalismaneSession session) throws IOException, ReflectiveOperationException {
+    this.session = session;
+    this.port = session.getPort();
+  }
 
-	public void analyse() throws IOException {
-		long startTime = new Date().getTime();
-		ServerSocket serverSocket = null;
+  public void analyse() throws IOException {
+    long startTime = new Date().getTime();
+    ServerSocket serverSocket = null;
 
-		try {
-			LOG.info("Starting server...");
+    try {
+      LOG.info("Starting server...");
 
-			serverSocket = new ServerSocket(port);
-			LOG.info("Server started. Waiting for clients...");
-			while (listening) {
-				TalismaneServerThread thread = new TalismaneServerThread(session, serverSocket.accept());
-				thread.start();
-			}
-		} finally {
-			if (serverSocket != null && !serverSocket.isClosed()) {
-				serverSocket.close();
-			}
-			LOG.info("Server shut down.");
-			long endTime = new Date().getTime();
-			long totalTime = endTime - startTime;
-			LOG.info("Total server run time (ms): " + totalTime);
-		}
-	}
+      serverSocket = new ServerSocket(port);
+      LOG.info("Server started. Waiting for clients...");
+      while (listening) {
+        TalismaneServerThread thread = new TalismaneServerThread(session, serverSocket.accept());
+        thread.start();
+      }
+    } finally {
+      if (serverSocket != null && !serverSocket.isClosed()) {
+        serverSocket.close();
+      }
+      LOG.info("Server shut down.");
+      long endTime = new Date().getTime();
+      long totalTime = endTime - startTime;
+      LOG.info("Total server run time (ms): " + totalTime);
+    }
+  }
 
-	/**
-	 * The port to listen on.
-	 */
-	public int getPort() {
-		return port;
-	}
+  /**
+   * The port to listen on.
+   */
+  public int getPort() {
+    return port;
+  }
 
-	/**
-	 * Whether or not any new connections will be accepted.
-	 */
-	public boolean isListening() {
-		return listening;
-	}
+  /**
+   * Whether or not any new connections will be accepted.
+   */
+  public boolean isListening() {
+    return listening;
+  }
 
-	public void setListening(boolean listening) {
-		this.listening = listening;
-	}
+  public void setListening(boolean listening) {
+    this.listening = listening;
+  }
 }

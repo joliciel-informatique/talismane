@@ -31,32 +31,32 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
  *
  */
 public abstract class AbstractPosTaggedTokenFeature<T, Y> extends AbstractCachableFeature<T, Y>implements PosTaggedTokenFeature<T, Y> {
-	PosTaggedTokenAddressFunction<T> addressFunction;
+  PosTaggedTokenAddressFunction<T> addressFunction;
 
-	public AbstractPosTaggedTokenFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		this.addressFunction = addressFunction;
-	}
+  public AbstractPosTaggedTokenFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    this.addressFunction = addressFunction;
+  }
 
-	@Override
-	public PosTaggedTokenAddressFunction<T> getAddressFunction() {
-		return addressFunction;
-	}
+  @Override
+  public PosTaggedTokenAddressFunction<T> getAddressFunction() {
+    return addressFunction;
+  }
 
-	public void setAddressFunction(PosTaggedTokenAddressFunction<T> addressFunction) {
-		this.addressFunction = addressFunction;
-		String name = this.getName();
-		if (name.endsWith(")")) {
-			name = name.substring(0, name.length() - 1) + "," + addressFunction.getName() + ")";
-		} else {
-			name = name + "(" + addressFunction.getName() + ")";
-		}
-		this.setName(name);
-	}
+  public void setAddressFunction(PosTaggedTokenAddressFunction<T> addressFunction) {
+    this.addressFunction = addressFunction;
+    String name = this.getName();
+    if (name.endsWith(")")) {
+      name = name.substring(0, name.length() - 1) + "," + addressFunction.getName() + ")";
+    } else {
+      name = name + "(" + addressFunction.getName() + ")";
+    }
+    this.setName(name);
+  }
 
-	protected PosTaggedTokenWrapper getToken(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(context, env);
-		if (tokenResult == null)
-			return null;
-		return tokenResult.getOutcome();
-	}
+  protected PosTaggedTokenWrapper getToken(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(context, env);
+    if (tokenResult == null)
+      return null;
+    return tokenResult.getOutcome();
+  }
 }

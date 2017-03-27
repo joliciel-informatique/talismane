@@ -39,64 +39,64 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
  *
  */
 public final class PatternMatchOffsetAddressFunction extends AbstractCachableFeature<TokenPatternMatch, TokenWrapper>
-		implements TokenAddressFunction<TokenPatternMatch> {
-	IntegerFeature<TokenPatternMatch> offsetFeature;
+    implements TokenAddressFunction<TokenPatternMatch> {
+  IntegerFeature<TokenPatternMatch> offsetFeature;
 
-	public PatternMatchOffsetAddressFunction(IntegerFeature<TokenPatternMatch> offsetFeature) {
-		this.offsetFeature = offsetFeature;
-		this.setName("PatternOffset(" + this.offsetFeature.getName() + ")");
-	}
+  public PatternMatchOffsetAddressFunction(IntegerFeature<TokenPatternMatch> offsetFeature) {
+    this.offsetFeature = offsetFeature;
+    this.setName("PatternOffset(" + this.offsetFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<TokenWrapper> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) throws TalismaneException {
-		Token token = tokenPatternMatch.getToken();
-		FeatureResult<TokenWrapper> result = null;
+  @Override
+  public FeatureResult<TokenWrapper> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) throws TalismaneException {
+    Token token = tokenPatternMatch.getToken();
+    FeatureResult<TokenWrapper> result = null;
 
-		TokenPattern tokenPattern = tokenPatternMatch.getPattern();
-		int testIndex = tokenPattern.getIndexesToTest().get(0);
+    TokenPattern tokenPattern = tokenPatternMatch.getPattern();
+    int testIndex = tokenPattern.getIndexesToTest().get(0);
 
-		FeatureResult<Integer> offsetResult = offsetFeature.check(tokenPatternMatch, env);
-		if (offsetResult != null) {
-			int offset = offsetResult.getOutcome();
+    FeatureResult<Integer> offsetResult = offsetFeature.check(tokenPatternMatch, env);
+    if (offsetResult != null) {
+      int offset = offsetResult.getOutcome();
 
-			Token offsetToken = null;
-			if (offset == 0)
-				offsetToken = token;
-			else {
-				// baseIndex should be the last non-whitespace word in the
-				// pattern if offset > 0
-				// or the first non-whitespace word in the pattern if offset < 0
-				int baseIndex = 0;
-				int j = token.getIndexWithWhiteSpace() - testIndex;
-				for (int i = 0; i < tokenPattern.getTokenCount(); i++) {
-					if (j >= 0 && j < token.getTokenSequence().listWithWhiteSpace().size()) {
-						Token tokenInPattern = token.getTokenSequence().listWithWhiteSpace().get(j);
-						if (!tokenInPattern.isWhiteSpace()) {
-							baseIndex = tokenInPattern.getIndex();
-							if (offset < 0) {
-								break;
-							}
-						}
-					}
-					j++;
-				}
+      Token offsetToken = null;
+      if (offset == 0)
+        offsetToken = token;
+      else {
+        // baseIndex should be the last non-whitespace word in the
+        // pattern if offset > 0
+        // or the first non-whitespace word in the pattern if offset < 0
+        int baseIndex = 0;
+        int j = token.getIndexWithWhiteSpace() - testIndex;
+        for (int i = 0; i < tokenPattern.getTokenCount(); i++) {
+          if (j >= 0 && j < token.getTokenSequence().listWithWhiteSpace().size()) {
+            Token tokenInPattern = token.getTokenSequence().listWithWhiteSpace().get(j);
+            if (!tokenInPattern.isWhiteSpace()) {
+              baseIndex = tokenInPattern.getIndex();
+              if (offset < 0) {
+                break;
+              }
+            }
+          }
+          j++;
+        }
 
-				int offsetIndex = baseIndex + offset;
-				if (offsetIndex >= 0 && offsetIndex < token.getTokenSequence().size()) {
-					offsetToken = token.getTokenSequence().get(offsetIndex);
-				}
-			}
-			if (offsetToken != null) {
-				result = this.generateResult(offsetToken);
-			} // we have an offset token
-		} // we have an offset result
+        int offsetIndex = baseIndex + offset;
+        if (offsetIndex >= 0 && offsetIndex < token.getTokenSequence().size()) {
+          offsetToken = token.getTokenSequence().get(offsetIndex);
+        }
+      }
+      if (offsetToken != null) {
+        result = this.generateResult(offsetToken);
+      } // we have an offset token
+    } // we have an offset result
 
-		return result;
-	}
+    return result;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return TokenAddressFunction.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return TokenAddressFunction.class;
+  }
 }

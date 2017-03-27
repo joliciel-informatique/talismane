@@ -29,10 +29,10 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  *
  */
 public final class BoundaryStringFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
-	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
-		String unigram = "" + context.getText().charAt(context.getIndex());
-		return this.generateResult(unigram);
-	}
+  @Override
+  public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
+    String unigram = "" + context.getText().charAt(context.getIndex());
+    return this.generateResult(unigram);
+  }
 
 }

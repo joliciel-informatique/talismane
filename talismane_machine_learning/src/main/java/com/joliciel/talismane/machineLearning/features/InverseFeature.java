@@ -29,34 +29,34 @@ import com.joliciel.talismane.TalismaneException;
  */
 public class InverseFeature<T> extends AbstractCachableFeature<T, Double>implements DoubleFeature<T> {
 
-	Feature<T, Double> valueFeature;
+  Feature<T, Double> valueFeature;
 
-	public InverseFeature(Feature<T, Double> feature) {
-		super();
-		this.valueFeature = feature;
-		this.setName(this.getName() + "(" + this.valueFeature.getName() + ")");
-	}
+  public InverseFeature(Feature<T, Double> feature) {
+    super();
+    this.valueFeature = feature;
+    this.setName(this.getName() + "(" + this.valueFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Double> rawOutcome = valueFeature.check(context, env);
-		FeatureResult<Double> outcome = null;
-		if (rawOutcome != null) {
-			double weight = rawOutcome.getOutcome();
-			double inverseWeight = 1 - weight;
-			if (inverseWeight < 0)
-				inverseWeight = 0;
-			outcome = this.generateResult(inverseWeight);
-		}
-		return outcome;
-	}
+  @Override
+  public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Double> rawOutcome = valueFeature.check(context, env);
+    FeatureResult<Double> outcome = null;
+    if (rawOutcome != null) {
+      double weight = rawOutcome.getOutcome();
+      double inverseWeight = 1 - weight;
+      if (inverseWeight < 0)
+        inverseWeight = 0;
+      outcome = this.generateResult(inverseWeight);
+    }
+    return outcome;
+  }
 
-	public Feature<T, Double> getValueFeature() {
-		return valueFeature;
-	}
+  public Feature<T, Double> getValueFeature() {
+    return valueFeature;
+  }
 
-	public void setValueFeature(Feature<T, Double> valueFeature) {
-		this.valueFeature = valueFeature;
-	}
+  public void setValueFeature(Feature<T, Double> valueFeature) {
+    this.valueFeature = valueFeature;
+  }
 
 }

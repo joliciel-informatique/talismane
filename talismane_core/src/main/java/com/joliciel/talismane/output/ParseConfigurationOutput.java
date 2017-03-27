@@ -29,46 +29,46 @@ import com.joliciel.talismane.tokeniser.Token;
 
 public final class ParseConfigurationOutput extends ArrayList<ParseConfigurationTokenOutput> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8874423911960774024L;
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 8874423911960774024L;
 
-	public ParseConfigurationOutput(ParseConfiguration parseConfiguration) {
-		Map<Token, DependencyArc> tokenDependencyMap = new HashMap<Token, DependencyArc>();
-		for (DependencyArc dependencyArc : parseConfiguration.getDependencies()) {
-			tokenDependencyMap.put(dependencyArc.getDependent().getToken(), dependencyArc);
-		}
-		
-		Map<Token, DependencyArc> tokenDependencyMapNonProj = new HashMap<Token, DependencyArc>();
-		for (DependencyArc dependencyArc : parseConfiguration.getNonProjectiveDependencies()) {
-			tokenDependencyMapNonProj.put(dependencyArc.getDependent().getToken(), dependencyArc);
-		}
+  public ParseConfigurationOutput(ParseConfiguration parseConfiguration) {
+    Map<Token, DependencyArc> tokenDependencyMap = new HashMap<Token, DependencyArc>();
+    for (DependencyArc dependencyArc : parseConfiguration.getDependencies()) {
+      tokenDependencyMap.put(dependencyArc.getDependent().getToken(), dependencyArc);
+    }
+    
+    Map<Token, DependencyArc> tokenDependencyMapNonProj = new HashMap<Token, DependencyArc>();
+    for (DependencyArc dependencyArc : parseConfiguration.getNonProjectiveDependencies()) {
+      tokenDependencyMapNonProj.put(dependencyArc.getDependent().getToken(), dependencyArc);
+    }
 
-		Map<Token, ParseConfigurationTokenOutput> tokenOutputMap = new HashMap<Token, ParseConfigurationTokenOutput>();
+    Map<Token, ParseConfigurationTokenOutput> tokenOutputMap = new HashMap<Token, ParseConfigurationTokenOutput>();
 
-		for (PosTaggedToken posTaggedToken : parseConfiguration.getPosTagSequence()) {
-			ParseConfigurationTokenOutput unit = new ParseConfigurationTokenOutput(posTaggedToken);
-			tokenOutputMap.put(posTaggedToken.getToken(), unit);
-			this.add(unit);
-		}
-		
-		for (ParseConfigurationTokenOutput unit : this) {
-			DependencyArc arc = tokenDependencyMap.get(unit.getToken());
-			if (arc!=null) {
-				ParseConfigurationTokenOutput governorOutput = tokenOutputMap.get(arc.getHead().getToken());
-				unit.setArc(arc);
-				unit.setGovernor(governorOutput);
-				unit.setLabel(arc.getLabel());
-			}
-			
-			DependencyArc nonProjectiveArc = tokenDependencyMapNonProj.get(unit.getToken());
-			if (nonProjectiveArc!=null) {
-				ParseConfigurationTokenOutput governorOutput = tokenOutputMap.get(nonProjectiveArc.getHead().getToken());
-				unit.setNonProjectiveArc(nonProjectiveArc);
-				unit.setNonProjectiveGovernor(governorOutput);
-				unit.setNonProjectiveLabel(nonProjectiveArc.getLabel());
-			}
-		}
-	}
+    for (PosTaggedToken posTaggedToken : parseConfiguration.getPosTagSequence()) {
+      ParseConfigurationTokenOutput unit = new ParseConfigurationTokenOutput(posTaggedToken);
+      tokenOutputMap.put(posTaggedToken.getToken(), unit);
+      this.add(unit);
+    }
+    
+    for (ParseConfigurationTokenOutput unit : this) {
+      DependencyArc arc = tokenDependencyMap.get(unit.getToken());
+      if (arc!=null) {
+        ParseConfigurationTokenOutput governorOutput = tokenOutputMap.get(arc.getHead().getToken());
+        unit.setArc(arc);
+        unit.setGovernor(governorOutput);
+        unit.setLabel(arc.getLabel());
+      }
+      
+      DependencyArc nonProjectiveArc = tokenDependencyMapNonProj.get(unit.getToken());
+      if (nonProjectiveArc!=null) {
+        ParseConfigurationTokenOutput governorOutput = tokenOutputMap.get(nonProjectiveArc.getHead().getToken());
+        unit.setNonProjectiveArc(nonProjectiveArc);
+        unit.setNonProjectiveGovernor(governorOutput);
+        unit.setNonProjectiveLabel(nonProjectiveArc.getLabel());
+      }
+    }
+  }
 }

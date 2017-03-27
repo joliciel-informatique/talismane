@@ -28,10 +28,10 @@ import com.joliciel.talismane.TalismaneException;
  */
 public class MatchTooLargeException extends TalismaneException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public MatchTooLargeException(String message) {
-		super(message);
-	}
+  public MatchTooLargeException(String message) {
+    super(message);
+  }
 
 }

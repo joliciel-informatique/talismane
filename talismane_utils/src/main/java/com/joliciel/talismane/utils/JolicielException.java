@@ -23,24 +23,24 @@ package com.joliciel.talismane.utils;
  */
 public class JolicielException extends RuntimeException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4616300831200728983L;
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 4616300831200728983L;
 
-	public JolicielException() {
-	}
+  public JolicielException() {
+  }
 
-	public JolicielException(String message) {
-		super(message);
-	}
+  public JolicielException(String message) {
+    super(message);
+  }
 
-	public JolicielException(Throwable cause) {
-		super(cause);
-	}
+  public JolicielException(Throwable cause) {
+    super(cause);
+  }
 
-	public JolicielException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public JolicielException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 }

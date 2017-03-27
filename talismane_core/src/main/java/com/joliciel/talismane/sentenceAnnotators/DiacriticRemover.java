@@ -30,17 +30,17 @@ import java.util.regex.Pattern;
  *
  */
 public class DiacriticRemover implements TextReplacer {
-	private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+  private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
-	@Override
-	public void replace(List<String> tokens) {
-		for (int i = 0; i < tokens.size(); i++) {
-			String token = tokens.get(i);
-			tokens.set(i, removeDiacritics(token));
-		}
-	}
+  @Override
+  public void replace(List<String> tokens) {
+    for (int i = 0; i < tokens.size(); i++) {
+      String token = tokens.get(i);
+      tokens.set(i, removeDiacritics(token));
+    }
+  }
 
-	public static String removeDiacritics(String string) {
-		return diacriticPattern.matcher(Normalizer.normalize(string, Form.NFD)).replaceAll("");
-	}
+  public static String removeDiacritics(String string) {
+    return diacriticPattern.matcher(Normalizer.normalize(string, Form.NFD)).replaceAll("");
+  }
 }

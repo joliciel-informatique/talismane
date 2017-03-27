@@ -31,22 +31,22 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
  *
  */
 public final class PatternMatchIndexInSentenceFeature extends AbstractCachableFeature<TokenPatternMatch,Integer> implements IntegerFeature<TokenPatternMatch> {
-	public PatternMatchIndexInSentenceFeature() {
-	}
-	
-	@Override
-	public FeatureResult<Integer> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
-		FeatureResult<Integer> result = null;
-		Token token = tokenPatternMatch.getToken();
-		
-		// note - if a match is found, this is actually the second token in the pattern
-		// therefore, we want the index of the first token in the pattern.
-		int indexWithWhiteSpace = token.getIndexWithWhiteSpace() - tokenPatternMatch.getIndex();
-		Token firstToken = token.getTokenSequence().listWithWhiteSpace().get(indexWithWhiteSpace);
-		int patternIndex = firstToken.getIndex();
-		
-		result = this.generateResult(patternIndex);
+  public PatternMatchIndexInSentenceFeature() {
+  }
+  
+  @Override
+  public FeatureResult<Integer> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
+    FeatureResult<Integer> result = null;
+    Token token = tokenPatternMatch.getToken();
+    
+    // note - if a match is found, this is actually the second token in the pattern
+    // therefore, we want the index of the first token in the pattern.
+    int indexWithWhiteSpace = token.getIndexWithWhiteSpace() - tokenPatternMatch.getIndex();
+    Token firstToken = token.getTokenSequence().listWithWhiteSpace().get(indexWithWhiteSpace);
+    int patternIndex = firstToken.getIndex();
+    
+    result = this.generateResult(patternIndex);
 
-		return result;
-	}
+    return result;
+  }
 }

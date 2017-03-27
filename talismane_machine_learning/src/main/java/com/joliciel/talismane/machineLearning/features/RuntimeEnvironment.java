@@ -29,34 +29,34 @@ import java.util.Map;
  *
  */
 public class RuntimeEnvironment {
-	private Map<String, Object> variableMap = new HashMap<String, Object>();
-	private String key = null;
+  private Map<String, Object> variableMap = new HashMap<String, Object>();
+  private String key = null;
 
-	public Object getValue(String variableName) {
-		return variableMap.get(variableName);
-	}
+  public Object getValue(String variableName) {
+    return variableMap.get(variableName);
+  }
 
-	public void setValue(String variableName, Object value) {
-		variableMap.put(variableName, value);
-		key = null;
-	}
+  public void setValue(String variableName, Object value) {
+    variableMap.put(variableName, value);
+    key = null;
+  }
 
-	/**
-	 * A key uniquely describing this environment.
-	 */
-	public String getKey() {
-		if (key == null) {
-			if (variableMap.size() == 0)
-				key = "";
-			else {
-				StringBuilder sb = new StringBuilder();
-				for (String variable : variableMap.keySet()) {
-					sb.append("|" + variable + ":" + variableMap.get(variable).toString());
-				}
-				key = sb.toString();
-			}
-		}
-		return key;
-	}
+  /**
+   * A key uniquely describing this environment.
+   */
+  public String getKey() {
+    if (key == null) {
+      if (variableMap.size() == 0)
+        key = "";
+      else {
+        StringBuilder sb = new StringBuilder();
+        for (String variable : variableMap.keySet()) {
+          sb.append("|" + variable + ":" + variableMap.get(variable).toString());
+        }
+        key = sb.toString();
+      }
+    }
+    return key;
+  }
 
 }

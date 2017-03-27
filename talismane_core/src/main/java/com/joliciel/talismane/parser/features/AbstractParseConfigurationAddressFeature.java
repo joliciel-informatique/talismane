@@ -26,24 +26,24 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractFeature<ParseConfigurationWrapper, T>implements ParseConfigurationAddressFeature<T> {
-	PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
+  PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 
-	public AbstractParseConfigurationAddressFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
-		this.addressFunction = addressFunction;
-	}
+  public AbstractParseConfigurationAddressFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+    this.addressFunction = addressFunction;
+  }
 
-	public PosTaggedTokenAddressFunction<ParseConfigurationWrapper> getAddressFunction() {
-		return addressFunction;
-	}
+  public PosTaggedTokenAddressFunction<ParseConfigurationWrapper> getAddressFunction() {
+    return addressFunction;
+  }
 
-	public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
-		this.addressFunction = addressFunction;
-	}
+  public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+    this.addressFunction = addressFunction;
+  }
 
-	protected PosTaggedTokenWrapper getToken(ParseConfigurationWrapper parseConfiguration, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(parseConfiguration, env);
-		if (tokenResult == null)
-			return null;
-		return tokenResult.getOutcome();
-	}
+  protected PosTaggedTokenWrapper getToken(ParseConfigurationWrapper parseConfiguration, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(parseConfiguration, env);
+    if (tokenResult == null)
+      return null;
+    return tokenResult.getOutcome();
+  }
 }

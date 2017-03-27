@@ -29,67 +29,67 @@ package com.joliciel.talismane.rawText;
  *
  */
 enum RawTextInstruction {
-	/**
-	 * Remove the effect of the last skip marker. If two skip markers are
-	 * nested, this has no effect. If a skip is nested in an include, this will
-	 * start processing. Always matched to a PUSH_SKIP.
-	 */
-	POP_SKIP,
-	/**
-	 * Start processing again when you hit this marker (unless already started).
-	 */
-	PUSH_INCLUDE,
-	/**
-	 * Insert a sentence break when you hit this marker.
-	 */
-	SENTENCE_BREAK,
-	/**
-	 * Regardless of the current top-of-stack for processing, stops processing
-	 * until either pop or end is reached.
-	 */
-	STOP,
-	/**
-	 * Insert a space when you hit this marker.
-	 */
-	SPACE,
-	/**
-	 * Insert text when you hit this marker.
-	 */
-	INSERT,
-	/**
-	 * Remove the effect of the last output marker. Always matched to a
-	 * PUSH_OUTPUT.
-	 */
-	POP_OUTPUT,
-	/**
-	 * Remove the effect of the last include marker. If two include markers are
-	 * nested, this has no effect. If an include is nested in an skip, this will
-	 * stop processing. Always matched to a PUSH_INCLUDE.
-	 */
-	POP_INCLUDE,
-	/**
-	 * Regardless of the current top-of-stack for processing, starts processing
-	 * until either pop or end is reached.
-	 */
-	START,
-	/**
-	 * Regardless of the current top-of-stack for output, starts output until
-	 * either pop or end is reached (but only if not processing - will never
-	 * output AND process).
-	 */
-	START_OUTPUT,
-	/**
-	 * Regardless of the current top-of-stack for output, stops processing until
-	 * either pop or end is reached.
-	 */
-	STOP_OUTPUT,
-	/**
-	 * Output the raw contents in any output files produced by Talismane,
-	 * assuming we're not processing.
-	 */
-	PUSH_OUTPUT,
-	/**
-	 * Stop processing when you hit this marker (unless already stopped).
-	 */
-	PUSH_SKIP
+  /**
+   * Remove the effect of the last skip marker. If two skip markers are
+   * nested, this has no effect. If a skip is nested in an include, this will
+   * start processing. Always matched to a PUSH_SKIP.
+   */
+  POP_SKIP,
+  /**
+   * Start processing again when you hit this marker (unless already started).
+   */
+  PUSH_INCLUDE,
+  /**
+   * Insert a sentence break when you hit this marker.
+   */
+  SENTENCE_BREAK,
+  /**
+   * Regardless of the current top-of-stack for processing, stops processing
+   * until either pop or end is reached.
+   */
+  STOP,
+  /**
+   * Insert a space when you hit this marker.
+   */
+  SPACE,
+  /**
+   * Insert text when you hit this marker.
+   */
+  INSERT,
+  /**
+   * Remove the effect of the last output marker. Always matched to a
+   * PUSH_OUTPUT.
+   */
+  POP_OUTPUT,
+  /**
+   * Remove the effect of the last include marker. If two include markers are
+   * nested, this has no effect. If an include is nested in an skip, this will
+   * stop processing. Always matched to a PUSH_INCLUDE.
+   */
+  POP_INCLUDE,
+  /**
+   * Regardless of the current top-of-stack for processing, starts processing
+   * until either pop or end is reached.
+   */
+  START,
+  /**
+   * Regardless of the current top-of-stack for output, starts output until
+   * either pop or end is reached (but only if not processing - will never
+   * output AND process).
+   */
+  START_OUTPUT,
+  /**
+   * Regardless of the current top-of-stack for output, stops processing until
+   * either pop or end is reached.
+   */
+  STOP_OUTPUT,
+  /**
+   * Output the raw contents in any output files produced by Talismane,
+   * assuming we're not processing.
+   */
+  PUSH_OUTPUT,
+  /**
+   * Stop processing when you hit this marker (unless already stopped).
+   */
+  PUSH_SKIP
 }

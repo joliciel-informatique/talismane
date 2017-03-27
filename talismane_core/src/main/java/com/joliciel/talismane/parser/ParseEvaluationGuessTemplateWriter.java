@@ -32,23 +32,23 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
  *
  */
 public class ParseEvaluationGuessTemplateWriter implements ParseEvaluationObserver {
-	private final ParseConfigurationProcessor processor;
+  private final ParseConfigurationProcessor processor;
 
-	public ParseEvaluationGuessTemplateWriter(ParseConfigurationProcessor processor) {
-		this.processor = processor;
-	}
+  public ParseEvaluationGuessTemplateWriter(ParseConfigurationProcessor processor) {
+    this.processor = processor;
+  }
 
-	@Override
-	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException, IOException {
-		processor.onNextParseConfiguration(guessedConfigurations.get(0));
-	}
+  @Override
+  public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException, IOException {
+    processor.onNextParseConfiguration(guessedConfigurations.get(0));
+  }
 
-	@Override
-	public void onEvaluationComplete() throws IOException {
-		processor.onCompleteParse();
-	}
+  @Override
+  public void onEvaluationComplete() throws IOException {
+    processor.onCompleteParse();
+  }
 
-	@Override
-	public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences) {
-	}
+  @Override
+  public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences) {
+  }
 }

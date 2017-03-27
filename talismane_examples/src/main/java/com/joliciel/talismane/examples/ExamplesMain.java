@@ -12,19 +12,19 @@ package com.joliciel.talismane.examples;
  */
 public class ExamplesMain {
 
-	public static void main(String[] args) throws Exception {
-		String className = args[0];
-		
-		String[] newArgs = new String[args.length-1];
-		for (int i=1; i<args.length; i++) {
-			newArgs[i-1] = args[i];
-		}
-		
-		if (className.equals(TalismaneAPIExamples.class.getSimpleName())) {
-			TalismaneAPIExamples.main(newArgs);
-		} else if (className.equals(TalismaneClient.class.getSimpleName())) {
-			TalismaneClient.main(newArgs);
-		}
-	}
+  public static void main(String[] args) throws Exception {
+    String className = args[0];
+    
+    String[] newArgs = new String[args.length-1];
+    for (int i=1; i<args.length; i++) {
+      newArgs[i-1] = args[i];
+    }
+    
+    if (className.equals(TalismaneAPIExamples.class.getSimpleName())) {
+      TalismaneAPIExamples.main(newArgs);
+    } else if (className.equals(TalismaneClient.class.getSimpleName())) {
+      TalismaneClient.main(newArgs);
+    }
+  }
 
 }

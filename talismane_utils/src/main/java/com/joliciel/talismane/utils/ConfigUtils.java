@@ -44,94 +44,94 @@ import com.typesafe.config.Config;
  *
  */
 public class ConfigUtils {
-	private static final Logger LOG = LoggerFactory.getLogger(ConfigUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ConfigUtils.class);
 
-	public static InputStream getFileFromConfig(Config config, String configPath) throws IOException {
-		String path = config.getString(configPath);
-		return getFile(config, configPath, path);
-	}
+  public static InputStream getFileFromConfig(Config config, String configPath) throws IOException {
+    String path = config.getString(configPath);
+    return getFile(config, configPath, path);
+  }
 
-	public static InputStream getFile(Config config, String configPath, String path) throws IOException {
-		FileObject fileObject = VFSWrapper.getInstance().getFileObject(path);
+  public static InputStream getFile(Config config, String configPath, String path) throws IOException {
+    FileObject fileObject = VFSWrapper.getInstance().getFileObject(path);
 
-		if (!fileObject.exists()) {
-			LOG.error(configPath + " file not found: " + path);
-			throw new FileNotFoundException(configPath + " file not found: " + path);
-		}
+    if (!fileObject.exists()) {
+      LOG.error(configPath + " file not found: " + path);
+      throw new FileNotFoundException(configPath + " file not found: " + path);
+    }
 
-		return fileObject.getContent().getInputStream();
-	}
+    return fileObject.getContent().getInputStream();
+  }
 
-	public static List<FileObject> getFileObjects(String path) throws FileSystemException {
-		List<FileObject> fileObjects = new ArrayList<>();
-		FileObject fileObject = VFSWrapper.getInstance().getFileObject(path);
-		getFileObjects(fileObject, fileObjects);
-		return fileObjects;
-	}
+  public static List<FileObject> getFileObjects(String path) throws FileSystemException {
+    List<FileObject> fileObjects = new ArrayList<>();
+    FileObject fileObject = VFSWrapper.getInstance().getFileObject(path);
+    getFileObjects(fileObject, fileObjects);
+    return fileObjects;
+  }
 
-	private static void getFileObjects(FileObject fileObject, List<FileObject> fileObjects) throws FileSystemException {
-		if (fileObject.isFolder()) {
-			for (FileObject child : fileObject.getChildren()) {
-				getFileObjects(child, fileObjects);
-			}
-		} else {
-			fileObjects.add(fileObject);
-		}
-	}
+  private static void getFileObjects(FileObject fileObject, List<FileObject> fileObjects) throws FileSystemException {
+    if (fileObject.isFolder()) {
+      for (FileObject child : fileObject.getChildren()) {
+        getFileObjects(child, fileObjects);
+      }
+    } else {
+      fileObjects.add(fileObject);
+    }
+  }
 
-	private static final class VFSWrapper {
-		private final String baseDir = System.getProperty("user.dir");
-		private final Set<String> prefixes;
-		private final Set<String> localPrefixes = new HashSet<>(Arrays.asList("file", "zip", "jar", "tar", "tgz", "tbz2", "gz", "bz2", "ear", "war"));
-		private final FileSystemManager fsManager;
+  private static final class VFSWrapper {
+    private final String baseDir = System.getProperty("user.dir");
+    private final Set<String> prefixes;
+    private final Set<String> localPrefixes = new HashSet<>(Arrays.asList("file", "zip", "jar", "tar", "tgz", "tbz2", "gz", "bz2", "ear", "war"));
+    private final FileSystemManager fsManager;
 
-		private static VFSWrapper instance;
+    private static VFSWrapper instance;
 
-		public static VFSWrapper getInstance() throws FileSystemException {
-			if (instance == null)
-				instance = new VFSWrapper();
-			return instance;
-		}
+    public static VFSWrapper getInstance() throws FileSystemException {
+      if (instance == null)
+        instance = new VFSWrapper();
+      return instance;
+    }
 
-		private VFSWrapper() throws FileSystemException {
-			fsManager = VFS.getManager();
-			prefixes = new HashSet<>(Arrays.asList(fsManager.getSchemes()));
-		}
+    private VFSWrapper() throws FileSystemException {
+      fsManager = VFS.getManager();
+      prefixes = new HashSet<>(Arrays.asList(fsManager.getSchemes()));
+    }
 
-		public FileObject getFileObject(String path) throws FileSystemException {
-			LOG.debug("Getting " + path);
-			FileSystemManager fsManager = VFS.getManager();
+    public FileObject getFileObject(String path) throws FileSystemException {
+      LOG.debug("Getting " + path);
+      FileSystemManager fsManager = VFS.getManager();
 
-			// make the path absolute if required, based on the working
-			// directory
-			String prefix = "";
-			if (path.contains("://")) {
-				prefix = path.substring(0, path.indexOf("://"));
-				if (!prefixes.contains(prefix))
-					prefix = "";
-			}
+      // make the path absolute if required, based on the working
+      // directory
+      String prefix = "";
+      if (path.contains("://")) {
+        prefix = path.substring(0, path.indexOf("://"));
+        if (!prefixes.contains(prefix))
+          prefix = "";
+      }
 
-			boolean makeAbsolute = prefix.length() == 0 || localPrefixes.contains(prefix);
+      boolean makeAbsolute = prefix.length() == 0 || localPrefixes.contains(prefix);
 
-			if (makeAbsolute) {
-				if (prefix.length() > 0)
-					prefix += "://";
-				String fileSystemPath = path.substring(prefix.length());
-				String pathNoSuffix = fileSystemPath;
-				int exclamationPos = fileSystemPath.indexOf('!');
+      if (makeAbsolute) {
+        if (prefix.length() > 0)
+          prefix += "://";
+        String fileSystemPath = path.substring(prefix.length());
+        String pathNoSuffix = fileSystemPath;
+        int exclamationPos = fileSystemPath.indexOf('!');
 
-				if (exclamationPos >= 0)
-					pathNoSuffix = pathNoSuffix.substring(0, exclamationPos);
+        if (exclamationPos >= 0)
+          pathNoSuffix = pathNoSuffix.substring(0, exclamationPos);
 
-				File file = new File(pathNoSuffix);
-				if (!file.isAbsolute()) {
-					path = prefix + baseDir + "/" + fileSystemPath;
-					LOG.debug("Changed path to " + path);
-				}
-			}
+        File file = new File(pathNoSuffix);
+        if (!file.isAbsolute()) {
+          path = prefix + baseDir + "/" + fileSystemPath;
+          LOG.debug("Changed path to " + path);
+        }
+      }
 
-			FileObject fileObject = fsManager.resolveFile(path);
-			return fileObject;
-		}
-	}
+      FileObject fileObject = fsManager.resolveFile(path);
+      return fileObject;
+    }
+  }
 }

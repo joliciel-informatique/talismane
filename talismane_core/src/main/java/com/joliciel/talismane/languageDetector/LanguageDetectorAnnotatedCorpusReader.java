@@ -32,39 +32,39 @@ import com.typesafe.config.Config;
  *
  */
 public interface LanguageDetectorAnnotatedCorpusReader extends AnnotatedCorpusReader {
-	/**
-	 * Is there another text to be read?
-	 */
-	public abstract boolean hasNextText();
+  /**
+   * Is there another text to be read?
+   */
+  public abstract boolean hasNextText();
 
-	/**
-	 * Reads the next sentence from the corpus.
-	 */
-	public abstract LanguageTaggedText nextText();
+  /**
+   * Reads the next sentence from the corpus.
+   */
+  public abstract LanguageTaggedText nextText();
 
-	/**
-	 * Builds an annotated corpus reader for a particular Reader and Config,
-	 * where the config is the local namespace. For configuration example, see
-	 * talismane.core.language-detector.input in reference.conf.
-	 * 
-	 * @param config
-	 *            the local configuration section from which we're building a
-	 *            reader
-	 * @throws IOException
-	 *             problem reading the files referred in the configuration
-	 * @throws ReflectiveOperationException
-	 *             if the corpus-reader class could not be instantiated
-	 */
-	public static LanguageDetectorAnnotatedCorpusReader getCorpusReader(Config config, TalismaneSession session)
-			throws IOException, ReflectiveOperationException {
-		String className = config.getString("corpus-reader");
+  /**
+   * Builds an annotated corpus reader for a particular Reader and Config,
+   * where the config is the local namespace. For configuration example, see
+   * talismane.core.language-detector.input in reference.conf.
+   * 
+   * @param config
+   *            the local configuration section from which we're building a
+   *            reader
+   * @throws IOException
+   *             problem reading the files referred in the configuration
+   * @throws ReflectiveOperationException
+   *             if the corpus-reader class could not be instantiated
+   */
+  public static LanguageDetectorAnnotatedCorpusReader getCorpusReader(Config config, TalismaneSession session)
+      throws IOException, ReflectiveOperationException {
+    String className = config.getString("corpus-reader");
 
-		@SuppressWarnings("unchecked")
-		Class<? extends LanguageDetectorAnnotatedCorpusReader> clazz = (Class<? extends LanguageDetectorAnnotatedCorpusReader>) Class.forName(className);
-		Constructor<? extends LanguageDetectorAnnotatedCorpusReader> cons = clazz.getConstructor(Config.class, TalismaneSession.class);
+    @SuppressWarnings("unchecked")
+    Class<? extends LanguageDetectorAnnotatedCorpusReader> clazz = (Class<? extends LanguageDetectorAnnotatedCorpusReader>) Class.forName(className);
+    Constructor<? extends LanguageDetectorAnnotatedCorpusReader> cons = clazz.getConstructor(Config.class, TalismaneSession.class);
 
-		LanguageDetectorAnnotatedCorpusReader corpusReader = cons.newInstance(config, session);
+    LanguageDetectorAnnotatedCorpusReader corpusReader = cons.newInstance(config, session);
 
-		return corpusReader;
-	}
+    return corpusReader;
+  }
 }

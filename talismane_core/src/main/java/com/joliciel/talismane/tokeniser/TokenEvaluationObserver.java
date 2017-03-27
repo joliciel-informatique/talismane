@@ -37,53 +37,53 @@ import com.joliciel.talismane.utils.ArrayListNoNulls;
  *
  */
 public interface TokenEvaluationObserver {
-	/**
-	 * Called when the next token sequence has been processed.
-	 * 
-	 * @throws IOException
-	 */
-	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) throws IOException;
+  /**
+   * Called when the next token sequence has been processed.
+   * 
+   * @throws IOException
+   */
+  public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) throws IOException;
 
-	public void onEvaluationComplete() throws IOException;
+  public void onEvaluationComplete() throws IOException;
 
-	public static List<TokenEvaluationObserver> getTokenEvaluationObservers(File outDir, TalismaneSession session) throws IOException, TalismaneException {
-		List<TokenEvaluationObserver> observers = new ArrayListNoNulls<TokenEvaluationObserver>();
-		Writer errorFileWriter = null;
-		File errorFile = new File(outDir, session.getBaseName() + ".errorList.txt");
-		errorFile.delete();
-		errorFile.createNewFile();
-		errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false), "UTF8"));
+  public static List<TokenEvaluationObserver> getTokenEvaluationObservers(File outDir, TalismaneSession session) throws IOException, TalismaneException {
+    List<TokenEvaluationObserver> observers = new ArrayListNoNulls<TokenEvaluationObserver>();
+    Writer errorFileWriter = null;
+    File errorFile = new File(outDir, session.getBaseName() + ".errorList.txt");
+    errorFile.delete();
+    errorFile.createNewFile();
+    errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false), "UTF8"));
 
-		Writer csvErrorFileWriter = null;
-		File csvErrorFile = new File(outDir, session.getBaseName() + ".errors.csv");
-		csvErrorFile.delete();
-		csvErrorFile.createNewFile();
-		csvErrorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false), session.getCsvCharset()));
+    Writer csvErrorFileWriter = null;
+    File csvErrorFile = new File(outDir, session.getBaseName() + ".errors.csv");
+    csvErrorFile.delete();
+    csvErrorFile.createNewFile();
+    csvErrorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false), session.getCsvCharset()));
 
-		File fScoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
+    File fScoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
 
-		TokenEvaluationFScoreCalculator tokenFScoreCalculator = new TokenEvaluationFScoreCalculator();
-		tokenFScoreCalculator.setErrorWriter(errorFileWriter);
-		tokenFScoreCalculator.setCsvErrorWriter(csvErrorFileWriter);
-		tokenFScoreCalculator.setFScoreFile(fScoreFile);
-		observers.add(tokenFScoreCalculator);
+    TokenEvaluationFScoreCalculator tokenFScoreCalculator = new TokenEvaluationFScoreCalculator();
+    tokenFScoreCalculator.setErrorWriter(errorFileWriter);
+    tokenFScoreCalculator.setCsvErrorWriter(csvErrorFileWriter);
+    tokenFScoreCalculator.setFScoreFile(fScoreFile);
+    observers.add(tokenFScoreCalculator);
 
-		Writer corpusFileWriter = null;
-		File corpusFile = new File(outDir, session.getBaseName() + ".corpus.txt");
-		corpusFile.delete();
-		corpusFile.createNewFile();
-		corpusFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(corpusFile, false), "UTF8"));
+    Writer corpusFileWriter = null;
+    File corpusFile = new File(outDir, session.getBaseName() + ".corpus.txt");
+    corpusFile.delete();
+    corpusFile.createNewFile();
+    corpusFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(corpusFile, false), "UTF8"));
 
-		TokenEvaluationCorpusWriter corpusWriter = new TokenEvaluationCorpusWriter(corpusFileWriter);
-		observers.add(corpusWriter);
+    TokenEvaluationCorpusWriter corpusWriter = new TokenEvaluationCorpusWriter(corpusFileWriter);
+    observers.add(corpusWriter);
 
-		List<TokenSequenceProcessor> processors = TokenSequenceProcessor.getProcessors(null, outDir, session);
+    List<TokenSequenceProcessor> processors = TokenSequenceProcessor.getProcessors(null, outDir, session);
 
-		for (TokenSequenceProcessor processor : processors) {
-			TokeniserGuessTemplateWriter templateWriter = new TokeniserGuessTemplateWriter(processor);
-			observers.add(templateWriter);
-		}
+    for (TokenSequenceProcessor processor : processors) {
+      TokeniserGuessTemplateWriter templateWriter = new TokeniserGuessTemplateWriter(processor);
+      observers.add(templateWriter);
+    }
 
-		return observers;
-	}
+    return observers;
+  }
 }

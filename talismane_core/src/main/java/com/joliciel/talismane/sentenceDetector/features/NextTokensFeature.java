@@ -34,34 +34,34 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class NextTokensFeature extends AbstractSentenceDetectorFeature<String>implements StringFeature<PossibleSentenceBoundary> {
-	IntegerFeature<PossibleSentenceBoundary> nFeature;
+  IntegerFeature<PossibleSentenceBoundary> nFeature;
 
-	public NextTokensFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {
-		this.nFeature = nFeature;
-		this.setName(super.getName() + "(" + nFeature.getName() + ")");
-	}
+  public NextTokensFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {
+    this.nFeature = nFeature;
+    this.setName(super.getName() + "(" + nFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<String> result = null;
+  @Override
+  public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> result = null;
 
-		FeatureResult<Integer> nResult = nFeature.check(context, env);
-		if (nResult != null) {
-			int n = nResult.getOutcome();
-			int tokenIndex = context.getTokenIndexWithWhitespace();
-			String tokenString = "";
-			for (int i = 0; i <= n; i++) {
-				int relativeIndex = tokenIndex + i;
-				if (relativeIndex < context.getTokenSequence().listWithWhiteSpace().size()) {
-					Token token = context.getTokenSequence().listWithWhiteSpace().get(relativeIndex);
-					tokenString = tokenString + token.getOriginalText();
-				} else {
-					tokenString = tokenString + "[[END]]";
-				}
-			}
-			result = this.generateResult(tokenString);
-		} // have n
+    FeatureResult<Integer> nResult = nFeature.check(context, env);
+    if (nResult != null) {
+      int n = nResult.getOutcome();
+      int tokenIndex = context.getTokenIndexWithWhitespace();
+      String tokenString = "";
+      for (int i = 0; i <= n; i++) {
+        int relativeIndex = tokenIndex + i;
+        if (relativeIndex < context.getTokenSequence().listWithWhiteSpace().size()) {
+          Token token = context.getTokenSequence().listWithWhiteSpace().get(relativeIndex);
+          tokenString = tokenString + token.getOriginalText();
+        } else {
+          tokenString = tokenString + "[[END]]";
+        }
+      }
+      result = this.generateResult(tokenString);
+    } // have n
 
-		return result;
-	}
+    return result;
+  }
 }

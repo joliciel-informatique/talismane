@@ -7,6 +7,6 @@ package com.joliciel.talismane;
  *
  */
 public interface NeedsTalismaneSession {
-	public TalismaneSession getTalismaneSession();
-	public void setTalismaneSession(TalismaneSession talismaneSession);
+  public TalismaneSession getTalismaneSession();
+  public void setTalismaneSession(TalismaneSession talismaneSession);
 }

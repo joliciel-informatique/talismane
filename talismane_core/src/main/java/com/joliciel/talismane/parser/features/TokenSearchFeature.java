@@ -54,191 +54,191 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class TokenSearchFeature extends AbstractAddressFunction implements PosTaggedTokenAddressFunction<ParseConfigurationWrapper> {
-	private BooleanFeature<PosTaggedTokenWrapper> criterion;
-	private BooleanFeature<PosTaggedTokenWrapper> stopCriterion;
-	private BooleanFeature<ParseConfigurationWrapper> findFirstFeature;
-	private IntegerFeature<ParseConfigurationWrapper> startIndexFeature = null;
-	private IntegerFeature<ParseConfigurationWrapper> endIndexFeature = null;
-	private BooleanFeature<PosTaggedTokenWrapper>[] skipCriteria;
+  private BooleanFeature<PosTaggedTokenWrapper> criterion;
+  private BooleanFeature<PosTaggedTokenWrapper> stopCriterion;
+  private BooleanFeature<ParseConfigurationWrapper> findFirstFeature;
+  private IntegerFeature<ParseConfigurationWrapper> startIndexFeature = null;
+  private IntegerFeature<ParseConfigurationWrapper> endIndexFeature = null;
+  private BooleanFeature<PosTaggedTokenWrapper>[] skipCriteria;
 
-	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<ParseConfigurationWrapper> startIndexFeature,
-			IntegerFeature<ParseConfigurationWrapper> endIndexFeature) {
-		this.criterion = criterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
-	}
+  public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<ParseConfigurationWrapper> startIndexFeature,
+      IntegerFeature<ParseConfigurationWrapper> endIndexFeature) {
+    this.criterion = criterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
+  }
 
-	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion,
-			IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature) {
-		this.criterion = criterion;
-		this.stopCriterion = stopCriterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + ","
-				+ endIndexFeature.getName() + ")");
-	}
+  public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion,
+      IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature) {
+    this.criterion = criterion;
+    this.stopCriterion = stopCriterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + ","
+        + endIndexFeature.getName() + ")");
+  }
 
-	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<ParseConfigurationWrapper> startIndexFeature,
-			IntegerFeature<ParseConfigurationWrapper> endIndexFeature, BooleanFeature<ParseConfigurationWrapper> findFirstFeature) {
-		this.criterion = criterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.findFirstFeature = findFirstFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ","
-				+ findFirstFeature.getName() + ")");
-	}
+  public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<ParseConfigurationWrapper> startIndexFeature,
+      IntegerFeature<ParseConfigurationWrapper> endIndexFeature, BooleanFeature<ParseConfigurationWrapper> findFirstFeature) {
+    this.criterion = criterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.findFirstFeature = findFirstFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ","
+        + findFirstFeature.getName() + ")");
+  }
 
-	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion,
-			IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature,
-			BooleanFeature<ParseConfigurationWrapper> findFirstFeature) {
-		this.criterion = criterion;
-		this.stopCriterion = stopCriterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.findFirstFeature = findFirstFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + ","
-				+ endIndexFeature.getName() + "," + findFirstFeature.getName() + ")");
-	}
+  public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion,
+      IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature,
+      BooleanFeature<ParseConfigurationWrapper> findFirstFeature) {
+    this.criterion = criterion;
+    this.stopCriterion = stopCriterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.findFirstFeature = findFirstFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + ","
+        + endIndexFeature.getName() + "," + findFirstFeature.getName() + ")");
+  }
 
-	/**
-	 * 
-	 * @param skipCriteria
-	 *            need to be provided in pairs, each pair indicates where to
-	 *            start skipping and where to end skipping (e.g. open
-	 *            parentheses and close parentheses)
-	 */
-	@SafeVarargs
-	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion,
-			IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature,
-			BooleanFeature<ParseConfigurationWrapper> findFirstFeature, BooleanFeature<PosTaggedTokenWrapper>... skipCriteria) {
-		this.criterion = criterion;
-		this.stopCriterion = stopCriterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.findFirstFeature = findFirstFeature;
-		this.skipCriteria = skipCriteria;
-		String name = super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + ","
-				+ endIndexFeature.getName() + "," + findFirstFeature.getName();
-		for (BooleanFeature<PosTaggedTokenWrapper> skipCriterion : skipCriteria) {
-			name += "," + skipCriterion.getName();
-		}
-		name += ")";
-		this.setName(name);
-	}
+  /**
+   * 
+   * @param skipCriteria
+   *            need to be provided in pairs, each pair indicates where to
+   *            start skipping and where to end skipping (e.g. open
+   *            parentheses and close parentheses)
+   */
+  @SafeVarargs
+  public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion,
+      IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature,
+      BooleanFeature<ParseConfigurationWrapper> findFirstFeature, BooleanFeature<PosTaggedTokenWrapper>... skipCriteria) {
+    this.criterion = criterion;
+    this.stopCriterion = stopCriterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.findFirstFeature = findFirstFeature;
+    this.skipCriteria = skipCriteria;
+    String name = super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + ","
+        + endIndexFeature.getName() + "," + findFirstFeature.getName();
+    for (BooleanFeature<PosTaggedTokenWrapper> skipCriterion : skipCriteria) {
+      name += "," + skipCriterion.getName();
+    }
+    name += ")";
+    this.setName(name);
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 
-		PosTagSequence posTagSequence = context.getParseConfiguration().getPosTagSequence();
-		int startIndex = 0;
-		int endIndex = posTagSequence.size() - 1;
+    PosTagSequence posTagSequence = context.getParseConfiguration().getPosTagSequence();
+    int startIndex = 0;
+    int endIndex = posTagSequence.size() - 1;
 
-		if (startIndexFeature != null) {
-			FeatureResult<Integer> startIndexResult = startIndexFeature.check(context, env);
-			if (startIndexResult != null) {
-				startIndex = startIndexResult.getOutcome();
-			} else {
-				return featureResult;
-			}
-		}
+    if (startIndexFeature != null) {
+      FeatureResult<Integer> startIndexResult = startIndexFeature.check(context, env);
+      if (startIndexResult != null) {
+        startIndex = startIndexResult.getOutcome();
+      } else {
+        return featureResult;
+      }
+    }
 
-		if (endIndexFeature != null) {
-			FeatureResult<Integer> endIndexResult = endIndexFeature.check(context, env);
-			if (endIndexResult != null) {
-				endIndex = endIndexResult.getOutcome();
-			} else {
-				return featureResult;
-			}
-		}
+    if (endIndexFeature != null) {
+      FeatureResult<Integer> endIndexResult = endIndexFeature.check(context, env);
+      if (endIndexResult != null) {
+        endIndex = endIndexResult.getOutcome();
+      } else {
+        return featureResult;
+      }
+    }
 
-		if (startIndex < 0)
-			startIndex = 0;
+    if (startIndex < 0)
+      startIndex = 0;
 
-		if (endIndex < 0)
-			endIndex = 0;
+    if (endIndex < 0)
+      endIndex = 0;
 
-		if (startIndex >= posTagSequence.size())
-			startIndex = posTagSequence.size() - 1;
-		if (endIndex >= posTagSequence.size())
-			endIndex = posTagSequence.size() - 1;
+    if (startIndex >= posTagSequence.size())
+      startIndex = posTagSequence.size() - 1;
+    if (endIndex >= posTagSequence.size())
+      endIndex = posTagSequence.size() - 1;
 
-		int step = -1;
-		if (endIndex > startIndex)
-			step = 1;
+    int step = -1;
+    if (endIndex > startIndex)
+      step = 1;
 
-		PosTaggedToken matchingToken = null;
+    PosTaggedToken matchingToken = null;
 
-		boolean findFirst = true;
-		if (findFirstFeature != null) {
-			FeatureResult<Boolean> findFirstResult = this.findFirstFeature.check(context, env);
-			if (findFirstResult == null) {
-				return null;
-			}
-			findFirst = findFirstResult.getOutcome();
-		}
+    boolean findFirst = true;
+    if (findFirstFeature != null) {
+      FeatureResult<Boolean> findFirstResult = this.findFirstFeature.check(context, env);
+      if (findFirstResult == null) {
+        return null;
+      }
+      findFirst = findFirstResult.getOutcome();
+    }
 
-		ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
-		parseConfigurationAddress.setParseConfiguration(context.getParseConfiguration());
+    ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
+    parseConfigurationAddress.setParseConfiguration(context.getParseConfiguration());
 
-		int currentSkip = -1;
-		for (int i = startIndex; (step < 0 && i >= 0 && i >= endIndex) || (step > 0 && i < posTagSequence.size() && i <= endIndex); i += step) {
-			PosTaggedToken oneToken = posTagSequence.get(i);
-			parseConfigurationAddress.setPosTaggedToken(oneToken);
+    int currentSkip = -1;
+    for (int i = startIndex; (step < 0 && i >= 0 && i >= endIndex) || (step > 0 && i < posTagSequence.size() && i <= endIndex); i += step) {
+      PosTaggedToken oneToken = posTagSequence.get(i);
+      parseConfigurationAddress.setPosTaggedToken(oneToken);
 
-			if (currentSkip < 0) {
-				FeatureResult<Boolean> criterionResult = this.criterion.check(parseConfigurationAddress, env);
-				if (criterionResult != null && criterionResult.getOutcome()) {
-					matchingToken = oneToken;
-					if (findFirst)
-						break;
-				}
-			}
+      if (currentSkip < 0) {
+        FeatureResult<Boolean> criterionResult = this.criterion.check(parseConfigurationAddress, env);
+        if (criterionResult != null && criterionResult.getOutcome()) {
+          matchingToken = oneToken;
+          if (findFirst)
+            break;
+        }
+      }
 
-			boolean endSkip = false;
-			if (skipCriteria != null && skipCriteria.length > 0) {
-				if (currentSkip < 0) {
-					for (int j = 0; j < skipCriteria.length; j += 2) {
-						BooleanFeature<PosTaggedTokenWrapper> skipCriterion = skipCriteria[j];
-						FeatureResult<Boolean> skipResult = skipCriterion.check(parseConfigurationAddress, env);
-						if (skipResult != null && skipResult.getOutcome()) {
-							currentSkip = j;
-							break;
-						}
-					}
-				} else {
-					int j = currentSkip + 1;
-					BooleanFeature<PosTaggedTokenWrapper> endSkipCriterion = skipCriteria[j];
-					FeatureResult<Boolean> endSkipResult = endSkipCriterion.check(parseConfigurationAddress, env);
-					if (endSkipResult != null && endSkipResult.getOutcome()) {
-						endSkip = true;
-					}
-				}
-			}
+      boolean endSkip = false;
+      if (skipCriteria != null && skipCriteria.length > 0) {
+        if (currentSkip < 0) {
+          for (int j = 0; j < skipCriteria.length; j += 2) {
+            BooleanFeature<PosTaggedTokenWrapper> skipCriterion = skipCriteria[j];
+            FeatureResult<Boolean> skipResult = skipCriterion.check(parseConfigurationAddress, env);
+            if (skipResult != null && skipResult.getOutcome()) {
+              currentSkip = j;
+              break;
+            }
+          }
+        } else {
+          int j = currentSkip + 1;
+          BooleanFeature<PosTaggedTokenWrapper> endSkipCriterion = skipCriteria[j];
+          FeatureResult<Boolean> endSkipResult = endSkipCriterion.check(parseConfigurationAddress, env);
+          if (endSkipResult != null && endSkipResult.getOutcome()) {
+            endSkip = true;
+          }
+        }
+      }
 
-			if (currentSkip < 0) {
-				if (stopCriterion != null) {
-					FeatureResult<Boolean> stopCriterionResult = this.stopCriterion.check(parseConfigurationAddress, env);
-					if (stopCriterionResult != null && stopCriterionResult.getOutcome()) {
-						break;
-					}
-				}
-			}
+      if (currentSkip < 0) {
+        if (stopCriterion != null) {
+          FeatureResult<Boolean> stopCriterionResult = this.stopCriterion.check(parseConfigurationAddress, env);
+          if (stopCriterionResult != null && stopCriterionResult.getOutcome()) {
+            break;
+          }
+        }
+      }
 
-			if (endSkip)
-				currentSkip = -1;
-		}
-		if (matchingToken != null) {
-			featureResult = this.generateResult(matchingToken);
-		}
+      if (endSkip)
+        currentSkip = -1;
+    }
+    if (matchingToken != null) {
+      featureResult = this.generateResult(matchingToken);
+    }
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return PosTaggedTokenAddressFunction.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return PosTaggedTokenAddressFunction.class;
+  }
 }

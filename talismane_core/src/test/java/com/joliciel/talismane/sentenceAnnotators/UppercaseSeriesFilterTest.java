@@ -20,42 +20,42 @@ import mockit.NonStrictExpectations;
 
 public class UppercaseSeriesFilterTest {
 
-	@Test
-	public void testReplace(@NonStrict final Diacriticizer diacriticizer) throws Exception {
-		new NonStrictExpectations() {
-			{
-				diacriticizer.diacriticize("VEUX");
-				returns(new HashSet<>(Arrays.asList("veux")));
-				diacriticizer.diacriticize("SAVOIR");
-				returns(new HashSet<>(Arrays.asList("savoir")));
-				diacriticizer.diacriticize("L'");
-				returns(new HashSet<>(Arrays.asList("l'")));
-				diacriticizer.diacriticize("AMERIQUE");
-				returns(new HashSet<>(Arrays.asList("Amérique")));
-			}
-		};
+  @Test
+  public void testReplace(@NonStrict final Diacriticizer diacriticizer) throws Exception {
+    new NonStrictExpectations() {
+      {
+        diacriticizer.diacriticize("VEUX");
+        returns(new HashSet<>(Arrays.asList("veux")));
+        diacriticizer.diacriticize("SAVOIR");
+        returns(new HashSet<>(Arrays.asList("savoir")));
+        diacriticizer.diacriticize("L'");
+        returns(new HashSet<>(Arrays.asList("l'")));
+        diacriticizer.diacriticize("AMERIQUE");
+        returns(new HashSet<>(Arrays.asList("Amérique")));
+      }
+    };
 
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+    System.setProperty("config.file", "src/test/resources/test.conf");
+    ConfigFactory.invalidateCaches();
+    final Config config = ConfigFactory.load();
 
-		final TalismaneSession session = new TalismaneSession(config, "");
-		session.setDiacriticizer(diacriticizer);
+    final TalismaneSession session = new TalismaneSession(config, "");
+    session.setDiacriticizer(diacriticizer);
 
-		UppercaseSeriesFilter filter = new UppercaseSeriesFilter();
-		filter.setTalismaneSession(session);
+    UppercaseSeriesFilter filter = new UppercaseSeriesFilter();
+    filter.setTalismaneSession(session);
 
-		String text = "Je VEUX SAVOIR la VERITE, je VEUX SAVOIR LA VERITE sur L'AMERIQUE!";
-		List<String> tokens = Tokeniser.bruteForceTokenise(text, session);
+    String text = "Je VEUX SAVOIR la VERITE, je VEUX SAVOIR LA VERITE sur L'AMERIQUE!";
+    List<String> tokens = Tokeniser.bruteForceTokenise(text, session);
 
-		filter.replace(tokens);
-		System.out.println(tokens);
+    filter.replace(tokens);
+    System.out.println(tokens);
 
-		StringBuilder sb = new StringBuilder();
-		for (String token : tokens)
-			sb.append(token);
+    StringBuilder sb = new StringBuilder();
+    for (String token : tokens)
+      sb.append(token);
 
-		assertEquals("Je veux savoir la VERITE, je veux savoir La Verite sur l'Amérique!", sb.toString());
-	}
+    assertEquals("Je veux savoir la VERITE, je veux savoir La Verite sur l'Amérique!", sb.toString());
+  }
 
 }

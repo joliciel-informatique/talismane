@@ -49,101 +49,101 @@ import com.typesafe.config.Config;
  *
  */
 public interface PosTagSequenceProcessor extends Closeable {
-	public enum ProcessorType {
-		output,
-		posTagFeatureTester
-	}
+  public enum ProcessorType {
+    output,
+    posTagFeatureTester
+  }
 
-	/**
-	 * Process the next pos-tag sequence.
-	 * 
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public void onNextPosTagSequence(PosTagSequence posTagSequence) throws TalismaneException, IOException;
+  /**
+   * Process the next pos-tag sequence.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public void onNextPosTagSequence(PosTagSequence posTagSequence) throws TalismaneException, IOException;
 
-	/**
-	 * Called when analysis is complete.
-	 * 
-	 * @throws IOException
-	 */
-	public void onCompleteAnalysis() throws IOException;
+  /**
+   * Called when analysis is complete.
+   * 
+   * @throws IOException
+   */
+  public void onCompleteAnalysis() throws IOException;
 
-	/**
-	 * 
-	 * @param writer
-	 *            if provided, the main processor will write to this writer, if
-	 *            null, the outDir will be used instead
-	 * @param outDir
-	 * @param session
-	 * @return
-	 * @throws IOException
-	 */
-	public static List<PosTagSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
-		List<PosTagSequenceProcessor> processors = new ArrayList<>();
+  /**
+   * 
+   * @param writer
+   *            if provided, the main processor will write to this writer, if
+   *            null, the outDir will be used instead
+   * @param outDir
+   * @param session
+   * @return
+   * @throws IOException
+   */
+  public static List<PosTagSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
+    List<PosTagSequenceProcessor> processors = new ArrayList<>();
 
-		Config config = session.getConfig();
-		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config config = session.getConfig();
+    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 
-		PosTagSequenceProcessor processor = null;
-		List<ProcessorType> processorTypes = posTaggerConfig.getStringList("output.processors").stream().map(f -> ProcessorType.valueOf(f))
-				.collect(Collectors.toList());
+    PosTagSequenceProcessor processor = null;
+    List<ProcessorType> processorTypes = posTaggerConfig.getStringList("output.processors").stream().map(f -> ProcessorType.valueOf(f))
+        .collect(Collectors.toList());
 
-		if (outDir != null)
-			outDir.mkdirs();
+    if (outDir != null)
+      outDir.mkdirs();
 
-		for (ProcessorType type : processorTypes) {
-			switch (type) {
-			case output: {
-				Reader templateReader = null;
-				String configPath = "talismane.core.pos-tagger.output.template";
-				if (config.hasPath(configPath)) {
-					templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-				} else {
-					String templateName = null;
-					BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(posTaggerConfig.getString("output.built-in-template"));
-					switch (builtInTemplate) {
-					case standard:
-						templateName = "posTagger_template.ftl";
-						break;
-					case with_location:
-						templateName = "posTagger_template_with_location.ftl";
-						break;
-					case with_prob:
-						templateName = "posTagger_template_with_prob.ftl";
-						break;
-					case with_comments:
-						templateName = "posTagger_template_with_comments.ftl";
-						break;
-					default:
-						throw new RuntimeException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
-					}
+    for (ProcessorType type : processorTypes) {
+      switch (type) {
+      case output: {
+        Reader templateReader = null;
+        String configPath = "talismane.core.pos-tagger.output.template";
+        if (config.hasPath(configPath)) {
+          templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
+        } else {
+          String templateName = null;
+          BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(posTaggerConfig.getString("output.built-in-template"));
+          switch (builtInTemplate) {
+          case standard:
+            templateName = "posTagger_template.ftl";
+            break;
+          case with_location:
+            templateName = "posTagger_template_with_location.ftl";
+            break;
+          case with_prob:
+            templateName = "posTagger_template_with_prob.ftl";
+            break;
+          case with_comments:
+            templateName = "posTagger_template_with_comments.ftl";
+            break;
+          default:
+            throw new RuntimeException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
+          }
 
-					String path = "output/" + templateName;
-					InputStream inputStream = Talismane.class.getResourceAsStream(path);
-					if (inputStream == null)
-						throw new IOException("Resource not found in classpath: " + path);
-					templateReader = new BufferedReader(new InputStreamReader(inputStream));
-				}
+          String path = "output/" + templateName;
+          InputStream inputStream = Talismane.class.getResourceAsStream(path);
+          if (inputStream == null)
+            throw new IOException("Resource not found in classpath: " + path);
+          templateReader = new BufferedReader(new InputStreamReader(inputStream));
+        }
 
-				if (writer == null) {
-					File file = new File(outDir, session.getBaseName() + "_pos.txt");
-					writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
-				}
+        if (writer == null) {
+          File file = new File(outDir, session.getBaseName() + "_pos.txt");
+          writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+        }
 
-				processor = new FreemarkerTemplateWriter(templateReader, writer);
-				processors.add(processor);
-				break;
-			}
-			case posTagFeatureTester: {
-				File file = new File(outDir, session.getBaseName() + "_posTagFeatureTest.txt");
-				Writer featureWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
-				processor = new PosTagFeatureTester(session, featureWriter);
-				processors.add(processor);
-				break;
-			}
-			}
-		}
-		return processors;
-	}
+        processor = new FreemarkerTemplateWriter(templateReader, writer);
+        processors.add(processor);
+        break;
+      }
+      case posTagFeatureTester: {
+        File file = new File(outDir, session.getBaseName() + "_posTagFeatureTest.txt");
+        Writer featureWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+        processor = new PosTagFeatureTester(session, featureWriter);
+        processors.add(processor);
+        break;
+      }
+      }
+    }
+    return processors;
+  }
 }

@@ -24,6 +24,6 @@ package com.joliciel.talismane.stats;
  *
  */
 public interface Probability {
-	public double getValue();
-	public double getLog();
+  public double getValue();
+  public double getLog();
 }

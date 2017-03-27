@@ -25,9 +25,9 @@ package com.joliciel.talismane.machineLearning.features;
  */
 public class StringLengthTestFeature extends AbstractFeature<String,Integer> implements IntegerFeature<String> {
 
-	@Override
-	public FeatureResult<Integer> check(String context, RuntimeEnvironment env) {
-		return this.generateResult(context.length());
-	}
+  @Override
+  public FeatureResult<Integer> check(String context, RuntimeEnvironment env) {
+    return this.generateResult(context.length());
+  }
 
 }

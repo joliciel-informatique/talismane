@@ -26,13 +26,13 @@ import java.util.List;
  *
  */
 public interface ClassificationSolution extends Solution {
-	/**
-	 * The decisions which were used to arrive at this solution.
-	 */
-	public List<Decision> getDecisions();
-	
-	/**
-	 * Add a decision to this particular solution.
-	 */
-	public void addDecision(Decision decision);
+  /**
+   * The decisions which were used to arrive at this solution.
+   */
+  public List<Decision> getDecisions();
+  
+  /**
+   * Add a decision to this particular solution.
+   */
+  public void addDecision(Decision decision);
 }

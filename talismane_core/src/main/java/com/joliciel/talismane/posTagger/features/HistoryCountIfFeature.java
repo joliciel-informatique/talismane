@@ -38,65 +38,65 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  *
  */
 public final class HistoryCountIfFeature extends AbstractPosTaggerFeature<Integer>implements IntegerFeature<PosTaggerContext> {
-	private BooleanFeature<PosTaggedTokenWrapper> criterion;
-	private IntegerFeature<PosTaggerContext> startIndexFeature = null;
-	private IntegerFeature<PosTaggerContext> endIndexFeature = null;
+  private BooleanFeature<PosTaggedTokenWrapper> criterion;
+  private IntegerFeature<PosTaggerContext> startIndexFeature = null;
+  private IntegerFeature<PosTaggerContext> endIndexFeature = null;
 
-	public HistoryCountIfFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature) {
-		this.criterion = criterion;
-		this.startIndexFeature = startIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + ")");
-	}
+  public HistoryCountIfFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature) {
+    this.criterion = criterion;
+    this.startIndexFeature = startIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + ")");
+  }
 
-	public HistoryCountIfFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature,
-			IntegerFeature<PosTaggerContext> endIndexFeature) {
-		this.criterion = criterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
-	}
+  public HistoryCountIfFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature,
+      IntegerFeature<PosTaggerContext> endIndexFeature) {
+    this.criterion = criterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<Integer> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
+  @Override
+  public FeatureResult<Integer> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
 
-		FeatureResult<Integer> featureResult = null;
+    FeatureResult<Integer> featureResult = null;
 
-		int startIndex = 0;
-		int endIndex = context.getHistory().size() - 1;
+    int startIndex = 0;
+    int endIndex = context.getHistory().size() - 1;
 
-		FeatureResult<Integer> startIndexResult = startIndexFeature.check(context, env);
-		if (startIndexResult != null) {
-			startIndex = startIndexResult.getOutcome();
-		} else {
-			return null;
-		}
+    FeatureResult<Integer> startIndexResult = startIndexFeature.check(context, env);
+    if (startIndexResult != null) {
+      startIndex = startIndexResult.getOutcome();
+    } else {
+      return null;
+    }
 
-		if (endIndexFeature != null) {
-			FeatureResult<Integer> endIndexResult = endIndexFeature.check(context, env);
-			if (endIndexResult != null) {
-				endIndex = endIndexResult.getOutcome();
-			} else {
-				return null;
-			}
-		}
+    if (endIndexFeature != null) {
+      FeatureResult<Integer> endIndexResult = endIndexFeature.check(context, env);
+      if (endIndexResult != null) {
+        endIndex = endIndexResult.getOutcome();
+      } else {
+        return null;
+      }
+    }
 
-		if (endIndex < startIndex)
-			return null;
+    if (endIndex < startIndex)
+      return null;
 
-		if (startIndex <= 0)
-			startIndex = 0;
+    if (startIndex <= 0)
+      startIndex = 0;
 
-		int count = 0;
-		for (int i = startIndex; i < context.getHistory().size() && i <= endIndex; i++) {
-			PosTaggedToken oneToken = context.getHistory().get(i);
-			FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
-			if (criterionResult != null && criterionResult.getOutcome()) {
-				count++;
-			}
-		}
+    int count = 0;
+    for (int i = startIndex; i < context.getHistory().size() && i <= endIndex; i++) {
+      PosTaggedToken oneToken = context.getHistory().get(i);
+      FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
+      if (criterionResult != null && criterionResult.getOutcome()) {
+        count++;
+      }
+    }
 
-		featureResult = this.generateResult(count);
+    featureResult = this.generateResult(count);
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 }

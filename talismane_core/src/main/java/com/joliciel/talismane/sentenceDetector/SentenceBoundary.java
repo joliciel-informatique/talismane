@@ -28,11 +28,11 @@ import java.io.Serializable;
  *
  */
 public class SentenceBoundary implements Serializable {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName();
-	}
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName();
+  }
 
 }

@@ -30,13 +30,13 @@ import java.util.List;
  *
  */
 public interface ExternalResource<T> extends Serializable {
-	/**
-	 * A unique name for this resource.
-	 */
-	public String getName();
-	
-	/**
-	 * Return the class corresponding to the key elements provided.
-	 */
-	public T getResult(List<String> keyElements);
+  /**
+   * A unique name for this resource.
+   */
+  public String getName();
+  
+  /**
+   * Return the class corresponding to the key elements provided.
+   */
+  public T getResult(List<String> keyElements);
 }

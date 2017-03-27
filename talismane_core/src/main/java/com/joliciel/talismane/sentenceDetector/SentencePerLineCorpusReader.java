@@ -34,80 +34,80 @@ import com.typesafe.config.Config;
  *
  */
 public class SentencePerLineCorpusReader extends AbstractAnnotatedCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
-	private final Scanner scanner;
-	private int sentenceCount = 0;
-	String sentence = null;
-	private final TalismaneSession session;
+  private final Scanner scanner;
+  private int sentenceCount = 0;
+  String sentence = null;
+  private final TalismaneSession session;
 
-	public SentencePerLineCorpusReader(Reader reader, Config config, TalismaneSession session) {
-		super(config, session);
-		this.session = session;
-		this.scanner = new Scanner(reader);
-	}
+  public SentencePerLineCorpusReader(Reader reader, Config config, TalismaneSession session) {
+    super(config, session);
+    this.session = session;
+    this.scanner = new Scanner(reader);
+  }
 
-	@Override
-	public boolean hasNextSentence() {
-		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
-			// we've reached the end, do nothing
-		} else {
+  @Override
+  public boolean hasNextSentence() {
+    if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
+      // we've reached the end, do nothing
+    } else {
 
-			while (sentence == null) {
-				if (!scanner.hasNextLine()) {
-					break;
-				}
+      while (sentence == null) {
+        if (!scanner.hasNextLine()) {
+          break;
+        }
 
-				sentence = scanner.nextLine().trim();
-				if (sentence.length() == 0) {
-					sentence = null;
-					continue;
-				}
+        sentence = scanner.nextLine().trim();
+        if (sentence.length() == 0) {
+          sentence = null;
+          continue;
+        }
 
-				boolean includeMe = true;
+        boolean includeMe = true;
 
-				// check cross-validation
-				if (this.getCrossValidationSize() > 0) {
-					if (this.getIncludeIndex() >= 0) {
-						if (sentenceCount % this.getCrossValidationSize() != this.getIncludeIndex()) {
-							includeMe = false;
-						}
-					} else if (this.getExcludeIndex() >= 0) {
-						if (sentenceCount % this.getCrossValidationSize() == this.getExcludeIndex()) {
-							includeMe = false;
-						}
-					}
-				}
+        // check cross-validation
+        if (this.getCrossValidationSize() > 0) {
+          if (this.getIncludeIndex() >= 0) {
+            if (sentenceCount % this.getCrossValidationSize() != this.getIncludeIndex()) {
+              includeMe = false;
+            }
+          } else if (this.getExcludeIndex() >= 0) {
+            if (sentenceCount % this.getCrossValidationSize() == this.getExcludeIndex()) {
+              includeMe = false;
+            }
+          }
+        }
 
-				if (this.getStartSentence() > sentenceCount) {
-					includeMe = false;
-				}
+        if (this.getStartSentence() > sentenceCount) {
+          includeMe = false;
+        }
 
-				sentenceCount++;
+        sentenceCount++;
 
-				if (!includeMe) {
-					sentence = null;
-					continue;
-				}
+        if (!includeMe) {
+          sentence = null;
+          continue;
+        }
 
-			}
-		}
-		return sentence != null;
-	}
+      }
+    }
+    return sentence != null;
+  }
 
-	@Override
-	public Sentence nextSentence() {
-		String currentSentence = sentence;
-		sentence = null;
-		return new Sentence(currentSentence, session);
-	}
+  @Override
+  public Sentence nextSentence() {
+    String currentSentence = sentence;
+    sentence = null;
+    return new Sentence(currentSentence, session);
+  }
 
-	@Override
-	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = super.getCharacteristics();
-		return attributes;
-	}
+  @Override
+  public Map<String, String> getCharacteristics() {
+    Map<String, String> attributes = super.getCharacteristics();
+    return attributes;
+  }
 
-	@Override
-	public boolean isNewParagraph() {
-		return false;
-	}
+  @Override
+  public boolean isNewParagraph() {
+    return false;
+  }
 }

@@ -38,29 +38,29 @@ import org.slf4j.LoggerFactory;
  *
  */
 class TalismaneServerThread extends Thread {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServerThread.class);
-	private final Socket socket;
-	private final TalismaneSession session;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(TalismaneServerThread.class);
+  private final Socket socket;
+  private final TalismaneSession session;
 
-	public TalismaneServerThread(TalismaneSession session, Socket socket) {
-		super("TalismaneServerThread");
-		this.socket = socket;
-		this.session = session;
-	}
+  public TalismaneServerThread(TalismaneSession session, Socket socket) {
+    super("TalismaneServerThread");
+    this.socket = socket;
+    this.session = session;
+  }
 
-	@Override
-	public void run() {
-		try {
-			OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), session.getOutputCharset());
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), session.getInputCharset()));
+  @Override
+  public void run() {
+    try {
+      OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), session.getOutputCharset());
+      BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), session.getInputCharset()));
 
-			Talismane talismane = new Talismane(out, null, session);
-			talismane.analyse(in);
+      Talismane talismane = new Talismane(out, null, session);
+      talismane.analyse(in);
 
-			socket.close();
-		} catch (IOException | ReflectiveOperationException | TalismaneException e) {
-			throw new RuntimeException(e);
-		}
-	}
+      socket.close();
+    } catch (IOException | ReflectiveOperationException | TalismaneException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

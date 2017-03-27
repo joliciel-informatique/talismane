@@ -36,36 +36,36 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class AddressFunctionDep extends AbstractAddressFunction {
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
-	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
+  private IntegerFeature<ParseConfigurationWrapper> indexFeature;
 
-	public AddressFunctionDep(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
-			IntegerFeature<ParseConfigurationWrapper> indexFeature) {
-		super();
-		this.addressFunction = addressFunction;
-		this.indexFeature = indexFeature;
-		this.setName("Dep(" + addressFunction.getName() + "," + indexFeature.getName() + ")");
-	}
+  public AddressFunctionDep(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
+      IntegerFeature<ParseConfigurationWrapper> indexFeature) {
+    super();
+    this.addressFunction = addressFunction;
+    this.indexFeature = indexFeature;
+    this.setName("Dep(" + addressFunction.getName() + "," + indexFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
-		FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
-		if (addressResult != null && indexResult != null) {
-			int index = indexResult.getOutcome();
-			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
-			if (referenceToken != null) {
-				List<PosTaggedToken> dependents = configuration.getDependents(referenceToken);
-				if (dependents.size() > index)
-					resultToken = dependents.get(index);
-			}
-		}
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    PosTaggedToken resultToken = null;
+    FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
+    FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
+    if (addressResult != null && indexResult != null) {
+      int index = indexResult.getOutcome();
+      PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
+      if (referenceToken != null) {
+        List<PosTaggedToken> dependents = configuration.getDependents(referenceToken);
+        if (dependents.size() > index)
+          resultToken = dependents.get(index);
+      }
+    }
 
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken != null)
-			featureResult = this.generateResult(resultToken);
-		return featureResult;
-	}
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+    if (resultToken != null)
+      featureResult = this.generateResult(resultToken);
+    return featureResult;
+  }
 }

@@ -26,44 +26,44 @@ import com.joliciel.talismane.TalismaneException;
  * @author Assaf Urieli
  */
 public class PlusOperator<T> extends AbstractCachableFeature<T, Double>implements DoubleFeature<T> {
-	private DoubleFeature<T> operand1;
-	private DoubleFeature<T> operand2;
+  private DoubleFeature<T> operand1;
+  private DoubleFeature<T> operand2;
 
-	public PlusOperator(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
-		super();
-		this.operand1 = operand1;
-		this.operand2 = operand2;
-		this.setName("(" + operand1.getName() + "+" + operand2.getName() + ")");
-	}
+  public PlusOperator(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
+    super();
+    this.operand1 = operand1;
+    this.operand2 = operand2;
+    this.setName("(" + operand1.getName() + "+" + operand2.getName() + ")");
+  }
 
-	@Override
-	protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Double> featureResult = null;
+  @Override
+  protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Double> featureResult = null;
 
-		FeatureResult<Double> operand1Result = operand1.check(context, env);
-		FeatureResult<Double> operand2Result = operand2.check(context, env);
+    FeatureResult<Double> operand1Result = operand1.check(context, env);
+    FeatureResult<Double> operand2Result = operand2.check(context, env);
 
-		if (operand1Result != null && operand2Result != null) {
-			double result = operand1Result.getOutcome() + operand2Result.getOutcome();
-			featureResult = this.generateResult(result);
-		}
-		return featureResult;
-	}
+    if (operand1Result != null && operand2Result != null) {
+      double result = operand1Result.getOutcome() + operand2Result.getOutcome();
+      featureResult = this.generateResult(result);
+    }
+    return featureResult;
+  }
 
-	public DoubleFeature<T> getOperand1() {
-		return operand1;
-	}
+  public DoubleFeature<T> getOperand1() {
+    return operand1;
+  }
 
-	public DoubleFeature<T> getOperand2() {
-		return operand2;
-	}
+  public DoubleFeature<T> getOperand2() {
+    return operand2;
+  }
 
-	public void setOperand1(DoubleFeature<T> operand1) {
-		this.operand1 = operand1;
-	}
+  public void setOperand1(DoubleFeature<T> operand1) {
+    this.operand1 = operand1;
+  }
 
-	public void setOperand2(DoubleFeature<T> operand2) {
-		this.operand2 = operand2;
-	}
+  public void setOperand2(DoubleFeature<T> operand2) {
+    this.operand2 = operand2;
+  }
 
 }

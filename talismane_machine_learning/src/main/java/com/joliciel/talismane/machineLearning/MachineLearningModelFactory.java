@@ -40,76 +40,76 @@ import com.joliciel.talismane.utils.LogUtils;
  *
  */
 public class MachineLearningModelFactory {
-	private static final Logger LOG = LoggerFactory.getLogger(MachineLearningModelFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MachineLearningModelFactory.class);
 
-	public MachineLearningModelFactory() {
-	}
+  public MachineLearningModelFactory() {
+  }
 
-	public ClassificationModel getClassificationModel(ZipInputStream zis) throws ClassNotFoundException {
-		MachineLearningModel model = this.getMachineLearningModel(zis);
-		if (!(model instanceof ClassificationModel))
-			throw new JolicielException("Model in zip file not " + ClassificationModel.class.getSimpleName());
-		return (ClassificationModel) model;
-	}
+  public ClassificationModel getClassificationModel(ZipInputStream zis) throws ClassNotFoundException {
+    MachineLearningModel model = this.getMachineLearningModel(zis);
+    if (!(model instanceof ClassificationModel))
+      throw new JolicielException("Model in zip file not " + ClassificationModel.class.getSimpleName());
+    return (ClassificationModel) model;
+  }
 
-	public MachineLearningModel getMachineLearningModel(ZipInputStream zis) throws ClassNotFoundException {
-		try {
-			MachineLearningModel machineLearningModel = null;
-			ZipEntry ze = zis.getNextEntry();
-			if (!ze.getName().equals("algorithm.txt")) {
-				throw new JolicielException("Expected algorithm.txt as first entry in zip. Was: " + ze.getName());
-			}
+  public MachineLearningModel getMachineLearningModel(ZipInputStream zis) throws ClassNotFoundException {
+    try {
+      MachineLearningModel machineLearningModel = null;
+      ZipEntry ze = zis.getNextEntry();
+      if (!ze.getName().equals("algorithm.txt")) {
+        throw new JolicielException("Expected algorithm.txt as first entry in zip. Was: " + ze.getName());
+      }
 
-			// note: assuming the model type will always be the first entry
-			@SuppressWarnings("resource")
-			Scanner typeScanner = new Scanner(zis, "UTF-8");
-			MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
-			if (typeScanner.hasNextLine()) {
-				String algorithmString = typeScanner.nextLine();
-				try {
-					algorithm = MachineLearningAlgorithm.valueOf(algorithmString);
-				} catch (IllegalArgumentException iae) {
-					LogUtils.logError(LOG, iae);
-					throw new JolicielException("Unknown algorithm: " + algorithmString);
-				}
-			} else {
-				throw new JolicielException("Cannot find algorithm in zip file");
-			}
-			switch (algorithm) {
-			case MaxEnt:
-				machineLearningModel = new MaximumEntropyModel();
-				break;
-			case LinearSVM:
-				machineLearningModel = new LinearSVMModel();
-				break;
-			case LinearSVMOneVsRest:
-				machineLearningModel = new LinearSVMOneVsRestModel();
-				break;
-			case Perceptron:
-				machineLearningModel = new PerceptronClassificationModel();
-				break;
-			default:
-				throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
-			}
+      // note: assuming the model type will always be the first entry
+      @SuppressWarnings("resource")
+      Scanner typeScanner = new Scanner(zis, "UTF-8");
+      MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
+      if (typeScanner.hasNextLine()) {
+        String algorithmString = typeScanner.nextLine();
+        try {
+          algorithm = MachineLearningAlgorithm.valueOf(algorithmString);
+        } catch (IllegalArgumentException iae) {
+          LogUtils.logError(LOG, iae);
+          throw new JolicielException("Unknown algorithm: " + algorithmString);
+        }
+      } else {
+        throw new JolicielException("Cannot find algorithm in zip file");
+      }
+      switch (algorithm) {
+      case MaxEnt:
+        machineLearningModel = new MaximumEntropyModel();
+        break;
+      case LinearSVM:
+        machineLearningModel = new LinearSVMModel();
+        break;
+      case LinearSVMOneVsRest:
+        machineLearningModel = new LinearSVMOneVsRestModel();
+        break;
+      case Perceptron:
+        machineLearningModel = new PerceptronClassificationModel();
+        break;
+      default:
+        throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
+      }
 
-			while ((ze = zis.getNextEntry()) != null) {
-				LOG.debug(ze.getName());
-				machineLearningModel.loadZipEntry(zis, ze);
-			} // next zip entry
+      while ((ze = zis.getNextEntry()) != null) {
+        LOG.debug(ze.getName());
+        machineLearningModel.loadZipEntry(zis, ze);
+      } // next zip entry
 
-			machineLearningModel.onLoadComplete();
+      machineLearningModel.onLoadComplete();
 
-			return machineLearningModel;
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
-		} finally {
-			try {
-				zis.close();
-			} catch (IOException ioe) {
-				LogUtils.logError(LOG, ioe);
-			}
-		}
-	}
+      return machineLearningModel;
+    } catch (IOException ioe) {
+      LogUtils.logError(LOG, ioe);
+      throw new RuntimeException(ioe);
+    } finally {
+      try {
+        zis.close();
+      } catch (IOException ioe) {
+        LogUtils.logError(LOG, ioe);
+      }
+    }
+  }
 
 }

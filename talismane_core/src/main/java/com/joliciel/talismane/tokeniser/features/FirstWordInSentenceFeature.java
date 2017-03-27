@@ -34,64 +34,64 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  *
  */
 public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
-	public FirstWordInSentenceFeature() {
-	}
+  public FirstWordInSentenceFeature() {
+  }
 
-	public FirstWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public FirstWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
 
-		FeatureResult<Boolean> result = null;
+    FeatureResult<Boolean> result = null;
 
-		boolean firstWord = (token.getIndex() == 0);
-		if (!firstWord) {
-			TokenSequence tokenSequence = token.getTokenSequence();
-			int startIndex = 0;
-			String word0 = "";
-			String word1 = "";
-			String word2 = "";
-			if (tokenSequence.size() > 0)
-				word0 = tokenSequence.get(0).getAnalyisText();
-			if (tokenSequence.size() > 1)
-				word1 = tokenSequence.get(1).getAnalyisText();
-			if (tokenSequence.size() > 2)
-				word2 = tokenSequence.get(2).getAnalyisText();
+    boolean firstWord = (token.getIndex() == 0);
+    if (!firstWord) {
+      TokenSequence tokenSequence = token.getTokenSequence();
+      int startIndex = 0;
+      String word0 = "";
+      String word1 = "";
+      String word2 = "";
+      if (tokenSequence.size() > 0)
+        word0 = tokenSequence.get(0).getAnalyisText();
+      if (tokenSequence.size() > 1)
+        word1 = tokenSequence.get(1).getAnalyisText();
+      if (tokenSequence.size() > 2)
+        word2 = tokenSequence.get(2).getAnalyisText();
 
-			boolean word0IsInteger = false;
-			try {
-				Integer.parseInt(word0);
-				word0IsInteger = true;
-			} catch (NumberFormatException nfe) {
-				word0IsInteger = false;
-			}
+      boolean word0IsInteger = false;
+      try {
+        Integer.parseInt(word0);
+        word0IsInteger = true;
+      } catch (NumberFormatException nfe) {
+        word0IsInteger = false;
+      }
 
-			boolean word1IsInteger = false;
-			try {
-				Integer.parseInt(word1);
-				word1IsInteger = true;
-			} catch (NumberFormatException nfe) {
-				word1IsInteger = false;
-			}
+      boolean word1IsInteger = false;
+      try {
+        Integer.parseInt(word1);
+        word1IsInteger = true;
+      } catch (NumberFormatException nfe) {
+        word1IsInteger = false;
+      }
 
-			if (word0.equals("\"") || word0.equals("-") || word0.equals("--") || word0.equals("—") || word0.equals("*") || word0.equals("(")) {
-				startIndex = 1;
-			} else if ((word0IsInteger || word0.length() == 1) && (word1.equals(")") || word1.equals("."))) {
-				startIndex = 2;
-			} else if (word0.equals("(") && (word1IsInteger || word1.length() == 1) && word2.equals(")")) {
-				startIndex = 3;
-			}
-			firstWord = (token.getIndex() == startIndex);
-		} // have token
+      if (word0.equals("\"") || word0.equals("-") || word0.equals("--") || word0.equals("—") || word0.equals("*") || word0.equals("(")) {
+        startIndex = 1;
+      } else if ((word0IsInteger || word0.length() == 1) && (word1.equals(")") || word1.equals("."))) {
+        startIndex = 2;
+      } else if (word0.equals("(") && (word1IsInteger || word1.length() == 1) && word2.equals(")")) {
+        startIndex = 3;
+      }
+      firstWord = (token.getIndex() == startIndex);
+    } // have token
 
-		result = this.generateResult(firstWord);
+    result = this.generateResult(firstWord);
 
-		return result;
-	}
+    return result;
+  }
 }

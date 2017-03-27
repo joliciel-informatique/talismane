@@ -29,80 +29,80 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  *
  */
 public class TokenPatternMatch implements TokenWrapper {
-	private final TokenPattern pattern;
-	private final int index;
-	private final Token token;
-	private final TokenPatternMatchSequence sequence;
+  private final TokenPattern pattern;
+  private final int index;
+  private final Token token;
+  private final TokenPatternMatchSequence sequence;
 
-	TokenPatternMatch(TokenPatternMatchSequence sequence, Token token, TokenPattern pattern, int index) {
-		this.sequence = sequence;
-		this.token = token;
-		this.pattern = pattern;
-		this.index = index;
-	}
+  TokenPatternMatch(TokenPatternMatchSequence sequence, Token token, TokenPattern pattern, int index) {
+    this.sequence = sequence;
+    this.token = token;
+    this.pattern = pattern;
+    this.index = index;
+  }
 
-	public TokenPattern getPattern() {
-		return pattern;
-	}
+  public TokenPattern getPattern() {
+    return pattern;
+  }
 
-	/**
-	 * The index of this pattern match in the sequence containing it.
-	 */
+  /**
+   * The index of this pattern match in the sequence containing it.
+   */
 
-	public int getIndex() {
-		return index;
-	}
+  public int getIndex() {
+    return index;
+  }
 
-	@Override
-	public Token getToken() {
-		return token;
-	}
+  @Override
+  public Token getToken() {
+    return token;
+  }
 
-	/**
-	 * The sequence containing this pattern match.
-	 */
+  /**
+   * The sequence containing this pattern match.
+   */
 
-	public TokenPatternMatchSequence getSequence() {
-		return sequence;
-	}
+  public TokenPatternMatchSequence getSequence() {
+    return sequence;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + index;
-		result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
-		result = prime * result + ((token == null) ? 0 : token.hashCode());
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + index;
+    result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
+    result = prime * result + ((token == null) ? 0 : token.hashCode());
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TokenPatternMatch other = (TokenPatternMatch) obj;
-		if (index != other.index)
-			return false;
-		if (pattern == null) {
-			if (other.pattern != null)
-				return false;
-		} else if (!pattern.equals(other.pattern))
-			return false;
-		if (token == null) {
-			if (other.token != null)
-				return false;
-		} else if (!token.equals(other.token))
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    TokenPatternMatch other = (TokenPatternMatch) obj;
+    if (index != other.index)
+      return false;
+    if (pattern == null) {
+      if (other.pattern != null)
+        return false;
+    } else if (!pattern.equals(other.pattern))
+      return false;
+    if (token == null) {
+      if (other.token != null)
+        return false;
+    } else if (!token.equals(other.token))
+      return false;
+    return true;
+  }
 
-	@Override
-	public String toString() {
-		return "TokenPatternMatch [pattern=" + pattern + ", index=" + index + ", token=" + token + ", sequence=" + sequence + "]";
-	}
+  @Override
+  public String toString() {
+    return "TokenPatternMatch [pattern=" + pattern + ", index=" + index + ", token=" + token + ", sequence=" + sequence + "]";
+  }
 
 }

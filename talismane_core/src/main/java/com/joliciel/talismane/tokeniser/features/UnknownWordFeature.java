@@ -31,24 +31,24 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class UnknownWordFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
-	public UnknownWordFeature() {
-	}
+  public UnknownWordFeature() {
+  }
 
-	public UnknownWordFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public UnknownWordFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> result = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Boolean> result = null;
 
-		boolean unknownWord = token.getPossiblePosTags().size() == 0;
-		result = this.generateResult(unknownWord);
+    boolean unknownWord = token.getPossiblePosTags().size() == 0;
+    result = this.generateResult(unknownWord);
 
-		return result;
-	}
+    return result;
+  }
 }

@@ -30,28 +30,28 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
  *
  */
 public final class HasFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
-	BooleanFeature<TokenWrapper> criterion;
+  BooleanFeature<TokenWrapper> criterion;
 
-	public HasFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
-		this.criterion = criterion;
-		this.setName(super.getName() + "(" + this.criterion.getName() + ")");
+  public HasFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
+    this.criterion = criterion;
+    this.setName(super.getName() + "(" + this.criterion.getName() + ")");
 
-		this.setAddressFunction(addressFunction);
-	}
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		FeatureResult<Boolean> result = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    FeatureResult<Boolean> result = null;
 
-		FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
-		if (criterionResult != null) {
-			result = this.generateResult(criterionResult.getOutcome());
-		}
+    FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
+    if (criterionResult != null) {
+      result = this.generateResult(criterionResult.getOutcome());
+    }
 
-		return result;
-	}
+    return result;
+  }
 
 }

@@ -39,82 +39,82 @@ import com.typesafe.config.Config;
  *
  */
 public interface MachineLearningModel {
-	public static final String FEATURE_DESCRIPTOR_KEY = "feature";
+  public static final String FEATURE_DESCRIPTOR_KEY = "feature";
 
-	/**
-	 * Persist this model to an OutputStream.
-	 * 
-	 * @throws IOException
-	 */
-	public void persist(OutputStream outputStream) throws IOException;
+  /**
+   * Persist this model to an OutputStream.
+   * 
+   * @throws IOException
+   */
+  public void persist(OutputStream outputStream) throws IOException;
 
-	/**
-	 * Persist this model to a file.
-	 * 
-	 * @throws IOException
-	 */
-	public void persist(File modelFile) throws IOException;
+  /**
+   * Persist this model to a file.
+   * 
+   * @throws IOException
+   */
+  public void persist(File modelFile) throws IOException;
 
-	/**
-	 * Get this model's defining attributes.
-	 */
-	public Map<String, Object> getModelAttributes();
+  /**
+   * Get this model's defining attributes.
+   */
+  public Map<String, Object> getModelAttributes();
 
-	/**
-	 * Add a defining attribute to this model.
-	 */
-	public void addModelAttribute(String name, Object value);
+  /**
+   * Add a defining attribute to this model.
+   */
+  public void addModelAttribute(String name, Object value);
 
-	/**
-	 * Get this model's dependencies.
-	 */
-	public Map<String, Object> getDependencies();
+  /**
+   * Get this model's dependencies.
+   */
+  public Map<String, Object> getDependencies();
 
-	/**
-	 * Add a dependency to this model.
-	 */
-	public void addDependency(String name, Serializable dependency);
+  /**
+   * Add a dependency to this model.
+   */
+  public void addDependency(String name, Serializable dependency);
 
-	/**
-	 * A map of all descriptors required to apply this model to new data.
-	 */
-	public Map<String, List<String>> getDescriptors();
+  /**
+   * A map of all descriptors required to apply this model to new data.
+   */
+  public Map<String, List<String>> getDescriptors();
 
-	/**
-	 * Get the list of feature descriptors for this model.
-	 */
-	public List<String> getFeatureDescriptors();
+  /**
+   * Get the list of feature descriptors for this model.
+   */
+  public List<String> getFeatureDescriptors();
 
-	/**
-	 * The machine learning algorithm implemented by this model.
-	 */
-	public MachineLearningAlgorithm getAlgorithm();
+  /**
+   * The machine learning algorithm implemented by this model.
+   */
+  public MachineLearningAlgorithm getAlgorithm();
 
-	/**
-	 * The configuration used to construct this model, useful for retraining a
-	 * new model using the identical config.
-	 */
-	public Config getConfig();
+  /**
+   * The configuration used to construct this model, useful for retraining a
+   * new model using the identical config.
+   */
+  public Config getConfig();
 
-	/**
-	 * External resources used by this model.
-	 */
-	public Collection<ExternalResource<?>> getExternalResources();
+  /**
+   * External resources used by this model.
+   */
+  public Collection<ExternalResource<?>> getExternalResources();
 
-	public void setExternalResources(Collection<ExternalResource<?>> externalResources);
+  public void setExternalResources(Collection<ExternalResource<?>> externalResources);
 
-	public ExternalResourceFinder getExternalResourceFinder();
+  public ExternalResourceFinder getExternalResourceFinder();
 
-	/**
-	 * Load some aspect of this model from a zip entry.
-	 * 
-	 * @return true if entry loaded, false otherwise
-	 * @throws ClassNotFoundException
-	 */
-	boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException, ClassNotFoundException;
+  /**
+   * Load some aspect of this model from a zip entry.
+   * 
+   * @return true if entry loaded, false otherwise
+   * @throws ClassNotFoundException
+   */
+  boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException, ClassNotFoundException;
 
-	/**
-	 * Called when load from a zip file has been completed.
-	 */
-	public void onLoadComplete();
+  /**
+   * Called when load from a zip file has been completed.
+   */
+  public void onLoadComplete();
 }

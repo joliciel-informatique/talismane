@@ -23,10 +23,10 @@ package com.joliciel.talismane.machineLearning;
  *
  */
 public enum MachineLearningAlgorithm {
-	MaxEnt, LinearSVM, Perceptron,
-	/**
-	 * This algorithm should not be used directly: it is only used to indicate
-	 * the stored LinearSVM model was oneVsRest.
-	 */
-	LinearSVMOneVsRest;
+  MaxEnt, LinearSVM, Perceptron,
+  /**
+   * This algorithm should not be used directly: it is only used to indicate
+   * the stored LinearSVM model was oneVsRest.
+   */
+  LinearSVMOneVsRest;
 }

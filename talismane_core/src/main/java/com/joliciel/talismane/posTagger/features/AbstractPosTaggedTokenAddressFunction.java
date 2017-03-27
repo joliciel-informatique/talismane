@@ -27,6 +27,6 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  *
  */
 public abstract class AbstractPosTaggedTokenAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper>
-	implements PosTaggedTokenAddressFunction<PosTaggerContext> {
+  implements PosTaggedTokenAddressFunction<PosTaggerContext> {
 
 }

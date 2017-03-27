@@ -32,54 +32,54 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class WordFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
-	StringFeature<TokenWrapper>[] words = null;
+  StringFeature<TokenWrapper>[] words = null;
 
-	@SafeVarargs
-	public WordFeature(StringFeature<TokenWrapper>... words) {
-		this.words = words;
-		String name = "Word(";
-		boolean firstWord = true;
-		for (StringFeature<TokenWrapper> word : words) {
-			if (!firstWord)
-				name += ",";
-			name += word.getName();
-			firstWord = false;
-		}
-		name += ")";
-		this.setName(name);
-	}
+  @SafeVarargs
+  public WordFeature(StringFeature<TokenWrapper>... words) {
+    this.words = words;
+    String name = "Word(";
+    boolean firstWord = true;
+    for (StringFeature<TokenWrapper> word : words) {
+      if (!firstWord)
+        name += ",";
+      name += word.getName();
+      firstWord = false;
+    }
+    name += ")";
+    this.setName(name);
+  }
 
-	@SafeVarargs
-	public WordFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... words) {
-		this(words);
-		this.setAddressFunction(addressFunction);
-	}
+  @SafeVarargs
+  public WordFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... words) {
+    this(words);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> result = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Boolean> result = null;
 
-		boolean matches = false;
-		for (StringFeature<TokenWrapper> word : words) {
-			FeatureResult<String> wordResult = word.check(innerWrapper, env);
-			if (wordResult != null) {
-				String wordText = wordResult.getOutcome();
-				if (wordText.equals(token.getAnalyisText())) {
-					matches = true;
-					break;
-				}
-			}
-		}
-		result = this.generateResult(matches);
+    boolean matches = false;
+    for (StringFeature<TokenWrapper> word : words) {
+      FeatureResult<String> wordResult = word.check(innerWrapper, env);
+      if (wordResult != null) {
+        String wordText = wordResult.getOutcome();
+        if (wordText.equals(token.getAnalyisText())) {
+          matches = true;
+          break;
+        }
+      }
+    }
+    result = this.generateResult(matches);
 
-		return result;
-	}
+    return result;
+  }
 
-	public StringFeature<TokenWrapper>[] getWords() {
-		return words;
-	}
+  public StringFeature<TokenWrapper>[] getWords() {
+    return words;
+  }
 }

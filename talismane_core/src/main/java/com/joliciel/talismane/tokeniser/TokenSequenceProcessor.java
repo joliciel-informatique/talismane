@@ -47,67 +47,67 @@ import com.typesafe.config.Config;
  *
  */
 public interface TokenSequenceProcessor extends Closeable {
-	/**
-	 * Process the next token sequence.
-	 * 
-	 * @throws IOException
-	 */
-	public void onNextTokenSequence(TokenSequence tokenSequence) throws IOException;
+  /**
+   * Process the next token sequence.
+   * 
+   * @throws IOException
+   */
+  public void onNextTokenSequence(TokenSequence tokenSequence) throws IOException;
 
-	/**
-	 * @param writer
-	 *            if provided, the main processor will write to this writer, if
-	 *            null, the outDir will be used instead
-	 * @param outDir
-	 * @param session
-	 * @return
-	 * @throws IOException
-	 * @throws TalismaneException
-	 *             if built-in template is unknown
-	 */
-	public static List<TokenSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException, TalismaneException {
-		List<TokenSequenceProcessor> processors = new ArrayList<>();
+  /**
+   * @param writer
+   *            if provided, the main processor will write to this writer, if
+   *            null, the outDir will be used instead
+   * @param outDir
+   * @param session
+   * @return
+   * @throws IOException
+   * @throws TalismaneException
+   *             if built-in template is unknown
+   */
+  public static List<TokenSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException, TalismaneException {
+    List<TokenSequenceProcessor> processors = new ArrayList<>();
 
-		Config config = session.getConfig();
-		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    Config config = session.getConfig();
+    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
 
-		if (outDir != null)
-			outDir.mkdirs();
+    if (outDir != null)
+      outDir.mkdirs();
 
-		Reader templateReader = null;
-		String configPath = "talismane.core.tokeniser.output.template";
-		if (config.hasPath(configPath)) {
-			templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-		} else {
-			String tokeniserTemplateName = null;
-			BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(tokeniserConfig.getString("output.built-in-template"));
-			switch (builtInTemplate) {
-			case standard:
-				tokeniserTemplateName = "tokeniser_template.ftl";
-				break;
-			case with_location:
-				tokeniserTemplateName = "tokeniser_template_with_location.ftl";
-				break;
-			case with_prob:
-				tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
-				break;
-			default:
-				throw new TalismaneException("Unknown builtInTemplate for tokeniser: " + builtInTemplate.name());
-			}
+    Reader templateReader = null;
+    String configPath = "talismane.core.tokeniser.output.template";
+    if (config.hasPath(configPath)) {
+      templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
+    } else {
+      String tokeniserTemplateName = null;
+      BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(tokeniserConfig.getString("output.built-in-template"));
+      switch (builtInTemplate) {
+      case standard:
+        tokeniserTemplateName = "tokeniser_template.ftl";
+        break;
+      case with_location:
+        tokeniserTemplateName = "tokeniser_template_with_location.ftl";
+        break;
+      case with_prob:
+        tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
+        break;
+      default:
+        throw new TalismaneException("Unknown builtInTemplate for tokeniser: " + builtInTemplate.name());
+      }
 
-			String path = "output/" + tokeniserTemplateName;
-			InputStream inputStream = Talismane.class.getResourceAsStream(path);
-			if (inputStream == null)
-				throw new IOException("Resource not found in classpath: " + path);
-			templateReader = new BufferedReader(new InputStreamReader(inputStream));
-		}
+      String path = "output/" + tokeniserTemplateName;
+      InputStream inputStream = Talismane.class.getResourceAsStream(path);
+      if (inputStream == null)
+        throw new IOException("Resource not found in classpath: " + path);
+      templateReader = new BufferedReader(new InputStreamReader(inputStream));
+    }
 
-		if (writer == null) {
-			File file = new File(outDir, session.getBaseName() + "_tok.txt");
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
-		}
-		FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, writer);
-		processors.add(templateWriter);
-		return processors;
-	}
+    if (writer == null) {
+      File file = new File(outDir, session.getBaseName() + "_tok.txt");
+      writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+    }
+    FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, writer);
+    processors.add(templateWriter);
+    return processors;
+  }
 }

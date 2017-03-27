@@ -36,64 +36,64 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper>, NeedsTalismaneSession {
-	StringFeature<TokenWrapper>[] posTagFeatures;
+  StringFeature<TokenWrapper>[] posTagFeatures;
 
-	TalismaneSession talismaneSession;
+  TalismaneSession talismaneSession;
 
-	@SafeVarargs
-	public LexiconPosTagFeature(StringFeature<TokenWrapper>... posTagFeatures) {
-		this.posTagFeatures = posTagFeatures;
-		String name = super.getName() + "(";
-		boolean first = true;
-		for (StringFeature<TokenWrapper> posTagFeature : posTagFeatures) {
-			if (!first)
-				name += ",";
-			name += posTagFeature.getName();
-			first = false;
-		}
-		name += ")";
-		this.setName(name);
-	}
+  @SafeVarargs
+  public LexiconPosTagFeature(StringFeature<TokenWrapper>... posTagFeatures) {
+    this.posTagFeatures = posTagFeatures;
+    String name = super.getName() + "(";
+    boolean first = true;
+    for (StringFeature<TokenWrapper> posTagFeature : posTagFeatures) {
+      if (!first)
+        name += ",";
+      name += posTagFeature.getName();
+      first = false;
+    }
+    name += ")";
+    this.setName(name);
+  }
 
-	@SafeVarargs
-	public LexiconPosTagFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... posTagFeatures) {
-		this(posTagFeatures);
-		this.setAddressFunction(addressFunction);
-	}
+  @SafeVarargs
+  public LexiconPosTagFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... posTagFeatures) {
+    this(posTagFeatures);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> result = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Boolean> result = null;
 
-		boolean matches = false;
-		for (StringFeature<TokenWrapper> posTagFeature : posTagFeatures) {
-			FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
-			if (posTagResult != null) {
-				PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
-				boolean hasPosTag = (token.getPossiblePosTags().contains(posTag));
-				if (hasPosTag) {
-					matches = true;
-					break;
-				}
-			}
-		}
+    boolean matches = false;
+    for (StringFeature<TokenWrapper> posTagFeature : posTagFeatures) {
+      FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
+      if (posTagResult != null) {
+        PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
+        boolean hasPosTag = (token.getPossiblePosTags().contains(posTag));
+        if (hasPosTag) {
+          matches = true;
+          break;
+        }
+      }
+    }
 
-		result = this.generateResult(matches);
+    result = this.generateResult(matches);
 
-		return result;
-	}
+    return result;
+  }
 
-	@Override
-	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
-	}
+  @Override
+  public TalismaneSession getTalismaneSession() {
+    return talismaneSession;
+  }
 
-	@Override
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-	}
+  @Override
+  public void setTalismaneSession(TalismaneSession talismaneSession) {
+    this.talismaneSession = talismaneSession;
+  }
 }

@@ -29,11 +29,11 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  *
  */
 public final class IsStrongPunctuationFeature extends AbstractSentenceDetectorFeature<Boolean> implements BooleanFeature<PossibleSentenceBoundary> {
-	@Override
-	public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
-		char boundary = context.getText().charAt(context.getIndex());
-		boolean isStrong = (boundary=='.'||boundary=='!'||boundary=='?');
-		return this.generateResult(isStrong);
-	}
+  @Override
+  public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
+    char boundary = context.getText().charAt(context.getIndex());
+    boolean isStrong = (boundary=='.'||boundary=='!'||boundary=='?');
+    return this.generateResult(isStrong);
+  }
 
 }

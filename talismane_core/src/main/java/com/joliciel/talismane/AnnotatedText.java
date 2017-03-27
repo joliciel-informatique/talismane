@@ -30,134 +30,134 @@ import java.util.List;
  *
  */
 public class AnnotatedText {
-	private final CharSequence text;
-	private final int analysisStart;
-	private final int analysisEnd;
-	private List<Annotation<?>> annotations;
-	private final List<AnnotationObserver> observers = new ArrayList<>();
+  private final CharSequence text;
+  private final int analysisStart;
+  private final int analysisEnd;
+  private List<Annotation<?>> annotations;
+  private final List<AnnotationObserver> observers = new ArrayList<>();
 
-	/**
-	 * Construct an annotated text with no annotations, and analysis start at
-	 * text start, and analysis end text end.
-	 * 
-	 * @param text
-	 *            the text to annotate
-	 */
-	public AnnotatedText(CharSequence text) {
-		this(text, 0, text.length());
-	}
+  /**
+   * Construct an annotated text with no annotations, and analysis start at
+   * text start, and analysis end text end.
+   * 
+   * @param text
+   *            the text to annotate
+   */
+  public AnnotatedText(CharSequence text) {
+    this(text, 0, text.length());
+  }
 
-	/**
-	 * Construct an annotated text with an explicit analysis start and end.
-	 * 
-	 * @param text
-	 *            the text to annotate
-	 * @param analysisStart
-	 *            the analysis start-point.
-	 * @param analysisEnd
-	 *            the analysis end-point
-	 */
-	public AnnotatedText(CharSequence text, int analysisStart, int analysisEnd) {
-		this.text = text;
-		this.analysisStart = analysisStart;
-		this.analysisEnd = analysisEnd;
-		this.annotations = Collections.emptyList();
-	}
+  /**
+   * Construct an annotated text with an explicit analysis start and end.
+   * 
+   * @param text
+   *            the text to annotate
+   * @param analysisStart
+   *            the analysis start-point.
+   * @param analysisEnd
+   *            the analysis end-point
+   */
+  public AnnotatedText(CharSequence text, int analysisStart, int analysisEnd) {
+    this.text = text;
+    this.analysisStart = analysisStart;
+    this.analysisEnd = analysisEnd;
+    this.annotations = Collections.emptyList();
+  }
 
-	/**
-	 * Construct an annotated text with an explicit analysis end and an initial
-	 * list of annotations.
-	 * 
-	 * @param text
-	 * @param analysisEnd
-	 * @param annotations
-	 */
-	public AnnotatedText(CharSequence text, int analysisStart, int analysisEnd, List<Annotation<?>> annotations) {
-		this.text = text;
-		this.analysisStart = analysisStart;
-		this.analysisEnd = analysisEnd;
-		Collections.sort(annotations);
-		this.annotations = Collections.unmodifiableList(annotations);
-	}
+  /**
+   * Construct an annotated text with an explicit analysis end and an initial
+   * list of annotations.
+   * 
+   * @param text
+   * @param analysisEnd
+   * @param annotations
+   */
+  public AnnotatedText(CharSequence text, int analysisStart, int analysisEnd, List<Annotation<?>> annotations) {
+    this.text = text;
+    this.analysisStart = analysisStart;
+    this.analysisEnd = analysisEnd;
+    Collections.sort(annotations);
+    this.annotations = Collections.unmodifiableList(annotations);
+  }
 
-	/**
-	 * Text to which annotations have been applied.
-	 */
-	public final CharSequence getText() {
-		return text;
-	}
+  /**
+   * Text to which annotations have been applied.
+   */
+  public final CharSequence getText() {
+    return text;
+  }
 
-	/**
-	 * Immutable List of annotations ordered in natural order for the spans, and
-	 * original order if spans are equal.
-	 */
-	public List<Annotation<?>> getAnnotations() {
-		return annotations;
-	}
+  /**
+   * Immutable List of annotations ordered in natural order for the spans, and
+   * original order if spans are equal.
+   */
+  public List<Annotation<?>> getAnnotations() {
+    return annotations;
+  }
 
-	/**
-	 * The point in the text beyond which annotations can begin.<br/>
-	 * More specifically, {@link Annotation#getStart()} &lt;= analysisStart.
-	 * <br/>
-	 * This is useful when the annotator needs more context, but must only add
-	 * annotations in a particular part of the text.
-	 */
-	public int getAnalysisStart() {
-		return analysisStart;
-	}
+  /**
+   * The point in the text beyond which annotations can begin.<br/>
+   * More specifically, {@link Annotation#getStart()} &lt;= analysisStart.
+   * <br/>
+   * This is useful when the annotator needs more context, but must only add
+   * annotations in a particular part of the text.
+   */
+  public int getAnalysisStart() {
+    return analysisStart;
+  }
 
-	/**
-	 * The point in the text beyond which no more annotations should begin.<br/>
-	 * More specifically, {@link Annotation#getStart()} &lt; analysisEnd.<br/>
-	 * This is useful when the annotator needs more context, but must only add
-	 * annotations in a particular part of the text.
-	 */
-	public int getAnalysisEnd() {
-		return analysisEnd;
-	}
+  /**
+   * The point in the text beyond which no more annotations should begin.<br/>
+   * More specifically, {@link Annotation#getStart()} &lt; analysisEnd.<br/>
+   * This is useful when the annotator needs more context, but must only add
+   * annotations in a particular part of the text.
+   */
+  public int getAnalysisEnd() {
+    return analysisEnd;
+  }
 
-	/**
-	 * Add annotations to the current text.
-	 * 
-	 * @param annotations
-	 */
-	public <T extends Serializable> void addAnnotations(List<Annotation<T>> annotations) {
-		if (annotations.size() > 0) {
-			for (AnnotationObserver observer : observers) {
-				observer.beforeAddAnnotations(this, annotations);
-			}
-			List<Annotation<?>> newAnnotations = new ArrayList<>(this.annotations.size() + annotations.size());
-			newAnnotations.addAll(this.annotations);
-			newAnnotations.addAll(annotations);
-			Collections.sort(newAnnotations);
-			this.annotations = Collections.unmodifiableList(newAnnotations);
+  /**
+   * Add annotations to the current text.
+   * 
+   * @param annotations
+   */
+  public <T extends Serializable> void addAnnotations(List<Annotation<T>> annotations) {
+    if (annotations.size() > 0) {
+      for (AnnotationObserver observer : observers) {
+        observer.beforeAddAnnotations(this, annotations);
+      }
+      List<Annotation<?>> newAnnotations = new ArrayList<>(this.annotations.size() + annotations.size());
+      newAnnotations.addAll(this.annotations);
+      newAnnotations.addAll(annotations);
+      Collections.sort(newAnnotations);
+      this.annotations = Collections.unmodifiableList(newAnnotations);
 
-			for (AnnotationObserver observer : observers) {
-				observer.afterAddAnnotations(this);
-			}
+      for (AnnotationObserver observer : observers) {
+        observer.afterAddAnnotations(this);
+      }
 
-		}
-	}
+    }
+  }
 
-	/**
-	 * Add an observer to be notified of annotation events.
-	 */
-	public void addObserver(AnnotationObserver observer) {
-		this.observers.add(observer);
-	}
+  /**
+   * Add an observer to be notified of annotation events.
+   */
+  public void addObserver(AnnotationObserver observer) {
+    this.observers.add(observer);
+  }
 
-	/**
-	 * Return all annotations of a particular type.
-	 */
-	public <T extends Serializable> List<Annotation<T>> getAnnotations(Class<T> clazz) {
-		List<Annotation<T>> typedAnnotations = new ArrayList<>();
-		for (Annotation<?> annotation : annotations) {
-			if (clazz.isAssignableFrom(annotation.getData().getClass())) {
-				@SuppressWarnings("unchecked")
-				Annotation<T> typedAnnotation = (Annotation<T>) annotation;
-				typedAnnotations.add(typedAnnotation);
-			}
-		}
-		return typedAnnotations;
-	}
+  /**
+   * Return all annotations of a particular type.
+   */
+  public <T extends Serializable> List<Annotation<T>> getAnnotations(Class<T> clazz) {
+    List<Annotation<T>> typedAnnotations = new ArrayList<>();
+    for (Annotation<?> annotation : annotations) {
+      if (clazz.isAssignableFrom(annotation.getData().getClass())) {
+        @SuppressWarnings("unchecked")
+        Annotation<T> typedAnnotation = (Annotation<T>) annotation;
+        typedAnnotations.add(typedAnnotation);
+      }
+    }
+    return typedAnnotations;
+  }
 }

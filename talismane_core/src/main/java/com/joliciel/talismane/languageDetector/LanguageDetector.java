@@ -52,101 +52,101 @@ import com.typesafe.config.Config;
  *
  */
 public class LanguageDetector {
-	private static final Logger LOG = LoggerFactory.getLogger(LanguageDetector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LanguageDetector.class);
 
-	private final DecisionMaker decisionMaker;
-	private final Set<LanguageDetectorFeature<?>> features;
+  private final DecisionMaker decisionMaker;
+  private final Set<LanguageDetectorFeature<?>> features;
 
-	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
-	private static final Map<String, LanguageDetector> languageDetectorMap = new HashMap<>();
+  private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
+  private static final Map<String, LanguageDetector> languageDetectorMap = new HashMap<>();
 
-	public static LanguageDetector getInstance(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
-		LanguageDetector languageDetector = null;
-		if (session.getSessionId() != null)
-			languageDetector = languageDetectorMap.get(session.getSessionId());
-		if (languageDetector == null) {
-			Config config = session.getConfig();
+  public static LanguageDetector getInstance(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
+    LanguageDetector languageDetector = null;
+    if (session.getSessionId() != null)
+      languageDetector = languageDetectorMap.get(session.getSessionId());
+    if (languageDetector == null) {
+      Config config = session.getConfig();
 
-			String configPath = "talismane.core.language-detector.model";
-			String modelFilePath = config.getString(configPath);
-			ClassificationModel model = modelMap.get(modelFilePath);
-			if (model == null) {
-				InputStream modelFile = ConfigUtils.getFileFromConfig(config, configPath);
-				MachineLearningModelFactory factory = new MachineLearningModelFactory();
-				model = factory.getClassificationModel(new ZipInputStream(modelFile));
-				modelMap.put(modelFilePath, model);
-			}
+      String configPath = "talismane.core.language-detector.model";
+      String modelFilePath = config.getString(configPath);
+      ClassificationModel model = modelMap.get(modelFilePath);
+      if (model == null) {
+        InputStream modelFile = ConfigUtils.getFileFromConfig(config, configPath);
+        MachineLearningModelFactory factory = new MachineLearningModelFactory();
+        model = factory.getClassificationModel(new ZipInputStream(modelFile));
+        modelMap.put(modelFilePath, model);
+      }
 
-			languageDetector = new LanguageDetector(model);
+      languageDetector = new LanguageDetector(model);
 
-			if (session.getSessionId() != null)
-				languageDetectorMap.put(session.getSessionId(), languageDetector);
-		}
-		return languageDetector;
-	}
+      if (session.getSessionId() != null)
+        languageDetectorMap.put(session.getSessionId(), languageDetector);
+    }
+    return languageDetector;
+  }
 
-	/**
-	 * Construct a language detector from a decision maker and set of features.
-	 */
-	public LanguageDetector(DecisionMaker decisionMaker, Set<LanguageDetectorFeature<?>> features) {
-		this.decisionMaker = decisionMaker;
-		this.features = features;
-	}
+  /**
+   * Construct a language detector from a decision maker and set of features.
+   */
+  public LanguageDetector(DecisionMaker decisionMaker, Set<LanguageDetectorFeature<?>> features) {
+    this.decisionMaker = decisionMaker;
+    this.features = features;
+  }
 
-	/**
-	 * Construct a language detector for an existing model.
-	 * 
-	 * @throws TalismaneException
-	 */
-	public LanguageDetector(ClassificationModel languageModel) throws TalismaneException {
-		this(languageModel.getDecisionMaker(), (new LanguageDetectorFeatureFactory()).getFeatureSet(languageModel.getFeatureDescriptors()));
-	}
+  /**
+   * Construct a language detector for an existing model.
+   * 
+   * @throws TalismaneException
+   */
+  public LanguageDetector(ClassificationModel languageModel) throws TalismaneException {
+    this(languageModel.getDecisionMaker(), (new LanguageDetectorFeatureFactory()).getFeatureSet(languageModel.getFeatureDescriptors()));
+  }
 
-	/**
-	 * Return a probability distribution of languages for a given text.
-	 */
-	public List<WeightedOutcome<Locale>> detectLanguages(String text) throws TalismaneException {
-		if (LOG.isTraceEnabled()) {
-			LOG.trace("Testing text: " + text);
-		}
+  /**
+   * Return a probability distribution of languages for a given text.
+   */
+  public List<WeightedOutcome<Locale>> detectLanguages(String text) throws TalismaneException {
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Testing text: " + text);
+    }
 
-		text = text.toLowerCase(Locale.ENGLISH);
-		text = Normalizer.normalize(text, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+    text = text.toLowerCase(Locale.ENGLISH);
+    text = Normalizer.normalize(text, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
-		List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
-		for (LanguageDetectorFeature<?> feature : features) {
-			RuntimeEnvironment env = new RuntimeEnvironment();
-			FeatureResult<?> featureResult = feature.check(text, env);
-			if (featureResult != null)
-				featureResults.add(featureResult);
-		}
-		if (LOG.isTraceEnabled()) {
-			for (FeatureResult<?> result : featureResults) {
-				LOG.trace(result.toString());
-			}
-		}
+    List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
+    for (LanguageDetectorFeature<?> feature : features) {
+      RuntimeEnvironment env = new RuntimeEnvironment();
+      FeatureResult<?> featureResult = feature.check(text, env);
+      if (featureResult != null)
+        featureResults.add(featureResult);
+    }
+    if (LOG.isTraceEnabled()) {
+      for (FeatureResult<?> result : featureResults) {
+        LOG.trace(result.toString());
+      }
+    }
 
-		List<Decision> decisions = this.decisionMaker.decide(featureResults);
-		if (LOG.isTraceEnabled()) {
-			for (Decision decision : decisions) {
-				LOG.trace(decision.getOutcome() + ": " + decision.getProbability());
-			}
-		}
+    List<Decision> decisions = this.decisionMaker.decide(featureResults);
+    if (LOG.isTraceEnabled()) {
+      for (Decision decision : decisions) {
+        LOG.trace(decision.getOutcome() + ": " + decision.getProbability());
+      }
+    }
 
-		List<WeightedOutcome<Locale>> results = new ArrayList<WeightedOutcome<Locale>>();
-		for (Decision decision : decisions) {
-			Locale locale = Locale.forLanguageTag(decision.getOutcome());
-			results.add(new WeightedOutcome<Locale>(locale, decision.getProbability()));
-		}
+    List<WeightedOutcome<Locale>> results = new ArrayList<WeightedOutcome<Locale>>();
+    for (Decision decision : decisions) {
+      Locale locale = Locale.forLanguageTag(decision.getOutcome());
+      results.add(new WeightedOutcome<Locale>(locale, decision.getProbability()));
+    }
 
-		return results;
-	}
+    return results;
+  }
 
-	public DecisionMaker getDecisionMaker() {
-		return decisionMaker;
-	}
+  public DecisionMaker getDecisionMaker() {
+    return decisionMaker;
+  }
 
-	public Set<LanguageDetectorFeature<?>> getFeatures() {
-		return features;
-	}
+  public Set<LanguageDetectorFeature<?>> getFeatures() {
+    return features;
+  }
 }

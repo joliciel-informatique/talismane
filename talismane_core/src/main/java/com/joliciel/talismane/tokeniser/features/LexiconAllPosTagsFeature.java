@@ -34,37 +34,37 @@ import com.joliciel.talismane.tokeniser.Token;
  */
 public final class LexiconAllPosTagsFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
 
-	/**
-	 * 
-	 */
-	public LexiconAllPosTagsFeature() {
-	}
+  /**
+   * 
+   */
+  public LexiconAllPosTagsFeature() {
+  }
 
-	public LexiconAllPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public LexiconAllPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<String> result = null;
+  @Override
+  public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<String> result = null;
 
-		if (token.getPossiblePosTags().size() > 0) {
-			StringBuilder sb = new StringBuilder();
-			boolean firstPosTag = true;
-			for (PosTag posTag : token.getPossiblePosTags()) {
-				if (!firstPosTag)
-					sb.append(',');
-				firstPosTag = false;
-				sb.append(posTag.getCode());
-			}
-			result = this.generateResult(sb.toString());
-		}
+    if (token.getPossiblePosTags().size() > 0) {
+      StringBuilder sb = new StringBuilder();
+      boolean firstPosTag = true;
+      for (PosTag posTag : token.getPossiblePosTags()) {
+        if (!firstPosTag)
+          sb.append(',');
+        firstPosTag = false;
+        sb.append(posTag.getCode());
+      }
+      result = this.generateResult(sb.toString());
+    }
 
-		return result;
-	}
+    return result;
+  }
 
 }

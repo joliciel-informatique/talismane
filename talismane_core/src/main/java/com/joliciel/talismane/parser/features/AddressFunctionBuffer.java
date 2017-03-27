@@ -35,34 +35,34 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class AddressFunctionBuffer extends AbstractAddressFunction {
-	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
+  private IntegerFeature<ParseConfigurationWrapper> indexFeature;
 
-	public AddressFunctionBuffer(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
-		super();
-		this.indexFeature = indexFeature;
-		this.setName("Buffer[" + indexFeature.getName() + "]");
-	}
+  public AddressFunctionBuffer(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
+    super();
+    this.indexFeature = indexFeature;
+    this.setName("Buffer[" + indexFeature.getName() + "]");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		PosTaggedToken resultToken = null;
-		FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
-		if (indexResult != null) {
-			int index = indexResult.getOutcome();
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    PosTaggedToken resultToken = null;
+    FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
+    if (indexResult != null) {
+      int index = indexResult.getOutcome();
 
-			Iterator<PosTaggedToken> bufferIterator = configuration.getBuffer().iterator();
-			for (int i = 0; i <= index; i++) {
-				if (!bufferIterator.hasNext()) {
-					resultToken = null;
-					break;
-				}
-				resultToken = bufferIterator.next();
-			}
-		}
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken != null)
-			featureResult = this.generateResult(resultToken);
-		return featureResult;
-	}
+      Iterator<PosTaggedToken> bufferIterator = configuration.getBuffer().iterator();
+      for (int i = 0; i <= index; i++) {
+        if (!bufferIterator.hasNext()) {
+          resultToken = null;
+          break;
+        }
+        resultToken = bufferIterator.next();
+      }
+    }
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+    if (resultToken != null)
+      featureResult = this.generateResult(resultToken);
+    return featureResult;
+  }
 }

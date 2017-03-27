@@ -35,29 +35,29 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class AddressFunctionRDep extends AbstractAddressFunction {
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 
-	public AddressFunctionRDep(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
-		super();
-		this.addressFunction = addressFunction;
-		this.setName("RDep(" + addressFunction.getName() + ")");
-	}
+  public AddressFunctionRDep(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+    super();
+    this.addressFunction = addressFunction;
+    this.setName("RDep(" + addressFunction.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
-		if (addressResult != null) {
-			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
-			List<PosTaggedToken> rightDependents = configuration.getRightDependents(referenceToken);
-			if (rightDependents.size() > 0)
-				resultToken = rightDependents.get(rightDependents.size() - 1);
-		}
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    PosTaggedToken resultToken = null;
+    FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
+    if (addressResult != null) {
+      PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
+      List<PosTaggedToken> rightDependents = configuration.getRightDependents(referenceToken);
+      if (rightDependents.size() > 0)
+        resultToken = rightDependents.get(rightDependents.size() - 1);
+    }
 
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken != null)
-			featureResult = this.generateResult(resultToken);
-		return featureResult;
-	}
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+    if (resultToken != null)
+      featureResult = this.generateResult(resultToken);
+    return featureResult;
+  }
 }

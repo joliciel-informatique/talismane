@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * 
  * <pre>
- * PosTag	description	PosTagOpenClassIndicator
+ * PosTag description PosTagOpenClassIndicator
  * </pre>
  * <p>
  * For example:
@@ -59,11 +59,11 @@ import org.slf4j.LoggerFactory;
  * # Example of a PosTagSet file
  * Talismane 2013
  * fr
- * ADJ	adjectif	OPEN
- * ADV	adverbe	OPEN
- * ADVWH	adverbe intérrogatif	CLOSED
- * CC	conjonction de coordination	CLOSED
- * PONCT	ponctuation	PUNCTUATION
+ * ADJ  adjectif  OPEN
+ * ADV  adverbe OPEN
+ * ADVWH  adverbe intérrogatif CLOSED
+ * CC conjonction de coordination CLOSED
+ * PONCT  ponctuation PUNCTUATION
  * </pre>
  * 
  * @see PosTag
@@ -72,143 +72,143 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class PosTagSet implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LoggerFactory.getLogger(PosTagSet.class);
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(PosTagSet.class);
 
-	private String name;
-	private Locale locale;
-	private Set<PosTag> tags = new TreeSet<>();
-	private Map<String, PosTag> tagMap = null;
+  private String name;
+  private Locale locale;
+  private Set<PosTag> tags = new TreeSet<>();
+  private Map<String, PosTag> tagMap = null;
 
-	/**
-	 * Loads a PosTagSet from a file or list of strings. The file has the
-	 * following format: <BR/>
-	 * First row: PosTagSet name<BR/>
-	 * Second row: PosTagSet ISO 2 letter language code<BR/>
-	 * Remaining rows:<BR/>
-	 * PosTagCode tab description tab OPEN/CLOSED<BR/>
-	 * e.g.<BR/>
-	 * ADJ adjectif OPEN<BR/>
-	 */
-	public PosTagSet(File file) throws IOException {
-		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")))) {
-			this.load(scanner);
-		}
-	}
+  /**
+   * Loads a PosTagSet from a file or list of strings. The file has the
+   * following format: <BR/>
+   * First row: PosTagSet name<BR/>
+   * Second row: PosTagSet ISO 2 letter language code<BR/>
+   * Remaining rows:<BR/>
+   * PosTagCode tab description tab OPEN/CLOSED<BR/>
+   * e.g.<BR/>
+   * ADJ adjectif OPEN<BR/>
+   */
+  public PosTagSet(File file) throws IOException {
+    try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")))) {
+      this.load(scanner);
+    }
+  }
 
-	/**
-	 * Same as getPosTageSet(file), but replaces file with a scanner.
-	 */
-	public PosTagSet(Scanner scanner) {
-		this.load(scanner);
-	}
+  /**
+   * Same as getPosTageSet(file), but replaces file with a scanner.
+   */
+  public PosTagSet(Scanner scanner) {
+    this.load(scanner);
+  }
 
-	/**
-	 * Same as getPosTagSet(File), but replaces the file with a List of Strings.
-	 */
-	public PosTagSet(List<String> descriptors) {
-		this.load(descriptors);
-	}
+  /**
+   * Same as getPosTagSet(File), but replaces the file with a List of Strings.
+   */
+  public PosTagSet(List<String> descriptors) {
+    this.load(descriptors);
+  }
 
-	void load(Scanner scanner) {
-		List<String> descriptors = new ArrayList<String>();
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			descriptors.add(line);
-		}
-		this.load(descriptors);
-	}
+  void load(Scanner scanner) {
+    List<String> descriptors = new ArrayList<String>();
+    while (scanner.hasNextLine()) {
+      String line = scanner.nextLine();
+      descriptors.add(line);
+    }
+    this.load(descriptors);
+  }
 
-	void load(List<String> descriptors) {
-		boolean nameFound = false;
-		boolean localeFound = false;
-		for (String descriptor : descriptors) {
-			LOG.debug(descriptor);
-			if (descriptor.startsWith("#")) {
-				continue;
-			}
+  void load(List<String> descriptors) {
+    boolean nameFound = false;
+    boolean localeFound = false;
+    for (String descriptor : descriptors) {
+      LOG.debug(descriptor);
+      if (descriptor.startsWith("#")) {
+        continue;
+      }
 
-			if (!nameFound) {
-				this.name = descriptor;
-				nameFound = true;
-			} else if (!localeFound) {
-				this.locale = new Locale(descriptor);
-				localeFound = true;
-			} else {
-				String[] parts = descriptor.split("\t");
-				tags.add(new PosTag(parts[0], parts[1], PosTagOpenClassIndicator.valueOf(parts[2])));
-			}
-		}
-	}
+      if (!nameFound) {
+        this.name = descriptor;
+        nameFound = true;
+      } else if (!localeFound) {
+        this.locale = new Locale(descriptor);
+        localeFound = true;
+      } else {
+        String[] parts = descriptor.split("\t");
+        tags.add(new PosTag(parts[0], parts[1], PosTagOpenClassIndicator.valueOf(parts[2])));
+      }
+    }
+  }
 
-	/**
-	 * Name of this posTagSet.
-	 */
-	public String getName() {
-		return name;
-	}
+  /**
+   * Name of this posTagSet.
+   */
+  public String getName() {
+    return name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	/**
-	 * The locale to which this PosTagSet applies.
-	 */
-	public Locale getLocale() {
-		return locale;
-	}
+  /**
+   * The locale to which this PosTagSet applies.
+   */
+  public Locale getLocale() {
+    return locale;
+  }
 
-	public void setLocale(Locale locale) {
-		this.locale = locale;
-	}
+  public void setLocale(Locale locale) {
+    this.locale = locale;
+  }
 
-	/**
-	 * Returns the full tagset.
-	 */
-	public Set<PosTag> getTags() {
-		return tags;
-	}
+  /**
+   * Returns the full tagset.
+   */
+  public Set<PosTag> getTags() {
+    return tags;
+  }
 
-	/**
-	 * Return the PosTag corresponding to a given code.
-	 * 
-	 * @throws UnknownPosTagException
-	 */
-	public PosTag getPosTag(String code) throws UnknownPosTagException {
-		if (tagMap == null) {
-			tagMap = new HashMap<>();
-			for (PosTag posTag : this.getTags()) {
-				tagMap.put(posTag.getCode(), posTag);
-			}
-			tagMap.put(PosTag.ROOT_POS_TAG_CODE, PosTag.ROOT_POS_TAG);
-		}
-		PosTag posTag = tagMap.get(code);
-		if (posTag == null) {
-			throw new UnknownPosTagException("Unknown PosTag: " + code);
-		}
-		return posTag;
-	}
+  /**
+   * Return the PosTag corresponding to a given code.
+   * 
+   * @throws UnknownPosTagException
+   */
+  public PosTag getPosTag(String code) throws UnknownPosTagException {
+    if (tagMap == null) {
+      tagMap = new HashMap<>();
+      for (PosTag posTag : this.getTags()) {
+        tagMap.put(posTag.getCode(), posTag);
+      }
+      tagMap.put(PosTag.ROOT_POS_TAG_CODE, PosTag.ROOT_POS_TAG);
+    }
+    PosTag posTag = tagMap.get(code);
+    if (posTag == null) {
+      throw new UnknownPosTagException("Unknown PosTag: " + code);
+    }
+    return posTag;
+  }
 
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PosTagSet other = (PosTagSet) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    PosTagSet other = (PosTagSet) obj;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
+      return false;
+    return true;
+  }
 }

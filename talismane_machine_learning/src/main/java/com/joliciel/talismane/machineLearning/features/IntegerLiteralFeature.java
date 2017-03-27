@@ -25,20 +25,20 @@ package com.joliciel.talismane.machineLearning.features;
  *
  */
 public class IntegerLiteralFeature<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
-	private int literal;
+  private int literal;
 
-	public IntegerLiteralFeature(int literal) {
-		super();
-		this.literal = literal;
-		this.setName("" + literal);
-	}
+  public IntegerLiteralFeature(int literal) {
+    super();
+    this.literal = literal;
+    this.setName("" + literal);
+  }
 
-	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
-		return this.generateResult(literal);
-	}
+  @Override
+  public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
+    return this.generateResult(literal);
+  }
 
-	public int getLiteral() {
-		return literal;
-	}
+  public int getLiteral() {
+    return literal;
+  }
 }

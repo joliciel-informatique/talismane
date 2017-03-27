@@ -40,77 +40,77 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DynamicCompiler {
-	private static final Logger LOG = LoggerFactory.getLogger(DynamicCompiler.class);
-	private JavaCompiler javaCompiler;
-	private InMemoryClassLoader inMemoryClassLoader;
-	private InMemoryFileManager inMemoryFileManager;
-	private DiagnosticListener<JavaFileObject> diagonosticListener;
+  private static final Logger LOG = LoggerFactory.getLogger(DynamicCompiler.class);
+  private JavaCompiler javaCompiler;
+  private InMemoryClassLoader inMemoryClassLoader;
+  private InMemoryFileManager inMemoryFileManager;
+  private DiagnosticListener<JavaFileObject> diagonosticListener;
 
-	public DynamicCompiler(ClassLoader classLoader, DiagnosticListener<JavaFileObject> diagnosticListener) {
-		this.javaCompiler = ToolProvider.getSystemJavaCompiler();
-		this.diagonosticListener = diagnosticListener;
-		JavaFileManager standardFileManager = javaCompiler.getStandardFileManager(diagnosticListener, null, null);
-		this.inMemoryClassLoader = new InMemoryClassLoader(classLoader);
-		this.inMemoryFileManager = new InMemoryFileManager(standardFileManager, inMemoryClassLoader);
-	}
+  public DynamicCompiler(ClassLoader classLoader, DiagnosticListener<JavaFileObject> diagnosticListener) {
+    this.javaCompiler = ToolProvider.getSystemJavaCompiler();
+    this.diagonosticListener = diagnosticListener;
+    JavaFileManager standardFileManager = javaCompiler.getStandardFileManager(diagnosticListener, null, null);
+    this.inMemoryClassLoader = new InMemoryClassLoader(classLoader);
+    this.inMemoryFileManager = new InMemoryFileManager(standardFileManager, inMemoryClassLoader);
+  }
 
-	public Class<?> compile(String name, CharSequence source, List<String> optionList) {
-		Map<String,CharSequence> sources = new HashMap<String, CharSequence>();
-		sources.put(name, source);
-		Map<String, Class<?>> compiledClasses = this.compileMany(sources, optionList);
-		Class<?> clazz = compiledClasses.get(name);
-		return clazz;
-	}
+  public Class<?> compile(String name, CharSequence source, List<String> optionList) {
+    Map<String,CharSequence> sources = new HashMap<String, CharSequence>();
+    sources.put(name, source);
+    Map<String, Class<?>> compiledClasses = this.compileMany(sources, optionList);
+    Class<?> clazz = compiledClasses.get(name);
+    return clazz;
+  }
 
-	public Map<String, Class<?>> compileMany(Map<String, CharSequence> sources, List<String> optionList) {
-		List<JavaFileObject> sourceObjects = new ArrayList<JavaFileObject>();
+  public Map<String, Class<?>> compileMany(Map<String, CharSequence> sources, List<String> optionList) {
+    List<JavaFileObject> sourceObjects = new ArrayList<JavaFileObject>();
 
-		// prepare the JavaFileObjects to be compiled
-		for (String qualifiedName : sources.keySet()) {
-			CharSequence sourceCode = sources.get(qualifiedName);
-			
-			String className = qualifiedName;
-			String packageName = "";
-			int lastDot = qualifiedName.lastIndexOf('.');
-			if (lastDot>=0) {
-				packageName = qualifiedName.substring(0, lastDot);
-				className = qualifiedName.substring(lastDot + 1);
-			}
-			
-			InMemoryJavaFileObject sourceObject = new InMemoryJavaFileObject(className, sourceCode);
+    // prepare the JavaFileObjects to be compiled
+    for (String qualifiedName : sources.keySet()) {
+      CharSequence sourceCode = sources.get(qualifiedName);
+      
+      String className = qualifiedName;
+      String packageName = "";
+      int lastDot = qualifiedName.lastIndexOf('.');
+      if (lastDot>=0) {
+        packageName = qualifiedName.substring(0, lastDot);
+        className = qualifiedName.substring(lastDot + 1);
+      }
+      
+      InMemoryJavaFileObject sourceObject = new InMemoryJavaFileObject(className, sourceCode);
 
-			this.inMemoryFileManager.prepareJavaFileObject(StandardLocation.SOURCE_PATH,
-					packageName,
-					className + ".java",
-					sourceObject);
-			
-			sourceObjects.add(sourceObject);
-		}
+      this.inMemoryFileManager.prepareJavaFileObject(StandardLocation.SOURCE_PATH,
+          packageName,
+          className + ".java",
+          sourceObject);
+      
+      sourceObjects.add(sourceObject);
+    }
 
-		// Perform the compilation
-		CompilationTask task = this.javaCompiler.getTask(null,
-				this.inMemoryFileManager,
-				diagonosticListener,
-				optionList, null, sourceObjects);
+    // Perform the compilation
+    CompilationTask task = this.javaCompiler.getTask(null,
+        this.inMemoryFileManager,
+        diagonosticListener,
+        optionList, null, sourceObjects);
 
-		Boolean result = task.call();
-		if (result==null || !result) {
-			LOG.info("Compilation failed.");
-			for (JavaFileObject sourceObject : sourceObjects)
-				System.out.println(((InMemoryJavaFileObject)sourceObject).getCharContent(true));
-			throw new DynamicCompilerException("Compilation failed.");
-		}
+    Boolean result = task.call();
+    if (result==null || !result) {
+      LOG.info("Compilation failed.");
+      for (JavaFileObject sourceObject : sourceObjects)
+        System.out.println(((InMemoryJavaFileObject)sourceObject).getCharContent(true));
+      throw new DynamicCompilerException("Compilation failed.");
+    }
 
-		// Return the compiled classes
-		try {
-			Map<String, Class<?>> compiledClasses = new HashMap<String, Class<?>>();
-			for (String qualifiedName : sources.keySet()) {
-				final Class<?> compiledClass = this.inMemoryClassLoader.loadClass(qualifiedName);
-				compiledClasses.put(qualifiedName, compiledClass);
-			}
-			return compiledClasses;
-		} catch (ClassNotFoundException e) {
-			throw new DynamicCompilerException(e);
-		}
-	}
+    // Return the compiled classes
+    try {
+      Map<String, Class<?>> compiledClasses = new HashMap<String, Class<?>>();
+      for (String qualifiedName : sources.keySet()) {
+        final Class<?> compiledClass = this.inMemoryClassLoader.loadClass(qualifiedName);
+        compiledClasses.put(qualifiedName, compiledClass);
+      }
+      return compiledClasses;
+    } catch (ClassNotFoundException e) {
+      throw new DynamicCompilerException(e);
+    }
+  }
 }

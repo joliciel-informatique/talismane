@@ -28,50 +28,50 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class NullIfBooleanFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
-	private BooleanFeature<T> condition;
-	private BooleanFeature<T> resultFeature;
+  private BooleanFeature<T> condition;
+  private BooleanFeature<T> resultFeature;
 
-	public NullIfBooleanFeature(BooleanFeature<T> condition, BooleanFeature<T> resultFeature) {
-		super();
-		this.condition = condition;
-		this.resultFeature = resultFeature;
-		this.setName("NullIf(" + condition.getName() + "," + resultFeature.getName() + ")");
-	}
+  public NullIfBooleanFeature(BooleanFeature<T> condition, BooleanFeature<T> resultFeature) {
+    super();
+    this.condition = condition;
+    this.resultFeature = resultFeature;
+    this.setName("NullIf(" + condition.getName() + "," + resultFeature.getName() + ")");
+  }
 
-	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		FeatureResult<Boolean> conditionResult = condition.check(context, env);
-		if (conditionResult != null) {
-			boolean conditionOutcome = conditionResult.getOutcome();
-			if (!conditionOutcome) {
-				FeatureResult<Boolean> thenFeatureResult = resultFeature.check(context, env);
-				if (thenFeatureResult != null) {
-					boolean result = thenFeatureResult.getOutcome();
-					featureResult = this.generateResult(result);
-				}
-			}
-		}
+    FeatureResult<Boolean> conditionResult = condition.check(context, env);
+    if (conditionResult != null) {
+      boolean conditionOutcome = conditionResult.getOutcome();
+      if (!conditionOutcome) {
+        FeatureResult<Boolean> thenFeatureResult = resultFeature.check(context, env);
+        if (thenFeatureResult != null) {
+          boolean result = thenFeatureResult.getOutcome();
+          featureResult = this.generateResult(result);
+        }
+      }
+    }
 
-		return featureResult;
+    return featureResult;
 
-	}
+  }
 
-	public BooleanFeature<T> getCondition() {
-		return condition;
-	}
+  public BooleanFeature<T> getCondition() {
+    return condition;
+  }
 
-	public BooleanFeature<T> getResultFeature() {
-		return resultFeature;
-	}
+  public BooleanFeature<T> getResultFeature() {
+    return resultFeature;
+  }
 
-	public void setCondition(BooleanFeature<T> condition) {
-		this.condition = condition;
-	}
+  public void setCondition(BooleanFeature<T> condition) {
+    this.condition = condition;
+  }
 
-	public void setResultFeature(BooleanFeature<T> resultFeature) {
-		this.resultFeature = resultFeature;
-	}
+  public void setResultFeature(BooleanFeature<T> resultFeature) {
+    this.resultFeature = resultFeature;
+  }
 
 }

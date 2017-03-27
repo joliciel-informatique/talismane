@@ -32,37 +32,37 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class TokenAtAddressFunction extends AbstractTokenAddressFunction {
-	IntegerFeature<TokenWrapper> indexFeature;
+  IntegerFeature<TokenWrapper> indexFeature;
 
-	public TokenAtAddressFunction(IntegerFeature<TokenWrapper> index) {
-		this.indexFeature = index;
-		this.setName("TokenAt(" + this.indexFeature.getName() + ")");
-	}
+  public TokenAtAddressFunction(IntegerFeature<TokenWrapper> index) {
+    this.indexFeature = index;
+    this.setName("TokenAt(" + this.indexFeature.getName() + ")");
+  }
 
-	public TokenAtAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> index) {
-		this(index);
-		this.setAddressFunction(addressFunction);
-	}
+  public TokenAtAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> index) {
+    this(index);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
+  @Override
+  public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
 
-		FeatureResult<TokenWrapper> result = null;
+    FeatureResult<TokenWrapper> result = null;
 
-		FeatureResult<Integer> indexResult = indexFeature.check(innerWrapper, env);
+    FeatureResult<Integer> indexResult = indexFeature.check(innerWrapper, env);
 
-		if (indexResult != null) {
-			int i = indexResult.getOutcome();
-			if (i >= 0 && i < token.getTokenSequence().size()) {
-				Token indexedToken = token.getTokenSequence().get(i);
-				result = this.generateResult(indexedToken);
-			}
-		}
+    if (indexResult != null) {
+      int i = indexResult.getOutcome();
+      if (i >= 0 && i < token.getTokenSequence().size()) {
+        Token indexedToken = token.getTokenSequence().get(i);
+        result = this.generateResult(indexedToken);
+      }
+    }
 
-		return result;
-	}
+    return result;
+  }
 }

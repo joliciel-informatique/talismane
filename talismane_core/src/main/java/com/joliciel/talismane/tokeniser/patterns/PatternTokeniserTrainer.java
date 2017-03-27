@@ -56,74 +56,74 @@ import com.typesafe.config.Config;
  *
  */
 public class PatternTokeniserTrainer {
-	private static final Logger LOG = LoggerFactory.getLogger(PatternTokeniserTrainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PatternTokeniserTrainer.class);
 
-	private final TalismaneSession session;
-	private final Config tokeniserConfig;
-	private final File modelFile;
-	private final ClassificationEventStream eventStream;
-	private final Map<String, List<String>> descriptors;
+  private final TalismaneSession session;
+  private final Config tokeniserConfig;
+  private final File modelFile;
+  private final ClassificationEventStream eventStream;
+  private final Map<String, List<String>> descriptors;
 
-	public PatternTokeniserTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
-		Config config = session.getConfig();
-		this.tokeniserConfig = config.getConfig("talismane.core.tokeniser");
-		this.session = session;
-		this.modelFile = new File(tokeniserConfig.getString("model"));
-		this.descriptors = new HashMap<>();
+  public PatternTokeniserTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+    Config config = session.getConfig();
+    this.tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    this.session = session;
+    this.modelFile = new File(tokeniserConfig.getString("model"));
+    this.descriptors = new HashMap<>();
 
-		String configPath = "talismane.core.tokeniser.train.patterns";
-		InputStream tokeniserPatternFile = ConfigUtils.getFileFromConfig(config, configPath);
-		List<String> patternDescriptors = new ArrayList<>();
-		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserPatternFile, "UTF-8")))) {
-			while (scanner.hasNextLine()) {
-				String descriptor = scanner.nextLine();
-				patternDescriptors.add(descriptor);
-				LOG.debug(descriptor);
-			}
-		}
+    String configPath = "talismane.core.tokeniser.train.patterns";
+    InputStream tokeniserPatternFile = ConfigUtils.getFileFromConfig(config, configPath);
+    List<String> patternDescriptors = new ArrayList<>();
+    try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserPatternFile, "UTF-8")))) {
+      while (scanner.hasNextLine()) {
+        String descriptor = scanner.nextLine();
+        patternDescriptors.add(descriptor);
+        LOG.debug(descriptor);
+      }
+    }
 
-		descriptors.put(PatternTokeniser.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
+    descriptors.put(PatternTokeniser.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
 
-		TokeniserPatternManager tokeniserPatternManager = new TokeniserPatternManager(patternDescriptors, session);
+    TokeniserPatternManager tokeniserPatternManager = new TokeniserPatternManager(patternDescriptors, session);
 
-		configPath = "talismane.core.tokeniser.train.features";
-		InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
-		List<String> featureDescriptors = new ArrayList<>();
-		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
+    configPath = "talismane.core.tokeniser.train.features";
+    InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
+    List<String> featureDescriptors = new ArrayList<>();
+    try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
 
-			while (scanner.hasNextLine()) {
-				String descriptor = scanner.nextLine();
-				featureDescriptors.add(descriptor);
-				LOG.debug(descriptor);
-			}
-		}
-		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		TokeniserAnnotatedCorpusReader tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader, tokeniserConfig.getConfig("train"), session);
+      while (scanner.hasNextLine()) {
+        String descriptor = scanner.nextLine();
+        featureDescriptors.add(descriptor);
+        LOG.debug(descriptor);
+      }
+    }
+    descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+    TokeniserAnnotatedCorpusReader tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader, tokeniserConfig.getConfig("train"), session);
 
-		// add descriptors for various filters
-		// these are for reference purpose only, as we no longer read filters
-		// out of the model
-		List<List<String>> sentenceAnnotatorDescriptors = session.getSentenceAnnotatorDescriptors();
-		for (int i = 0; i < sentenceAnnotatorDescriptors.size(); i++) {
-			descriptors.put(SentenceAnnotatorLoader.SENTENCE_ANNOTATOR_DESCRIPTOR_KEY + i, sentenceAnnotatorDescriptors.get(i));
-		}
+    // add descriptors for various filters
+    // these are for reference purpose only, as we no longer read filters
+    // out of the model
+    List<List<String>> sentenceAnnotatorDescriptors = session.getSentenceAnnotatorDescriptors();
+    for (int i = 0; i < sentenceAnnotatorDescriptors.size(); i++) {
+      descriptors.put(SentenceAnnotatorLoader.SENTENCE_ANNOTATOR_DESCRIPTOR_KEY + i, sentenceAnnotatorDescriptors.get(i));
+    }
 
-		TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
-		Set<TokenPatternMatchFeature<?>> features = featureParser.getTokenPatternMatchFeatureSet(featureDescriptors);
-		eventStream = new PatternEventStream(tokenCorpusReader, features, tokeniserPatternManager, this.session);
-	}
+    TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
+    Set<TokenPatternMatchFeature<?>> features = featureParser.getTokenPatternMatchFeatureSet(featureDescriptors);
+    eventStream = new PatternEventStream(tokenCorpusReader, features, tokeniserPatternManager, this.session);
+  }
 
-	public ClassificationModel train() throws TalismaneException, IOException {
-		ModelTrainerFactory factory = new ModelTrainerFactory();
-		ClassificationModelTrainer trainer = factory.constructTrainer(tokeniserConfig.getConfig("train.machine-learning"));
+  public ClassificationModel train() throws TalismaneException, IOException {
+    ModelTrainerFactory factory = new ModelTrainerFactory();
+    ClassificationModelTrainer trainer = factory.constructTrainer(tokeniserConfig.getConfig("train.machine-learning"));
 
-		ClassificationModel model = trainer.trainModel(eventStream, descriptors);
-		model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
+    ClassificationModel model = trainer.trainModel(eventStream, descriptors);
+    model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 
-		File modelDir = modelFile.getParentFile();
-		if (modelDir != null)
-			modelDir.mkdirs();
-		model.persist(modelFile);
-		return model;
-	}
+    File modelDir = modelFile.getParentFile();
+    if (modelDir != null)
+      modelDir.mkdirs();
+    model.persist(modelFile);
+    return model;
+  }
 }

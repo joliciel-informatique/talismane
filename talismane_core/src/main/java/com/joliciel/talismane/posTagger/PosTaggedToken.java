@@ -50,287 +50,287 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedTokenWrapper, HasFeatureCache, PosTaggerContext {
-	private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
+  private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
-	private List<LexicalEntry> lexicalEntries = null;
-	private static final DecimalFormat df = new DecimalFormat("0.0000");
-	private String conllLemma = null;
-	private String comment = "";
-	private String morphologyForCoNLL = null;
-	private PosTagSequence posTagSequence;
+  private List<LexicalEntry> lexicalEntries = null;
+  private static final DecimalFormat df = new DecimalFormat("0.0000");
+  private String conllLemma = null;
+  private String comment = "";
+  private String morphologyForCoNLL = null;
+  private PosTagSequence posTagSequence;
 
-	private TalismaneSession session;
+  private TalismaneSession session;
 
-	PosTaggedToken(PosTaggedToken taggedTokenToClone) {
-		super(taggedTokenToClone);
-		this.featureResults = taggedTokenToClone.featureResults;
-		this.lexicalEntries = taggedTokenToClone.lexicalEntries;
+  PosTaggedToken(PosTaggedToken taggedTokenToClone) {
+    super(taggedTokenToClone);
+    this.featureResults = taggedTokenToClone.featureResults;
+    this.lexicalEntries = taggedTokenToClone.lexicalEntries;
 
-		this.session = taggedTokenToClone.session;
-	}
+    this.session = taggedTokenToClone.session;
+  }
 
-	/**
-	 * Construct a pos-tagged token for a given token and given decision - the
-	 * {@link Decision#getOutcome()} must be a valid {@link PosTag#getCode()}
-	 * from the current {@link PosTagSet}.
-	 * 
-	 * @param token
-	 *            the token to be tagged
-	 * @param decision
-	 *            the decision used to tag it
-	 * @throws UnknownPosTagException
-	 */
-	public PosTaggedToken(Token token, Decision decision, TalismaneSession talismaneSession) throws UnknownPosTagException {
-		super(token, decision, talismaneSession.getPosTagSet().getPosTag(decision.getOutcome()));
-		this.session = talismaneSession;
-	}
+  /**
+   * Construct a pos-tagged token for a given token and given decision - the
+   * {@link Decision#getOutcome()} must be a valid {@link PosTag#getCode()}
+   * from the current {@link PosTagSet}.
+   * 
+   * @param token
+   *            the token to be tagged
+   * @param decision
+   *            the decision used to tag it
+   * @throws UnknownPosTagException
+   */
+  public PosTaggedToken(Token token, Decision decision, TalismaneSession talismaneSession) throws UnknownPosTagException {
+    super(token, decision, talismaneSession.getPosTagSet().getPosTag(decision.getOutcome()));
+    this.session = talismaneSession;
+  }
 
-	/**
-	 * All lexical entries for this token/postag combination.
-	 */
-	public List<LexicalEntry> getLexicalEntries() {
-		if (lexicalEntries == null) {
-			lexicalEntries = this.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
-			if (lexicalEntries.size() == 0) {
-				lexicalEntries = this.getTalismaneSession().getMergedLexicon()
-						.findLexicalEntries(this.getToken().getText().toLowerCase(this.session.getLocale()), this.getTag());
-			}
-		}
-		return lexicalEntries;
-	}
+  /**
+   * All lexical entries for this token/postag combination.
+   */
+  public List<LexicalEntry> getLexicalEntries() {
+    if (lexicalEntries == null) {
+      lexicalEntries = this.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
+      if (lexicalEntries.size() == 0) {
+        lexicalEntries = this.getTalismaneSession().getMergedLexicon()
+            .findLexicalEntries(this.getToken().getText().toLowerCase(this.session.getLocale()), this.getTag());
+      }
+    }
+    return lexicalEntries;
+  }
 
-	public void setLexicalEntries(List<LexicalEntry> lexicalEntries) {
-		this.lexicalEntries = lexicalEntries;
-	}
+  public void setLexicalEntries(List<LexicalEntry> lexicalEntries) {
+    this.lexicalEntries = lexicalEntries;
+  }
 
-	@Override
-	public String toString() {
-		return this.getToken().getText() + "|" + this.getTag() + "|" + this.getToken().getIndex() + "| prob=" + df.format(this.getDecision().getProbability());
-	}
+  @Override
+  public String toString() {
+    return this.getToken().getText() + "|" + this.getTag() + "|" + this.getToken().getIndex() + "| prob=" + df.format(this.getDecision().getProbability());
+  }
 
-	@Override
-	@SuppressWarnings("unchecked")
+  @Override
+  @SuppressWarnings("unchecked")
 
-	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) {
-		FeatureResult<Y> result = null;
+  public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) {
+    FeatureResult<Y> result = null;
 
-		String key = feature.getName() + env.getKey();
-		if (this.featureResults.containsKey(key)) {
-			result = (FeatureResult<Y>) this.featureResults.get(key);
-		}
-		return result;
-	}
+    String key = feature.getName() + env.getKey();
+    if (this.featureResults.containsKey(key)) {
+      result = (FeatureResult<Y>) this.featureResults.get(key);
+    }
+    return result;
+  }
 
-	@Override
-	public <T, Y> void putResultInCache(Feature<T, Y> feature, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
-		String key = feature.getName() + env.getKey();
-		this.featureResults.put(key, featureResult);
-	}
+  @Override
+  public <T, Y> void putResultInCache(Feature<T, Y> feature, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
+    String key = feature.getName() + env.getKey();
+    this.featureResults.put(key, featureResult);
+  }
 
-	@Override
-	public PosTaggedToken getPosTaggedToken() {
-		return this;
-	}
+  @Override
+  public PosTaggedToken getPosTaggedToken() {
+    return this;
+  }
 
-	public PosTaggedToken clonePosTaggedToken() {
-		PosTaggedToken posTaggedToken = new PosTaggedToken(this);
-		return posTaggedToken;
-	}
+  public PosTaggedToken clonePosTaggedToken() {
+    PosTaggedToken posTaggedToken = new PosTaggedToken(this);
+    return posTaggedToken;
+  }
 
-	/**
-	 * The lemma of the "best" lexical entry as encoded for the CoNLL output
-	 * format.
-	 */
-	public String getLemmaForCoNLL() {
-		if (conllLemma == null) {
-			String lemma = "";
-			String lemmaType = null;
-			StringAttribute lemmaTypeAttribute = (StringAttribute) this.getToken().getAttributes().get(PosTagger.LEMMA_TYPE_ATTRIBUTE);
-			if (lemmaTypeAttribute != null)
-				lemmaType = lemmaTypeAttribute.getValue();
-			String explicitLemma = null;
-			StringAttribute explicitLemmaAttribute = (StringAttribute) this.getToken().getAttributes().get(PosTagger.LEMMA_ATTRIBUTE);
-			if (explicitLemmaAttribute != null)
-				explicitLemma = explicitLemmaAttribute.getValue();
-			if (explicitLemma != null) {
-				lemma = explicitLemma;
-			} else if (lemmaType != null && lemmaType.equals("originalLower")) {
-				lemma = this.getToken().getOriginalText().toLowerCase(this.session.getLocale());
-			} else if (this.getLexicalEntries().size() > 0) {
-				lemma = this.getLexicalEntries().get(0).getLemma();
-			}
-			conllLemma = session.getCoNLLFormatter().toCoNLL(lemma);
+  /**
+   * The lemma of the "best" lexical entry as encoded for the CoNLL output
+   * format.
+   */
+  public String getLemmaForCoNLL() {
+    if (conllLemma == null) {
+      String lemma = "";
+      String lemmaType = null;
+      StringAttribute lemmaTypeAttribute = (StringAttribute) this.getToken().getAttributes().get(PosTagger.LEMMA_TYPE_ATTRIBUTE);
+      if (lemmaTypeAttribute != null)
+        lemmaType = lemmaTypeAttribute.getValue();
+      String explicitLemma = null;
+      StringAttribute explicitLemmaAttribute = (StringAttribute) this.getToken().getAttributes().get(PosTagger.LEMMA_ATTRIBUTE);
+      if (explicitLemmaAttribute != null)
+        explicitLemma = explicitLemmaAttribute.getValue();
+      if (explicitLemma != null) {
+        lemma = explicitLemma;
+      } else if (lemmaType != null && lemmaType.equals("originalLower")) {
+        lemma = this.getToken().getOriginalText().toLowerCase(this.session.getLocale());
+      } else if (this.getLexicalEntries().size() > 0) {
+        lemma = this.getLexicalEntries().get(0).getLemma();
+      }
+      conllLemma = session.getCoNLLFormatter().toCoNLL(lemma);
 
-		}
-		return conllLemma;
-	}
+    }
+    return conllLemma;
+  }
 
-	/**
-	 * A comment regarding this pos-tag annotation.
-	 */
-	public String getComment() {
-		return comment;
-	}
+  /**
+   * A comment regarding this pos-tag annotation.
+   */
+  public String getComment() {
+    return comment;
+  }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
 
-	/**
-	 * This token's index in the containing sentence.
-	 */
-	public int getIndex() {
-		return this.getToken().getIndex();
-	}
+  /**
+   * This token's index in the containing sentence.
+   */
+  public int getIndex() {
+    return this.getToken().getIndex();
+  }
 
-	/**
-	 * The sequence containing this pos-tagged token.
-	 */
-	public PosTagSequence getPosTagSequence() {
-		return posTagSequence;
-	}
+  /**
+   * The sequence containing this pos-tagged token.
+   */
+  public PosTagSequence getPosTagSequence() {
+    return posTagSequence;
+  }
 
-	public void setPosTagSequence(PosTagSequence posTagSequence) {
-		this.posTagSequence = posTagSequence;
-	}
+  public void setPosTagSequence(PosTagSequence posTagSequence) {
+    this.posTagSequence = posTagSequence;
+  }
 
-	@Override
-	public PosTagSequence getHistory() {
-		return this.posTagSequence;
-	}
+  @Override
+  public PosTagSequence getHistory() {
+    return this.posTagSequence;
+  }
 
-	public TalismaneSession getTalismaneSession() {
-		return session;
-	}
+  public TalismaneSession getTalismaneSession() {
+    return session;
+  }
 
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.session = talismaneSession;
-	}
+  public void setTalismaneSession(TalismaneSession talismaneSession) {
+    this.session = talismaneSession;
+  }
 
-	/**
-	 * A string representation of all of the morpho-syntaxic information
-	 * combined in CoNLL-X format.
-	 */
-	public String getMorphologyForCoNLL() {
-		if (morphologyForCoNLL == null) {
-			StringBuilder sb = new StringBuilder();
-			Set<String> items = new TreeSet<>();
-			for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
-				if (lexicalEntry.hasAttribute(LexicalAttribute.SubCategory) && lexicalEntry.getSubCategory().length() > 0)
-					items.add(lexicalEntry.getSubCategory());
-			}
-			if (items.size() > 0) {
-				if (sb.length() > 0)
-					sb.append("|");
-				sb.append("s=");
-				sb.append(items.stream().collect(Collectors.joining(",")));
-			}
+  /**
+   * A string representation of all of the morpho-syntaxic information
+   * combined in CoNLL-X format.
+   */
+  public String getMorphologyForCoNLL() {
+    if (morphologyForCoNLL == null) {
+      StringBuilder sb = new StringBuilder();
+      Set<String> items = new TreeSet<>();
+      for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
+        if (lexicalEntry.hasAttribute(LexicalAttribute.SubCategory) && lexicalEntry.getSubCategory().length() > 0)
+          items.add(lexicalEntry.getSubCategory());
+      }
+      if (items.size() > 0) {
+        if (sb.length() > 0)
+          sb.append("|");
+        sb.append("s=");
+        sb.append(items.stream().collect(Collectors.joining(",")));
+      }
 
-			items = new TreeSet<>();
-			for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
-				if (lexicalEntry.hasAttribute(LexicalAttribute.Case)) {
-					items.addAll(lexicalEntry.getCase());
-				}
-			}
-			if (items.size() > 0) {
-				if (sb.length() > 0)
-					sb.append("|");
-				sb.append("c=");
-				sb.append(items.stream().collect(Collectors.joining(",")));
-			}
+      items = new TreeSet<>();
+      for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
+        if (lexicalEntry.hasAttribute(LexicalAttribute.Case)) {
+          items.addAll(lexicalEntry.getCase());
+        }
+      }
+      if (items.size() > 0) {
+        if (sb.length() > 0)
+          sb.append("|");
+        sb.append("c=");
+        sb.append(items.stream().collect(Collectors.joining(",")));
+      }
 
-			items = new TreeSet<>();
-			for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
-				if (lexicalEntry.hasAttribute(LexicalAttribute.Number)) {
-					items.addAll(lexicalEntry.getNumber());
-				}
-			}
-			if (items.size() > 0) {
-				if (sb.length() > 0)
-					sb.append("|");
-				sb.append("n=");
-				sb.append(items.stream().collect(Collectors.joining(",")));
-			}
+      items = new TreeSet<>();
+      for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
+        if (lexicalEntry.hasAttribute(LexicalAttribute.Number)) {
+          items.addAll(lexicalEntry.getNumber());
+        }
+      }
+      if (items.size() > 0) {
+        if (sb.length() > 0)
+          sb.append("|");
+        sb.append("n=");
+        sb.append(items.stream().collect(Collectors.joining(",")));
+      }
 
-			items = new TreeSet<>();
-			for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
-				if (lexicalEntry.hasAttribute(LexicalAttribute.Gender)) {
-					items.addAll(lexicalEntry.getGender());
-				}
-			}
-			if (items.size() > 0) {
-				if (sb.length() > 0)
-					sb.append("|");
-				sb.append("g=");
-				sb.append(items.stream().collect(Collectors.joining(",")));
-			}
+      items = new TreeSet<>();
+      for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
+        if (lexicalEntry.hasAttribute(LexicalAttribute.Gender)) {
+          items.addAll(lexicalEntry.getGender());
+        }
+      }
+      if (items.size() > 0) {
+        if (sb.length() > 0)
+          sb.append("|");
+        sb.append("g=");
+        sb.append(items.stream().collect(Collectors.joining(",")));
+      }
 
-			items = new TreeSet<>();
-			for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
-				if (lexicalEntry.hasAttribute(LexicalAttribute.Tense)) {
-					items.addAll(lexicalEntry.getTense());
-				}
-			}
-			if (items.size() > 0) {
-				if (sb.length() > 0)
-					sb.append("|");
-				sb.append("t=");
-				sb.append(items.stream().collect(Collectors.joining(",")));
-			}
+      items = new TreeSet<>();
+      for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
+        if (lexicalEntry.hasAttribute(LexicalAttribute.Tense)) {
+          items.addAll(lexicalEntry.getTense());
+        }
+      }
+      if (items.size() > 0) {
+        if (sb.length() > 0)
+          sb.append("|");
+        sb.append("t=");
+        sb.append(items.stream().collect(Collectors.joining(",")));
+      }
 
-			items = new TreeSet<>();
-			for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
-				if (lexicalEntry.hasAttribute(LexicalAttribute.Mood)) {
-					items.addAll(lexicalEntry.getMood());
-				}
-			}
-			if (items.size() > 0) {
-				if (sb.length() > 0)
-					sb.append("|");
-				sb.append("m=");
-				sb.append(items.stream().collect(Collectors.joining(",")));
-			}
+      items = new TreeSet<>();
+      for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
+        if (lexicalEntry.hasAttribute(LexicalAttribute.Mood)) {
+          items.addAll(lexicalEntry.getMood());
+        }
+      }
+      if (items.size() > 0) {
+        if (sb.length() > 0)
+          sb.append("|");
+        sb.append("m=");
+        sb.append(items.stream().collect(Collectors.joining(",")));
+      }
 
-			items = new TreeSet<>();
-			for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
-				if (lexicalEntry.hasAttribute(LexicalAttribute.Aspect)) {
-					items.addAll(lexicalEntry.getAspect());
-				}
-			}
-			if (items.size() > 0) {
-				if (sb.length() > 0)
-					sb.append("|");
-				sb.append("a=");
-				sb.append(items.stream().collect(Collectors.joining(",")));
-			}
+      items = new TreeSet<>();
+      for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
+        if (lexicalEntry.hasAttribute(LexicalAttribute.Aspect)) {
+          items.addAll(lexicalEntry.getAspect());
+        }
+      }
+      if (items.size() > 0) {
+        if (sb.length() > 0)
+          sb.append("|");
+        sb.append("a=");
+        sb.append(items.stream().collect(Collectors.joining(",")));
+      }
 
-			items = new TreeSet<>();
-			for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
-				if (lexicalEntry.hasAttribute(LexicalAttribute.Person)) {
-					items.addAll(lexicalEntry.getPerson());
-				}
-			}
-			if (items.size() > 0) {
-				if (sb.length() > 0)
-					sb.append("|");
-				sb.append("p=");
-				sb.append(items.stream().collect(Collectors.joining(",")));
-			}
+      items = new TreeSet<>();
+      for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
+        if (lexicalEntry.hasAttribute(LexicalAttribute.Person)) {
+          items.addAll(lexicalEntry.getPerson());
+        }
+      }
+      if (items.size() > 0) {
+        if (sb.length() > 0)
+          sb.append("|");
+        sb.append("p=");
+        sb.append(items.stream().collect(Collectors.joining(",")));
+      }
 
-			items = new TreeSet<>();
-			for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
-				if (lexicalEntry.hasAttribute(LexicalAttribute.PossessorNumber)) {
-					items.addAll(lexicalEntry.getPossessorNumber());
-				}
-			}
-			if (items.size() > 0) {
-				if (sb.length() > 0)
-					sb.append("|");
-				sb.append("poss=");
-				sb.append(items.stream().collect(Collectors.joining(",")));
-			}
-			morphologyForCoNLL = sb.toString();
-		}
-		return morphologyForCoNLL;
-	}
+      items = new TreeSet<>();
+      for (LexicalEntry lexicalEntry : this.getLexicalEntries()) {
+        if (lexicalEntry.hasAttribute(LexicalAttribute.PossessorNumber)) {
+          items.addAll(lexicalEntry.getPossessorNumber());
+        }
+      }
+      if (items.size() > 0) {
+        if (sb.length() > 0)
+          sb.append("|");
+        sb.append("poss=");
+        sb.append(items.stream().collect(Collectors.joining(",")));
+      }
+      morphologyForCoNLL = sb.toString();
+    }
+    return morphologyForCoNLL;
+  }
 }

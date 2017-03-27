@@ -28,56 +28,56 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class NullIfGenericFeature<T, Y> extends AbstractCachableFeature<T, Y>implements Feature<T, Y> {
-	private BooleanFeature<T> condition;
-	private Feature<T, Y> resultFeature;
+  private BooleanFeature<T> condition;
+  private Feature<T, Y> resultFeature;
 
-	public NullIfGenericFeature(BooleanFeature<T> condition, Feature<T, Y> resultFeature) {
-		super();
-		this.condition = condition;
-		this.resultFeature = resultFeature;
-		this.setName("NullIf(" + condition.getName() + "," + resultFeature.getName() + ")");
-	}
+  public NullIfGenericFeature(BooleanFeature<T> condition, Feature<T, Y> resultFeature) {
+    super();
+    this.condition = condition;
+    this.resultFeature = resultFeature;
+    this.setName("NullIf(" + condition.getName() + "," + resultFeature.getName() + ")");
+  }
 
-	@Override
-	protected FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Y> featureResult = null;
+  @Override
+  protected FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Y> featureResult = null;
 
-		FeatureResult<Boolean> conditionResult = condition.check(context, env);
-		if (conditionResult != null) {
-			boolean conditionOutcome = conditionResult.getOutcome();
-			if (!conditionOutcome) {
-				FeatureResult<Y> thenFeatureResult = resultFeature.check(context, env);
-				if (thenFeatureResult != null) {
-					Y result = thenFeatureResult.getOutcome();
-					featureResult = this.generateResult(result);
-				}
-			}
-		}
+    FeatureResult<Boolean> conditionResult = condition.check(context, env);
+    if (conditionResult != null) {
+      boolean conditionOutcome = conditionResult.getOutcome();
+      if (!conditionOutcome) {
+        FeatureResult<Y> thenFeatureResult = resultFeature.check(context, env);
+        if (thenFeatureResult != null) {
+          Y result = thenFeatureResult.getOutcome();
+          featureResult = this.generateResult(result);
+        }
+      }
+    }
 
-		return featureResult;
+    return featureResult;
 
-	}
+  }
 
-	public BooleanFeature<T> getCondition() {
-		return condition;
-	}
+  public BooleanFeature<T> getCondition() {
+    return condition;
+  }
 
-	public Feature<T, Y> getResultFeature() {
-		return resultFeature;
-	}
+  public Feature<T, Y> getResultFeature() {
+    return resultFeature;
+  }
 
-	public void setCondition(BooleanFeature<T> condition) {
-		this.condition = condition;
-	}
+  public void setCondition(BooleanFeature<T> condition) {
+    this.condition = condition;
+  }
 
-	public void setResultFeature(Feature<T, Y> resultFeature) {
-		this.resultFeature = resultFeature;
-	}
+  public void setResultFeature(Feature<T, Y> resultFeature) {
+    this.resultFeature = resultFeature;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return resultFeature.getFeatureType();
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return resultFeature.getFeatureType();
+  }
 
 }

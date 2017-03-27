@@ -27,29 +27,29 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class IsNullFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
-	Feature<T, ?> testFeature;
+  Feature<T, ?> testFeature;
 
-	public IsNullFeature(Feature<T, ?> testFeature) {
-		super();
-		this.testFeature = testFeature;
-		this.setName("IsNull(" + testFeature.getName() + ")");
-	}
+  public IsNullFeature(Feature<T, ?> testFeature) {
+    super();
+    this.testFeature = testFeature;
+    this.setName("IsNull(" + testFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		FeatureResult<?> result1 = testFeature.check(context, env);
-		featureResult = this.generateResult(result1 == null);
-		return featureResult;
-	}
+    FeatureResult<?> result1 = testFeature.check(context, env);
+    featureResult = this.generateResult(result1 == null);
+    return featureResult;
+  }
 
-	public Feature<T, ?> getTestFeature() {
-		return testFeature;
-	}
+  public Feature<T, ?> getTestFeature() {
+    return testFeature;
+  }
 
-	public void setTestFeature(Feature<T, ?> testFeature) {
-		this.testFeature = testFeature;
-	}
+  public void setTestFeature(Feature<T, ?> testFeature) {
+    this.testFeature = testFeature;
+  }
 
 }

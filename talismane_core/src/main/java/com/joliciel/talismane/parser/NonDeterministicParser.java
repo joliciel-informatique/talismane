@@ -32,35 +32,35 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
  *
  */
 public interface NonDeterministicParser extends Parser {
-	/**
-	 * Analyse a list of pos-tag sequences, each of which represents one
-	 * possibility of tagging a given sentence, and return the n most likely
-	 * parse configurations for the sentence.
-	 * 
-	 * @param posTagSequences
-	 *            the n most likely pos-tag sequences for this sentence.
-	 * @return the n most likely parse sequences for this sentence
-	 * @throws UnknownTransitionException
-	 *             if an attempt is made to apply an unknown transition
-	 * @throws UnknownDependencyLabelException
-	 *             if an attempt is made to apply an unknown label
-	 * @throws CircularDependencyException
-	 *             if an attempt is made to generate a circular dependency
-	 * @throws InvalidTransitionException
-	 *             if a transition is applied without meeting pre-conditions
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences) throws UnknownDependencyLabelException, UnknownTransitionException,
-			InvalidTransitionException, CircularDependencyException, TalismaneException, IOException;
+  /**
+   * Analyse a list of pos-tag sequences, each of which represents one
+   * possibility of tagging a given sentence, and return the n most likely
+   * parse configurations for the sentence.
+   * 
+   * @param posTagSequences
+   *            the n most likely pos-tag sequences for this sentence.
+   * @return the n most likely parse sequences for this sentence
+   * @throws UnknownTransitionException
+   *             if an attempt is made to apply an unknown transition
+   * @throws UnknownDependencyLabelException
+   *             if an attempt is made to apply an unknown label
+   * @throws CircularDependencyException
+   *             if an attempt is made to generate a circular dependency
+   * @throws InvalidTransitionException
+   *             if a transition is applied without meeting pre-conditions
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences) throws UnknownDependencyLabelException, UnknownTransitionException,
+      InvalidTransitionException, CircularDependencyException, TalismaneException, IOException;
 
-	/**
-	 * The maximum size of the beam to be used during analysis.
-	 */
-	public int getBeamWidth();
+  /**
+   * The maximum size of the beam to be used during analysis.
+   */
+  public int getBeamWidth();
 
-	/**
-	 * Should the full pos-tagger beam be propagated as input into the parser.
-	 */
-	public boolean isPropagatePosTaggerBeam();
+  /**
+   * Should the full pos-tagger beam be propagated as input into the parser.
+   */
+  public boolean isPropagatePosTaggerBeam();
 }

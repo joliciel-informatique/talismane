@@ -35,149 +35,149 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  *
  */
 public class LexiconChain implements PosTaggerLexicon {
-	private static final long serialVersionUID = 1L;
-	private final String name;
-	private final List<PosTaggerLexicon> lexicons;
+  private static final long serialVersionUID = 1L;
+  private final String name;
+  private final List<PosTaggerLexicon> lexicons;
 
-	public LexiconChain(List<PosTaggerLexicon> lexicons) {
-		this.lexicons = lexicons;
-		String name = "LexiconChain";
-		for (PosTaggerLexicon lexicon : lexicons)
-			name += "|" + lexicon.getName();
+  public LexiconChain(List<PosTaggerLexicon> lexicons) {
+    this.lexicons = lexicons;
+    String name = "LexiconChain";
+    for (PosTaggerLexicon lexicon : lexicons)
+      name += "|" + lexicon.getName();
 
-		this.name = name;
-	}
+    this.name = name;
+  }
 
-	@Override
-	public List<LexicalEntry> getEntries(String word) {
-		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
-		for (PosTaggerLexicon lexicon : lexicons) {
-			entries.addAll(lexicon.getEntries(word));
-		}
-		return entries;
-	}
+  @Override
+  public List<LexicalEntry> getEntries(String word) {
+    List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
+    for (PosTaggerLexicon lexicon : lexicons) {
+      entries.addAll(lexicon.getEntries(word));
+    }
+    return entries;
+  }
 
-	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma) {
-		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
-		for (PosTaggerLexicon lexicon : lexicons) {
-			entries.addAll(lexicon.getEntriesForLemma(lemma));
-		}
-		return entries;
-	}
+  @Override
+  public List<LexicalEntry> getEntriesForLemma(String lemma) {
+    List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
+    for (PosTaggerLexicon lexicon : lexicons) {
+      entries.addAll(lexicon.getEntriesForLemma(lemma));
+    }
+    return entries;
+  }
 
-	@Override
-	public Set<PosTag> findPossiblePosTags(String word) throws TalismaneException {
-		// Using TreeSet as set must be ordered
-		Set<PosTag> posTags = new TreeSet<PosTag>();
-		for (PosTaggerLexicon lexicon : lexicons) {
-			posTags.addAll(lexicon.findPossiblePosTags(word));
-		}
-		return posTags;
-	}
+  @Override
+  public Set<PosTag> findPossiblePosTags(String word) throws TalismaneException {
+    // Using TreeSet as set must be ordered
+    Set<PosTag> posTags = new TreeSet<PosTag>();
+    for (PosTaggerLexicon lexicon : lexicons) {
+      posTags.addAll(lexicon.findPossiblePosTags(word));
+    }
+    return posTags;
+  }
 
-	@Override
-	public List<LexicalEntry> findLexicalEntries(String word, PosTag posTag) {
-		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
-		for (PosTaggerLexicon lexicon : lexicons) {
-			entries.addAll(lexicon.findLexicalEntries(word, posTag));
-		}
-		return entries;
-	}
+  @Override
+  public List<LexicalEntry> findLexicalEntries(String word, PosTag posTag) {
+    List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
+    for (PosTaggerLexicon lexicon : lexicons) {
+      entries.addAll(lexicon.findLexicalEntries(word, posTag));
+    }
+    return entries;
+  }
 
-	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag) {
-		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
-		for (PosTaggerLexicon lexicon : lexicons) {
-			entries.addAll(lexicon.getEntriesForLemma(lemma, posTag));
-		}
-		return entries;
-	}
+  @Override
+  public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag) {
+    List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
+    for (PosTaggerLexicon lexicon : lexicons) {
+      entries.addAll(lexicon.getEntriesForLemma(lemma, posTag));
+    }
+    return entries;
+  }
 
-	@Override
-	public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number) {
-		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
-		for (PosTaggerLexicon lexicon : lexicons) {
-			entries.addAll(lexicon.getEntriesMatchingCriteria(lexicalEntry, posTag, gender, number));
-		}
-		return entries;
-	}
+  @Override
+  public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number) {
+    List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
+    for (PosTaggerLexicon lexicon : lexicons) {
+      entries.addAll(lexicon.getEntriesMatchingCriteria(lexicalEntry, posTag, gender, number));
+    }
+    return entries;
+  }
 
-	@Override
-	public PosTagSet getPosTagSet() {
-		if (this.lexicons.size() > 0) {
-			PosTaggerLexicon lexicon = this.lexicons.get(0);
-			return lexicon.getPosTagSet();
-		}
-		return null;
-	}
+  @Override
+  public PosTagSet getPosTagSet() {
+    if (this.lexicons.size() > 0) {
+      PosTaggerLexicon lexicon = this.lexicons.get(0);
+      return lexicon.getPosTagSet();
+    }
+    return null;
+  }
 
-	@Override
-	public void setPosTagSet(PosTagSet posTagSet) {
-		for (PosTaggerLexicon lexicon : lexicons)
-			lexicon.setPosTagSet(posTagSet);
-	}
+  @Override
+  public void setPosTagSet(PosTagSet posTagSet) {
+    for (PosTaggerLexicon lexicon : lexicons)
+      lexicon.setPosTagSet(posTagSet);
+  }
 
-	@Override
-	public PosTagMapper getPosTagMapper() {
-		if (this.lexicons.size() > 0) {
-			PosTaggerLexicon lexicon = this.lexicons.get(0);
-			return lexicon.getPosTagMapper();
-		}
-		return null;
-	}
+  @Override
+  public PosTagMapper getPosTagMapper() {
+    if (this.lexicons.size() > 0) {
+      PosTaggerLexicon lexicon = this.lexicons.get(0);
+      return lexicon.getPosTagMapper();
+    }
+    return null;
+  }
 
-	@Override
-	public void setPosTagMapper(PosTagMapper posTagMapper) {
-		for (PosTaggerLexicon lexicon : lexicons)
-			lexicon.setPosTagMapper(posTagMapper);
-	}
+  @Override
+  public void setPosTagMapper(PosTagMapper posTagMapper) {
+    for (PosTaggerLexicon lexicon : lexicons)
+      lexicon.setPosTagMapper(posTagMapper);
+  }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+  @Override
+  public String getName() {
+    return name;
+  }
 
-	public List<PosTaggerLexicon> getLexicons() {
-		return lexicons;
-	}
+  public List<PosTaggerLexicon> getLexicons() {
+    return lexicons;
+  }
 
-	@Override
-	public Iterator<LexicalEntry> getAllEntries() {
-		return new Iterator<LexicalEntry>() {
-			Iterator<PosTaggerLexicon> iLexicons = lexicons.iterator();
-			Iterator<LexicalEntry> entries = null;
+  @Override
+  public Iterator<LexicalEntry> getAllEntries() {
+    return new Iterator<LexicalEntry>() {
+      Iterator<PosTaggerLexicon> iLexicons = lexicons.iterator();
+      Iterator<LexicalEntry> entries = null;
 
-			@Override
-			public boolean hasNext() {
-				while (entries == null) {
-					if (iLexicons.hasNext()) {
-						entries = iLexicons.next().getAllEntries();
-					} else {
-						return false;
-					}
-					if (!entries.hasNext())
-						entries = null;
-				}
-				return true;
-			}
+      @Override
+      public boolean hasNext() {
+        while (entries == null) {
+          if (iLexicons.hasNext()) {
+            entries = iLexicons.next().getAllEntries();
+          } else {
+            return false;
+          }
+          if (!entries.hasNext())
+            entries = null;
+        }
+        return true;
+      }
 
-			@Override
-			public LexicalEntry next() {
-				LexicalEntry entry = null;
-				if (this.hasNext()) {
-					entry = entries.next();
-					if (!entries.hasNext())
-						entries = null;
-				}
-				return entry;
-			}
+      @Override
+      public LexicalEntry next() {
+        LexicalEntry entry = null;
+        if (this.hasNext()) {
+          entry = entries.next();
+          if (!entries.hasNext())
+            entries = null;
+        }
+        return entry;
+      }
 
-			@Override
-			public void remove() {
-				throw new RuntimeException("remove not supported");
-			}
-		};
-	}
+      @Override
+      public void remove() {
+        throw new RuntimeException("remove not supported");
+      }
+    };
+  }
 
 }

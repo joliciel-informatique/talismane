@@ -17,34 +17,34 @@ import com.joliciel.talismane.machineLearning.features.StringFeature;
  * @param <T>
  */
 public class CombinedLexicalAttributesFeature<T> extends AbstractLexicalAttributesFeature<T>implements StringFeature<T> {
-	StringFeature<PosTaggedTokenWrapper>[] attributeNameFeatures;
+  StringFeature<PosTaggedTokenWrapper>[] attributeNameFeatures;
 
-	@SafeVarargs
-	public CombinedLexicalAttributesFeature(PosTaggedTokenAddressFunction<T> addressFunction, StringFeature<PosTaggedTokenWrapper>... attributeNameFeatures) {
-		super(addressFunction);
-		this.attributeNameFeatures = attributeNameFeatures;
-		String name = super.getName() + "(";
-		boolean firstFeature = true;
-		for (StringFeature<PosTaggedTokenWrapper> lexicalAttributeNameFeature : attributeNameFeatures) {
-			if (!firstFeature)
-				name += ",";
-			name += lexicalAttributeNameFeature.getName();
-			firstFeature = false;
-		}
-		name += ")";
-		this.setName(name);
-		this.setAddressFunction(addressFunction);
-	}
+  @SafeVarargs
+  public CombinedLexicalAttributesFeature(PosTaggedTokenAddressFunction<T> addressFunction, StringFeature<PosTaggedTokenWrapper>... attributeNameFeatures) {
+    super(addressFunction);
+    this.attributeNameFeatures = attributeNameFeatures;
+    String name = super.getName() + "(";
+    boolean firstFeature = true;
+    for (StringFeature<PosTaggedTokenWrapper> lexicalAttributeNameFeature : attributeNameFeatures) {
+      if (!firstFeature)
+        name += ",";
+      name += lexicalAttributeNameFeature.getName();
+      firstFeature = false;
+    }
+    name += ")";
+    this.setName(name);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) throws TalismaneException {
-		List<String> attributes = new ArrayList<>(attributeNameFeatures.length);
-		for (StringFeature<PosTaggedTokenWrapper> lexicalAttributeNameFeature : attributeNameFeatures) {
-			FeatureResult<String> attributeResult = lexicalAttributeNameFeature.check(innerWrapper, env);
-			if (attributeResult != null)
-				attributes.add(attributeResult.getOutcome());
-		}
-		return attributes;
-	}
+  @Override
+  protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) throws TalismaneException {
+    List<String> attributes = new ArrayList<>(attributeNameFeatures.length);
+    for (StringFeature<PosTaggedTokenWrapper> lexicalAttributeNameFeature : attributeNameFeatures) {
+      FeatureResult<String> attributeResult = lexicalAttributeNameFeature.check(innerWrapper, env);
+      if (attributeResult != null)
+        attributes.add(attributeResult.getOutcome());
+    }
+    return attributes;
+  }
 
 }

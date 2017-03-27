@@ -36,324 +36,324 @@ import com.joliciel.talismane.TalismaneSession;
 
 class SentenceHolder {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SentenceHolder.class);
-	private TreeSet<Integer> sentenceBoundaries = new TreeSet<Integer>();
-	private static final Pattern duplicateWhiteSpacePattern = Pattern.compile("[" + Sentence.WHITE_SPACE + "\n\r]{2,}", Pattern.UNICODE_CHARACTER_CLASS);
-	private static final Pattern openingWhiteSpacePattern = Pattern.compile("\\A([" + Sentence.WHITE_SPACE + "\n\r]+)", Pattern.UNICODE_CHARACTER_CLASS);
-	private static final Pattern closingWhiteSpacePattern = Pattern.compile("([" + Sentence.WHITE_SPACE + "\n\r]+)\\z", Pattern.UNICODE_CHARACTER_CLASS);
-	private String processedText = "";
+  private static final Logger LOG = LoggerFactory.getLogger(SentenceHolder.class);
+  private TreeSet<Integer> sentenceBoundaries = new TreeSet<Integer>();
+  private static final Pattern duplicateWhiteSpacePattern = Pattern.compile("[" + Sentence.WHITE_SPACE + "\n\r]{2,}", Pattern.UNICODE_CHARACTER_CLASS);
+  private static final Pattern openingWhiteSpacePattern = Pattern.compile("\\A([" + Sentence.WHITE_SPACE + "\n\r]+)", Pattern.UNICODE_CHARACTER_CLASS);
+  private static final Pattern closingWhiteSpacePattern = Pattern.compile("([" + Sentence.WHITE_SPACE + "\n\r]+)\\z", Pattern.UNICODE_CHARACTER_CLASS);
+  private String processedText = "";
 
-	private final int originalStartIndex;
-	private final List<Integer> originalIndexes = new ArrayList<>();
-	private TreeMap<Integer, String> originalTextSegments = new TreeMap<Integer, String>();
-	private final TreeMap<Integer, Integer> newlines = new TreeMap<Integer, Integer>();
-	private String fileName = "";
-	private File file = null;
-	private final boolean endOfBlock;
+  private final int originalStartIndex;
+  private final List<Integer> originalIndexes = new ArrayList<>();
+  private TreeMap<Integer, String> originalTextSegments = new TreeMap<Integer, String>();
+  private final TreeMap<Integer, Integer> newlines = new TreeMap<Integer, Integer>();
+  private String fileName = "";
+  private File file = null;
+  private final boolean endOfBlock;
 
-	private final TalismaneSession session;
+  private final TalismaneSession session;
 
-	/**
-	 * Construct a sentence holder.
-	 * 
-	 * @param session
-	 * @param originalStartIndex
-	 *            where does this sentence holder start in the original text
-	 * @param endOfBlock
-	 *            if this is an end-of-block, then any leftover text will be
-	 *            added to a final complete sentence
-	 */
-	public SentenceHolder(TalismaneSession session, int originalStartIndex, boolean endOfBlock) {
-		this.session = session;
-		this.originalStartIndex = originalStartIndex;
-		this.endOfBlock = endOfBlock;
-	}
+  /**
+   * Construct a sentence holder.
+   * 
+   * @param session
+   * @param originalStartIndex
+   *            where does this sentence holder start in the original text
+   * @param endOfBlock
+   *            if this is an end-of-block, then any leftover text will be
+   *            added to a final complete sentence
+   */
+  public SentenceHolder(TalismaneSession session, int originalStartIndex, boolean endOfBlock) {
+    this.session = session;
+    this.originalStartIndex = originalStartIndex;
+    this.endOfBlock = endOfBlock;
+  }
 
-	public Set<Integer> getSentenceBoundaries() {
-		return sentenceBoundaries;
-	}
+  public Set<Integer> getSentenceBoundaries() {
+    return sentenceBoundaries;
+  }
 
-	/**
-	 * Add a sentence boundary to this sentence holder.
-	 */
-	public void addSentenceBoundary(int boundary) {
-		if (boundary >= 0)
-			this.sentenceBoundaries.add(boundary);
-	}
+  /**
+   * Add a sentence boundary to this sentence holder.
+   */
+  public void addSentenceBoundary(int boundary) {
+    if (boundary >= 0)
+      this.sentenceBoundaries.add(boundary);
+  }
 
-	/**
-	 * Based on the sentence boundaries added, return all the sentences produced
-	 * by this sentence holder. If there is any text left over, the last
-	 * sentence will be marked as not complete. After this is called,
-	 * {@link #getOriginalTextSegments()} will only return leftover original
-	 * text segments that have not yet been assigned to sentences in the current
-	 * list.
-	 * 
-	 * @param leftover
-	 *            an incomplete sentence returned by the previous sentence
-	 *            holder.
-	 */
-	public List<Sentence> getDetectedSentences(Sentence leftover) {
-		if (LOG.isTraceEnabled()) {
-			LOG.trace("getDetectedSentences. leftover=" + leftover);
-			LOG.trace("processedText: " + processedText);
-		}
+  /**
+   * Based on the sentence boundaries added, return all the sentences produced
+   * by this sentence holder. If there is any text left over, the last
+   * sentence will be marked as not complete. After this is called,
+   * {@link #getOriginalTextSegments()} will only return leftover original
+   * text segments that have not yet been assigned to sentences in the current
+   * list.
+   * 
+   * @param leftover
+   *            an incomplete sentence returned by the previous sentence
+   *            holder.
+   */
+  public List<Sentence> getDetectedSentences(Sentence leftover) {
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("getDetectedSentences. leftover=" + leftover);
+      LOG.trace("processedText: " + processedText);
+    }
 
-		List<Sentence> sentences = new ArrayList<Sentence>();
+    List<Sentence> sentences = new ArrayList<Sentence>();
 
-		int currentIndex = 0;
+    int currentIndex = 0;
 
-		int lastOriginalTextInsertionProcessed = -1;
+    int lastOriginalTextInsertionProcessed = -1;
 
-		List<Integer> allBoundaries = new ArrayList<Integer>();
-		for (int sentenceBoundary : sentenceBoundaries) {
-			if (sentenceBoundary <= this.processedText.length())
-				allBoundaries.add(sentenceBoundary);
-		}
+    List<Integer> allBoundaries = new ArrayList<Integer>();
+    for (int sentenceBoundary : sentenceBoundaries) {
+      if (sentenceBoundary <= this.processedText.length())
+        allBoundaries.add(sentenceBoundary);
+    }
 
-		// is there any text leftover, to construct an incomplete sentence after
-		// the last proper sentence
-		boolean haveLeftOvers = this.processedText.length() > 0;
-		if (allBoundaries.size() > 0) {
-			haveLeftOvers = false;
-			int lastSentenceBoundary = allBoundaries.get(allBoundaries.size() - 1);
-			if (lastSentenceBoundary < this.processedText.length()) {
-				haveLeftOvers = true;
-			}
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("haveLeftOvers? " + lastSentenceBoundary + " < " + (this.processedText.length()) + " = " + haveLeftOvers);
-			}
-		}
+    // is there any text leftover, to construct an incomplete sentence after
+    // the last proper sentence
+    boolean haveLeftOvers = this.processedText.length() > 0;
+    if (allBoundaries.size() > 0) {
+      haveLeftOvers = false;
+      int lastSentenceBoundary = allBoundaries.get(allBoundaries.size() - 1);
+      if (lastSentenceBoundary < this.processedText.length()) {
+        haveLeftOvers = true;
+      }
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("haveLeftOvers? " + lastSentenceBoundary + " < " + (this.processedText.length()) + " = " + haveLeftOvers);
+      }
+    }
 
-		// if there is leftover text, we'll add a fake "boundary" to construct
-		// the incomplete sentence
-		if (haveLeftOvers)
-			allBoundaries.add(this.processedText.length());
+    // if there is leftover text, we'll add a fake "boundary" to construct
+    // the incomplete sentence
+    if (haveLeftOvers)
+      allBoundaries.add(this.processedText.length());
 
-		for (int sentenceBoundary : allBoundaries) {
-			// is this the final incomplete sentence?
-			boolean isLeftover = (!endOfBlock) && (haveLeftOvers && sentenceBoundary == this.processedText.length());
+    for (int sentenceBoundary : allBoundaries) {
+      // is this the final incomplete sentence?
+      boolean isLeftover = (!endOfBlock) && (haveLeftOvers && sentenceBoundary == this.processedText.length());
 
-			int leftOverTextLength = 0;
-			String text = "";
-			List<Integer> originalIndexes = new ArrayList<>();
-			TreeMap<Integer, String> originalTextSegments = new TreeMap<>();
+      int leftOverTextLength = 0;
+      String text = "";
+      List<Integer> originalIndexes = new ArrayList<>();
+      TreeMap<Integer, String> originalTextSegments = new TreeMap<>();
 
-			if (leftover != null) {
-				leftOverTextLength = leftover.getText().length();
-				text = leftover.getText() + this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
-				originalIndexes.addAll(leftover.getOriginalIndexes());
-				originalTextSegments.putAll(leftover.getOriginalTextSegments());
+      if (leftover != null) {
+        leftOverTextLength = leftover.getText().length();
+        text = leftover.getText() + this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
+        originalIndexes.addAll(leftover.getOriginalIndexes());
+        originalTextSegments.putAll(leftover.getOriginalTextSegments());
 
-				leftover = null;
-			} else {
-				text = this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
-			}
+        leftover = null;
+      } else {
+        text = this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
+      }
 
-			// handle trim & duplicate white space here
-			Matcher matcherOpeningWhiteSpace = openingWhiteSpacePattern.matcher(text);
-			int openingWhiteSpaceEnd = 0;
-			if (matcherOpeningWhiteSpace.find()) {
-				openingWhiteSpaceEnd = matcherOpeningWhiteSpace.end(1);
-			}
+      // handle trim & duplicate white space here
+      Matcher matcherOpeningWhiteSpace = openingWhiteSpacePattern.matcher(text);
+      int openingWhiteSpaceEnd = 0;
+      if (matcherOpeningWhiteSpace.find()) {
+        openingWhiteSpaceEnd = matcherOpeningWhiteSpace.end(1);
+      }
 
-			int closingWhiteSpaceStart = text.length();
-			if (!isLeftover) {
-				Matcher matcherClosingWhiteSpace = closingWhiteSpacePattern.matcher(text);
-				if (matcherClosingWhiteSpace.find()) {
-					closingWhiteSpaceStart = matcherClosingWhiteSpace.start(1);
-				}
-			}
+      int closingWhiteSpaceStart = text.length();
+      if (!isLeftover) {
+        Matcher matcherClosingWhiteSpace = closingWhiteSpacePattern.matcher(text);
+        if (matcherClosingWhiteSpace.find()) {
+          closingWhiteSpaceStart = matcherClosingWhiteSpace.start(1);
+        }
+      }
 
-			Matcher matcherDuplicateWhiteSpace = duplicateWhiteSpacePattern.matcher(text);
-			Set<Integer> duplicateWhiteSpace = new HashSet<Integer>();
-			while (matcherDuplicateWhiteSpace.find()) {
-				// remove all white space barring the first
-				for (int i = matcherDuplicateWhiteSpace.start() + 1; i < matcherDuplicateWhiteSpace.end(); i++) {
-					duplicateWhiteSpace.add(i);
-				}
-			}
+      Matcher matcherDuplicateWhiteSpace = duplicateWhiteSpacePattern.matcher(text);
+      Set<Integer> duplicateWhiteSpace = new HashSet<Integer>();
+      while (matcherDuplicateWhiteSpace.find()) {
+        // remove all white space barring the first
+        for (int i = matcherDuplicateWhiteSpace.start() + 1; i < matcherDuplicateWhiteSpace.end(); i++) {
+          duplicateWhiteSpace.add(i);
+        }
+      }
 
-			StringBuilder sb = new StringBuilder();
-			int i = currentIndex;
-			for (int j = 0; j < text.length(); j++) {
-				boolean appendLetter = false;
-				if (j < openingWhiteSpaceEnd) {
-					// do nothing
-				} else if (j >= closingWhiteSpaceStart) {
-					// do nothing
-				} else if (duplicateWhiteSpace.contains(j)) {
-					// do nothing
-				} else {
-					appendLetter = true;
-				}
+      StringBuilder sb = new StringBuilder();
+      int i = currentIndex;
+      for (int j = 0; j < text.length(); j++) {
+        boolean appendLetter = false;
+        if (j < openingWhiteSpaceEnd) {
+          // do nothing
+        } else if (j >= closingWhiteSpaceStart) {
+          // do nothing
+        } else if (duplicateWhiteSpace.contains(j)) {
+          // do nothing
+        } else {
+          appendLetter = true;
+        }
 
-				if (j >= leftOverTextLength) {
-					// if we're past the leftovers and onto the new stuff
-					if (appendLetter)
-						originalIndexes.add(this.originalIndexes.get(i));
+        if (j >= leftOverTextLength) {
+          // if we're past the leftovers and onto the new stuff
+          if (appendLetter)
+            originalIndexes.add(this.originalIndexes.get(i));
 
-					if (this.originalTextSegments.containsKey(i)) {
-						originalTextSegments.put(sb.length(), this.originalTextSegments.get(i));
-						lastOriginalTextInsertionProcessed = i;
-					}
+          if (this.originalTextSegments.containsKey(i)) {
+            originalTextSegments.put(sb.length(), this.originalTextSegments.get(i));
+            lastOriginalTextInsertionProcessed = i;
+          }
 
-					i++;
-				}
+          i++;
+        }
 
-				if (appendLetter)
-					sb.append(text.charAt(j));
-			}
+        if (appendLetter)
+          sb.append(text.charAt(j));
+      }
 
-			Sentence sentence = new Sentence(sb.toString(), originalTextSegments, originalIndexes, !isLeftover, this.newlines, fileName, file, session);
+      Sentence sentence = new Sentence(sb.toString(), originalTextSegments, originalIndexes, !isLeftover, this.newlines, fileName, file, session);
 
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("sentence.setText |" + sentence.getText() + "| complete? " + sentence.isComplete());
-			}
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("sentence.setText |" + sentence.getText() + "| complete? " + sentence.isComplete());
+      }
 
-			sentences.add(sentence);
-			currentIndex = sentenceBoundary;
-		}
+      sentences.add(sentence);
+      currentIndex = sentenceBoundary;
+    }
 
-		// remove any original text segments already processed
-		TreeMap<Integer, String> leftoverOriginalTextSegments = new TreeMap<Integer, String>();
-		for (int i : this.originalTextSegments.keySet()) {
-			if (i > lastOriginalTextInsertionProcessed) {
-				leftoverOriginalTextSegments.put(i, this.originalTextSegments.get(i));
-			}
-		}
-		this.originalTextSegments = leftoverOriginalTextSegments;
+    // remove any original text segments already processed
+    TreeMap<Integer, String> leftoverOriginalTextSegments = new TreeMap<Integer, String>();
+    for (int i : this.originalTextSegments.keySet()) {
+      if (i > lastOriginalTextInsertionProcessed) {
+        leftoverOriginalTextSegments.put(i, this.originalTextSegments.get(i));
+      }
+    }
+    this.originalTextSegments = leftoverOriginalTextSegments;
 
-		return sentences;
-	}
+    return sentences;
+  }
 
-	public String getProcessedText() {
-		return processedText;
-	}
+  public String getProcessedText() {
+    return processedText;
+  }
 
-	public void setProcessedText(String processedText) {
-		this.processedText = processedText;
-	}
+  public void setProcessedText(String processedText) {
+    this.processedText = processedText;
+  }
 
-	public String getFileName() {
-		return fileName;
-	}
+  public String getFileName() {
+    return fileName;
+  }
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }
 
-	public File getFile() {
-		return file;
-	}
+  public File getFile() {
+    return file;
+  }
 
-	public void setFile(File file) {
-		this.file = file;
-	}
+  public void setFile(File file) {
+    this.file = file;
+  }
 
-	public TreeMap<Integer, String> getOriginalTextSegments() {
-		return originalTextSegments;
-	}
+  public TreeMap<Integer, String> getOriginalTextSegments() {
+    return originalTextSegments;
+  }
 
-	public TreeMap<Integer, Integer> getNewlines() {
-		return newlines;
-	}
+  public TreeMap<Integer, Integer> getNewlines() {
+    return newlines;
+  }
 
-	public void setSentenceBoundaries(TreeSet<Integer> sentenceBoundaries) {
-		this.sentenceBoundaries = sentenceBoundaries;
-	}
+  public void setSentenceBoundaries(TreeSet<Integer> sentenceBoundaries) {
+    this.sentenceBoundaries = sentenceBoundaries;
+  }
 
-	/**
-	 * Add a raw text segment at a given position.
-	 */
-	public void addOriginalTextSegment(int index, String segment) {
-		if (LOG.isTraceEnabled())
-			LOG.trace("Adding raw segment at index " + index + ": " + segment);
-		String existingText = this.originalTextSegments.get(index);
-		if (existingText == null) {
-			this.originalTextSegments.put(index, segment);
-		} else {
-			this.originalTextSegments.put(index, existingText + session.getOutputDivider() + segment);
-		}
-	}
+  /**
+   * Add a raw text segment at a given position.
+   */
+  public void addOriginalTextSegment(int index, String segment) {
+    if (LOG.isTraceEnabled())
+      LOG.trace("Adding raw segment at index " + index + ": " + segment);
+    String existingText = this.originalTextSegments.get(index);
+    if (existingText == null) {
+      this.originalTextSegments.put(index, segment);
+    } else {
+      this.originalTextSegments.put(index, existingText + session.getOutputDivider() + segment);
+    }
+  }
 
-	/**
-	 * Indicate that a new line was found at a given original index in this
-	 * sentence holder, and gives the line number.
-	 */
-	public void addNewline(int originalIndex, int lineNumber) {
-		this.newlines.put(originalIndex, lineNumber);
-	}
+  /**
+   * Indicate that a new line was found at a given original index in this
+   * sentence holder, and gives the line number.
+   */
+  public void addNewline(int originalIndex, int lineNumber) {
+    this.newlines.put(originalIndex, lineNumber);
+  }
 
-	public List<Integer> getOriginalIndexes() {
-		return originalIndexes;
-	}
+  public List<Integer> getOriginalIndexes() {
+    return originalIndexes;
+  }
 
-	/**
-	 * Add a new original index to the current sentence. These need to be added
-	 * sequentially for every single index in the current sentence.
-	 */
-	public void addOriginalIndex(int originalIndex) {
-		this.originalIndexes.add(originalIndex);
-	}
+  /**
+   * Add a new original index to the current sentence. These need to be added
+   * sequentially for every single index in the current sentence.
+   */
+  public void addOriginalIndex(int originalIndex) {
+    this.originalIndexes.add(originalIndex);
+  }
 
-	/**
-	 * Get the original text index of any character index within this sentence.
-	 */
-	public int getOriginalIndex(int index) {
-		if (originalIndexes.size() == 0)
-			return index;
-		if (index == originalIndexes.size())
-			return originalIndexes.get(index - 1) + 1;
-		if (index > originalIndexes.size())
-			return -1;
-		return originalIndexes.get(index);
-	}
+  /**
+   * Get the original text index of any character index within this sentence.
+   */
+  public int getOriginalIndex(int index) {
+    if (originalIndexes.size() == 0)
+      return index;
+    if (index == originalIndexes.size())
+      return originalIndexes.get(index - 1) + 1;
+    if (index > originalIndexes.size())
+      return -1;
+    return originalIndexes.get(index);
+  }
 
-	/**
-	 * Get the local index corresponding to a given original index.
-	 * 
-	 * @param originalIndex
-	 * @return
-	 */
-	public int getIndex(int originalIndex) {
-		int i = 0;
-		for (; i < originalIndexes.size(); i++) {
-			if (originalIndexes.get(i) >= originalIndex) {
-				break;
-			}
-		}
-		return i;
-	}
+  /**
+   * Get the local index corresponding to a given original index.
+   * 
+   * @param originalIndex
+   * @return
+   */
+  public int getIndex(int originalIndex) {
+    int i = 0;
+    for (; i < originalIndexes.size(); i++) {
+      if (originalIndexes.get(i) >= originalIndex) {
+        break;
+      }
+    }
+    return i;
+  }
 
-	/**
-	 * Returns the line number corresponding to a particular original index
-	 * inside this sentence, starting at 1.
-	 */
+  /**
+   * Returns the line number corresponding to a particular original index
+   * inside this sentence, starting at 1.
+   */
 
-	public int getLineNumber(int originalIndex) {
-		Entry<Integer, Integer> lastLineEntry = this.newlines.floorEntry(originalIndex);
-		if (lastLineEntry != null)
-			return lastLineEntry.getValue();
-		return -1;
-	}
+  public int getLineNumber(int originalIndex) {
+    Entry<Integer, Integer> lastLineEntry = this.newlines.floorEntry(originalIndex);
+    if (lastLineEntry != null)
+      return lastLineEntry.getValue();
+    return -1;
+  }
 
-	/**
-	 * Returns the column number corresponding to a particular original index
-	 * inside this sentence, starting at 1.
-	 */
+  /**
+   * Returns the column number corresponding to a particular original index
+   * inside this sentence, starting at 1.
+   */
 
-	public int getColumnNumber(int originalIndex) {
-		Integer lastLineObj = this.newlines.floorKey(originalIndex);
-		if (lastLineObj != null)
-			return (originalIndex - lastLineObj.intValue()) + 1;
-		return -1;
-	}
+  public int getColumnNumber(int originalIndex) {
+    Integer lastLineObj = this.newlines.floorKey(originalIndex);
+    if (lastLineObj != null)
+      return (originalIndex - lastLineObj.intValue()) + 1;
+    return -1;
+  }
 
-	/**
-	 * The original index at which this sentence holder starts.
-	 */
-	public int getOriginalStartIndex() {
-		return originalStartIndex;
-	}
+  /**
+   * The original index at which this sentence holder starts.
+   */
+  public int getOriginalStartIndex() {
+    return originalStartIndex;
+  }
 }

@@ -31,24 +31,24 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public final class ClosedClassFeature<T> extends AbstractPosTaggedTokenFeature<T, Boolean>implements BooleanFeature<T> {
-	public ClosedClassFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-		this.setAddressFunction(addressFunction);
-	}
+  public ClosedClassFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper == null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken == null)
-			return null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
 
-		FeatureResult<Boolean> featureResult = null;
-		boolean isClosedClass = posTaggedToken.getTag().getOpenClassIndicator().isClosed();
-		featureResult = this.generateResult(isClosedClass);
+    FeatureResult<Boolean> featureResult = null;
+    boolean isClosedClass = posTaggedToken.getTag().getOpenClassIndicator().isClosed();
+    featureResult = this.generateResult(isClosedClass);
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 }

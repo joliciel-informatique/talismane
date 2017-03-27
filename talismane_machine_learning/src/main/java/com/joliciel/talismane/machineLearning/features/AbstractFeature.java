@@ -29,106 +29,106 @@ import java.util.List;
  */
 public abstract class AbstractFeature<T, Y> implements Feature<T, Y>, Comparable<Feature<T, ?>> {
 
-	private String name = null;
-	private String groupName = null;
-	private List<Feature<T, ?>> arguments = new ArrayList<Feature<T, ?>>();
-	private boolean topLevelFeature = false;
+  private String name = null;
+  private String groupName = null;
+  private List<Feature<T, ?>> arguments = new ArrayList<Feature<T, ?>>();
+  private boolean topLevelFeature = false;
 
-	public AbstractFeature() {
-		super();
-	}
+  public AbstractFeature() {
+    super();
+  }
 
-	@Override
-	public final String getName() {
-		if (name == null) {
-			name = this.getClass().getSimpleName();
-		}
-		return name;
-	}
+  @Override
+  public final String getName() {
+    if (name == null) {
+      name = this.getClass().getSimpleName();
+    }
+    return name;
+  }
 
-	@Override
-	public final void setName(String name) {
-		this.name = name;
-	}
+  @Override
+  public final void setName(String name) {
+    this.name = name;
+  }
 
-	@Override
-	public String getCollectionName() {
-		if (groupName == null) {
-			groupName = this.getName();
-		}
-		return groupName;
-	}
+  @Override
+  public String getCollectionName() {
+    if (groupName == null) {
+      groupName = this.getName();
+    }
+    return groupName;
+  }
 
-	@Override
-	public void setCollectionName(String groupName) {
-		this.groupName = groupName;
-	}
+  @Override
+  public void setCollectionName(String groupName) {
+    this.groupName = groupName;
+  }
 
-	@Override
-	public final int hashCode() {
-		return this.getName().hashCode();
-	}
+  @Override
+  public final int hashCode() {
+    return this.getName().hashCode();
+  }
 
-	@Override
-	public final boolean equals(Object obj) {
-		if (!(obj instanceof Feature))
-			return false;
-		Feature<?, ?> feature = (Feature<?, ?>) obj;
-		return (feature.getName().equals(this.getName()));
-	}
+  @Override
+  public final boolean equals(Object obj) {
+    if (!(obj instanceof Feature))
+      return false;
+    Feature<?, ?> feature = (Feature<?, ?>) obj;
+    return (feature.getName().equals(this.getName()));
+  }
 
-	protected final FeatureResult<Y> generateResult(Y outcome) {
-		if (outcome == null)
-			return null;
-		return new FeatureResultImpl<Y>(this, outcome);
-	}
+  protected final FeatureResult<Y> generateResult(Y outcome) {
+    if (outcome == null)
+      return null;
+    return new FeatureResultImpl<Y>(this, outcome);
+  }
 
-	@Override
-	public final int compareTo(Feature<T, ?> o) {
-		return this.getName().compareTo(o.getName());
-	}
+  @Override
+  public final int compareTo(Feature<T, ?> o) {
+    return this.getName().compareTo(o.getName());
+  }
 
-	@SuppressWarnings({ "rawtypes" })
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		if (this instanceof BooleanFeature) {
-			return BooleanFeature.class;
-		}
-		if (this instanceof StringFeature) {
-			return StringFeature.class;
-		}
-		if (this instanceof DoubleFeature) {
-			return DoubleFeature.class;
-		}
-		if (this instanceof IntegerFeature) {
-			return IntegerFeature.class;
-		}
-		throw new RuntimeException("Unknown feature return type for " + this.getName());
-	}
+  @SuppressWarnings({ "rawtypes" })
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    if (this instanceof BooleanFeature) {
+      return BooleanFeature.class;
+    }
+    if (this instanceof StringFeature) {
+      return StringFeature.class;
+    }
+    if (this instanceof DoubleFeature) {
+      return DoubleFeature.class;
+    }
+    if (this instanceof IntegerFeature) {
+      return IntegerFeature.class;
+    }
+    throw new RuntimeException("Unknown feature return type for " + this.getName());
+  }
 
-	@Override
-	public void addArgument(Feature<T, ?> argument) {
-		this.arguments.add(argument);
-	}
+  @Override
+  public void addArgument(Feature<T, ?> argument) {
+    this.arguments.add(argument);
+  }
 
-	@Override
-	public List<Feature<T, ?>> getArguments() {
-		return this.arguments;
-	}
+  @Override
+  public List<Feature<T, ?>> getArguments() {
+    return this.arguments;
+  }
 
-	@Override
-	public boolean isTopLevelFeature() {
-		return topLevelFeature;
-	}
+  @Override
+  public boolean isTopLevelFeature() {
+    return topLevelFeature;
+  }
 
-	@Override
-	public void setTopLevelFeature(boolean topLevelFeature) {
-		this.topLevelFeature = topLevelFeature;
-	}
+  @Override
+  public void setTopLevelFeature(boolean topLevelFeature) {
+    this.topLevelFeature = topLevelFeature;
+  }
 
-	@Override
-	public String toString() {
-		return this.getName();
-	}
+  @Override
+  public String toString() {
+    return this.getName();
+  }
 
 }

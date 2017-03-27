@@ -31,23 +31,23 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public interface ClassificationEventStream {
-	/**
-	 * Does this event reader have any more events to read?
-	 * 
-	 * @throws IOException
-	 */
-	public boolean hasNext() throws TalismaneException, IOException;
+  /**
+   * Does this event reader have any more events to read?
+   * 
+   * @throws IOException
+   */
+  public boolean hasNext() throws TalismaneException, IOException;
 
-	/**
-	 * The next event to read.
-	 * 
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public ClassificationEvent next() throws TalismaneException, IOException;
+  /**
+   * The next event to read.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public ClassificationEvent next() throws TalismaneException, IOException;
 
-	/**
-	 * Get the attributes defining this event stream.
-	 */
-	public Map<String, String> getAttributes();
+  /**
+   * Get the attributes defining this event stream.
+   */
+  public Map<String, String> getAttributes();
 }

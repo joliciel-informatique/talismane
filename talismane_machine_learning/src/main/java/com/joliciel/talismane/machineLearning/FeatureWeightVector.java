@@ -27,18 +27,18 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
  * @author Assaf Urieli
  */
 public interface FeatureWeightVector {
-	/**
-	 * Get the weight associated with a particular feature result.
-	 */
-	double getWeight(FeatureResult<?> featureResult);
-	
-	/**
-	 * Add the feature vector provided to the current weight vector.
-	 */
-	void addVector(List<FeatureResult<?>> featureResults);
-	
-	/**
-	 * Subtract the feature vector provided from the current weight vector.
-	 */
-	void subtractVector(List<FeatureResult<?>> featureResults);
+  /**
+   * Get the weight associated with a particular feature result.
+   */
+  double getWeight(FeatureResult<?> featureResult);
+  
+  /**
+   * Add the feature vector provided to the current weight vector.
+   */
+  void addVector(List<FeatureResult<?>> featureResults);
+  
+  /**
+   * Subtract the feature vector provided from the current weight vector.
+   */
+  void subtractVector(List<FeatureResult<?>> featureResults);
 }

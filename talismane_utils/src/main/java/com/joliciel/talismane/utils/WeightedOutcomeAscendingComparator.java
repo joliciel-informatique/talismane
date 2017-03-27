@@ -28,17 +28,17 @@ import java.util.Comparator;
  */
 public class WeightedOutcomeAscendingComparator<T> implements Comparator<WeightedOutcome<T>> {
 
-	@Override
-	public int compare(WeightedOutcome<T> o1, WeightedOutcome<T> o2) {
-		if (o1.getWeight()<o2.getWeight()) {
-			return -1;
-		} else if (o1.getWeight()>o2.getWeight()) {
-			return 1;
-		} else {
-			int nameCompare = o1.getOutcome().toString().compareTo(o2.getOutcome().toString());
-			if (nameCompare!=0) return nameCompare;
-			return o1.hashCode()-o2.hashCode();
-		}
-	}
+  @Override
+  public int compare(WeightedOutcome<T> o1, WeightedOutcome<T> o2) {
+    if (o1.getWeight()<o2.getWeight()) {
+      return -1;
+    } else if (o1.getWeight()>o2.getWeight()) {
+      return 1;
+    } else {
+      int nameCompare = o1.getOutcome().toString().compareTo(o2.getOutcome().toString());
+      if (nameCompare!=0) return nameCompare;
+      return o1.hashCode()-o2.hashCode();
+    }
+  }
 
 }

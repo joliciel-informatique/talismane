@@ -27,45 +27,45 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class LessThanOrEqualsIntegerOperator<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
-	private IntegerFeature<T> operand1;
-	private IntegerFeature<T> operand2;
+  private IntegerFeature<T> operand1;
+  private IntegerFeature<T> operand2;
 
-	public LessThanOrEqualsIntegerOperator(IntegerFeature<T> operand1, IntegerFeature<T> operand2) {
-		super();
-		this.operand1 = operand1;
-		this.operand2 = operand2;
-		this.setName("(" + operand1.getName() + "<=" + operand2.getName() + ")");
-	}
+  public LessThanOrEqualsIntegerOperator(IntegerFeature<T> operand1, IntegerFeature<T> operand2) {
+    super();
+    this.operand1 = operand1;
+    this.operand2 = operand2;
+    this.setName("(" + operand1.getName() + "<=" + operand2.getName() + ")");
+  }
 
-	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		FeatureResult<Integer> operand1Result = operand1.check(context, env);
-		FeatureResult<Integer> operand2Result = operand2.check(context, env);
+    FeatureResult<Integer> operand1Result = operand1.check(context, env);
+    FeatureResult<Integer> operand2Result = operand2.check(context, env);
 
-		if (operand1Result != null && operand2Result != null) {
-			boolean result = operand1Result.getOutcome() <= operand2Result.getOutcome();
-			featureResult = this.generateResult(result);
-		}
+    if (operand1Result != null && operand2Result != null) {
+      boolean result = operand1Result.getOutcome() <= operand2Result.getOutcome();
+      featureResult = this.generateResult(result);
+    }
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 
-	public IntegerFeature<T> getOperand1() {
-		return operand1;
-	}
+  public IntegerFeature<T> getOperand1() {
+    return operand1;
+  }
 
-	public IntegerFeature<T> getOperand2() {
-		return operand2;
-	}
+  public IntegerFeature<T> getOperand2() {
+    return operand2;
+  }
 
-	public void setOperand1(IntegerFeature<T> operand1) {
-		this.operand1 = operand1;
-	}
+  public void setOperand1(IntegerFeature<T> operand1) {
+    this.operand1 = operand1;
+  }
 
-	public void setOperand2(IntegerFeature<T> operand2) {
-		this.operand2 = operand2;
-	}
+  public void setOperand2(IntegerFeature<T> operand2) {
+    this.operand2 = operand2;
+  }
 
 }

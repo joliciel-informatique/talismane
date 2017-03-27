@@ -28,24 +28,24 @@ import java.util.List;
  *
  */
 public interface Lexicon extends Serializable {
-	/**
-	 * This lexicon's name, for use in features.
-	 */
-	public String getName();
-	
-	/**
-	 * Return all lexical entries for a given word.
-	 */
-	public List<LexicalEntry> getEntries(String word);
-	
+  /**
+   * This lexicon's name, for use in features.
+   */
+  public String getName();
+  
+  /**
+   * Return all lexical entries for a given word.
+   */
+  public List<LexicalEntry> getEntries(String word);
+  
 
-	/**
-	 * Return all lexical entries for a given lemma.
-	 */
-	public List<LexicalEntry> getEntriesForLemma(String lemma);
-	
-	/**
-	 * Returns all lexical entries in this lexicon, without any guaranteed order.
-	 */
-	public Iterator<LexicalEntry> getAllEntries();
+  /**
+   * Return all lexical entries for a given lemma.
+   */
+  public List<LexicalEntry> getEntriesForLemma(String lemma);
+  
+  /**
+   * Returns all lexical entries in this lexicon, without any guaranteed order.
+   */
+  public Iterator<LexicalEntry> getAllEntries();
 }

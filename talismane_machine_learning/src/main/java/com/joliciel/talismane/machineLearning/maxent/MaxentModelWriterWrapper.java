@@ -34,33 +34,33 @@ import com.joliciel.talismane.machineLearning.maxent.custom.BinaryGISModelWriter
  *
  */
 class MaxentModelWriterWrapper extends GISModelWriter {
-	private final GISModelWriter writer;
-	private OutputStream outputStream;
-	
-	public MaxentModelWriterWrapper(MaxentModel model, OutputStream outputStream) {
-		super((AbstractModel) model);
-		writer = new BinaryGISModelWriter(model,
-	            new DataOutputStream(outputStream));
-		this.outputStream = outputStream;
-	}
+  private final GISModelWriter writer;
+  private OutputStream outputStream;
+  
+  public MaxentModelWriterWrapper(MaxentModel model, OutputStream outputStream) {
+    super((AbstractModel) model);
+    writer = new BinaryGISModelWriter(model,
+              new DataOutputStream(outputStream));
+    this.outputStream = outputStream;
+  }
 
-	@Override
-	public void writeUTF(String s) throws IOException {
-		writer.writeUTF(s);
-	}
+  @Override
+  public void writeUTF(String s) throws IOException {
+    writer.writeUTF(s);
+  }
 
-	@Override
-	public void writeInt(int i) throws IOException {
-		writer.writeInt(i);
-	}
+  @Override
+  public void writeInt(int i) throws IOException {
+    writer.writeInt(i);
+  }
 
-	@Override
-	public void writeDouble(double d) throws IOException {
-		writer.writeDouble(d);
-	}
+  @Override
+  public void writeDouble(double d) throws IOException {
+    writer.writeDouble(d);
+  }
 
-	@Override
-	public void close() throws IOException {
-		outputStream.flush();
-	}
+  @Override
+  public void close() throws IOException {
+    outputStream.flush();
+  }
 }

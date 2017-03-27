@@ -30,6 +30,6 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  *
  */
 public interface PosTagMapper extends Serializable {
-	public PosTagSet getPosTagSet();
-	public Set<PosTag> getPosTags(LexicalEntry lexicalEntry);
+  public PosTagSet getPosTagSet();
+  public Set<PosTag> getPosTags(LexicalEntry lexicalEntry);
 }

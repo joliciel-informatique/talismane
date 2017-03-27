@@ -45,143 +45,143 @@ import com.typesafe.config.Config;
  *
  */
 public class PosTaggerEvaluator {
-	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerEvaluator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PosTaggerEvaluator.class);
 
-	private final PosTagger posTagger;
-	private final PosTagAnnotatedCorpusReader corpusReader;
-	private final Tokeniser tokeniser;
+  private final PosTagger posTagger;
+  private final PosTagAnnotatedCorpusReader corpusReader;
+  private final Tokeniser tokeniser;
 
-	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
+  private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
 
-	public PosTaggerEvaluator(Reader evalReader, File outDir, TalismaneSession session)
-			throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
-		Config config = session.getConfig();
-		this.observers = PosTagEvaluationObserver.getObservers(outDir, session);
+  public PosTaggerEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+      throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
+    Config config = session.getConfig();
+    this.observers = PosTagEvaluationObserver.getObservers(outDir, session);
 
-		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 
-		this.corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("input"), session);
+    this.corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("input"), session);
 
-		this.posTagger = PosTaggers.getPosTagger(session);
+    this.posTagger = PosTaggers.getPosTagger(session);
 
-		Module startModule = Module.valueOf(posTaggerConfig.getString("evaluate.start-module"));
-		if (startModule == Module.tokeniser)
-			this.tokeniser = Tokeniser.getInstance(session);
-		else
-			this.tokeniser = null;
-	}
+    Module startModule = Module.valueOf(posTaggerConfig.getString("evaluate.start-module"));
+    if (startModule == Module.tokeniser)
+      this.tokeniser = Tokeniser.getInstance(session);
+    else
+      this.tokeniser = null;
+  }
 
-	/**
-	 * 
-	 * @param posTagger
-	 * @param corpusReader
-	 *            for reading manually tagged tokens from a corpus
-	 * 
-	 * @param tokeniser
-	 *            if not null, evaluate tokenisation as well.
-	 * @param session
-	 */
-	public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser, TalismaneSession session) {
-		this.posTagger = posTagger;
-		this.corpusReader = corpusReader;
-		this.tokeniser = tokeniser;
-	}
+  /**
+   * 
+   * @param posTagger
+   * @param corpusReader
+   *            for reading manually tagged tokens from a corpus
+   * 
+   * @param tokeniser
+   *            if not null, evaluate tokenisation as well.
+   * @param session
+   */
+  public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser, TalismaneSession session) {
+    this.posTagger = posTagger;
+    this.corpusReader = corpusReader;
+    this.tokeniser = tokeniser;
+  }
 
-	/**
-	 * Evaluate a given pos tagger.
-	 * 
-	 * @throws TalismaneException
-	 * @throws IOException
-	 * 
-	 */
-	public void evaluate() throws TalismaneException, IOException {
-		while (corpusReader.hasNextSentence()) {
-			PosTagSequence realPosTagSequence = corpusReader.nextPosTagSequence();
+  /**
+   * Evaluate a given pos tagger.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   * 
+   */
+  public void evaluate() throws TalismaneException, IOException {
+    while (corpusReader.hasNextSentence()) {
+      PosTagSequence realPosTagSequence = corpusReader.nextPosTagSequence();
 
-			List<TokenSequence> tokenSequences = null;
-			List<PosTagSequence> guessedSequences = null;
+      List<TokenSequence> tokenSequences = null;
+      List<PosTagSequence> guessedSequences = null;
 
-			TokenSequence tokenSequence = realPosTagSequence.getTokenSequence();
-			PosTagSequence guessedSequence = null;
+      TokenSequence tokenSequence = realPosTagSequence.getTokenSequence();
+      PosTagSequence guessedSequence = null;
 
-			if (this.tokeniser != null) {
-				Sentence sentence = tokenSequence.getSentence();
+      if (this.tokeniser != null) {
+        Sentence sentence = tokenSequence.getSentence();
 
-				tokenSequences = tokeniser.tokenise(sentence);
-				tokenSequence = tokenSequences.get(0);
-			} else {
-				tokenSequences = new ArrayList<TokenSequence>();
-				tokenSequences.add(tokenSequence);
-			}
+        tokenSequences = tokeniser.tokenise(sentence);
+        tokenSequence = tokenSequences.get(0);
+      } else {
+        tokenSequences = new ArrayList<TokenSequence>();
+        tokenSequences.add(tokenSequence);
+      }
 
-			if (posTagger instanceof NonDeterministicPosTagger) {
-				NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
-				guessedSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
-				guessedSequence = guessedSequences.get(0);
-			} else {
-				guessedSequence = posTagger.tagSentence(tokenSequence);
-			}
+      if (posTagger instanceof NonDeterministicPosTagger) {
+        NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
+        guessedSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+        guessedSequence = guessedSequences.get(0);
+      } else {
+        guessedSequence = posTagger.tagSentence(tokenSequence);
+      }
 
-			if (LOG.isDebugEnabled()) {
-				StringBuilder stringBuilder = new StringBuilder();
-				for (PosTaggedToken posTaggedToken : guessedSequence) {
-					Set<String> lemmas = new TreeSet<String>();
-					stringBuilder.append(posTaggedToken.getToken().getOriginalText());
-					stringBuilder.append("[" + posTaggedToken.getTag());
+      if (LOG.isDebugEnabled()) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (PosTaggedToken posTaggedToken : guessedSequence) {
+          Set<String> lemmas = new TreeSet<String>();
+          stringBuilder.append(posTaggedToken.getToken().getOriginalText());
+          stringBuilder.append("[" + posTaggedToken.getTag());
 
-					List<LexicalEntry> entries = posTaggedToken.getLexicalEntries();
-					boolean dropCurrentWord = false;
-					if (entries.size() > 1)
-						dropCurrentWord = true;
-					for (LexicalEntry entry : posTaggedToken.getLexicalEntries()) {
-						if (!lemmas.contains(entry.getLemma())) {
-							if (dropCurrentWord && posTaggedToken.getToken().getText().equals(entry.getLemma())) {
-								dropCurrentWord = false;
-								continue;
-							}
-							stringBuilder.append("|" + entry.getLemma());
-							// stringBuilder.append("/" + entry.getCategory());
-							stringBuilder.append("/" + entry.getMorphology());
-							lemmas.add(entry.getLemma());
-						}
-					}
-					stringBuilder.append("] ");
-				}
-				LOG.debug(stringBuilder.toString());
-			}
+          List<LexicalEntry> entries = posTaggedToken.getLexicalEntries();
+          boolean dropCurrentWord = false;
+          if (entries.size() > 1)
+            dropCurrentWord = true;
+          for (LexicalEntry entry : posTaggedToken.getLexicalEntries()) {
+            if (!lemmas.contains(entry.getLemma())) {
+              if (dropCurrentWord && posTaggedToken.getToken().getText().equals(entry.getLemma())) {
+                dropCurrentWord = false;
+                continue;
+              }
+              stringBuilder.append("|" + entry.getLemma());
+              // stringBuilder.append("/" + entry.getCategory());
+              stringBuilder.append("/" + entry.getMorphology());
+              lemmas.add(entry.getLemma());
+            }
+          }
+          stringBuilder.append("] ");
+        }
+        LOG.debug(stringBuilder.toString());
+      }
 
-			for (PosTagEvaluationObserver observer : this.observers) {
-				observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
-			}
-		} // next sentence
+      for (PosTagEvaluationObserver observer : this.observers) {
+        observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
+      }
+    } // next sentence
 
-		for (PosTagEvaluationObserver observer : this.observers) {
-			observer.onEvaluationComplete();
-		}
-	}
+    for (PosTagEvaluationObserver observer : this.observers) {
+      observer.onEvaluationComplete();
+    }
+  }
 
-	public PosTagger getPosTagger() {
-		return posTagger;
-	}
+  public PosTagger getPosTagger() {
+    return posTagger;
+  }
 
-	/**
-	 * A tokeniser to tokenise the sentences brought back by the corpus reader,
-	 * rather than automatically using their existing tokenisation.
-	 */
-	public Tokeniser getTokeniser() {
-		return tokeniser;
-	}
+  /**
+   * A tokeniser to tokenise the sentences brought back by the corpus reader,
+   * rather than automatically using their existing tokenisation.
+   */
+  public Tokeniser getTokeniser() {
+    return tokeniser;
+  }
 
-	public List<PosTagEvaluationObserver> getObservers() {
-		return observers;
-	}
+  public List<PosTagEvaluationObserver> getObservers() {
+    return observers;
+  }
 
-	public void setObservers(List<PosTagEvaluationObserver> observers) {
-		this.observers = observers;
-	}
+  public void setObservers(List<PosTagEvaluationObserver> observers) {
+    this.observers = observers;
+  }
 
-	public void addObserver(PosTagEvaluationObserver observer) {
-		this.observers.add(observer);
-	}
+  public void addObserver(PosTagEvaluationObserver observer) {
+    this.observers.add(observer);
+  }
 
 }

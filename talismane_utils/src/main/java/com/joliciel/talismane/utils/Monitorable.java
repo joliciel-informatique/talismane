@@ -24,10 +24,10 @@ package com.joliciel.talismane.utils;
  *
  */
 public interface Monitorable {
-	/**
-	 * To be called just before a particular task is started.
-	 * Returns a ProgressMonitor for this particular task.
-	 */
-	public ProgressMonitor monitorTask();
-	
+  /**
+   * To be called just before a particular task is started.
+   * Returns a ProgressMonitor for this particular task.
+   */
+  public ProgressMonitor monitorTask();
+  
 }

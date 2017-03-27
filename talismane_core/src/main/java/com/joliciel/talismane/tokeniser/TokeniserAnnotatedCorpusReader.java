@@ -39,42 +39,42 @@ import com.typesafe.config.Config;
  *
  */
 public interface TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotatedCorpusReader {
-	public static final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
+  public static final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
 
-	/***
-	 * Reads the next token sequence from the corpus.
-	 * 
-	 * @throws TalismaneException
-	 *             if impossible to read next sequence for logical reasons
-	 * @throws IOException
-	 */
-	public abstract TokenSequence nextTokenSequence() throws TalismaneException, IOException;
+  /***
+   * Reads the next token sequence from the corpus.
+   * 
+   * @throws TalismaneException
+   *             if impossible to read next sequence for logical reasons
+   * @throws IOException
+   */
+  public abstract TokenSequence nextTokenSequence() throws TalismaneException, IOException;
 
-	/**
-	 * Builds an annotated corpus reader for a particular Reader and Config,
-	 * where the config is the local namespace. For configuration example, see
-	 * talismane.core.tokeniser.input in reference.conf.
-	 * 
-	 * @param config
-	 *            the local configuration section from which we're building a
-	 *            reader
-	 * @throws IOException
-	 *             problem reading the files referred in the configuration
-	 * @throws ReflectiveOperationException
-	 *             if the corpus-reader class could not be instantiated
-	 */
-	public static TokeniserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
-			throws IOException, ReflectiveOperationException {
-		String className = config.getString("corpus-reader");
+  /**
+   * Builds an annotated corpus reader for a particular Reader and Config,
+   * where the config is the local namespace. For configuration example, see
+   * talismane.core.tokeniser.input in reference.conf.
+   * 
+   * @param config
+   *            the local configuration section from which we're building a
+   *            reader
+   * @throws IOException
+   *             problem reading the files referred in the configuration
+   * @throws ReflectiveOperationException
+   *             if the corpus-reader class could not be instantiated
+   */
+  public static TokeniserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+      throws IOException, ReflectiveOperationException {
+    String className = config.getString("corpus-reader");
 
-		@SuppressWarnings("unchecked")
-		Class<? extends TokeniserAnnotatedCorpusReader> clazz = (Class<? extends TokeniserAnnotatedCorpusReader>) Class.forName(className);
-		Constructor<? extends TokeniserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+    @SuppressWarnings("unchecked")
+    Class<? extends TokeniserAnnotatedCorpusReader> clazz = (Class<? extends TokeniserAnnotatedCorpusReader>) Class.forName(className);
+    Constructor<? extends TokeniserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
 
-		TokeniserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
-		if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
-			((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
-		}
-		return corpusReader;
-	}
+    TokeniserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+    if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
+      ((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
+    }
+    return corpusReader;
+  }
 }

@@ -30,24 +30,24 @@ import com.joliciel.talismane.TalismaneSession;
  *
  */
 public class LowercaseFilter implements TextReplacer, NeedsTalismaneSession {
-	TalismaneSession session;
+  TalismaneSession session;
 
-	@Override
-	public void replace(List<String> tokens) {
-		for (int i = 0; i < tokens.size(); i++) {
-			String token = tokens.get(i);
-			tokens.set(i, token.toLowerCase(session.getLocale()));
-		}
-	}
+  @Override
+  public void replace(List<String> tokens) {
+    for (int i = 0; i < tokens.size(); i++) {
+      String token = tokens.get(i);
+      tokens.set(i, token.toLowerCase(session.getLocale()));
+    }
+  }
 
-	@Override
-	public TalismaneSession getTalismaneSession() {
-		return session;
-	}
+  @Override
+  public TalismaneSession getTalismaneSession() {
+    return session;
+  }
 
-	@Override
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.session = talismaneSession;
-	}
+  @Override
+  public void setTalismaneSession(TalismaneSession talismaneSession) {
+    this.session = talismaneSession;
+  }
 
 }

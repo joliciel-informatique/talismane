@@ -47,48 +47,48 @@ import com.joliciel.talismane.TalismaneSession;
  *
  */
 public class RawText extends RawTextProcessor {
-	private final CharSequence text;
-	private final TalismaneSession session;
+  private final CharSequence text;
+  private final TalismaneSession session;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param text
-	 *            the text to analyse
-	 * @param processByDefault
-	 *            whether the text should be analysed from the start, or should
-	 *            wait for a filter to indicate that analysis starts (e.g. when
-	 *            processing XML)
-	 * @param session
-	 */
-	public RawText(CharSequence text, boolean processByDefault, TalismaneSession session) {
-		super(text, processByDefault, session);
-		this.text = text;
-		this.session = session;
-	}
+  /**
+   * Constructor
+   * 
+   * @param text
+   *            the text to analyse
+   * @param processByDefault
+   *            whether the text should be analysed from the start, or should
+   *            wait for a filter to indicate that analysis starts (e.g. when
+   *            processing XML)
+   * @param session
+   */
+  public RawText(CharSequence text, boolean processByDefault, TalismaneSession session) {
+    super(text, processByDefault, session);
+    this.text = text;
+    this.session = session;
+  }
 
-	@Override
-	protected int getTextProcessingStart() {
-		return 0;
-	}
+  @Override
+  protected int getTextProcessingStart() {
+    return 0;
+  }
 
-	@Override
-	protected int getTextProcessingEnd() {
-		return text.length();
-	}
+  @Override
+  protected int getTextProcessingEnd() {
+    return text.length();
+  }
 
-	@Override
-	protected SentenceHolder getPreviousSentenceHolder() {
-		return new SentenceHolder(session, 0, false);
-	}
+  @Override
+  protected SentenceHolder getPreviousSentenceHolder() {
+    return new SentenceHolder(session, 0, false);
+  }
 
-	@Override
-	protected SentenceHolder getCurrentSentenceHolder() {
-		return this.processText(0, text.length(), text, true);
-	}
+  @Override
+  protected SentenceHolder getCurrentSentenceHolder() {
+    return this.processText(0, text.length(), text, true);
+  }
 
-	@Override
-	protected SentenceHolder getNextSentenceHolder() {
-		return new SentenceHolder(session, text.length(), true);
-	}
+  @Override
+  protected SentenceHolder getNextSentenceHolder() {
+    return new SentenceHolder(session, text.length(), true);
+  }
 }

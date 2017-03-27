@@ -24,15 +24,15 @@ package com.joliciel.talismane.machineLearning;
  *
  */
 public interface ScoringStrategy<T extends Solution> {
-	/**
-	 * Calculate the score of a given solution.
-	 */
-	public double calculateScore(T solution);
-	
-	/**
-	 * Is this scoring strategy additive (e.g. perceptrons)
-	 * if not, it must be multiplicative (e.g. probabilities)
-	 */
-	public boolean isAdditive();
-	
+  /**
+   * Calculate the score of a given solution.
+   */
+  public double calculateScore(T solution);
+  
+  /**
+   * Is this scoring strategy additive (e.g. perceptrons)
+   * if not, it must be multiplicative (e.g. probabilities)
+   */
+  public boolean isAdditive();
+  
 }

@@ -41,48 +41,48 @@ import joptsimple.OptionSpec;
  *
  */
 public class LexiconDeserializer {
-	private static final Logger LOG = LoggerFactory.getLogger(LexiconDeserializer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LexiconDeserializer.class);
 
-	public static void main(String[] args) throws Exception {
-		OptionParser parser = new OptionParser();
-		parser.accepts("testLexicon", "test lexicon");
+  public static void main(String[] args) throws Exception {
+    OptionParser parser = new OptionParser();
+    parser.accepts("testLexicon", "test lexicon");
 
-		OptionSpec<String> lexiconFilesOption = parser.accepts("lexicon", "lexicon(s), semi-colon delimited").withRequiredArg().ofType(String.class)
-				.withValuesSeparatedBy(';');
-		OptionSpec<String> wordsOption = parser.accepts("words", "comma-delimited list of words to test").withRequiredArg().required().ofType(String.class)
-				.withValuesSeparatedBy(',');
+    OptionSpec<String> lexiconFilesOption = parser.accepts("lexicon", "lexicon(s), semi-colon delimited").withRequiredArg().ofType(String.class)
+        .withValuesSeparatedBy(';');
+    OptionSpec<String> wordsOption = parser.accepts("words", "comma-delimited list of words to test").withRequiredArg().required().ofType(String.class)
+        .withValuesSeparatedBy(',');
 
-		if (args.length <= 1) {
-			parser.printHelpOn(System.out);
-			return;
-		}
+    if (args.length <= 1) {
+      parser.printHelpOn(System.out);
+      return;
+    }
 
-		OptionSet options = parser.parse(args);
+    OptionSet options = parser.parse(args);
 
-		Config config = null;
-		if (options.has(lexiconFilesOption)) {
-			List<String> lexiconFiles = options.valuesOf(lexiconFilesOption);
+    Config config = null;
+    if (options.has(lexiconFilesOption)) {
+      List<String> lexiconFiles = options.valuesOf(lexiconFilesOption);
 
-			Map<String, Object> values = new HashMap<>();
-			values.put("talismane.core.lexicons", lexiconFiles);
-			config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
-		} else {
-			config = ConfigFactory.load();
-		}
+      Map<String, Object> values = new HashMap<>();
+      values.put("talismane.core.lexicons", lexiconFiles);
+      config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
+    } else {
+      config = ConfigFactory.load();
+    }
 
-		String sessionId = "";
-		TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
+    String sessionId = "";
+    TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
 
-		List<String> words = options.valuesOf(wordsOption);
+    List<String> words = options.valuesOf(wordsOption);
 
-		PosTaggerLexicon mergedLexicon = talismaneSession.getMergedLexicon();
-		for (String word : words) {
-			LOG.info("################");
-			LOG.info("Word: " + word);
-			List<LexicalEntry> entries = mergedLexicon.getEntries(word);
-			for (LexicalEntry entry : entries) {
-				LOG.info(entry + ", Full morph: " + entry.getMorphology());
-			}
-		}
-	}
+    PosTaggerLexicon mergedLexicon = talismaneSession.getMergedLexicon();
+    for (String word : words) {
+      LOG.info("################");
+      LOG.info("Word: " + word);
+      List<LexicalEntry> entries = mergedLexicon.getEntries(word);
+      for (LexicalEntry entry : entries) {
+        LOG.info(entry + ", Full morph: " + entry.getMorphology());
+      }
+    }
+  }
 }

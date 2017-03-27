@@ -27,7 +27,7 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
  * @author Assaf Urieli
  */
 public interface DecisionMaker {
-	public List<Decision> decide(List<FeatureResult<?>> featureResults);
-	
-	public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy();
+  public List<Decision> decide(List<FeatureResult<?>> featureResults);
+  
+  public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy();
 }

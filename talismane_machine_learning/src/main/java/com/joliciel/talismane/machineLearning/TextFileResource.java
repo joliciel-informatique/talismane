@@ -43,70 +43,70 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public class TextFileResource implements ExternalResource<String> {
-	private static final long serialVersionUID = 1L;
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(TextFileResource.class);
-	Map<String, List<WeightedOutcome<String>>> resultsMap = new HashMap<String, List<WeightedOutcome<String>>>();
-	Map<String, String> resultMap = new HashMap<String, String>();
+  private static final long serialVersionUID = 1L;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(TextFileResource.class);
+  Map<String, List<WeightedOutcome<String>>> resultsMap = new HashMap<String, List<WeightedOutcome<String>>>();
+  Map<String, String> resultMap = new HashMap<String, String>();
 
-	private String name;
+  private String name;
 
-	public TextFileResource(String fileName, Scanner scanner) {
-		this.name = fileName;
+  public TextFileResource(String fileName, Scanner scanner) {
+    this.name = fileName;
 
-		int numParts = -1;
-		int i = 1;
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			if (line.equals("Type: KeyValue"))
-				continue;
-			if (line.length() > 0 && !line.startsWith("#")) {
-				StringBuilder sb = new StringBuilder();
-				String[] parts = line.split("\t");
-				if (parts.length == 1 && line.startsWith("Name: ")) {
-					this.name = line.substring("Name: ".length());
-					i++;
-					continue;
-				}
+    int numParts = -1;
+    int i = 1;
+    while (scanner.hasNextLine()) {
+      String line = scanner.nextLine();
+      if (line.equals("Type: KeyValue"))
+        continue;
+      if (line.length() > 0 && !line.startsWith("#")) {
+        StringBuilder sb = new StringBuilder();
+        String[] parts = line.split("\t");
+        if (parts.length == 1 && line.startsWith("Name: ")) {
+          this.name = line.substring("Name: ".length());
+          i++;
+          continue;
+        }
 
-				if (numParts < 0)
-					numParts = parts.length;
-				if (parts.length != numParts)
-					throw new JolicielException("Wrong number of elements on line " + i + " in file: " + fileName);
+        if (numParts < 0)
+          numParts = parts.length;
+        if (parts.length != numParts)
+          throw new JolicielException("Wrong number of elements on line " + i + " in file: " + fileName);
 
-				for (int j = 0; j < numParts - 1; j++) {
-					sb.append(parts[j]);
-					sb.append("|");
-				}
-				String key = sb.toString();
-				String value = parts[numParts - 1];
-				resultMap.put(key, value);
+        for (int j = 0; j < numParts - 1; j++) {
+          sb.append(parts[j]);
+          sb.append("|");
+        }
+        String key = sb.toString();
+        String value = parts[numParts - 1];
+        resultMap.put(key, value);
 
-			}
-			i++;
-		}
-	}
+      }
+      i++;
+    }
+  }
 
-	@Override
-	public String getResult(List<String> keyElements) {
-		StringBuilder sb = new StringBuilder();
-		for (String keyElement : keyElements) {
-			sb.append(keyElement);
-			sb.append("|");
-		}
-		String key = sb.toString();
-		String result = resultMap.get(key);
+  @Override
+  public String getResult(List<String> keyElements) {
+    StringBuilder sb = new StringBuilder();
+    for (String keyElement : keyElements) {
+      sb.append(keyElement);
+      sb.append("|");
+    }
+    String key = sb.toString();
+    String result = resultMap.get(key);
 
-		return result;
-	}
+    return result;
+  }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+  @Override
+  public String getName() {
+    return name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
 }

@@ -26,24 +26,24 @@ package com.joliciel.talismane.machineLearning.features;
  */
 class NullFeatureResult<T> implements FeatureResult<T> {
 
-	@Override
-	public Feature<?, T> getFeature() {
-		return null;
-	}
+  @Override
+  public Feature<?, T> getFeature() {
+    return null;
+  }
 
-	@Override
-	public T getOutcome() {
-		return null;
-	}
+  @Override
+  public T getOutcome() {
+    return null;
+  }
 
-	@Override
-	public String getTrainingName() {
-		return null;
-	}
+  @Override
+  public String getTrainingName() {
+    return null;
+  }
 
-	@Override
-	public String getTrainingOutcome(String outcome) {
-		return null;
-	}
+  @Override
+  public String getTrainingOutcome(String outcome) {
+    return null;
+  }
 
 }

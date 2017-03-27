@@ -42,68 +42,68 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @param <T>
  */
 public abstract class AbstractLexicalAttributeFeature<T> extends AbstractPosTaggedTokenFeature<T, List<WeightedOutcome<String>>>
-		implements StringCollectionFeature<T> {
+    implements StringCollectionFeature<T> {
 
-	public AbstractLexicalAttributeFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-	}
+  public AbstractLexicalAttributeFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper == null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken == null)
-			return null;
-		FeatureResult<List<WeightedOutcome<String>>> featureResult = null;
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
+    FeatureResult<List<WeightedOutcome<String>>> featureResult = null;
 
-		List<String> attributes = this.getAttributes(innerWrapper, env);
+    List<String> attributes = this.getAttributes(innerWrapper, env);
 
-		Set<String> results = new HashSet<>();
-		for (LexicalEntry lexicalEntry : posTaggedToken.getLexicalEntries()) {
-			boolean haveAtLeastOne = false;
+    Set<String> results = new HashSet<>();
+    for (LexicalEntry lexicalEntry : posTaggedToken.getLexicalEntries()) {
+      boolean haveAtLeastOne = false;
 
-			Set<String> previousAttributeStrings = new HashSet<>();
-			previousAttributeStrings.add("");
-			for (String attribute : attributes) {
-				List<String> values = lexicalEntry.getAttributeAsList(attribute);
-				if (values.size() > 0) {
-					Set<String> currentAttributeStrings = new HashSet<>();
+      Set<String> previousAttributeStrings = new HashSet<>();
+      previousAttributeStrings.add("");
+      for (String attribute : attributes) {
+        List<String> values = lexicalEntry.getAttributeAsList(attribute);
+        if (values.size() > 0) {
+          Set<String> currentAttributeStrings = new HashSet<>();
 
-					haveAtLeastOne = true;
-					for (String value : values) {
-						for (String prevString : previousAttributeStrings) {
-							if (prevString.length() > 0)
-								currentAttributeStrings.add(prevString + "|" + value);
-							else
-								currentAttributeStrings.add(value);
-						}
-					}
-					previousAttributeStrings = currentAttributeStrings;
-				}
-			}
-			if (haveAtLeastOne) {
-				results.addAll(previousAttributeStrings);
-			}
-		}
+          haveAtLeastOne = true;
+          for (String value : values) {
+            for (String prevString : previousAttributeStrings) {
+              if (prevString.length() > 0)
+                currentAttributeStrings.add(prevString + "|" + value);
+              else
+                currentAttributeStrings.add(value);
+            }
+          }
+          previousAttributeStrings = currentAttributeStrings;
+        }
+      }
+      if (haveAtLeastOne) {
+        results.addAll(previousAttributeStrings);
+      }
+    }
 
-		if (results.size() > 0) {
-			List<WeightedOutcome<String>> outcomes = new ArrayList<>(results.size());
-			for (String result : results) {
-				outcomes.add(new WeightedOutcome<String>(result, 1.0));
-			}
-			featureResult = this.generateResult(outcomes);
-		}
+    if (results.size() > 0) {
+      List<WeightedOutcome<String>> outcomes = new ArrayList<>(results.size());
+      for (String result : results) {
+        outcomes.add(new WeightedOutcome<String>(result, 1.0));
+      }
+      featureResult = this.generateResult(outcomes);
+    }
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 
-	protected abstract List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) throws TalismaneException;
+  protected abstract List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) throws TalismaneException;
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return StringCollectionFeature.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return StringCollectionFeature.class;
+  }
 }

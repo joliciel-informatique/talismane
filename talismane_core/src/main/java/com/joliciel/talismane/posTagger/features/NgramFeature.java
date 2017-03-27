@@ -37,48 +37,48 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  *
  */
 public final class NgramFeature extends AbstractPosTaggerFeature<String>implements StringFeature<PosTaggerContext> {
-	static final String START_TOKEN = "[[START]]";
-	private IntegerFeature<PosTaggerContext> nFeature;
+  static final String START_TOKEN = "[[START]]";
+  private IntegerFeature<PosTaggerContext> nFeature;
 
-	public NgramFeature(IntegerFeature<PosTaggerContext> nFeature) {
-		this.nFeature = nFeature;
-		this.setName(super.getName() + "(" + nFeature.getName() + ")");
-	}
+  public NgramFeature(IntegerFeature<PosTaggerContext> nFeature) {
+    this.nFeature = nFeature;
+    this.setName(super.getName() + "(" + nFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<String> result = null;
+  @Override
+  public FeatureResult<String> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> result = null;
 
-		FeatureResult<Integer> nResult = nFeature.check(context, env);
-		if (nResult != null) {
-			int n = nResult.getOutcome();
-			int historyToFind = n - 1;
-			int historyFound = 0;
-			if (context.getToken().getIndex() >= historyToFind - 1) {
-				String ngram = "";
-				int i = 0;
-				while (historyFound < historyToFind) {
-					String posTagCode = null;
-					boolean isEmptyTag = false;
-					if (context.getHistory().size() > i) {
-						PosTag posTag = context.getHistory().get(context.getHistory().size() - i - 1).getTag();
-						posTagCode = posTag.getCode();
-						if (posTag.isEmpty())
-							isEmptyTag = true;
-					} else {
-						posTagCode = START_TOKEN;
-					}
-					if (!isEmptyTag) {
-						if (historyFound > 0)
-							ngram = "," + ngram;
-						ngram = posTagCode + ngram;
-						historyFound++;
-					}
-					i++;
-				}
-				result = this.generateResult(ngram);
-			}
-		} // have n
-		return result;
-	}
+    FeatureResult<Integer> nResult = nFeature.check(context, env);
+    if (nResult != null) {
+      int n = nResult.getOutcome();
+      int historyToFind = n - 1;
+      int historyFound = 0;
+      if (context.getToken().getIndex() >= historyToFind - 1) {
+        String ngram = "";
+        int i = 0;
+        while (historyFound < historyToFind) {
+          String posTagCode = null;
+          boolean isEmptyTag = false;
+          if (context.getHistory().size() > i) {
+            PosTag posTag = context.getHistory().get(context.getHistory().size() - i - 1).getTag();
+            posTagCode = posTag.getCode();
+            if (posTag.isEmpty())
+              isEmptyTag = true;
+          } else {
+            posTagCode = START_TOKEN;
+          }
+          if (!isEmptyTag) {
+            if (historyFound > 0)
+              ngram = "," + ngram;
+            ngram = posTagCode + ngram;
+            historyFound++;
+          }
+          i++;
+        }
+        result = this.generateResult(ngram);
+      }
+    } // have n
+    return result;
+  }
 }

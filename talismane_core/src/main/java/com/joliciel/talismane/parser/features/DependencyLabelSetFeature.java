@@ -37,26 +37,26 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public final class DependencyLabelSetFeature extends AbstractStringCollectionFeature<ParseConfigurationWrapper>implements NeedsTalismaneSession {
-	private TalismaneSession talismaneSession;
+  private TalismaneSession talismaneSession;
 
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(ParseConfigurationWrapper context, RuntimeEnvironment env) {
-		TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
-		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-		for (String label : transitionSystem.getDependencyLabelSet().getDependencyLabels()) {
-			resultList.add(new WeightedOutcome<String>(label, 1.0));
-		}
-		return this.generateResult(resultList);
-	}
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(ParseConfigurationWrapper context, RuntimeEnvironment env) {
+    TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
+    List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+    for (String label : transitionSystem.getDependencyLabelSet().getDependencyLabels()) {
+      resultList.add(new WeightedOutcome<String>(label, 1.0));
+    }
+    return this.generateResult(resultList);
+  }
 
-	@Override
-	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
-	}
+  @Override
+  public TalismaneSession getTalismaneSession() {
+    return talismaneSession;
+  }
 
-	@Override
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-	}
+  @Override
+  public void setTalismaneSession(TalismaneSession talismaneSession) {
+    this.talismaneSession = talismaneSession;
+  }
 
 }

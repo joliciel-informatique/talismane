@@ -28,49 +28,49 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class ConcatenateWithNullsFeature<T> extends AbstractCachableFeature<T, String>implements StringFeature<T> {
-	private static final String NULL_RESULT = "null";
+  private static final String NULL_RESULT = "null";
 
-	StringFeature<T>[] stringFeatures;
+  StringFeature<T>[] stringFeatures;
 
-	@SafeVarargs
-	public ConcatenateWithNullsFeature(StringFeature<T>... stringFeatures) {
-		super();
-		this.stringFeatures = stringFeatures;
-		String name = "Concat(";
-		boolean firstFeature = true;
-		for (StringFeature<T> stringFeature : stringFeatures) {
-			if (!firstFeature)
-				name += ",";
-			name += stringFeature.getName();
-			firstFeature = false;
-		}
-		name += ")";
-		this.setName(name);
-	}
+  @SafeVarargs
+  public ConcatenateWithNullsFeature(StringFeature<T>... stringFeatures) {
+    super();
+    this.stringFeatures = stringFeatures;
+    String name = "Concat(";
+    boolean firstFeature = true;
+    for (StringFeature<T> stringFeature : stringFeatures) {
+      if (!firstFeature)
+        name += ",";
+      name += stringFeature.getName();
+      firstFeature = false;
+    }
+    name += ")";
+    this.setName(name);
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<String> featureResult = null;
+  @Override
+  public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> featureResult = null;
 
-		StringBuilder sb = new StringBuilder();
-		boolean firstFeature = true;
-		for (StringFeature<T> stringFeature : stringFeatures) {
-			if (!firstFeature)
-				sb.append("|");
-			FeatureResult<String> result = stringFeature.check(context, env);
-			if (result == null)
-				sb.append(NULL_RESULT);
-			else
-				sb.append(result.getOutcome());
-			firstFeature = false;
-		}
+    StringBuilder sb = new StringBuilder();
+    boolean firstFeature = true;
+    for (StringFeature<T> stringFeature : stringFeatures) {
+      if (!firstFeature)
+        sb.append("|");
+      FeatureResult<String> result = stringFeature.check(context, env);
+      if (result == null)
+        sb.append(NULL_RESULT);
+      else
+        sb.append(result.getOutcome());
+      firstFeature = false;
+    }
 
-		featureResult = this.generateResult(sb.toString());
-		return featureResult;
-	}
+    featureResult = this.generateResult(sb.toString());
+    return featureResult;
+  }
 
-	public StringFeature<T>[] getStringFeatures() {
-		return stringFeatures;
-	}
+  public StringFeature<T>[] getStringFeatures() {
+    return stringFeatures;
+  }
 
 }

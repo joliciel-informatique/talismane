@@ -26,30 +26,30 @@ import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
 public final class PosTaggedTokenAddressFunctionWrapper<T> extends AbstractFeature<T, PosTaggedTokenWrapper>
-		implements PosTaggedTokenAddressFunction<T>, FeatureWrapper<T, PosTaggedTokenWrapper> {
+    implements PosTaggedTokenAddressFunction<T>, FeatureWrapper<T, PosTaggedTokenWrapper> {
 
-	private Feature<T, PosTaggedTokenWrapper> feature;
+  private Feature<T, PosTaggedTokenWrapper> feature;
 
-	public PosTaggedTokenAddressFunctionWrapper(Feature<T, PosTaggedTokenWrapper> feature) {
-		this.feature = feature;
-		this.setName(this.feature.getName());
-		this.addArgument(feature);
-	}
+  public PosTaggedTokenAddressFunctionWrapper(Feature<T, PosTaggedTokenWrapper> feature) {
+    this.feature = feature;
+    this.setName(this.feature.getName());
+    this.addArgument(feature);
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(T context, RuntimeEnvironment env) throws TalismaneException {
-		return this.feature.check(context, env);
-	}
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(T context, RuntimeEnvironment env) throws TalismaneException {
+    return this.feature.check(context, env);
+  }
 
-	@Override
-	public Feature<T, PosTaggedTokenWrapper> getWrappedFeature() {
-		return feature;
-	}
+  @Override
+  public Feature<T, PosTaggedTokenWrapper> getWrappedFeature() {
+    return feature;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return PosTaggedTokenAddressFunction.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return PosTaggedTokenAddressFunction.class;
+  }
 
 }
