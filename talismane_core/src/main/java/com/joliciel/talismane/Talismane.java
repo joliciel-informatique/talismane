@@ -388,8 +388,8 @@ public class Talismane {
             // annotate block 3 with raw text filters
             AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
 
-            for (RawTextAnnotator textMarkerFilter : session.getTextAnnotators()) {
-              textMarkerFilter.annotate(rawTextBlock);
+            for (RawTextAnnotator textAnnotator : session.getTextAnnotators()) {
+              textAnnotator.annotate(rawTextBlock);
             }
 
             // detect sentences in block 2 using the sentence

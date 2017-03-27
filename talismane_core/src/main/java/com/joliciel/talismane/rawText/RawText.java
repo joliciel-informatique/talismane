@@ -31,8 +31,8 @@ import com.joliciel.talismane.TalismaneSession;
  * RawText rawText = new RawText(text, processByDefault, session);
  * 
  * // annotate  with raw text filters
- * for (RawTextFilter textMarkerFilter : session.getTextFilters()) {
- *   textMarkerFilter.annotate(rawText);
+ * for (RawTextAnnotator annotator : session.getTextAnnotators()) {
+ *   annotator.annotate(rawText);
  * }
  * 
  * // detect sentences on processed text using the sentence detector
@@ -54,11 +54,11 @@ public class RawText extends RawTextProcessor {
    * Constructor
    * 
    * @param text
-   *            the text to analyse
+   *          the text to analyse
    * @param processByDefault
-   *            whether the text should be analysed from the start, or should
-   *            wait for a filter to indicate that analysis starts (e.g. when
-   *            processing XML)
+   *          whether the text should be analysed from the start, or should wait
+   *          for a filter to indicate that analysis starts (e.g. when
+   *          processing XML)
    * @param session
    */
   public RawText(CharSequence text, boolean processByDefault, TalismaneSession session) {
