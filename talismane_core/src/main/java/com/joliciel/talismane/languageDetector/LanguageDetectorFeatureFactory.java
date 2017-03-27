@@ -31,23 +31,25 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class LanguageDetectorFeatureFactory {
-	/**
-	 * Transform a set of descriptors into a set of features.
-	 * 
-	 * @param featureDescriptors
-	 * @return
-	 */
-	public Set<LanguageDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) {
-		Set<LanguageDetectorFeature<?>> features = new HashSet<LanguageDetectorFeature<?>>();
-		for (String descriptor : featureDescriptors) {
-			if (descriptor.startsWith("CharNgram")) {
-				int n = Integer.parseInt(descriptor.substring(descriptor.indexOf('(') + 1, descriptor.lastIndexOf(')')));
-				CharacterNgramFeature charNgramFeature = new CharacterNgramFeature(n);
-				features.add(charNgramFeature);
-			} else {
-				throw new TalismaneException("Unknown language feature descriptor: " + descriptor);
-			}
-		}
-		return features;
-	}
+  /**
+   * Transform a set of descriptors into a set of features.
+   * 
+   * @param featureDescriptors
+   * @return
+   * @throws TalismaneException
+   *           if an unknown feature descriptor is encountered
+   */
+  public Set<LanguageDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) throws TalismaneException {
+    Set<LanguageDetectorFeature<?>> features = new HashSet<LanguageDetectorFeature<?>>();
+    for (String descriptor : featureDescriptors) {
+      if (descriptor.startsWith("CharNgram")) {
+        int n = Integer.parseInt(descriptor.substring(descriptor.indexOf('(') + 1, descriptor.lastIndexOf(')')));
+        CharacterNgramFeature charNgramFeature = new CharacterNgramFeature(n);
+        features.add(charNgramFeature);
+      } else {
+        throw new TalismaneException("Unknown language feature descriptor: " + descriptor);
+      }
+    }
+    return features;
+  }
 }

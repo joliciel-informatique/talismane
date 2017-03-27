@@ -18,51 +18,54 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Combines two or more boolean features using a boolean OR.
- * If any feature returns null, it will be considered as false.
+ * Combines two or more boolean features using a boolean OR. If any feature
+ * returns null, it will be considered as false.
+ * 
  * @author Assaf Urieli
  *
  */
-public class OrFeatureAllowNulls<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
-	BooleanFeature<T>[] booleanFeatures;
-	
-	@SafeVarargs
-	public OrFeatureAllowNulls(BooleanFeature<T>... booleanFeatures) {
-		super();
-		this.booleanFeatures = booleanFeatures;
-		String name = "";
-		boolean firstFeature = true;
-		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
-			if (!firstFeature)
-				 name += "|";
-			name += booleanFeature.getName();
-			firstFeature = false;
-		}
-		this.setName(name);
-	}
+public class OrFeatureAllowNulls<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
+  BooleanFeature<T>[] booleanFeatures;
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Boolean> featureResult = null;
-		
-		boolean booleanResult = false;
-		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
-			FeatureResult<Boolean> result = booleanFeature.check(context, env);
-			boolean value = false;
-			if (result!=null) {
-				value = result.getOutcome();
-			}
-			booleanResult = booleanResult || value;
-			if (booleanResult)
-				break;
-		}
-		
-		featureResult = this.generateResult(booleanResult);
-		return featureResult;
-	}
-	
-	public BooleanFeature<T>[] getBooleanFeatures() {
-		return booleanFeatures;
-	}
+  @SafeVarargs
+  public OrFeatureAllowNulls(BooleanFeature<T>... booleanFeatures) {
+    super();
+    this.booleanFeatures = booleanFeatures;
+    String name = "";
+    boolean firstFeature = true;
+    for (BooleanFeature<T> booleanFeature : booleanFeatures) {
+      if (!firstFeature)
+        name += "|";
+      name += booleanFeature.getName();
+      firstFeature = false;
+    }
+    this.setName(name);
+  }
+
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
+
+    boolean booleanResult = false;
+    for (BooleanFeature<T> booleanFeature : booleanFeatures) {
+      FeatureResult<Boolean> result = booleanFeature.check(context, env);
+      boolean value = false;
+      if (result != null) {
+        value = result.getOutcome();
+      }
+      booleanResult = booleanResult || value;
+      if (booleanResult)
+        break;
+    }
+
+    featureResult = this.generateResult(booleanResult);
+    return featureResult;
+  }
+
+  public BooleanFeature<T>[] getBooleanFeatures() {
+    return booleanFeatures;
+  }
 }

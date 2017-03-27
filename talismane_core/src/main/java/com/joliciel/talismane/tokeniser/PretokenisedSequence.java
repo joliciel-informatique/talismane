@@ -21,10 +21,9 @@ package com.joliciel.talismane.tokeniser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.rawText.Sentence;
 
 /**
  * A token sequence that has been pre-tokenised by another source (manual
@@ -34,60 +33,68 @@ import com.joliciel.talismane.filters.Sentence;
  *
  */
 public class PretokenisedSequence extends TokenSequence {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(PretokenisedSequence.class);
-	private static final long serialVersionUID = 2675309892340757939L;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(PretokenisedSequence.class);
+  private static final long serialVersionUID = 1L;
 
-	public PretokenisedSequence(PretokenisedSequence sequenceToClone) {
-		super(sequenceToClone);
-		if (this.getText().length() > 0)
-			this.textProvided = true;
-	}
+  PretokenisedSequence(PretokenisedSequence sequenceToClone) {
+    super(sequenceToClone);
+  }
 
-	public PretokenisedSequence(TalismaneSession talismaneSession) {
-		this("", talismaneSession);
-	}
+  public PretokenisedSequence(Sentence sentence, TalismaneSession talismaneSession) {
+    super(sentence, talismaneSession);
+  }
 
-	public PretokenisedSequence(String text, TalismaneSession talismaneSession) {
-		super(new Sentence(text, talismaneSession), talismaneSession);
-		if (text.length() > 0)
-			this.textProvided = true;
-	}
+  /**
+   * Called when reconstructing a sentence from a previously annotated corpus,
+   * adding the next string.
+   * 
+   * @throws TalismaneException
+   *           if couldn't find the token at the next sentence position
+   */
+  public Token addToken(String string) throws TalismaneException {
+    CharSequence text = this.getSentence().getText();
 
-	@Override
-	public Token addToken(int start, int end) {
-		throw new TalismaneException("Cannot add tokens by index");
+    int start = 0;
+    if (this.size() > 0)
+      start = this.get(this.size() - 1).getEndIndex();
 
-	}
+    // jump forward to first non-whitespace character
+    for (; start < text.length(); start++) {
+      char c = text.charAt(start);
+      if (!Character.isWhitespace(c))
+        break;
+    }
 
-	/**
-	 * Adds a token to the current sequence, where the sequence is constructed
-	 * from unit tokens, rather than from an existing sentence. Will
-	 * automatically attempt to add the correct whitespace prior to this token.
-	 */
-	public Token addToken(String tokenText) {
-		Token token = null;
+    // if the string begins with whitespace
+    // go backwards along whitespace to match string
+    for (int i = 0; i < string.length(); i++) {
+      char s = string.charAt(i);
+      if (Character.isWhitespace(s)) {
+        start--;
+        char t = text.charAt(start);
+        if (!Character.isWhitespace(t))
+          break;
+      } else {
+        break;
+      }
+    }
 
-		if (this.size() == 0) {
-			// do nothing
-		} else if (!textProvided) {
-			// check if a space should be added before this token
-			LinguisticRules rules = this.getTalismaneSession().getLinguisticRules();
-			if (rules == null)
-				throw new TalismaneException("Linguistic rules have not been set.");
+    int end = start + string.length();
 
-			if (rules.shouldAddSpace(this, tokenText))
-				this.addTokenInternal(" ");
+    if (end > text.length())
+      throw new TalismaneException("Add token failed: Expected |" + string + "| at positions " + start + ", " + end + ", but only remaining text (length "
+          + text.length() + ") is |" + text.subSequence(start, text.length()) + "| in sentence: |" + text + "|");
 
-		}
-		token = this.addTokenInternal(tokenText);
+    if (!string.equals(text.subSequence(start, end).toString()))
+      throw new TalismaneException("Add token failed: Expected |" + string + "| but was |" + text.subSequence(start, end) + "| in sentence: |" + text + "|");
 
-		return token;
-	}
+    return this.addToken(start, end);
+  }
 
-	@Override
-	public TokenSequence cloneTokenSequence() {
-		PretokenisedSequence tokenSequence = new PretokenisedSequence(this);
-		return tokenSequence;
-	}
+  @Override
+  public TokenSequence cloneTokenSequence() {
+    PretokenisedSequence tokenSequence = new PretokenisedSequence(this);
+    return tokenSequence;
+  }
 }

@@ -21,6 +21,10 @@ package com.joliciel.talismane.tokeniser.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -30,41 +34,44 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * A StringCollectionFeature returning all of the postags for the current token in the lexicon.
+ * A StringCollectionFeature returning all of the postags for the current token
+ * in the lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class LexiconPosTagsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
+public final class LexiconPosTagsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>implements StringCollectionFeature<TokenWrapper> {
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagsFeature.class);
 
-	public LexiconPosTagsFeature() {}
-	
-	public LexiconPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public LexiconPosTagsFeature() {
+  }
 
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
-			TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<List<WeightedOutcome<String>>> result = null;
-		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+  public LexiconPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-		for (PosTag posTag : token.getPossiblePosTags()) {
-			resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
-		}
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<List<WeightedOutcome<String>>> result = null;
+    List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
 
-		if (resultList.size()>0)
-			result = this.generateResult(resultList);
-		
-		return result;
-	}
+    for (PosTag posTag : token.getPossiblePosTags()) {
+      resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
+    }
+    if (resultList.size() > 0)
+      result = this.generateResult(resultList);
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return StringCollectionFeature.class;
-	}
+    return result;
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return StringCollectionFeature.class;
+  }
 }

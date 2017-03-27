@@ -32,58 +32,56 @@ import javax.tools.SimpleJavaFileObject;
  * but not both, depending on how it was instantiated.
  */
 final class InMemoryJavaFileObject extends SimpleJavaFileObject {
-	private final CharSequence sourceCode;
-	private ByteArrayOutputStream compiledClass;
+  private final CharSequence sourceCode;
+  private ByteArrayOutputStream compiledClass;
 
-	InMemoryJavaFileObject(final String baseName, final CharSequence source) {
-		super(getURI(baseName + ".java"),
-				Kind.SOURCE);
-		this.sourceCode = source;
-	}
+  InMemoryJavaFileObject(final String baseName, final CharSequence source) {
+    super(getURI(baseName + ".java"), Kind.SOURCE);
+    this.sourceCode = source;
+  }
 
-	InMemoryJavaFileObject(final String name) {
-		super(getURI(name), Kind.CLASS);
-		sourceCode = null;
-	}
+  InMemoryJavaFileObject(final String name) {
+    super(getURI(name), Kind.CLASS);
+    sourceCode = null;
+  }
 
-	/**
-	 * Return the source code.
-	 */
-	@Override
-	public CharSequence getCharContent(final boolean ignoreEncodingErrors)
-	throws UnsupportedOperationException {
-		if (sourceCode==null)
-			throw new UnsupportedOperationException("getCharContent()");
-		return sourceCode;
-	}
+  /**
+   * Return the source code.
+   */
+  @Override
+  public CharSequence getCharContent(final boolean ignoreEncodingErrors) throws UnsupportedOperationException {
+    if (sourceCode == null)
+      throw new UnsupportedOperationException("getCharContent()");
+    return sourceCode;
+  }
 
-	/**
-	 * Return the compiled class for reading.
-	 */
-	@Override
-	public InputStream openInputStream() {
-		byte[] byteArray = compiledClass.toByteArray();
-		return new ByteArrayInputStream(byteArray);
-	}
+  /**
+   * Return the compiled class for reading.
+   */
+  @Override
+  public InputStream openInputStream() {
+    byte[] byteArray = compiledClass.toByteArray();
+    return new ByteArrayInputStream(byteArray);
+  }
 
-	/**
-	 * Return the compiled class for writing.
-	 */
-	@Override
-	public OutputStream openOutputStream() {
-		compiledClass = new ByteArrayOutputStream();
-		return compiledClass;
-	}
+  /**
+   * Return the compiled class for writing.
+   */
+  @Override
+  public OutputStream openOutputStream() {
+    compiledClass = new ByteArrayOutputStream();
+    return compiledClass;
+  }
 
-	public byte[] getBytes() {
-		return compiledClass.toByteArray();
-	}
+  public byte[] getBytes() {
+    return compiledClass.toByteArray();
+  }
 
-	static URI getURI(String name) {
-		try {
-			return new URI(name);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  static URI getURI(String name) {
+    try {
+      return new URI(name);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

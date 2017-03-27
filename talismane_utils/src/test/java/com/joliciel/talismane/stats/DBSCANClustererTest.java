@@ -30,39 +30,39 @@ import org.junit.Test;
 
 public class DBSCANClustererTest {
 
-	@Test
-	public void testCluster() {
-		List<Integer> objectSet = new ArrayList<Integer>();
-		List<double[]> dataSet = new ArrayList<double[]>();
-		objectSet.add(1);
-		objectSet.add(2);
-		objectSet.add(3);
-		objectSet.add(4);
-		objectSet.add(5);
-		objectSet.add(6);
+  @Test
+  public void testCluster() {
+    List<Integer> objectSet = new ArrayList<Integer>();
+    List<double[]> dataSet = new ArrayList<double[]>();
+    objectSet.add(1);
+    objectSet.add(2);
+    objectSet.add(3);
+    objectSet.add(4);
+    objectSet.add(5);
+    objectSet.add(6);
 
-		dataSet.add(new double[] { 3.8 });
-		dataSet.add(new double[] { 4.0 });
-		dataSet.add(new double[] { 4.2 });
-		dataSet.add(new double[] { 8.0 });
-		dataSet.add(new double[] { 8.1 });
-		dataSet.add(new double[] { 12.0 });
+    dataSet.add(new double[] { 3.8 });
+    dataSet.add(new double[] { 4.0 });
+    dataSet.add(new double[] { 4.2 });
+    dataSet.add(new double[] { 8.0 });
+    dataSet.add(new double[] { 8.1 });
+    dataSet.add(new double[] { 12.0 });
 
-		DBSCANClusterer<Integer> clusterer = new DBSCANClusterer<Integer>(objectSet, dataSet);
-		Set<Set<Integer>> clusters = clusterer.cluster(0.3, 2, false);
-		assertEquals(2, clusters.size());
+    DBSCANClusterer<Integer> clusterer = new DBSCANClusterer<Integer>(objectSet, dataSet);
+    Set<Set<Integer>> clusters = clusterer.cluster(0.3, 2, false);
+    assertEquals(2, clusters.size());
 
-		for (Set<Integer> cluster : clusters) {
-			if (cluster.contains(1)) {
-				assertTrue(cluster.contains(2));
-				assertTrue(cluster.contains(3));
-			} else if (cluster.contains(4)) {
-				assertTrue(cluster.contains(5));
-			} else {
-				fail("Unknown cluster");
-			}
-		}
+    for (Set<Integer> cluster : clusters) {
+      if (cluster.contains(1)) {
+        assertTrue(cluster.contains(2));
+        assertTrue(cluster.contains(3));
+      } else if (cluster.contains(4)) {
+        assertTrue(cluster.contains(5));
+      } else {
+        fail("Unknown cluster");
+      }
+    }
 
-	}
+  }
 
 }

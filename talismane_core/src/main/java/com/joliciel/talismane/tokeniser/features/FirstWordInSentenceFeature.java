@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -27,70 +27,71 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
  * Returns true if this is the first word in the sentence.<br/>
- * Will skip initial punctuation (e.g. quotation marks) or numbered lists, returning true for the
- * first word following such constructs.
+ * Will skip initial punctuation (e.g. quotation marks) or numbered lists,
+ * returning true for the first word following such constructs.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {	
-	public FirstWordInSentenceFeature() {
-	}
-	
-	public FirstWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
-	
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
-		Token token = innerWrapper.getToken();
-		
-		FeatureResult<Boolean> result = null;
-		
-		boolean firstWord = (token.getIndex()==0);
-		if (!firstWord) {
-			TokenSequence tokenSequence = token.getTokenSequence();
-			int startIndex = 0;
-			String word0 = "";
-			String word1 = "";
-			String word2 = "";
-			if (tokenSequence.size()>0) word0 = tokenSequence.get(0).getText();
-			if (tokenSequence.size()>1) word1 = tokenSequence.get(1).getText();
-			if (tokenSequence.size()>2) word2 = tokenSequence.get(2).getText();
-			
-			boolean word0IsInteger = false;
-			try {
-				Integer.parseInt(word0);
-				word0IsInteger = true;
-			} catch (NumberFormatException nfe) {
-				word0IsInteger = false;
-			}
-			
-			boolean word1IsInteger = false;
-			try {
-				Integer.parseInt(word1);
-				word1IsInteger = true;
-			} catch (NumberFormatException nfe) {
-				word1IsInteger = false;
-			}
-			
-			if (word0.equals("\"")||word0.equals("-")||word0.equals("--")||word0.equals("—")||word0.equals("*")||word0.equals("(")) {
-				startIndex = 1;
-			} else if ((word0IsInteger||word0.length()==1)
-					&& (word1.equals(")")||word1.equals("."))) {
-				startIndex = 2;
-			} else if (word0.equals("(")
-					&& (word1IsInteger||word1.length()==1)
-					&& word2.equals(")")) {
-				startIndex = 3;
-			}
-			firstWord = (token.getIndex()==startIndex);
-		} // have token
-		
-		result = this.generateResult(firstWord);
-		
-		return result;
-	}
+public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+  public FirstWordInSentenceFeature() {
+  }
+
+  public FirstWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
+
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+
+    FeatureResult<Boolean> result = null;
+
+    boolean firstWord = (token.getIndex() == 0);
+    if (!firstWord) {
+      TokenSequence tokenSequence = token.getTokenSequence();
+      int startIndex = 0;
+      String word0 = "";
+      String word1 = "";
+      String word2 = "";
+      if (tokenSequence.size() > 0)
+        word0 = tokenSequence.get(0).getAnalyisText();
+      if (tokenSequence.size() > 1)
+        word1 = tokenSequence.get(1).getAnalyisText();
+      if (tokenSequence.size() > 2)
+        word2 = tokenSequence.get(2).getAnalyisText();
+
+      boolean word0IsInteger = false;
+      try {
+        Integer.parseInt(word0);
+        word0IsInteger = true;
+      } catch (NumberFormatException nfe) {
+        word0IsInteger = false;
+      }
+
+      boolean word1IsInteger = false;
+      try {
+        Integer.parseInt(word1);
+        word1IsInteger = true;
+      } catch (NumberFormatException nfe) {
+        word1IsInteger = false;
+      }
+
+      if (word0.equals("\"") || word0.equals("-") || word0.equals("--") || word0.equals("—") || word0.equals("*") || word0.equals("(")) {
+        startIndex = 1;
+      } else if ((word0IsInteger || word0.length() == 1) && (word1.equals(")") || word1.equals("."))) {
+        startIndex = 2;
+      } else if (word0.equals("(") && (word1IsInteger || word1.length() == 1) && word2.equals(")")) {
+        startIndex = 3;
+      }
+      firstWord = (token.getIndex() == startIndex);
+    } // have token
+
+    result = this.generateResult(firstWord);
+
+    return result;
+  }
 }

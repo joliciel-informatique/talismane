@@ -20,30 +20,24 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Wrapper for a string literal.
+ * 
  * @author Assaf Urieli
  */
-public class StringLiteralFeature<T> extends AbstractFeature<T, String> implements
-		StringFeature<T> {
-	private String literal = null;
-	
-	public StringLiteralFeature(String literal) {
-		super();
-		this.literal = literal;
-		this.setName("\"" + literal + "\"");
-	}
+public class StringLiteralFeature<T> extends AbstractFeature<T, String>implements StringFeature<T> {
+  private String literal = null;
 
-	@Override
-	public FeatureResult<String> check(T context, RuntimeEnvironment env) {
-		return this.generateResult(literal);
-	}
+  public StringLiteralFeature(String literal) {
+    super();
+    this.literal = literal;
+    this.setName("\"" + literal + "\"");
+  }
 
-	public String getLiteral() {
-		return literal;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		builder.append(variableName + "=\"" + literal.replace("\"", "\\\"") + "\";");
-		return true;
-	}
+  @Override
+  public FeatureResult<String> check(T context, RuntimeEnvironment env) {
+    return this.generateResult(literal);
+  }
+
+  public String getLiteral() {
+    return literal;
+  }
 }

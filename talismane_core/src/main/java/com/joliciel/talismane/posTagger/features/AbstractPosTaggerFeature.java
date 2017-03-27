@@ -30,6 +30,6 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractPosTaggerFeature<T> extends AbstractCachableFeature<PosTaggerContext, T> implements PosTaggerFeature<T> {
+public abstract class AbstractPosTaggerFeature<T> extends AbstractCachableFeature<PosTaggerContext, T>implements PosTaggerFeature<T> {
 
 }

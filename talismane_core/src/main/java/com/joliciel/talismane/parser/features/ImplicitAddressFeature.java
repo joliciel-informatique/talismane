@@ -26,23 +26,25 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
- * Simply returns the PosTaggedTokenWrapper that was passed in in the first place.
+ * Simply returns the PosTaggedTokenWrapper that was passed in in the first
+ * place.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class ImplicitAddressFeature extends AbstractFeature<PosTaggedTokenWrapper,PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<PosTaggedTokenWrapper> {
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(
-			PosTaggedTokenWrapper context, RuntimeEnvironment env) {
+public final class ImplicitAddressFeature extends AbstractFeature<PosTaggedTokenWrapper, PosTaggedTokenWrapper>
+    implements PosTaggedTokenAddressFunction<PosTaggedTokenWrapper> {
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(PosTaggedTokenWrapper context, RuntimeEnvironment env) {
 
-		FeatureResult<PosTaggedTokenWrapper> result = this.generateResult(context);
-		return result;
-	}
+    FeatureResult<PosTaggedTokenWrapper> result = this.generateResult(context);
+    return result;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return PosTaggedTokenAddressFunction.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return PosTaggedTokenAddressFunction.class;
+  }
 
 }

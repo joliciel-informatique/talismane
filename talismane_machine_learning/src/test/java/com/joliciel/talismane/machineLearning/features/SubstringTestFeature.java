@@ -18,75 +18,58 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * A feature for testing on string contexts.
+ * 
  * @author Assaf Urieli
  *
  */
-public class SubstringTestFeature extends AbstractFeature<String,String> implements StringFeature<String> {
-	private IntegerFeature<String> startFeature;
-	private IntegerFeature<String> endFeature;
-	
-	public SubstringTestFeature(IntegerFeature<String> startFeature,
-			IntegerFeature<String> endFeature) {
-		super();
-		this.startFeature = startFeature;
-		this.endFeature = endFeature;
-		
-		this.setName(this.getName() + "(" + this.startFeature.getName() + "," + this.endFeature.getName() + ")");
-	}
+public class SubstringTestFeature extends AbstractFeature<String, String>implements StringFeature<String> {
+  private IntegerFeature<String> startFeature;
+  private IntegerFeature<String> endFeature;
 
-	@Override
-	public FeatureResult<String> check(String context, RuntimeEnvironment env) {
-		FeatureResult<String> result = null;
-		FeatureResult<Integer> startResult = startFeature.check(context, env);
-		FeatureResult<Integer> endResult = endFeature.check(context, env);
-		
-		if (startResult!=null && endResult!=null) {
-			int start = startResult.getOutcome();
-			int end = endResult.getOutcome();
-			
-			if (start >= 0 && end <= context.length()
-					&& start <= end) {
-				String subString = context.substring(start, end);
-				result = this.generateResult(subString);
-			}
-		}
-		return result;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<String> builder, String variableName) {
-		String start = builder.addFeatureVariable(startFeature, "start");
-		String end = builder.addFeatureVariable(endFeature, "end");
-		
-		builder.append("if (" + start + "!=null && " + end + "!=null) {");
-		builder.indent();
-		builder.append("if (" + start + ">=0 && " + end + "<= context.length() && " + start + "<=" + end + ") {" );
-		builder.indent();
-		builder.append(variableName + "=context.substring(" + start + ", " + end + ");");
-		builder.outdent();
-		builder.append("}");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
+  public SubstringTestFeature(IntegerFeature<String> startFeature, IntegerFeature<String> endFeature) {
+    super();
+    this.startFeature = startFeature;
+    this.endFeature = endFeature;
 
-	public IntegerFeature<String> getStartFeature() {
-		return startFeature;
-	}
+    this.setName(this.getName() + "(" + this.startFeature.getName() + "," + this.endFeature.getName() + ")");
+  }
 
-	public void setStartFeature(IntegerFeature<String> startFeature) {
-		this.startFeature = startFeature;
-	}
+  @Override
+  public FeatureResult<String> check(String context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> result = null;
+    FeatureResult<Integer> startResult = startFeature.check(context, env);
+    FeatureResult<Integer> endResult = endFeature.check(context, env);
 
-	public IntegerFeature<String> getEndFeature() {
-		return endFeature;
-	}
+    if (startResult != null && endResult != null) {
+      int start = startResult.getOutcome();
+      int end = endResult.getOutcome();
 
-	public void setEndFeature(IntegerFeature<String> endFeature) {
-		this.endFeature = endFeature;
-	}
+      if (start >= 0 && end <= context.length() && start <= end) {
+        String subString = context.substring(start, end);
+        result = this.generateResult(subString);
+      }
+    }
+    return result;
+  }
+
+  public IntegerFeature<String> getStartFeature() {
+    return startFeature;
+  }
+
+  public void setStartFeature(IntegerFeature<String> startFeature) {
+    this.startFeature = startFeature;
+  }
+
+  public IntegerFeature<String> getEndFeature() {
+    return endFeature;
+  }
+
+  public void setEndFeature(IntegerFeature<String> endFeature) {
+    this.endFeature = endFeature;
+  }
 
 }

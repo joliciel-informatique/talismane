@@ -18,52 +18,41 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Converts a non-string feature to a string feature.
- * If the feature result is null, will return null (rather than the string "null").
+ * Converts a non-string feature to a string feature. If the feature result is
+ * null, will return null (rather than the string "null").
+ * 
  * @author Assaf Urieli
  */
-public class ToStringFeature<T> extends AbstractCachableFeature<T, String> implements StringFeature<T> {
-	Feature<T,?> featureToString;
-	
-	public ToStringFeature(Feature<T,?> feature1) {
-		super();
-		this.featureToString = feature1;
-		this.setName(super.getName() + "(" + feature1.getName() + ")");
-	}
+public class ToStringFeature<T> extends AbstractCachableFeature<T, String>implements StringFeature<T> {
+  Feature<T, ?> featureToString;
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<String> featureResult = null;
-		
-		FeatureResult<?> result1 = featureToString.check(context, env);
-		
-		if (result1!=null) {
-			featureResult = this.generateResult(result1.getOutcome().toString());
-		}
-		return featureResult;
-	}
+  public ToStringFeature(Feature<T, ?> feature1) {
+    super();
+    this.featureToString = feature1;
+    this.setName(super.getName() + "(" + feature1.getName() + ")");
+  }
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op = builder.addFeatureVariable(featureToString, "operand");
-		
-		builder.append("if (" + op + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = " + op + ".toString();");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-	
-	public Feature<T, ?> getFeatureToString() {
-		return featureToString;
-	}
+  @Override
+  public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> featureResult = null;
 
-	public void setFeatureToString(Feature<T, ?> featureToString) {
-		this.featureToString = featureToString;
-	}
-	
-	
+    FeatureResult<?> result1 = featureToString.check(context, env);
+
+    if (result1 != null) {
+      featureResult = this.generateResult(result1.getOutcome().toString());
+    }
+    return featureResult;
+  }
+
+  public Feature<T, ?> getFeatureToString() {
+    return featureToString;
+  }
+
+  public void setFeatureToString(Feature<T, ?> featureToString) {
+    this.featureToString = featureToString;
+  }
+
 }

@@ -20,10 +20,12 @@ package com.joliciel.talismane.stats;
 
 /**
  * Stores a probability.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface Probability {
-	public double getValue();
-	public double getLog();
+  public double getValue();
+
+  public double getLog();
 }

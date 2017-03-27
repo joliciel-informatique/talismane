@@ -20,31 +20,25 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Wrapper for a double literal.
+ * 
  * @author Assaf Urieli
  *
  */
-public class DoubleLiteralFeature<T> extends AbstractFeature<T, Double> implements
-		DoubleFeature<T> {
-	private double literal;
-	
-	public DoubleLiteralFeature(double literal) {
-		super();
-		this.literal = literal;
-		this.setName("" + literal);
-	}
+public class DoubleLiteralFeature<T> extends AbstractFeature<T, Double>implements DoubleFeature<T> {
+  private double literal;
 
-	@Override
-	public FeatureResult<Double> check(T context, RuntimeEnvironment env) {
-		return this.generateResult(literal);
-	}
+  public DoubleLiteralFeature(double literal) {
+    super();
+    this.literal = literal;
+    this.setName("" + literal);
+  }
 
-	public double getLiteral() {
-		return literal;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		builder.append(variableName + "=" + literal + ";");
-		return true;
-	}
+  @Override
+  public FeatureResult<Double> check(T context, RuntimeEnvironment env) {
+    return this.generateResult(literal);
+  }
+
+  public double getLiteral() {
+    return literal;
+  }
 }

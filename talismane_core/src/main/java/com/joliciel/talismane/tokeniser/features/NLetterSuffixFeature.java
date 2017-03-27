@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -26,44 +26,46 @@ import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Retrieves the last N letters of the last entire word in the current token, as long as N &lt; the length of the last word.
+ * Retrieves the last N letters of the last entire word in the current token, as
+ * long as N &lt; the length of the last word.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class NLetterSuffixFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper>  {
-	private IntegerFeature<TokenWrapper> nFeature;
-	
-	public NLetterSuffixFeature(IntegerFeature<TokenWrapper> nFeature) {
-		this.nFeature = nFeature;
-		this.setName(super.getName() + "(" + this.nFeature.getName() + ")");
-	}
-	
-	public NLetterSuffixFeature(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> nFeature) {
-		this(nFeature);
-		this.setAddressFunction(addressFunction);
-	}
-	
-	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<String> result = null;
-		String lastWord = token.getText().trim();
-		if (lastWord.indexOf(' ')>=0) {
-			int lastSpace = lastWord.lastIndexOf(' ');
-			lastWord = lastWord.substring(lastSpace+1);
-		}
+public final class NLetterSuffixFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
+  private IntegerFeature<TokenWrapper> nFeature;
 
-		FeatureResult<Integer> nResult = nFeature.check(innerWrapper, env);
-		if (nResult!=null) {
-			int n = nResult.getOutcome();
-			if (lastWord.length()>n) {
-				String suffix = lastWord.substring(lastWord.length()-n);
-				result = this.generateResult(suffix);
-			}
-		}
-		return result;
-	}
+  public NLetterSuffixFeature(IntegerFeature<TokenWrapper> nFeature) {
+    this.nFeature = nFeature;
+    this.setName(super.getName() + "(" + this.nFeature.getName() + ")");
+  }
+
+  public NLetterSuffixFeature(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> nFeature) {
+    this(nFeature);
+    this.setAddressFunction(addressFunction);
+  }
+
+  @Override
+  public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<String> result = null;
+    String lastWord = token.getAnalyisText().trim();
+    if (lastWord.indexOf(' ') >= 0) {
+      int lastSpace = lastWord.lastIndexOf(' ');
+      lastWord = lastWord.substring(lastSpace + 1);
+    }
+
+    FeatureResult<Integer> nResult = nFeature.check(innerWrapper, env);
+    if (nResult != null) {
+      int n = nResult.getOutcome();
+      if (lastWord.length() > n) {
+        String suffix = lastWord.substring(lastWord.length() - n);
+        result = this.generateResult(suffix);
+      }
+    }
+    return result;
+  }
 }

@@ -18,19 +18,27 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
+import com.joliciel.talismane.posTagger.PosTaggers;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.typesafe.config.Config;
 
 /**
  * Evaluate a parser.
@@ -39,158 +47,151 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
  *
  */
 public class ParserEvaluator {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(ParserEvaluator.class);
-	private Parser parser;
-	private PosTagger posTagger;
-	private Tokeniser tokeniser;
-	private boolean propagateBeam = true;
-	private int sentenceCount = 0;
+  private static final Logger LOG = LoggerFactory.getLogger(ParserEvaluator.class);
+  private final ParserAnnotatedCorpusReader corpusReader;
+  private final Parser parser;
+  private final PosTagger posTagger;
+  private final Tokeniser tokeniser;
 
-	private List<ParseEvaluationObserver> observers = new ArrayList<ParseEvaluationObserver>();
+  private final List<ParseEvaluationObserver> observers;
+  private final TalismaneSession session;
 
-	public void evaluate(ParserAnnotatedCorpusReader corpusReader) {
-		int sentenceIndex = 0;
-		while (corpusReader.hasNextConfiguration()) {
-			ParseConfiguration realConfiguration = corpusReader.nextConfiguration();
+  public ParserEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+      throws ClassNotFoundException, IOException, ReflectiveOperationException, TalismaneException {
+    this.session = session;
+    Config config = session.getConfig();
+    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config evalConfig = parserConfig.getConfig("evaluate");
 
-			List<PosTagSequence> posTagSequences = null;
-			List<TokenSequence> tokenSequences = null;
-			if (tokeniser != null) {
-				if (posTagger == null)
-					throw new TalismaneException("Cannot evaluate with tokeniser but no pos-tagger");
+    this.observers = ParseEvaluationObserver.getObservers(outDir, session);
+    this.corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("input"), session);
 
-				Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
+    this.parser = Parsers.getParser(session);
 
-				tokenSequences = tokeniser.tokenise(sentence);
+    Module startModule = Module.valueOf(evalConfig.getString("start-module"));
+    if (startModule == Module.tokeniser) {
+      tokeniser = Tokeniser.getInstance(session);
+    } else {
+      tokeniser = null;
+    }
+    if (startModule == Module.tokeniser || startModule == Module.posTagger) {
+      posTagger = PosTaggers.getPosTagger(session);
+    } else {
+      posTagger = null;
+    }
+  }
 
-				if (!propagateBeam) {
-					TokenSequence tokenSequence = tokenSequences.get(0);
-					tokenSequences = new ArrayList<TokenSequence>();
-					tokenSequences.add(tokenSequence);
-				}
-			} else {
-				tokenSequences = new ArrayList<TokenSequence>();
-				PosTagSequence posTagSequence = realConfiguration.getPosTagSequence().clonePosTagSequence();
-				posTagSequence.removeRoot();
-				tokenSequences.add(posTagSequence.getTokenSequence());
-			}
+  public ParserEvaluator(ParserAnnotatedCorpusReader corpusReader, Parser parser, PosTagger posTagger, Tokeniser tokeniser, boolean propagateTokeniserBeam,
+      boolean propagateBeam, TalismaneSession session) {
+    this.session = session;
+    this.corpusReader = corpusReader;
+    this.parser = parser;
+    this.posTagger = posTagger;
+    this.tokeniser = tokeniser;
+    this.observers = new ArrayList<>();
+  }
 
-			if (posTagger != null) {
-				if (posTagger instanceof NonDeterministicPosTagger) {
-					NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
-					posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+  /**
+   * 
+   * @throws TalismaneException
+   *           if an attempt is made to evaluate with a tokeniser but no
+   *           pos-tagger
+   * @throws IOException
+   */
+  public void evaluate() throws TalismaneException, IOException {
+    while (corpusReader.hasNextSentence()) {
+      ParseConfiguration realConfiguration = corpusReader.nextConfiguration();
 
-					if (!propagateBeam) {
-						PosTagSequence posTagSequence = posTagSequences.get(0);
-						posTagSequences = new ArrayList<PosTagSequence>();
-						posTagSequences.add(posTagSequence);
-					}
-				} else {
-					posTagSequences = new ArrayList<PosTagSequence>();
-					PosTagSequence posTagSequence = null;
-					posTagSequence = posTagger.tagSentence(tokenSequences.get(0));
-					posTagSequences.add(posTagSequence);
-				}
-			} else {
-				PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();
-				posTagSequences = new ArrayList<PosTagSequence>();
-				posTagSequences.add(posTagSequence);
-			}
+      List<PosTagSequence> posTagSequences = null;
+      List<TokenSequence> tokenSequences = null;
+      if (tokeniser != null) {
+        if (posTagger == null)
+          throw new TalismaneException("Cannot evaluate with tokeniser but no pos-tagger");
 
-			for (ParseEvaluationObserver observer : this.observers) {
-				observer.onParseStart(realConfiguration, posTagSequences);
-			}
+        Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
 
-			List<ParseConfiguration> guessedConfigurations = null;
-			if (parser instanceof NonDeterministicParser) {
-				NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
-				guessedConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
-			} else {
-				ParseConfiguration bestGuess = parser.parseSentence(posTagSequences.get(0));
-				guessedConfigurations = new ArrayList<ParseConfiguration>();
-				guessedConfigurations.add(bestGuess);
-			}
+        // annotate the sentence for pre token filters
+        for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
+          annotator.annotate(sentence);
+          if (LOG.isTraceEnabled()) {
+            LOG.trace("TokenFilter: " + annotator);
+            LOG.trace("annotations: " + sentence.getAnnotations());
+          }
+        }
 
-			for (ParseEvaluationObserver observer : this.observers) {
-				observer.onParseEnd(realConfiguration, guessedConfigurations);
-			}
+        tokenSequences = tokeniser.tokenise(sentence);
+      } else {
+        tokenSequences = new ArrayList<TokenSequence>();
+        PosTagSequence posTagSequence = realConfiguration.getPosTagSequence().clonePosTagSequence();
+        posTagSequence.removeRoot();
+        tokenSequences.add(posTagSequence.getTokenSequence());
+      }
 
-			sentenceIndex++;
-			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
-				break;
-		} // next sentence
+      if (posTagger != null) {
+        if (posTagger instanceof NonDeterministicPosTagger) {
+          NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
+          posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+        } else {
+          posTagSequences = new ArrayList<PosTagSequence>();
+          PosTagSequence posTagSequence = null;
+          posTagSequence = posTagger.tagSentence(tokenSequences.get(0));
+          posTagSequences.add(posTagSequence);
+        }
+      } else {
+        PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();
+        posTagSequences = new ArrayList<PosTagSequence>();
+        posTagSequences.add(posTagSequence);
+      }
 
-		for (ParseEvaluationObserver observer : this.observers) {
-			observer.onEvaluationComplete();
-		}
-	}
+      for (ParseEvaluationObserver observer : this.observers) {
+        observer.onParseStart(realConfiguration, posTagSequences);
+      }
 
-	public Parser getParser() {
-		return parser;
-	}
+      List<ParseConfiguration> guessedConfigurations = null;
+      if (parser instanceof NonDeterministicParser) {
+        NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
+        guessedConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
+      } else {
+        ParseConfiguration bestGuess = parser.parseSentence(posTagSequences.get(0));
+        guessedConfigurations = new ArrayList<ParseConfiguration>();
+        guessedConfigurations.add(bestGuess);
+      }
 
-	public void setParser(Parser parser) {
-		this.parser = parser;
-	}
+      for (ParseEvaluationObserver observer : this.observers) {
+        observer.onParseEnd(realConfiguration, guessedConfigurations);
+      }
+    } // next sentence
 
-	/**
-	 * If provided, will apply pos-tagging as part of the evaluation.
-	 */
-	public PosTagger getPosTagger() {
-		return posTagger;
-	}
+    for (ParseEvaluationObserver observer : this.observers) {
+      observer.onEvaluationComplete();
+    }
+  }
 
-	public void setPosTagger(PosTagger posTagger) {
-		this.posTagger = posTagger;
-	}
+  public Parser getParser() {
+    return parser;
+  }
 
-	/**
-	 * If provided, will apply tokenisation as part of the evaluation. If
-	 * provided, a pos-tagger must be provided as well.
-	 */
-	public Tokeniser getTokeniser() {
-		return tokeniser;
-	}
+  /**
+   * If provided, will apply pos-tagging as part of the evaluation.
+   */
+  public PosTagger getPosTagger() {
+    return posTagger;
+  }
 
-	public void setTokeniser(Tokeniser tokeniser) {
-		this.tokeniser = tokeniser;
-	}
+  /**
+   * If provided, will apply tokenisation as part of the evaluation. If
+   * provided, a pos-tagger must be provided as well.
+   */
+  public Tokeniser getTokeniser() {
+    return tokeniser;
+  }
 
-	public List<ParseEvaluationObserver> getObservers() {
-		return observers;
-	}
+  public List<ParseEvaluationObserver> getObservers() {
+    return observers;
+  }
 
-	public void setObservers(List<ParseEvaluationObserver> observers) {
-		this.observers = observers;
-	}
-
-	public void addObserver(ParseEvaluationObserver observer) {
-		this.observers.add(observer);
-	}
-
-	/**
-	 * Should the beam be propagated from one module to the next, e.g. from the
-	 * pos-tagger to the parser.
-	 */
-	public boolean isPropagateBeam() {
-		return propagateBeam;
-	}
-
-	public void setPropagateBeam(boolean propagateBeam) {
-		this.propagateBeam = propagateBeam;
-	}
-
-	/**
-	 * The maximum number of sentences to evaluate. Default is 0, which means
-	 * all.
-	 */
-	public int getSentenceCount() {
-		return sentenceCount;
-	}
-
-	public void setSentenceCount(int sentenceCount) {
-		this.sentenceCount = sentenceCount;
-	}
+  public void addObserver(ParseEvaluationObserver observer) {
+    this.observers.add(observer);
+  }
 
 }

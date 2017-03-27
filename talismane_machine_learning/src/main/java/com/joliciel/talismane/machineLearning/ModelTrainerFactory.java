@@ -32,33 +32,36 @@ import com.typesafe.config.ConfigFactory;
  *
  */
 public class ModelTrainerFactory {
-	/**
-	 * Get a classification model trainer corresponding to a given outcome type
-	 * and a given algorithm.
-	 */
-	public ClassificationModelTrainer constructTrainer(Config config) {
-		config.checkValid(ConfigFactory.defaultReference(), "talismane.machineLearning");
-		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("talismane.machineLearning.algorithm"));
-		ClassificationModelTrainer modelTrainer = null;
-		switch (algorithm) {
-		case MaxEnt:
-			MaxentModelTrainer maxentModelTrainer = new MaxentModelTrainer();
-			modelTrainer = maxentModelTrainer;
-			break;
-		case LinearSVM:
-		case LinearSVMOneVsRest:
-			LinearSVMModelTrainer linearSVMModelTrainer = new LinearSVMModelTrainer();
-			modelTrainer = linearSVMModelTrainer;
-			break;
-		case Perceptron:
-			PerceptronClassificationModelTrainer perceptronModelTrainer = new PerceptronClassificationModelTrainer();
-			modelTrainer = perceptronModelTrainer;
-			break;
-		default:
-			throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
-		}
+  /**
+   * Get a classification model trainer corresponding to a given outcome type
+   * and a given algorithm.<br/>
+   * <br/>
+   * It is assumed the config file passed will be a local configuration, whose
+   * root is equivalent to the talismane.machine-learning key in reference.conf
+   */
+  public ClassificationModelTrainer constructTrainer(Config config) {
+    config.checkValid(ConfigFactory.defaultReference().getConfig("talismane.machine-learning"));
+    MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("algorithm"));
+    ClassificationModelTrainer modelTrainer = null;
+    switch (algorithm) {
+    case MaxEnt:
+      MaxentModelTrainer maxentModelTrainer = new MaxentModelTrainer();
+      modelTrainer = maxentModelTrainer;
+      break;
+    case LinearSVM:
+    case LinearSVMOneVsRest:
+      LinearSVMModelTrainer linearSVMModelTrainer = new LinearSVMModelTrainer();
+      modelTrainer = linearSVMModelTrainer;
+      break;
+    case Perceptron:
+      PerceptronClassificationModelTrainer perceptronModelTrainer = new PerceptronClassificationModelTrainer();
+      modelTrainer = perceptronModelTrainer;
+      break;
+    default:
+      throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
+    }
 
-		modelTrainer.setParameters(config);
-		return modelTrainer;
-	}
+    modelTrainer.setParameters(config);
+    return modelTrainer;
+  }
 }

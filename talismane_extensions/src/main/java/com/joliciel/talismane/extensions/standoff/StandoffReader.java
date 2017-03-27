@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.extensions.standoff;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,9 +31,10 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.lexicon.LexicalEntryReader;
+import com.joliciel.talismane.corpus.AbstractAnnotatedCorpusReader;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -42,317 +45,247 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
-public class StandoffReader implements ParserAnnotatedCorpusReader {
-	private static final Logger LOG = LoggerFactory.getLogger(StandoffReader.class);
-	private int maxSentenceCount = 0;
-	private int startSentence = 0;
-	private int sentenceCount = 0;
-	private int lineNumber = 1;
-	private int includeIndex = -1;
-	private int excludeIndex = -1;
-	private int crossValidationSize = 0;
+public class StandoffReader extends AbstractAnnotatedCorpusReader implements ParserAnnotatedCorpusReader {
+  private static final Logger LOG = LoggerFactory.getLogger(StandoffReader.class);
+  private int sentenceCount = 0;
+  private int lineNumber = 1;
 
-	ParseConfiguration configuration = null;
-	private int sentenceIndex = 0;
+  ParseConfiguration configuration = null;
+  private int sentenceIndex = 0;
 
-	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
-	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
-	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
-	private TokenSequenceFilter tokenFilterWrapper = null;
+  private Map<String, StandoffToken> tokenMap = new HashMap<>();
+  private Map<String, StandoffRelation> relationMap = new HashMap<>();
+  private Map<String, StandoffRelation> idRelationMap = new HashMap<>();
+  private Map<String, String> notes = new HashMap<String, String>();
 
-	private Map<String, StandoffToken> tokenMap = new HashMap<String, StandoffReader.StandoffToken>();
-	private Map<String, StandoffRelation> relationMap = new HashMap<String, StandoffReader.StandoffRelation>();
-	private Map<String, StandoffRelation> idRelationMap = new HashMap<String, StandoffReader.StandoffRelation>();
-	private Map<String, String> notes = new HashMap<String, String>();
+  private List<List<StandoffToken>> sentences = new ArrayList<>();
+  private final String punctuationDepLabel;
 
-	private List<List<StandoffToken>> sentences = new ArrayList<List<StandoffReader.StandoffToken>>();
+  public StandoffReader(Reader reader, Config config, TalismaneSession session) throws TalismaneException {
+    super(config, session);
+    PosTagSet posTagSet = session.getPosTagSet();
+    punctuationDepLabel = session.getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
 
-	private final TalismaneSession talismaneSession;
-	private final String punctuationDepLabel;
+    Map<Integer, StandoffToken> sortedTokens = new TreeMap<>();
+    try (Scanner scanner = new Scanner(reader)) {
+      while (scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        if (line.startsWith("T")) {
 
-	public StandoffReader(TalismaneSession talismaneSession, Scanner scanner) {
-		this.talismaneSession = talismaneSession;
-		PosTagSet posTagSet = talismaneSession.getPosTagSet();
-		
-		Config conf = ConfigFactory.load();
-		punctuationDepLabel = conf.getString("talismane.extensions.parser.punctuation-dep-label");
+          String[] parts = line.split("[\\t]");
+          String id = parts[0];
+          String[] posTagParts = parts[1].split(" ");
+          String posTagCode = posTagParts[0].replace('_', '+');
+          int startPos = Integer.parseInt(posTagParts[1]);
+          String text = parts[2];
 
-		Map<Integer, StandoffToken> sortedTokens = new TreeMap<Integer, StandoffReader.StandoffToken>();
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			if (line.startsWith("T")) {
+          PosTag posTag = null;
+          if (posTagCode.equalsIgnoreCase(PosTag.ROOT_POS_TAG_CODE)) {
+            posTag = PosTag.ROOT_POS_TAG;
+          } else {
+            try {
+              posTag = posTagSet.getPosTag(posTagCode);
+            } catch (UnknownPosTagException upte) {
+              throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
+            }
+          }
 
-				String[] parts = line.split("[\\t]");
-				String id = parts[0];
-				String[] posTagParts = parts[1].split(" ");
-				String posTagCode = posTagParts[0].replace('_', '+');
-				int startPos = Integer.parseInt(posTagParts[1]);
-				String text = parts[2];
+          StandoffToken token = new StandoffToken();
+          token.posTag = posTag;
+          token.text = text;
+          token.id = id;
 
-				PosTag posTag = null;
-				if (posTagCode.equalsIgnoreCase(PosTag.ROOT_POS_TAG_CODE)) {
-					posTag = PosTag.ROOT_POS_TAG;
-				} else {
-					try {
-						posTag = posTagSet.getPosTag(posTagCode);
-					} catch (UnknownPosTagException upte) {
-						throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
-					}
-				}
+          sortedTokens.put(startPos, token);
+          tokenMap.put(id, token);
 
-				StandoffToken token = new StandoffToken();
-				token.posTag = posTag;
-				token.text = text;
-				token.id = id;
+        } else if (line.startsWith("R")) {
 
-				sortedTokens.put(startPos, token);
-				tokenMap.put(id, token);
+          String[] parts = line.split("[\\t :]");
+          String id = parts[0];
+          String label = parts[1];
+          String headId = parts[3];
+          String dependentId = parts[5];
+          StandoffRelation relation = new StandoffRelation();
+          relation.fromToken = headId;
+          relation.toToken = dependentId;
+          relation.label = label;
+          idRelationMap.put(id, relation);
+          relationMap.put(dependentId, relation);
+        } else if (line.startsWith("#")) {
+          String[] parts = line.split("\t");
+          String itemId = parts[1].substring("AnnotatorNotes ".length());
+          String note = parts[2];
+          notes.put(itemId, note);
+        }
+      }
+    }
 
-			} else if (line.startsWith("R")) {
+    for (String itemId : notes.keySet()) {
+      String comment = notes.get(itemId);
+      if (itemId.startsWith("R")) {
+        StandoffRelation relation = idRelationMap.get(itemId);
+        relation.comment = comment;
+      } else {
+        StandoffToken token = tokenMap.get(itemId);
+        token.comment = comment;
+      }
+    }
 
-				String[] parts = line.split("[\\t :]");
-				String id = parts[0];
-				String label = parts[1];
-				String headId = parts[3];
-				String dependentId = parts[5];
-				StandoffRelation relation = new StandoffRelation();
-				relation.fromToken = headId;
-				relation.toToken = dependentId;
-				relation.label = label;
-				idRelationMap.put(id, relation);
-				relationMap.put(dependentId, relation);
-			} else if (line.startsWith("#")) {
-				String[] parts = line.split("\t");
-				String itemId = parts[1].substring("AnnotatorNotes ".length());
-				String note = parts[2];
-				notes.put(itemId, note);
-			}
-		}
+    List<StandoffToken> currentSentence = null;
+    for (StandoffToken token : sortedTokens.values()) {
+      if (token.text.equals("ROOT")) {
+        if (currentSentence != null)
+          sentences.add(currentSentence);
+        currentSentence = new ArrayList<StandoffReader.StandoffToken>();
+      }
+      currentSentence.add(token);
+    }
+    if (currentSentence != null)
+      sentences.add(currentSentence);
+  }
 
-		for (String itemId : notes.keySet()) {
-			String comment = notes.get(itemId);
-			if (itemId.startsWith("R")) {
-				StandoffRelation relation = idRelationMap.get(itemId);
-				relation.comment = comment;
-			} else {
-				StandoffToken token = tokenMap.get(itemId);
-				token.comment = comment;
-			}
-		}
+  @Override
+  public boolean hasNextSentence() throws TalismaneException, IOException {
+    if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
+      // we've reached the end, do nothing
+    } else {
+      if (configuration == null && sentenceIndex < sentences.size()) {
 
-		List<StandoffToken> currentSentence = null;
-		for (StandoffToken token : sortedTokens.values()) {
-			if (token.text.equals("ROOT")) {
-				if (currentSentence != null)
-					sentences.add(currentSentence);
-				currentSentence = new ArrayList<StandoffReader.StandoffToken>();
-			}
-			currentSentence.add(token);
-		}
-		if (currentSentence != null)
-			sentences.add(currentSentence);
-	}
+        List<StandoffToken> tokens = sentences.get(sentenceIndex++);
 
-	@Override
-	public boolean hasNextConfiguration() {
-		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
-			// we've reached the end, do nothing
-		} else {
-			if (configuration == null && sentenceIndex < sentences.size()) {
+        LinguisticRules rules = session.getLinguisticRules();
+        if (rules == null)
+          throw new RuntimeException("Linguistic rules have not been set.");
 
-				PretokenisedSequence tokenSequence = new PretokenisedSequence(talismaneSession);
-				PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
-				Map<String, PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
+        String text = "";
+        for (StandoffToken standoffToken : tokens) {
+          String word = standoffToken.text;
+          // check if a space should be added before this
+          // token
 
-				List<StandoffToken> tokens = sentences.get(sentenceIndex++);
+          if (rules.shouldAddSpace(text, word))
+            text += " ";
+          text += word;
+        }
+        Sentence sentence = new Sentence(text, session);
 
-				for (StandoffToken standoffToken : tokens) {
-					Token token = tokenSequence.addToken(standoffToken.text);
-					Decision posTagDecision = new Decision(standoffToken.posTag.getCode());
-					PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, talismaneSession);
+        for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
+          annotator.annotate(sentence);
+        }
 
-					if (LOG.isTraceEnabled()) {
-						LOG.trace(posTaggedToken.toString());
-					}
+        PretokenisedSequence tokenSequence = new PretokenisedSequence(sentence, session);
+        PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
+        Map<String, PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
 
-					posTaggedToken.setComment(standoffToken.comment);
+        for (StandoffToken standoffToken : tokens) {
+          Token token = tokenSequence.addToken(standoffToken.text);
+          Decision posTagDecision = new Decision(standoffToken.posTag.getCode());
+          PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, session);
 
-					posTagSequence.addPosTaggedToken(posTaggedToken);
-					idTokenMap.put(standoffToken.id, posTaggedToken);
-					LOG.debug("Found token " + standoffToken.id + ", " + posTaggedToken);
-				}
+          if (LOG.isTraceEnabled()) {
+            LOG.trace(posTaggedToken.toString());
+          }
 
-				tokenSequence.setWithRoot(true);
+          posTaggedToken.setComment(standoffToken.comment);
 
-				tokenSequence.cleanSlate();
+          posTagSequence.addPosTaggedToken(posTaggedToken);
+          idTokenMap.put(standoffToken.id, posTaggedToken);
+          LOG.debug("Found token " + standoffToken.id + ", " + posTaggedToken);
+        }
 
-				// first apply the token filters - which might replace the text
-				// of an individual token
-				// with something else
-				if (tokenFilterWrapper == null) {
-					tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
-				}
-				tokenFilterWrapper.apply(tokenSequence);
+        tokenSequence.setWithRoot(true);
 
-				for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
-					tokenFilter.apply(tokenSequence);
-				}
+        tokenSequence.finalise();
 
-				if (tokenSequence.getTokensAdded().size() > 0) {
-					throw new TalismaneException("Added tokens not currently supported by StandoffReader");
-				}
+        configuration = new ParseConfiguration(posTagSequence);
 
-				tokenSequence.finalise();
+        for (StandoffToken standoffToken : tokens) {
+          StandoffRelation relation = relationMap.get(standoffToken.id);
+          if (relation != null) {
+            PosTaggedToken head = idTokenMap.get(relation.fromToken);
+            PosTaggedToken dependent = idTokenMap.get(relation.toToken);
+            if (head == null) {
+              throw new TalismaneException("No token found for head id: " + relation.fromToken);
+            }
+            if (dependent == null) {
+              throw new TalismaneException("No token found for dependent id: " + relation.toToken);
+            }
+            DependencyArc arc = configuration.addDependency(head, dependent, relation.label, null);
+            arc.setComment(relation.comment);
+          } else if (standoffToken.posTag.getOpenClassIndicator() == PosTagOpenClassIndicator.PUNCTUATION) {
+            if (punctuationDepLabel != null) {
+              PosTaggedToken dependent = idTokenMap.get(standoffToken.id);
+              for (int i = dependent.getIndex() - 1; i >= 0; i--) {
+                PosTaggedToken head = posTagSequence.get(i);
+                if (head.getTag().getOpenClassIndicator() == PosTagOpenClassIndicator.PUNCTUATION)
+                  continue;
+                configuration.addDependency(head, dependent, punctuationDepLabel, null);
+                break;
+              }
+            }
+          }
+        }
 
-				configuration = new ParseConfiguration(posTagSequence);
+      }
+    }
+    return (configuration != null);
+  }
 
-				for (StandoffToken standoffToken : tokens) {
-					StandoffRelation relation = relationMap.get(standoffToken.id);
-					if (relation != null) {
-						PosTaggedToken head = idTokenMap.get(relation.fromToken);
-						PosTaggedToken dependent = idTokenMap.get(relation.toToken);
-						if (head == null) {
-							throw new TalismaneException("No token found for head id: " + relation.fromToken);
-						}
-						if (dependent == null) {
-							throw new TalismaneException("No token found for dependent id: " + relation.toToken);
-						}
-						DependencyArc arc = configuration.addDependency(head, dependent, relation.label, null);
-						arc.setComment(relation.comment);
-					} else if (standoffToken.posTag.getOpenClassIndicator()==PosTagOpenClassIndicator.PUNCTUATION) {
-						PosTaggedToken dependent = idTokenMap.get(standoffToken.id);
-						for (int i=dependent.getIndex()-1; i>=0; i--) {
-							PosTaggedToken head = posTagSequence.get(i);
-							if (head.getTag().getOpenClassIndicator()==PosTagOpenClassIndicator.PUNCTUATION)
-								continue;
-							configuration.addDependency(head, dependent, punctuationDepLabel, null);
-							break;
-						}
-					}
-				}
+  @Override
+  public ParseConfiguration nextConfiguration() throws TalismaneException, IOException {
+    ParseConfiguration nextConfiguration = null;
+    if (this.hasNextSentence()) {
+      nextConfiguration = configuration;
+      configuration = null;
+    }
+    return nextConfiguration;
+  }
 
-			}
-		}
-		return (configuration != null);
-	}
+  @Override
+  public Map<String, String> getCharacteristics() {
+    Map<String, String> attributes = new LinkedHashMap<String, String>();
+    return attributes;
+  }
 
-	@Override
-	public ParseConfiguration nextConfiguration() {
-		ParseConfiguration nextConfiguration = null;
-		if (this.hasNextConfiguration()) {
-			nextConfiguration = configuration;
-			configuration = null;
-		}
-		return nextConfiguration;
-	}
+  private static final class StandoffToken {
+    public PosTag posTag;
+    public String text;
+    public String id;
+    public String comment = "";
+  }
 
-	@Override
-	public void addTokenFilter(TokenFilter tokenFilter) {
-		this.tokenFilters.add(tokenFilter);
-	}
+  private static final class StandoffRelation {
+    public String label;
+    public String fromToken;
+    public String toToken;
+    public String comment = "";
+  }
 
-	@Override
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
-		this.tokenSequenceFilters.add(tokenFilter);
-	}
+  @Override
+  public PosTagSequence nextPosTagSequence() throws TalismaneException, IOException {
+    return this.nextConfiguration().getPosTagSequence();
+  }
 
-	@Override
-	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter) {
-		this.posTagSequenceFilters.add(posTagSequenceFilter);
-	}
+  @Override
+  public TokenSequence nextTokenSequence() throws TalismaneException, IOException {
+    return this.nextConfiguration().getPosTagSequence().getTokenSequence();
+  }
 
-	@Override
-	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = new LinkedHashMap<String, String>();
-		return attributes;
-	}
+  @Override
+  public Sentence nextSentence() throws TalismaneException, IOException {
+    return this.nextConfiguration().getPosTagSequence().getTokenSequence().getSentence();
+  }
 
-	@Override
-	public LexicalEntryReader getLexicalEntryReader() {
-		throw new RuntimeException("Not supported");
-	}
-
-	@Override
-	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader) {
-		throw new RuntimeException("Not supported");
-	}
-
-	@Override
-	public int getMaxSentenceCount() {
-		return maxSentenceCount;
-	}
-
-	@Override
-	public void setMaxSentenceCount(int maxSentenceCount) {
-		this.maxSentenceCount = maxSentenceCount;
-	}
-
-	private static final class StandoffToken {
-		public PosTag posTag;
-		public String text;
-		public String id;
-		public String comment = "";
-	}
-
-	private static final class StandoffRelation {
-		public String label;
-		public String fromToken;
-		public String toToken;
-		public String comment = "";
-	}
-
-	@Override
-	public int getIncludeIndex() {
-		return includeIndex;
-	}
-
-	@Override
-	public void setIncludeIndex(int includeIndex) {
-		this.includeIndex = includeIndex;
-	}
-
-	@Override
-	public int getExcludeIndex() {
-		return excludeIndex;
-	}
-
-	@Override
-	public void setExcludeIndex(int excludeIndex) {
-		this.excludeIndex = excludeIndex;
-	}
-
-	@Override
-	public int getCrossValidationSize() {
-		return crossValidationSize;
-	}
-
-	@Override
-	public void setCrossValidationSize(int crossValidationSize) {
-		this.crossValidationSize = crossValidationSize;
-	}
-
-	@Override
-	public void rewind() {
-		throw new TalismaneException("rewind operation not supported by " + this.getClass().getName());
-	}
-
-	@Override
-	public int getStartSentence() {
-		return startSentence;
-	}
-
-	@Override
-	public void setStartSentence(int startSentence) {
-		this.startSentence = startSentence;
-	}
+  @Override
+  public boolean isNewParagraph() {
+    return false;
+  }
 
 }

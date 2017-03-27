@@ -18,62 +18,64 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Returns true if the first string feature starts with any of the other string features.
+ * Returns true if the first string feature starts with any of the other string
+ * features.
+ * 
  * @author Assaf Urieli
  */
-public class StartsWithFeature<T> extends AbstractCachableFeature<T, Boolean> implements
-		BooleanFeature<T> {
-	StringFeature<T>[] stringFeatures;
-	
-	@SafeVarargs
-	public StartsWithFeature(StringFeature<T>... stringFeatures) {
-		super();
-		this.stringFeatures = stringFeatures;
-		String name = this.getName() + "(";
-		boolean firstFeature = true;
-		for (StringFeature<T> stringFeature : stringFeatures) {
-			if (!firstFeature)
-				name += ",";
-			name += stringFeature.getName();
-			firstFeature = false;
-		}
-		name += ")";
-		this.setName(name);
-	}
+public class StartsWithFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
+  StringFeature<T>[] stringFeatures;
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Boolean> featureResult = null;
-		
-		String string = null;
-		boolean startsWith = false;
-		boolean firstFeature = true;
-		
-		for (StringFeature<T> stringFeature : stringFeatures) {
-			FeatureResult<String> result = stringFeature.check(context, env);
-			if (result==null) {
-				if (firstFeature)
-					break;
-				else
-					continue;
-			}
-			if (firstFeature) {
-				string = result.getOutcome();
-			} else if (string.startsWith(result.getOutcome())) {
-				startsWith = true;
-				break;
-			}
-			firstFeature = false;
-		}
-		
-		if (string!=null)
-			featureResult = this.generateResult(startsWith);
-		return featureResult;
-	}
+  @SafeVarargs
+  public StartsWithFeature(StringFeature<T>... stringFeatures) {
+    super();
+    this.stringFeatures = stringFeatures;
+    String name = this.getName() + "(";
+    boolean firstFeature = true;
+    for (StringFeature<T> stringFeature : stringFeatures) {
+      if (!firstFeature)
+        name += ",";
+      name += stringFeature.getName();
+      firstFeature = false;
+    }
+    name += ")";
+    this.setName(name);
+  }
 
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-	public StringFeature<T>[] getStringFeatures() {
-		return stringFeatures;
-	}
+    String string = null;
+    boolean startsWith = false;
+    boolean firstFeature = true;
+
+    for (StringFeature<T> stringFeature : stringFeatures) {
+      FeatureResult<String> result = stringFeature.check(context, env);
+      if (result == null) {
+        if (firstFeature)
+          break;
+        else
+          continue;
+      }
+      if (firstFeature) {
+        string = result.getOutcome();
+      } else if (string.startsWith(result.getOutcome())) {
+        startsWith = true;
+        break;
+      }
+      firstFeature = false;
+    }
+
+    if (string != null)
+      featureResult = this.generateResult(startsWith);
+    return featureResult;
+  }
+
+  public StringFeature<T>[] getStringFeatures() {
+    return stringFeatures;
+  }
 }

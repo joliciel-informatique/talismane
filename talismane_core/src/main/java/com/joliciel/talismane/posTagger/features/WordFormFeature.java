@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -25,28 +26,28 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * The actual text of a given token.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class WordFormFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
-	public WordFormFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-		this.setAddressFunction(addressFunction);
-	}
+public final class WordFormFeature<T> extends AbstractPosTaggedTokenFeature<T, String>implements StringFeature<T> {
+  public WordFormFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
-			return null;
-		
-		FeatureResult<String> featureResult = null;
-		featureResult = this.generateResult(posTaggedToken.getToken().getText());
-		return featureResult;
-	}
-	
-	
+  @Override
+  public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
+
+    FeatureResult<String> featureResult = null;
+    featureResult = this.generateResult(posTaggedToken.getToken().getAnalyisText());
+    return featureResult;
+  }
+
 }

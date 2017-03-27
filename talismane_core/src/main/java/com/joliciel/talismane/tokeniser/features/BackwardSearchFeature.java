@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
@@ -26,127 +26,134 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns the first token preceding this one which matches a certain criterion, or null if no such token is found.<br/>
- * The user may optionally provide absolute indexes to limit the search.
- * By default, the start index is the current token index-1, and the end index is 0.<br/>
+ * Returns the first token preceding this one which matches a certain criterion,
+ * or null if no such token is found.<br/>
+ * The user may optionally provide absolute indexes to limit the search. By
+ * default, the start index is the current token index-1, and the end index is
+ * 0.<br/>
  * If start index &lt; end index, returns null.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class BackwardSearchFeature extends AbstractTokenAddressFunction {
-	private BooleanFeature<TokenWrapper> criterion;
-	private BooleanFeature<TokenWrapper> stopCriterion;
-	private IntegerFeature<TokenWrapper> startIndexFeature = null;
-	private IntegerFeature<TokenWrapper> endIndexFeature = null;
-	
-	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion) {
-		this.criterion = criterion;
-		this.setName(super.getName() + "(" + criterion.getName() + ")");
-	}
-	
-	public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
-		this(criterion);
-		this.setAddressFunction(addressFunction);
-	}
+  private BooleanFeature<TokenWrapper> criterion;
+  private BooleanFeature<TokenWrapper> stopCriterion;
+  private IntegerFeature<TokenWrapper> startIndexFeature = null;
+  private IntegerFeature<TokenWrapper> endIndexFeature = null;
 
-	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature) {
-		this.criterion = criterion;
-		this.startIndexFeature = startIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + ")");
-	}
-	
-	public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature) {
-		this(criterion, startIndexFeature);
-		this.setAddressFunction(addressFunction);
-	}
+  public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion) {
+    this.criterion = criterion;
+    this.setName(super.getName() + "(" + criterion.getName() + ")");
+  }
 
-	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
-		this.criterion = criterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
-	}
-	
-	public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
-		this(criterion, startIndexFeature, endIndexFeature);
-		this.setAddressFunction(addressFunction);
-	}
+  public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
+    this(criterion);
+    this.setAddressFunction(addressFunction);
+  }
 
-	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, BooleanFeature<TokenWrapper> stopCriterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
-		this.criterion = criterion;
-		this.stopCriterion = stopCriterion;
-		this.startIndexFeature = startIndexFeature;
-		this.endIndexFeature = endIndexFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
-	}
-	
-	public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, BooleanFeature<TokenWrapper> stopCriterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
-		this(criterion, stopCriterion, startIndexFeature, endIndexFeature);
-		this.setAddressFunction(addressFunction);
-	}
+  public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature) {
+    this.criterion = criterion;
+    this.startIndexFeature = startIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + ")");
+  }
 
-	
-	@Override
-	public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
-		Token token = innerWrapper.getToken();
-		
-		FeatureResult<TokenWrapper> featureResult = null;
-		
-		
-		int startIndex = token.getIndex()- 1;
-		int endIndex = 0;
-		
-		if (startIndexFeature!=null) {
-			FeatureResult<Integer> startIndexResult = startIndexFeature.check(innerWrapper, env);
-			if (startIndexResult!=null) {
-				startIndex = startIndexResult.getOutcome();
-			} else {
-				return null;
-			}
-		}
-		
-		if (endIndexFeature!=null) {
-			FeatureResult<Integer> endIndexResult = endIndexFeature.check(innerWrapper, env);
-			if (endIndexResult!=null) {
-				endIndex = endIndexResult.getOutcome();
-			} else {
-				return null;
-			}
-		}
+  public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion,
+      IntegerFeature<TokenWrapper> startIndexFeature) {
+    this(criterion, startIndexFeature);
+    this.setAddressFunction(addressFunction);
+  }
 
-		if (startIndex<0) 
-			return null;
-		if (endIndex>=token.getTokenSequence().size()) 
-			return null;
-		
-		if (endIndex>startIndex)
-			return null;
-		
-		if (startIndex>=token.getTokenSequence().size())
-			startIndex = token.getTokenSequence().size()-1;
-		
-		Token matchingToken = null;
-		for (int i=startIndex; i>=0 && i>=endIndex; i--) {
-			Token oneToken = token.getTokenSequence().get(i);
-			FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
-			if (criterionResult!=null && criterionResult.getOutcome()) {
-				matchingToken = oneToken;
-				break;
-			}
-			if (stopCriterion!=null) {
-				FeatureResult<Boolean> stopCriterionResult = this.stopCriterion.check(oneToken, env);
-				if (stopCriterionResult!=null && stopCriterionResult.getOutcome()) {
-					break;
-				}
-			}
-		}
-		if (matchingToken!=null) {
-			featureResult = this.generateResult(matchingToken);
-		}
+  public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature,
+      IntegerFeature<TokenWrapper> endIndexFeature) {
+    this.criterion = criterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
+  }
 
-		return featureResult;
-	}
+  public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion,
+      IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
+    this(criterion, startIndexFeature, endIndexFeature);
+    this.setAddressFunction(addressFunction);
+  }
+
+  public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, BooleanFeature<TokenWrapper> stopCriterion,
+      IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
+    this.criterion = criterion;
+    this.stopCriterion = stopCriterion;
+    this.startIndexFeature = startIndexFeature;
+    this.endIndexFeature = endIndexFeature;
+    this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + ","
+        + endIndexFeature.getName() + ")");
+  }
+
+  public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion,
+      BooleanFeature<TokenWrapper> stopCriterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
+    this(criterion, stopCriterion, startIndexFeature, endIndexFeature);
+    this.setAddressFunction(addressFunction);
+  }
+
+  @Override
+  public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+
+    FeatureResult<TokenWrapper> featureResult = null;
+
+    int startIndex = token.getIndex() - 1;
+    int endIndex = 0;
+
+    if (startIndexFeature != null) {
+      FeatureResult<Integer> startIndexResult = startIndexFeature.check(innerWrapper, env);
+      if (startIndexResult != null) {
+        startIndex = startIndexResult.getOutcome();
+      } else {
+        return null;
+      }
+    }
+
+    if (endIndexFeature != null) {
+      FeatureResult<Integer> endIndexResult = endIndexFeature.check(innerWrapper, env);
+      if (endIndexResult != null) {
+        endIndex = endIndexResult.getOutcome();
+      } else {
+        return null;
+      }
+    }
+
+    if (startIndex < 0)
+      return null;
+    if (endIndex >= token.getTokenSequence().size())
+      return null;
+
+    if (endIndex > startIndex)
+      return null;
+
+    if (startIndex >= token.getTokenSequence().size())
+      startIndex = token.getTokenSequence().size() - 1;
+
+    Token matchingToken = null;
+    for (int i = startIndex; i >= 0 && i >= endIndex; i--) {
+      Token oneToken = token.getTokenSequence().get(i);
+      FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
+      if (criterionResult != null && criterionResult.getOutcome()) {
+        matchingToken = oneToken;
+        break;
+      }
+      if (stopCriterion != null) {
+        FeatureResult<Boolean> stopCriterionResult = this.stopCriterion.check(oneToken, env);
+        if (stopCriterionResult != null && stopCriterionResult.getOutcome()) {
+          break;
+        }
+      }
+    }
+    if (matchingToken != null) {
+      featureResult = this.generateResult(matchingToken);
+    }
+
+    return featureResult;
+  }
 }

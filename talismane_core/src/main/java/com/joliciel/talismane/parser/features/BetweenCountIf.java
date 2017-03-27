@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
@@ -35,48 +36,48 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public final class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1;
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2;
-	private BooleanFeature<ParseConfigurationAddress> criterion;
+public final class BetweenCountIf extends AbstractParseConfigurationFeature<Integer>implements IntegerFeature<ParseConfigurationWrapper> {
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1;
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2;
+  private BooleanFeature<ParseConfigurationAddress> criterion;
 
-	public BetweenCountIf(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1,
-			PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2, BooleanFeature<ParseConfigurationAddress> criterion) {
-		super();
-		this.addressFunction1 = addressFunction1;
-		this.addressFunction2 = addressFunction2;
-		this.criterion = criterion;
-		this.setName(super.getName() + "(" + this.addressFunction1.getName() + "," + this.addressFunction2.getName() + "," + this.criterion.getName() + ")");
-	}
+  public BetweenCountIf(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1,
+      PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2, BooleanFeature<ParseConfigurationAddress> criterion) {
+    super();
+    this.addressFunction1 = addressFunction1;
+    this.addressFunction2 = addressFunction2;
+    this.criterion = criterion;
+    this.setName(super.getName() + "(" + this.addressFunction1.getName() + "," + this.addressFunction2.getName() + "," + this.criterion.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		FeatureResult<PosTaggedTokenWrapper> tokenResult1 = addressFunction1.check(wrapper, env);
-		FeatureResult<PosTaggedTokenWrapper> tokenResult2 = addressFunction2.check(wrapper, env);
-		FeatureResult<Integer> featureResult = null;
-		if (tokenResult1 != null && tokenResult2 != null) {
-			PosTaggedToken posTaggedToken1 = tokenResult1.getOutcome().getPosTaggedToken();
-			PosTaggedToken posTaggedToken2 = tokenResult2.getOutcome().getPosTaggedToken();
-			int index1 = posTaggedToken1.getToken().getIndex();
-			int index2 = posTaggedToken2.getToken().getIndex();
+  @Override
+  public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    FeatureResult<PosTaggedTokenWrapper> tokenResult1 = addressFunction1.check(wrapper, env);
+    FeatureResult<PosTaggedTokenWrapper> tokenResult2 = addressFunction2.check(wrapper, env);
+    FeatureResult<Integer> featureResult = null;
+    if (tokenResult1 != null && tokenResult2 != null) {
+      PosTaggedToken posTaggedToken1 = tokenResult1.getOutcome().getPosTaggedToken();
+      PosTaggedToken posTaggedToken2 = tokenResult2.getOutcome().getPosTaggedToken();
+      int index1 = posTaggedToken1.getToken().getIndex();
+      int index2 = posTaggedToken2.getToken().getIndex();
 
-			int minIndex = index1 < index2 ? index1 : index2;
-			int maxIndex = index1 >= index2 ? index1 : index2;
+      int minIndex = index1 < index2 ? index1 : index2;
+      int maxIndex = index1 >= index2 ? index1 : index2;
 
-			int countMatching = 0;
+      int countMatching = 0;
 
-			for (int i = minIndex + 1; i < maxIndex; i++) {
-				IntegerFeature<ParseConfigurationWrapper> indexFeature = new IntegerLiteralFeature<ParseConfigurationWrapper>(i);
-				PosTaggedTokenAddressFunction<ParseConfigurationWrapper> indexFunction = new AddressFunctionSequence(indexFeature);
-				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, indexFunction, env);
-				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress, env);
-				if (criterionResult != null && criterionResult.getOutcome())
-					countMatching++;
-			}
-			featureResult = this.generateResult(countMatching);
-		}
-		return featureResult;
-	}
+      for (int i = minIndex + 1; i < maxIndex; i++) {
+        IntegerFeature<ParseConfigurationWrapper> indexFeature = new IntegerLiteralFeature<ParseConfigurationWrapper>(i);
+        PosTaggedTokenAddressFunction<ParseConfigurationWrapper> indexFunction = new AddressFunctionSequence(indexFeature);
+        ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, indexFunction, env);
+        FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress, env);
+        if (criterionResult != null && criterionResult.getOutcome())
+          countMatching++;
+      }
+      featureResult = this.generateResult(countMatching);
+    }
+    return featureResult;
+  }
 
 }

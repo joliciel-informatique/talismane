@@ -18,37 +18,34 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.posTagger;
 
-import java.io.Reader;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
+import com.joliciel.talismane.TalismaneException;
 
 /**
- * Simply a wrapper for the FreemarkerTemplateWriter, writing the best guess
- * using a freemarker template.
+ * Simply a wrapper for the PosTagSequenceProcessor, writing the best guess
+ * using the processor.
+ * 
  * @author Assaf Urieli
  *
  */
 public class PosTaggerGuessTemplateWriter implements PosTagEvaluationObserver {
-	FreemarkerTemplateWriter freemarkerTemplateWriter;
-	Writer writer;
-	
-	public PosTaggerGuessTemplateWriter(Writer writer, Reader templateReader) {
-		freemarkerTemplateWriter = new FreemarkerTemplateWriter(templateReader);
-		this.writer = writer;
-	}
+  Writer writer;
+  PosTagSequenceProcessor processor;
 
-	@Override
-	public void onNextPosTagSequence(PosTagSequence realSequence,
-			List<PosTagSequence> guessedSequences) {
-		freemarkerTemplateWriter.onNextPosTagSequence(guessedSequences.get(0), writer);
-	}
+  public PosTaggerGuessTemplateWriter(PosTagSequenceProcessor processor) {
+    this.processor = processor;
+  }
 
-	@Override
-	public void onEvaluationComplete() {
-		freemarkerTemplateWriter.onCompleteParse();
-	}
+  @Override
+  public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException, IOException {
+    processor.onNextPosTagSequence(guessedSequences.get(0));
+  }
 
+  @Override
+  public void onEvaluationComplete() {
+  }
 
 }

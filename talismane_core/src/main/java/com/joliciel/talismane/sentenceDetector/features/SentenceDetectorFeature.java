@@ -21,6 +21,6 @@ package com.joliciel.talismane.sentenceDetector.features;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 
-public interface SentenceDetectorFeature<T> extends Feature<PossibleSentenceBoundary,T> {
+public interface SentenceDetectorFeature<T> extends Feature<PossibleSentenceBoundary, T> {
 
 }

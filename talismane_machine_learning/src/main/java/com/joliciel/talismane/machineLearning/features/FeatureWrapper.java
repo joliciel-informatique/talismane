@@ -20,9 +20,10 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * A wrapper feature, which simply wraps another feature.
+ * 
  * @author Assaf
  *
  */
-public interface FeatureWrapper<T,Y> {
-	public Feature<T,Y> getWrappedFeature();
+public interface FeatureWrapper<T, Y> {
+  public Feature<T, Y> getWrappedFeature();
 }

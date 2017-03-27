@@ -18,45 +18,62 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.util.List;
-import com.joliciel.talismane.AnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Constructor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
+import com.joliciel.talismane.utils.io.CurrentFileProvider;
+import com.typesafe.config.Config;
 
 /**
  * An interface for reading tokenized sentences from a corpus.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface TokeniserAnnotatedCorpusReader extends AnnotatedCorpusReader {
-	/**
-	 * Is there another sentence to be read?
-	 */
-	public boolean hasNextTokenSequence();
-	
-	/***
-	 * Reads the next token sequence from the corpus.
-	 */
-	public TokenSequence nextTokenSequence();
-	
-	/**
-	 * These filters will be applied to each token sequence returned by the corpus prior to being returned.
-	 */
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter);
+public interface TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotatedCorpusReader {
+  public static final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
 
-	/**
-	 * These filters will not be used to detect tokens, as token boundaries are provided by the corpus.
-	 * They will, on the other hand, be used to replace token text.
-	 */
-	public void addTokenFilter(TokenFilter tokenFilter);
-	
-	/**
-	 * @see #addTokenSequenceFilter(TokenSequenceFilter)
-	 */
-	public List<TokenSequenceFilter> getTokenSequenceFilters();
-	
-	/**
-	 * #see {@link #addTokenFilter(TokenFilter)}
-	 */
-	public List<TokenFilter> getTokenFilters();
+  /***
+   * Reads the next token sequence from the corpus.
+   * 
+   * @throws TalismaneException
+   *           if impossible to read next sequence for logical reasons
+   * @throws IOException
+   */
+  public abstract TokenSequence nextTokenSequence() throws TalismaneException, IOException;
+
+  /**
+   * Builds an annotated corpus reader for a particular Reader and Config, where
+   * the config is the local namespace. For configuration example, see
+   * talismane.core.tokeniser.input in reference.conf.
+   * 
+   * @param config
+   *          the local configuration section from which we're building a reader
+   * @throws IOException
+   *           problem reading the files referred in the configuration
+   * @throws ReflectiveOperationException
+   *           if the corpus-reader class could not be instantiated
+   */
+  public static TokeniserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+      throws IOException, ReflectiveOperationException {
+    String className = config.getString("corpus-reader");
+
+    @SuppressWarnings("unchecked")
+    Class<? extends TokeniserAnnotatedCorpusReader> clazz = (Class<? extends TokeniserAnnotatedCorpusReader>) Class.forName(className);
+    Constructor<? extends TokeniserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+
+    TokeniserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+    if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
+      ((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
+    }
+    return corpusReader;
+  }
 }

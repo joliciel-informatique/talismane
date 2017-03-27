@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -32,26 +33,26 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public final class ValencyFeature extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
+public final class ValencyFeature extends AbstractParseConfigurationFeature<Integer>implements IntegerFeature<ParseConfigurationWrapper> {
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 
-	public ValencyFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
-		super();
-		this.addressFunction = addressFunction;
-		this.setName(super.getName() + "(" + this.addressFunction.getName() + ")");
-	}
+  public ValencyFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+    super();
+    this.addressFunction = addressFunction;
+    this.setName(super.getName() + "(" + this.addressFunction.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
-		FeatureResult<Integer> featureResult = null;
-		if (tokenResult != null) {
-			PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
-			int valency = configuration.getDependents(posTaggedToken).size();
-			featureResult = this.generateResult(valency);
-		}
-		return featureResult;
-	}
+  @Override
+  public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
+    FeatureResult<Integer> featureResult = null;
+    if (tokenResult != null) {
+      PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
+      int valency = configuration.getDependents(posTaggedToken).size();
+      featureResult = this.generateResult(valency);
+    }
+    return featureResult;
+  }
 
 }

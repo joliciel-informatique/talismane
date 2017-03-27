@@ -27,31 +27,32 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 
 /**
  * Returns the actual text of the tokens matching the current pattern.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class PatternMatchWordFormFeature extends AbstractCachableFeature<TokenPatternMatch,String> implements StringFeature<TokenPatternMatch> {
-	public PatternMatchWordFormFeature() {
-	}
-	
-	@Override
-	public FeatureResult<String> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
-		FeatureResult<String> result = null;
+public final class PatternMatchWordFormFeature extends AbstractCachableFeature<TokenPatternMatch, String>implements StringFeature<TokenPatternMatch> {
+  public PatternMatchWordFormFeature() {
+  }
 
-		String unigram = "";
-		
-		for (int i=0; i<tokenPatternMatch.getSequence().getTokenSequence().size(); i++) {
-			Token aToken = tokenPatternMatch.getSequence().getTokenSequence().get(i);
-			if (i==0 && tokenPatternMatch.getSequence().getTokenPattern().isSeparatorClass(i))
-				continue;
-			if (i==tokenPatternMatch.getSequence().getTokenSequence().size()-1 && tokenPatternMatch.getSequence().getTokenPattern().isSeparatorClass(i))
-				continue;
-			if (aToken!=null) {
-				unigram += aToken.getText();
-			}
-		}
-		result = this.generateResult(unigram);
+  @Override
+  public FeatureResult<String> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
+    FeatureResult<String> result = null;
 
-		return result;
-	}
+    String unigram = "";
+
+    for (int i = 0; i < tokenPatternMatch.getSequence().getTokenSequence().size(); i++) {
+      Token aToken = tokenPatternMatch.getSequence().getTokenSequence().get(i);
+      if (i == 0 && tokenPatternMatch.getSequence().getTokenPattern().isSeparatorClass(i))
+        continue;
+      if (i == tokenPatternMatch.getSequence().getTokenSequence().size() - 1 && tokenPatternMatch.getSequence().getTokenPattern().isSeparatorClass(i))
+        continue;
+      if (aToken != null) {
+        unigram += aToken.getAnalyisText();
+      }
+    }
+    result = this.generateResult(unigram);
+
+    return result;
+  }
 }

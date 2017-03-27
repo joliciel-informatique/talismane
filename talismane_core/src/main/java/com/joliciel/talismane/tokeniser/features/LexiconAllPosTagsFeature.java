@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -26,43 +26,45 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns a comma-separated concatenated string of all lexicon pos-tags for this token.
+ * Returns a comma-separated concatenated string of all lexicon pos-tags for
+ * this token.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class LexiconAllPosTagsFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
-	
-	/**
-	 * 
-	 */
-	public LexiconAllPosTagsFeature() {
-	}
-	
-	public LexiconAllPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
-	
-	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<String> result = null;
-		
-		if (token.getPossiblePosTags().size()>0) {
-			StringBuilder sb = new StringBuilder();
-			boolean firstPosTag = true;
-			for (PosTag posTag : token.getPossiblePosTags()) {
-				if (!firstPosTag)
-					sb.append(',');
-				firstPosTag = false;
-				sb.append(posTag.getCode());
-			}
-			result = this.generateResult( sb.toString());
-		}
+public final class LexiconAllPosTagsFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
 
-		return result;
-	}
+  /**
+   * 
+   */
+  public LexiconAllPosTagsFeature() {
+  }
+
+  public LexiconAllPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
+
+  @Override
+  public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<String> result = null;
+
+    if (token.getPossiblePosTags().size() > 0) {
+      StringBuilder sb = new StringBuilder();
+      boolean firstPosTag = true;
+      for (PosTag posTag : token.getPossiblePosTags()) {
+        if (!firstPosTag)
+          sb.append(',');
+        firstPosTag = false;
+        sb.append(posTag.getCode());
+      }
+      result = this.generateResult(sb.toString());
+    }
+
+    return result;
+  }
 
 }

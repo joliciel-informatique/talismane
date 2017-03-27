@@ -18,82 +18,60 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Merges two or more string features by concatenating their results and adding a | in between.
- * If any of the results is null, returns a null.
+ * Merges two or more string features by concatenating their results and adding
+ * a | in between. If any of the results is null, returns a null.
+ * 
  * @author Assaf Urieli
  *
  */
-public class ConcatenateFeature<T> extends AbstractCachableFeature<T, String> implements
-		StringFeature<T> {
-	StringFeature<T>[] stringFeatures;
-	
-	@SafeVarargs
-	public ConcatenateFeature(StringFeature<T>... stringFeatures) {
-		super();
-		this.stringFeatures = stringFeatures;
-		String name = "ConcatNoNulls(";
-		boolean firstFeature = true;
-		for (StringFeature<T> stringFeature : stringFeatures) {
-			if (!firstFeature)
-				name += ",";
-			name += stringFeature.getName();
-			firstFeature = false;
-		}
-		name += ")";
-		this.setName(name);
-	}
+public class ConcatenateFeature<T> extends AbstractCachableFeature<T, String>implements StringFeature<T> {
+  StringFeature<T>[] stringFeatures;
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<String> featureResult = null;
-		
-		StringBuilder sb = new StringBuilder();
-		boolean firstFeature = true;
-		boolean hasNull = false;
-		for (StringFeature<T> stringFeature : stringFeatures) {
-			if (!firstFeature)
-				sb.append("|");
-			FeatureResult<String> result = stringFeature.check(context, env);
-			if (result==null) {
-				hasNull = true;
-				break;
-			}
-			
-			sb.append(result.getOutcome());
-			firstFeature = false;
-		}
-		
-		if (!hasNull)
-			featureResult = this.generateResult(sb.toString());
-		return featureResult;
-	}
+  @SafeVarargs
+  public ConcatenateFeature(StringFeature<T>... stringFeatures) {
+    super();
+    this.stringFeatures = stringFeatures;
+    String name = "ConcatNoNulls(";
+    boolean firstFeature = true;
+    for (StringFeature<T> stringFeature : stringFeatures) {
+      if (!firstFeature)
+        name += ",";
+      name += stringFeature.getName();
+      firstFeature = false;
+    }
+    name += ")";
+    this.setName(name);
+  }
 
-	
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		
-		String sb = builder.getVarName("sb");
-		builder.append("StringBuilder " + sb + " = new StringBuilder();");
-		boolean firstFeature = true;
-		for (StringFeature<T> stringFeature : stringFeatures) {
-			if (!firstFeature) {
-				builder.append("if (" + sb + "!=null) " + sb + ".append(\"|\");");
-			}
-			String stringFeatureName = builder.addFeatureVariable(stringFeature, "string");
-			
-			builder.append("if (" + stringFeatureName + "==null) " + sb + "=null;");
-			builder.append("if (" + sb + "!=null) " + sb + ".append(" + stringFeatureName + ");");
-			firstFeature = false;
-		}
-		
-		builder.append("if (" + sb + "!=null) " + variableName + " = " + sb + ".toString();");
-		return true;
-	}
+  @Override
+  public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> featureResult = null;
 
-	public StringFeature<T>[] getStringFeatures() {
-		return stringFeatures;
-	}
+    StringBuilder sb = new StringBuilder();
+    boolean firstFeature = true;
+    boolean hasNull = false;
+    for (StringFeature<T> stringFeature : stringFeatures) {
+      if (!firstFeature)
+        sb.append("|");
+      FeatureResult<String> result = stringFeature.check(context, env);
+      if (result == null) {
+        hasNull = true;
+        break;
+      }
+
+      sb.append(result.getOutcome());
+      firstFeature = false;
+    }
+
+    if (!hasNull)
+      featureResult = this.generateResult(sb.toString());
+    return featureResult;
+  }
+
+  public StringFeature<T>[] getStringFeatures() {
+    return stringFeatures;
+  }
 }

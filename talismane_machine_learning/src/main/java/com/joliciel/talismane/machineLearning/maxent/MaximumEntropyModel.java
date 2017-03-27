@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 
 import opennlp.model.MaxentModel;
@@ -45,54 +44,45 @@ import opennlp.model.MaxentModel;
  *
  */
 public class MaximumEntropyModel extends AbstractOpenNLPModel {
-	private static final Logger LOG = LoggerFactory.getLogger(MaximumEntropyModel.class);
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(MaximumEntropyModel.class);
 
-	/**
-	 * Default constructor for factory.
-	 */
-	public MaximumEntropyModel() {
-	}
+  /**
+   * Default constructor for factory.
+   */
+  public MaximumEntropyModel() {
+  }
 
-	/**
-	 * Construct from a newly trained model including the feature descriptors.
-	 */
-	MaximumEntropyModel(MaxentModel model, Config config, Map<String, List<String>> descriptors) {
-		super(model, config, descriptors);
-	}
+  /**
+   * Construct from a newly trained model including the feature descriptors.
+   */
+  MaximumEntropyModel(MaxentModel model, Config config, Map<String, List<String>> descriptors) {
+    super(model, config, descriptors);
+  }
 
-	@Override
-	public MachineLearningAlgorithm getAlgorithm() {
-		return MachineLearningAlgorithm.MaxEnt;
-	}
+  @Override
+  public MachineLearningAlgorithm getAlgorithm() {
+    return MachineLearningAlgorithm.MaxEnt;
+  }
 
-	@Override
-	public ClassificationObserver getDetailedAnalysisObserver(File file) {
-		MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(this.getModel(), file);
-		return observer;
-	}
+  @Override
+  public ClassificationObserver getDetailedAnalysisObserver(File file) throws IOException {
+    MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(this.getModel(), file);
+    return observer;
+  }
 
-	@Override
-	public void writeModelToStream(OutputStream outputStream) {
-		try {
-			new MaxentModelWriterWrapper(this.getModel(), outputStream).persist();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
+  @Override
+  public void writeModelToStream(OutputStream outputStream) throws IOException {
+    new MaxentModelWriterWrapper(this.getModel(), outputStream).persist();
+  }
 
-	@Override
-	public void loadModelFromStream(InputStream inputStream) {
-		MaxentModelReaderWrapper maxentModelReader = new MaxentModelReaderWrapper(inputStream);
-		try {
-			this.setModel(maxentModelReader.getModel());
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
+  @Override
+  public void loadModelFromStream(InputStream inputStream) throws IOException {
+    MaxentModelReaderWrapper maxentModelReader = new MaxentModelReaderWrapper(inputStream);
+    this.setModel(maxentModelReader.getModel());
+  }
 
-	@Override
-	public void onLoadComplete() {
-	}
+  @Override
+  public void onLoadComplete() {
+  }
 }

@@ -20,15 +20,15 @@ package com.joliciel.talismane.parser;
 
 /**
  * Comparison based on number of dependencies created.
+ * 
  * @author Assaf Urieli
  *
  */
-class DependencyCountComparisonStrategy implements
-		ParseComparisonStrategy {
+class DependencyCountComparisonStrategy implements ParseComparisonStrategy {
 
-	@Override
-	public int getComparisonIndex(ParseConfiguration configuration) {
-		return configuration.getDependencies().size() + 1;
-	}
+  @Override
+  public int getComparisonIndex(ParseConfiguration configuration) {
+    return configuration.getDependencies().size() + 1;
+  }
 
 }

@@ -23,7 +23,9 @@ import java.util.List;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * A feature that returns a collection of strings, each potentially with a weight.
+ * A feature that returns a collection of strings, each potentially with a
+ * weight.
+ * 
  * @author Assaf Urieli
  */
 public interface StringCollectionFeature<T> extends Feature<T, List<WeightedOutcome<String>>> {

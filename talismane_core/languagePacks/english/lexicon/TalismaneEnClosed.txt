@@ -1,0 +1,447 @@
+/	or	CC	
+&	and	CC	
+and	and	CC	
+both	both	CC	
+but	but	CC	
+either	either	CC	
+et	et	CC	
+less	less	CC	
+minus	minus	CC	
+'n	and	CC	
+'n'	and	CC	
+neither	neither	CC	
+nor	nor	CC	
+or	or	CC	
+plus	plus	CC	
+times	times	CC	
+v.	versus	CC	
+versus	versus	CC	
+vs.	versus	CC	
+whether	whether	CC	
+yet	yet	CC	
+
+billion	billion	CD	
+billion-plus	billion-plus	CD	
+eight	eight	CD	
+eighteen	eighteen	CD	
+eighty	eighty	CD	
+eighty-eight	eighty-eight	CD	
+eighty-five	eighty-five	CD	
+eighty-five	eighty-five	CD	
+eighty-four	eighty-four	CD	
+eighty-four	eighty-four	CD	
+eighty-nine	eighty-nine	CD	
+eighty-one	eighty-one	CD	
+eighty-seven	eighty-seven	CD	
+eighty-six	eighty-six	CD	
+eighty-three	eighty-three	CD	
+eighty-three	eighty-three	CD	
+eighty-two	eighty-two	CD	
+eleven	eleven	CD	
+fifteen	fifteen	CD	
+fifty	fifty	CD	
+fifty-eight	fifty-eight	CD	
+fifty-five	fifty-five	CD	
+fifty-five	fifty-five	CD	
+fifty-four	fifty-four	CD	
+fifty-four	fifty-four	CD	
+fifty-nine	fifty-nine	CD	
+fifty-one	fifty-one	CD	
+fifty-seven	fifty-seven	CD	
+fifty-six	fifty-six	CD	
+fifty-three	fifty-three	CD	
+fifty-two	fifty-two	CD	
+five	five	CD	
+forty	forty	CD	
+forty-eight	forty-eight	CD	
+forty-five	forty-five	CD	
+forty-five	forty-five	CD	
+forty-four	forty-four	CD	
+forty-four	forty-four	CD	
+forty-nine	forty-nine	CD	
+forty-one	forty-one	CD	
+forty-seven	forty-seven	CD	
+forty-six	forty-six	CD	
+forty-three	forty-three	CD	
+forty-two	forty-two	CD	
+four	four	CD	
+fourteen	fourteen	CD	
+hundred	hundred	CD	
+million	million	CD	
+nine	nine	CD	
+nineteen	nineteen	CD	
+ninety	ninety	CD	
+ninety	ninety	CD	
+ninety-eight	ninety-eight	CD	
+ninety-five	ninety-five	CD	
+ninety-five	ninety-five	CD	
+ninety-four	ninety-four	CD	
+ninety-four	ninety-four	CD	
+ninety-nine	ninety-nine	CD	
+ninety-one	ninety-one	CD	
+ninety-seven	ninety-seven	CD	
+ninety-six	ninety-six	CD	
+ninety-three	ninety-three	CD	
+ninety-two	ninety-two	CD	
+one	one	CD	
+seven	seven	CD	
+seventeen	seventeen	CD	
+seventy	seventy	CD	
+seventy	seventy	CD	
+seventy-eight	seventy-eight	CD	
+seventy-five	seventy-five	CD	
+seventy-five	seventy-five	CD	
+seventy-four	seventy-four	CD	
+seventy-four	seventy-four	CD	
+seventy-nine	seventy-nine	CD	
+seventy-one	seventy-one	CD	
+seventy-seven	seventy-seven	CD	
+seventy-six	seventy-six	CD	
+seventy-three	seventy-three	CD	
+seventy-two	seventy-two	CD	
+six	six	CD	
+sixteen	sixteen	CD	
+sixty	sixty	CD	
+sixty	sixty	CD	
+sixty-eight	sixty-eight	CD	
+sixty-five	sixty-five	CD	
+sixty-five	sixty-five	CD	
+sixty-four	sixty-four	CD	
+sixty-four	sixty-four	CD	
+sixty-nine	sixty-nine	CD	
+sixty-one	sixty-one	CD	
+sixty-seven	sixty-seven	CD	
+sixty-six	sixty-six	CD	
+sixty-three	sixty-three	CD	
+sixty-two	sixty-two	CD	
+ten	ten	CD	
+thirteen	thirteen	CD	
+thirty	thirty	CD	
+thirty-eight	thirty-eight	CD	
+thirty-five	thirty-five	CD	
+thirty-five	thirty-five	CD	
+thirty-four	thirty-four	CD	
+thirty-four	thirty-four	CD	
+thirty-nine	thirty-nine	CD	
+thirty-one	thirty-one	CD	
+thirty-seven	thirty-seven	CD	
+thirty-six	thirty-six	CD	
+thirty-three	thirty-three	CD	
+thirty-two	thirty-two	CD	
+thousand	thousand	CD	
+three	three	CD	
+trillion	trillion	CD	
+twelve	twelve	CD	
+twenty	twenty	CD	
+twenty-eight	twenty-eight	CD	
+twenty-five	twenty-five	CD	
+twenty-five	twenty-five	CD	
+twenty-four	twenty-four	CD	
+twenty-four	twenty-four	CD	
+twenty-nine	twenty-nine	CD	
+twenty-one	twenty-one	CD	
+twenty-seven	twenty-seven	CD	
+twenty-six	twenty-six	CD	
+twenty-three	twenty-three	CD	
+twenty-two	twenty-two	CD	
+two	two	CD	
+zero	zero	CD	
+
+a	a	DT	number=singular|
+all	all	DT	number=plural|
+an	a	DT	number=singular|
+another	another	DT	number=singular|
+any	any	DT	number=singular|
+both	both	DT	number=plural|
+each	each	DT	number=singular|
+either	either	DT	number=singular|
+every	every	DT	number=singular|
+half	half	DT	number=singular|
+la	le	DT	number=singular|
+le	le	DT	number=singular|
+many	many	DT	number=plural|
+nary	nary	DT	number=singular|
+neither	neither	DT	number=singular|
+no	no	DT	
+some	some	DT	number=plural|
+that	that	DT	number=singular|
+the	the	DT	
+them	them	DT	number=plural|
+these	these	DT	number=plural|
+this	this	DT	number=plural|
+those	those	DT	number=plural|
+
+there	there	EX	
+
+@	at	IN	
+a	a	IN	
+aboard	aboard	IN	
+about	about	IN	
+above	above	IN	
+across	across	IN	
+after	after	IN	
+against	against	IN	
+ago	ago	IN	
+albeit	albeit	IN	
+along	along	IN	
+alongside	alongside	IN	
+although	although	IN	
+amid	amid	IN	
+among	among	IN	
+amongst	amongst	IN	
+and	and	IN	
+are	are	IN	
+around	around	IN	
+as	as	IN	
+astride	astride	IN	
+at	at	IN	
+atop	atop	IN	
+because	because	IN	
+before	before	IN	
+behind	behind	IN	
+below	below	IN	
+beneath	beneath	IN	
+beside	beside	IN	
+besides	besides	IN	
+between	between	IN	
+beyond	beyond	IN	
+but	but	IN	
+by	by	IN	
+'cause	because	IN	
+complicated	complicated	IN	
+de	de	IN	
+despite	despite	IN	
+down	down	IN	
+during	during	IN	
+e.g.	e.g.	IN	
+en	en	IN	
+except	except	IN	
+expect	expect	IN	
+far	far	IN	
+fiscal	fiscal	IN	
+for	for	IN	
+from	from	IN	
+i.e.	i.e.	IN	
+if	if	IN	
+in	in	IN	
+including	including	IN	
+inside	inside	IN	
+into	into	IN	
+lest	lest	IN	
+like	like	IN	
+minus	minus	IN	
+near	near	IN	
+nearer	nearer	IN	
+nearest	nearest	IN	
+neither	neither	IN	
+next	next	IN	
+notwithstanding	notwithstanding	IN	
+of	of	IN	
+off	off	IN	
+on	on	IN	
+once	once	IN	
+onto	onto	IN	
+opposite	opposite	IN	
+out	out	IN	
+outside	outside	IN	
+over	over	IN	
+par	par	IN	
+past	past	IN	
+pending	pending	IN	
+per	per	IN	
+plus	plus	IN	
+post	post	IN	
+save	save	IN	
+since	since	IN	
+so	so	IN	
+than	than	IN	
+that	that	IN	
+then	then	IN	
+though	though	IN	
+through	through	IN	
+throughout	throughout	IN	
+'til	until	IN	
+till	till	IN	
+to	to	IN	
+toward	toward	IN	
+towards	towards	IN	
+under	under	IN	
+underneath	underneath	IN	
+unless	unless	IN	
+unlike	unlike	IN	
+until	until	IN	
+unto	unto	IN	
+up	up	IN	
+upon	upon	IN	
+v.	versus	IN	
+versus	versus	IN	
+via	via	IN	
+vs.	versus	IN	
+whereas	whereas	IN	
+whether	whether	IN	
+which	which	IN	
+while	while	IN	
+with	with	IN	
+within	within	IN	
+without	without	IN	
+worth	worth	IN	
+
+can	can	MD	
+could	could	MD	
+coulda	coulda	MD	
+'d	would	MD	
+dare	dare	MD	
+'ll	will	MD	
+may	may	MD	
+might	might	MD	
+mighta	mighta	MD	
+must	must	MD	
+musta	musta	MD	
+need	need	MD	
+ought	ought	MD	
+oughta	oughta	MD	
+shall	shall	MD	
+should	should	MD	
+shoulda	shoulda	MD	
+will	will	MD	
+would	would	MD	
+woulda	woulda	MD	
+
+all	all	PDT	
+both	both	PDT	
+half	half	PDT	
+many	many	PDT	
+nary	nary	PDT	
+quite	quite	PDT	
+such	such	PDT	
+
+'s	's	POS	
+'	's	POS	
+
+he	he	PRP	number=singular|gender=masculine|person=3|
+her	her	PRP	number=singular|gender=feminine|person=3|
+herself	herself	PRP	number=singular|gender=feminine|person=3|
+him	him	PRP	number=singular|gender=masculine|person=3|
+himself	himself	PRP	number=singular|gender=masculine|person=3|
+his	his	PRP	number=singular|gender=masculine|person=3|
+I	I	PRP	number=singular|person=1|
+i	I	PRP	number=singular|person=1|
+it	it	PRP	number=singular|person=3|
+itself	itself	PRP	number=singular|person=3|
+me	me	PRP	number=singular|person=1|
+mine	mine	PRP	number=singular|person=1|
+myself	myself	PRP	number=singular|person=1|
+one	one	PRP	number=singular|person=3|
+oneself	oneself	PRP	number=singular|person=3|
+ours	ours	PRP	number=plural|person=1|
+ourselves	ourselves	PRP	number=plural|person=1|
+she	she	PRP	number=singular|gender=feminine|person=3|
+'t-	it	PRP	number=singular|person=3|
+t'	it	PRP	number=singular|person=3|
+that	that	PRP	number=singular|person=3|
+thee	thee	PRP	number=singular|person=2|
+theirs	theirs	PRP	number=plural|person=3|
+them	them	PRP	number=plural|person=3|
+themselves	themselves	PRP	number=plural|person=3|
+they	they	PRP	number=plural|person=3|
+thine	thine	PRP	number=singular|person=2|
+thou	thou	PRP	number=singular|person=2|
+thyself	thyself	PRP	number=singular|person=2|
+us	us	PRP	number=plural|person=1|
+we	we	PRP	number=plural|person=1|
+ya	you	PRP	person=2|
+yall	y'all	PRP	person=2|
+y'all	y'all	PRP	person=2|
+you	you	PRP	person=2|
+yours	yours	PRP	person=2|
+yourself	yourself	PRP	person=2|
+
+her	her	PRP$	number=singular|gender=feminine|person=3|
+his	his	PRP$	number=singular|gender=masculine|person=3|
+its	its	PRP$	number=singular|person=3|
+my	my	PRP$	number=singular|person=1|
+our	our	PRP$	number=plural|person=1|
+their	their	PRP$	number=plural|person=3|
+thy	thy	PRP$	number=singular|person=2|
+your	your	PRP$	person=2|
+
+about	about	RP	
+across	across	RP	
+ahead	ahead	RP	
+along	along	RP	
+apart	apart	RP	
+around	around	RP	
+aside	aside	RP	
+at	at	RP	
+away	away	RP	
+back	back	RP	
+before	before	RP	
+behind	behind	RP	
+by	by	RP	
+down	down	RP	
+even	even	RP	
+for	for	RP	
+forth	forth	RP	
+forward	forward	RP	
+howard	howard	RP	
+in	in	RP	
+of	of	RP	
+off	off	RP	
+on	on	RP	
+open	open	RP	
+out	out	RP	
+over	over	RP	
+through	through	RP	
+together	together	RP	
+unto	unto	RP	
+up	up	RP	
+upon	upon	RP	
+whole	whole	RP	
+with	with	RP	
+yet	yet	RP	
+
+to	to	TO	
+
+what	what	WDT	
+whatever	whatever	WDT	
+which	which	WDT	
+whichever	whichever	WDT	
+
+what	what	WP	
+who	who	WP	
+whoever	whoever	WP	
+whom	whom	WP	
+
+whose	whose	WP$	
+
+how	how	WRB	
+however	however	WRB	
+when	when	WRB	
+whence	whence	WRB	
+whenever	whenever	WRB	
+where	where	WRB	
+whereby	whereby	WRB	
+wherever	wherever	WRB	
+wherefore	wherefore	WRB	
+whereto	whereto	WRB	
+whither	whither	WRB	
+why	why	WRB	
+
+-	-	P	
+--	--	P	
+,	,	P	
+;	;	P	
+:	:	P	
+!	!	P	
+?	?	P	
+.	.	P	
+...	...	P	
+'	'	P	
+''	"	P	
+"	"	P	
+(	(	P	
+)	)	P	
+[	[	P	
+]	]	P	
+{	{	P	
+}	}	P	

@@ -20,7 +20,7 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.List;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -35,48 +35,29 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class AddressFunctionRDep extends AbstractAddressFunction {
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 
-	public AddressFunctionRDep(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
-		super();
-		this.addressFunction = addressFunction;
-		this.setName("RDep(" + addressFunction.getName() + ")");
-	}
+  public AddressFunctionRDep(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+    super();
+    this.addressFunction = addressFunction;
+    this.setName("RDep(" + addressFunction.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
-		if (addressResult != null) {
-			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
-			List<PosTaggedToken> rightDependents = configuration.getRightDependents(referenceToken);
-			if (rightDependents.size() > 0)
-				resultToken = rightDependents.get(rightDependents.size() - 1);
-		}
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    PosTaggedToken resultToken = null;
+    FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
+    if (addressResult != null) {
+      PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
+      List<PosTaggedToken> rightDependents = configuration.getRightDependents(referenceToken);
+      if (rightDependents.size() > 0)
+        resultToken = rightDependents.get(rightDependents.size() - 1);
+    }
 
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken != null)
-			featureResult = this.generateResult(resultToken);
-		return featureResult;
-	}
-
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder, String variableName) {
-		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null) {");
-		builder.indent();
-		String rightDependents = builder.getVarName("rightDependents");
-		builder.addImport(List.class);
-
-		builder.append(
-				"List<PosTaggedToken> " + rightDependents + " = context.getParseConfiguration().getRightDependents(" + address + ".getPosTaggedToken());");
-		builder.append("if (" + rightDependents + ".size()>0)");
-		builder.indent();
-		builder.append(variableName + " = " + rightDependents + ".get(" + rightDependents + ".size()-1);");
-		builder.outdent();
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+    if (resultToken != null)
+      featureResult = this.generateResult(resultToken);
+    return featureResult;
+  }
 }

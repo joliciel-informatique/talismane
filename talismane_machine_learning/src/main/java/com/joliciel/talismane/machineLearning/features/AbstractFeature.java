@@ -23,111 +23,112 @@ import java.util.List;
 
 /**
  * An Abstract base class for features, basically defining feature equality.
+ * 
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<Feature<T,?>> {
+public abstract class AbstractFeature<T, Y> implements Feature<T, Y>, Comparable<Feature<T, ?>> {
 
-	private String name = null;
-	private String groupName = null;
-	private List<Feature<T,?>> arguments = new ArrayList<Feature<T,?>>();
-	private boolean topLevelFeature = false;
-	
-	public AbstractFeature() {
-		super();
-	}
+  private String name = null;
+  private String groupName = null;
+  private List<Feature<T, ?>> arguments = new ArrayList<Feature<T, ?>>();
+  private boolean topLevelFeature = false;
 
-	@Override
-	public final String getName() {
-		if (name==null) {
-			name = this.getClass().getSimpleName();
-		}
-		return name;
-	}
+  public AbstractFeature() {
+    super();
+  }
 
-	@Override
-	public final void setName(String name) {
-		this.name = name;
-	}
+  @Override
+  public final String getName() {
+    if (name == null) {
+      name = this.getClass().getSimpleName();
+    }
+    return name;
+  }
 
-	
-	public String getCollectionName() {
-		if (groupName==null) {
-			groupName = this.getName();
-		}
-		return groupName;
-	}
+  @Override
+  public final void setName(String name) {
+    this.name = name;
+  }
 
-	public void setCollectionName(String groupName) {
-		this.groupName = groupName;
-	}
+  @Override
+  public String getCollectionName() {
+    if (groupName == null) {
+      groupName = this.getName();
+    }
+    return groupName;
+  }
 
-	@Override
-	public final int hashCode() {
-		return this.getName().hashCode();
-	}
+  @Override
+  public void setCollectionName(String groupName) {
+    this.groupName = groupName;
+  }
 
-	@Override
-	public final boolean equals(Object obj) {
-		if (!(obj instanceof Feature))
-			return false;
-		Feature<?,?> feature = (Feature<?,?>) obj;
-		return (feature.getName().equals(this.getName()));
-	}
+  @Override
+  public final int hashCode() {
+    return this.getName().hashCode();
+  }
 
-	protected final FeatureResult<Y> generateResult(Y outcome) {
-		if (outcome==null)
-			return null;
-		return new FeatureResultImpl<Y>(this, outcome);
-	}
+  @Override
+  public final boolean equals(Object obj) {
+    if (!(obj instanceof Feature))
+      return false;
+    Feature<?, ?> feature = (Feature<?, ?>) obj;
+    return (feature.getName().equals(this.getName()));
+  }
 
-	@Override
-	public final int compareTo(Feature<T,?> o) {
-		return this.getName().compareTo(o.getName());
-	}
+  protected final FeatureResult<Y> generateResult(Y outcome) {
+    if (outcome == null)
+      return null;
+    return new FeatureResultImpl<Y>(this, outcome);
+  }
 
-	@SuppressWarnings({ "rawtypes" })
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		if (this instanceof BooleanFeature) {
-			return BooleanFeature.class;
-		}
-		if (this instanceof StringFeature) {
-			return StringFeature.class;
-		}
-		if (this instanceof DoubleFeature) {
-			return DoubleFeature.class;
-		}
-		if (this instanceof IntegerFeature) {
-			return IntegerFeature.class;
-		}
-		throw new RuntimeException("Unknown feature return type for " + this.getName());
-	}
+  @Override
+  public final int compareTo(Feature<T, ?> o) {
+    return this.getName().compareTo(o.getName());
+  }
 
-	public void addArgument(Feature<T,?> argument) {
-		this.arguments.add(argument);
-	}
-	
-	public List<Feature<T,?>> getArguments() {
-		return this.arguments;
-	}
-	
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		return false;
-	}
+  @SuppressWarnings({ "rawtypes" })
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    if (this instanceof BooleanFeature) {
+      return BooleanFeature.class;
+    }
+    if (this instanceof StringFeature) {
+      return StringFeature.class;
+    }
+    if (this instanceof DoubleFeature) {
+      return DoubleFeature.class;
+    }
+    if (this instanceof IntegerFeature) {
+      return IntegerFeature.class;
+    }
+    throw new RuntimeException("Unknown feature return type for " + this.getName());
+  }
 
-	public boolean isTopLevelFeature() {
-		return topLevelFeature;
-	}
+  @Override
+  public void addArgument(Feature<T, ?> argument) {
+    this.arguments.add(argument);
+  }
 
-	public void setTopLevelFeature(boolean topLevelFeature) {
-		this.topLevelFeature = topLevelFeature;
-	}
+  @Override
+  public List<Feature<T, ?>> getArguments() {
+    return this.arguments;
+  }
 
-	@Override
-	public String toString() {
-		return this.getName();
-	}
-	
-	
+  @Override
+  public boolean isTopLevelFeature() {
+    return topLevelFeature;
+  }
+
+  @Override
+  public void setTopLevelFeature(boolean topLevelFeature) {
+    this.topLevelFeature = topLevelFeature;
+  }
+
+  @Override
+  public String toString() {
+    return this.getName();
+  }
+
 }

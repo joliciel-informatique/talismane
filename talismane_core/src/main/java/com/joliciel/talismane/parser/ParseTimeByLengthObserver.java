@@ -7,84 +7,76 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.utils.CSVFormatter;
-import com.joliciel.talismane.utils.LogUtils;
 
 public class ParseTimeByLengthObserver implements ParseEvaluationObserver {
-	private static final Logger LOG = LoggerFactory.getLogger(ParseTimeByLengthObserver.class);
-	private static final CSVFormatter CSV = new CSVFormatter();
-	private Map<Integer, DescriptiveStatistics> timeStatsPerLength = new TreeMap<Integer, DescriptiveStatistics>();
+  private static final Logger LOG = LoggerFactory.getLogger(ParseTimeByLengthObserver.class);
+  private static final CSVFormatter CSV = new CSVFormatter();
+  private Map<Integer, DescriptiveStatistics> timeStatsPerLength = new TreeMap<Integer, DescriptiveStatistics>();
 
-	private Writer writer = null;
-	
-	private long startTime;
-	@Override
-	public void onParseStart(ParseConfiguration realConfiguration,
-			List<PosTagSequence> posTagSequences) {
-		startTime = System.currentTimeMillis();
-	}
+  private Writer writer = null;
 
-	@Override
-	public void onParseEnd(ParseConfiguration realConfiguration,
-			List<ParseConfiguration> guessedConfigurations) {
-		long totalTime = System.currentTimeMillis() - startTime;
-		int length = realConfiguration.getPosTagSequence().size();
-		DescriptiveStatistics stats = timeStatsPerLength.get(length);
-		if (stats==null) {
-			stats = new DescriptiveStatistics();
-			timeStatsPerLength.put(length, stats);
-		}
-		stats.addValue(totalTime);
-	}
+  private long startTime;
 
-	@Override
-	public void onEvaluationComplete() {
-		try {
-			LOG.info("##################");
-			LOG.info("timeStatsPerLength");
-			LOG.info("\tlength\tcount\tmean\tperToken");
-			if (writer!=null)
-				writer.write(CSV.format("length") + CSV.format("count") + CSV.format("mean") + CSV.format("perToken") + "\n");
-			DecimalFormat df = new DecimalFormat("0.00");
-			for (int length : timeStatsPerLength.keySet()) {
-				DescriptiveStatistics stats = timeStatsPerLength.get(length);
-				long count = stats.getN();
-				double mean = stats.getMean();
-				double perToken = mean / length;
-				LOG.info("\t" + length + "\t" + count + "\t" + df.format(mean) + "\t" + df.format(perToken));
-				if (writer!=null)
-					writer.write(CSV.format(length) + CSV.format(count) + CSV.format(mean) + CSV.format(perToken) + "\n");
-			}
-			if (writer!=null) {
-				writer.flush();
-				writer.close();
-			}
-			LOG.info("##################");
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
-	
-	/**
-	 * Total parsing time statistics for sentences of different lengths.
-	 */
-	public Map<Integer, DescriptiveStatistics> getTimeStatsPerLength() {
-		return timeStatsPerLength;
-	}
+  @Override
+  public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences) {
+    startTime = System.currentTimeMillis();
+  }
 
-	public Writer getWriter() {
-		return writer;
-	}
+  @Override
+  public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) {
+    long totalTime = System.currentTimeMillis() - startTime;
+    int length = realConfiguration.getPosTagSequence().size();
+    DescriptiveStatistics stats = timeStatsPerLength.get(length);
+    if (stats == null) {
+      stats = new DescriptiveStatistics();
+      timeStatsPerLength.put(length, stats);
+    }
+    stats.addValue(totalTime);
+  }
 
-	public void setWriter(Writer writer) {
-		this.writer = writer;
-	}
-	
-	
+  @Override
+  public void onEvaluationComplete() throws IOException {
+    LOG.info("##################");
+    LOG.info("timeStatsPerLength");
+    LOG.info("\tlength\tcount\tmean\tperToken");
+    if (writer != null)
+      writer.write(CSV.format("length") + CSV.format("count") + CSV.format("mean") + CSV.format("perToken") + "\n");
+    DecimalFormat df = new DecimalFormat("0.00");
+    for (int length : timeStatsPerLength.keySet()) {
+      DescriptiveStatistics stats = timeStatsPerLength.get(length);
+      long count = stats.getN();
+      double mean = stats.getMean();
+      double perToken = mean / length;
+      LOG.info("\t" + length + "\t" + count + "\t" + df.format(mean) + "\t" + df.format(perToken));
+      if (writer != null)
+        writer.write(CSV.format(length) + CSV.format(count) + CSV.format(mean) + CSV.format(perToken) + "\n");
+    }
+    if (writer != null) {
+      writer.flush();
+      writer.close();
+    }
+    LOG.info("##################");
+  }
+
+  /**
+   * Total parsing time statistics for sentences of different lengths.
+   */
+  public Map<Integer, DescriptiveStatistics> getTimeStatsPerLength() {
+    return timeStatsPerLength;
+  }
+
+  public Writer getWriter() {
+    return writer;
+  }
+
+  public void setWriter(Writer writer) {
+    this.writer = writer;
+  }
+
 }

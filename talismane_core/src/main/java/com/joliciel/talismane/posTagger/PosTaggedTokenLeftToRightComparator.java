@@ -22,13 +22,14 @@ import java.util.Comparator;
 
 /**
  * Compares PosTaggedTokens, ordering them from left-to-right within a sentence.
+ * 
  * @author Assaf Urieli
  *
  */
 public class PosTaggedTokenLeftToRightComparator implements Comparator<PosTaggedToken> {
 
-	@Override
-	public int compare(PosTaggedToken token1, PosTaggedToken token2) {
-		return token1.getToken().getIndex() - token2.getToken().getIndex();
-	}
+  @Override
+  public int compare(PosTaggedToken token1, PosTaggedToken token2) {
+    return token1.getToken().getIndex() - token2.getToken().getIndex();
+  }
 }

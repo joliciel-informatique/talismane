@@ -46,64 +46,64 @@ import opennlp.model.MaxentModel;
  *
  */
 abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel implements OpenNLPModel {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractOpenNLPModel.class);
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractOpenNLPModel.class);
 
-	private MaxentModel model;
-	private transient Set<String> outcomeNames = null;
+  private MaxentModel model;
+  private transient Set<String> outcomeNames = null;
 
-	/**
-	 * Default constructor for factory.
-	 */
-	AbstractOpenNLPModel() {
-	}
+  /**
+   * Default constructor for factory.
+   */
+  AbstractOpenNLPModel() {
+  }
 
-	/**
-	 * Construct from a newly trained model including the feature descriptors.
-	 */
-	AbstractOpenNLPModel(MaxentModel model, Config config, Map<String, List<String>> descriptors) {
-		super(config, descriptors);
-		this.model = model;
-	}
+  /**
+   * Construct from a newly trained model including the feature descriptors.
+   */
+  AbstractOpenNLPModel(MaxentModel model, Config config, Map<String, List<String>> descriptors) {
+    super(config, descriptors);
+    this.model = model;
+  }
 
-	@Override
-	public DecisionMaker getDecisionMaker() {
-		OpenNLPDecisionMaker decisionMaker = new OpenNLPDecisionMaker(this.getModel());
-		return decisionMaker;
-	}
+  @Override
+  public DecisionMaker getDecisionMaker() {
+    OpenNLPDecisionMaker decisionMaker = new OpenNLPDecisionMaker(this.getModel());
+    return decisionMaker;
+  }
 
-	@Override
-	public MaxentModel getModel() {
-		return model;
-	}
+  @Override
+  public MaxentModel getModel() {
+    return model;
+  }
 
-	public void setModel(MaxentModel model) {
-		this.model = model;
-	}
+  public void setModel(MaxentModel model) {
+    this.model = model;
+  }
 
-	@Override
-	public boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
-		return false;
-	}
+  @Override
+  public boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
+    return false;
+  }
 
-	@Override
-	public void writeDataToStream(ZipOutputStream zos) {
-		// no model-specific data
-	}
+  @Override
+  public void writeDataToStream(ZipOutputStream zos) {
+    // no model-specific data
+  }
 
-	@Override
-	public Set<String> getOutcomeNames() {
-		if (outcomeNames == null) {
-			outcomeNames = new TreeSet<String>();
-			for (int i = 0; i < this.model.getNumOutcomes(); i++) {
-				outcomeNames.add(this.model.getOutcome(i));
-			}
-		}
-		return outcomeNames;
-	}
+  @Override
+  public Set<String> getOutcomeNames() {
+    if (outcomeNames == null) {
+      outcomeNames = new TreeSet<String>();
+      for (int i = 0; i < this.model.getNumOutcomes(); i++) {
+        outcomeNames.add(this.model.getOutcome(i));
+      }
+    }
+    return outcomeNames;
+  }
 
-	@Override
-	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
-	}
+  @Override
+  protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
+  }
 
 }

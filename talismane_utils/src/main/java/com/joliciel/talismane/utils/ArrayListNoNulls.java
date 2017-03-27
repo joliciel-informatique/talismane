@@ -22,49 +22,48 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class ArrayListNoNulls<E> extends ArrayList<E> {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public ArrayListNoNulls() {
-		super();
-	}
+  public ArrayListNoNulls() {
+    super();
+  }
 
-	public ArrayListNoNulls(Collection<? extends E> c) {
-		super(c);
-	}
+  public ArrayListNoNulls(Collection<? extends E> c) {
+    super(c);
+  }
 
-	public ArrayListNoNulls(int initialCapacity) {
-		super(initialCapacity);
-	}
+  public ArrayListNoNulls(int initialCapacity) {
+    super(initialCapacity);
+  }
 
-	@Override
-	public boolean add(E element) {
-		if (element==null)
-			throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
-		return super.add(element);
-	}
+  @Override
+  public boolean add(E element) {
+    if (element == null)
+      throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
+    return super.add(element);
+  }
 
-	@Override
-	public void add(int index, E element) {
-		if (element==null)
-			throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
-		super.add(index, element);
-	}
+  @Override
+  public void add(int index, E element) {
+    if (element == null)
+      throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
+    super.add(index, element);
+  }
 
-	@Override
-	public boolean addAll(Collection<? extends E> c) {
-		for (E element : c)
-			if (element==null)
-				throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
-		return super.addAll(c);
-	}
+  @Override
+  public boolean addAll(Collection<? extends E> c) {
+    for (E element : c)
+      if (element == null)
+        throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
+    return super.addAll(c);
+  }
 
-	@Override
-	public boolean addAll(int index, Collection<? extends E> c) {
-		for (E element : c)
-			if (element==null)
-				throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
-		return super.addAll(index, c);
-	}
+  @Override
+  public boolean addAll(int index, Collection<? extends E> c) {
+    for (E element : c)
+      if (element == null)
+        throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
+    return super.addAll(index, c);
+  }
 
-	
 }

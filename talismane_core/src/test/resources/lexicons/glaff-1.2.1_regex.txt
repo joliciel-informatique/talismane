@@ -1,0 +1,45 @@
+### Regex pour le format Grace, utilisé par GLàFF
+Word	^([^\|]+)\|
+Lemma	^[^\|]+\|[^|]*\|([^|]+)\|
+Category	^[^\|]+\|([NVPADRSCIXF?])
+Morphology	^[^\|]+\|([^|]+)\|
+### Noms
+SubCategory	^[^\|]+\|N([cpk])
+Gender	^[^\|]+\|N[cpk\-]([mf])
+Number	^[^\|]+\|N[cpk\-][mf\-]([sp])
+### Verbes
+SubCategory	^[^\|]+\|V([am])
+Mood	^[^\|]+\|V[am\-]([ismcnp])
+Tense	^[^\|]+\|V[am\-][ismcnp\-]([pifs])
+Person	^[^\|]+\|V[am\-][ismcnp\-][pifs\-]([123])
+Number	^[^\|]+\|V[am\-][ismcnp\-][pifs\-][123\-]([sp])
+Gender	^[^\|]+\|V[am\-][ismcnp\-][pifs\-][123\-][sp\-]([mf])
+### Adjectifs
+SubCategory	^[^\|]+\|A(f[pc])
+SubCategory	^[^\|]+\|A([fokis])\-
+Gender	^[^\|]+\|A[fokis\-][pc\-]([mf])
+Number	^[^\|]+\|A[fokis\-][pc\-]([mf])([sp])
+### Pronoms
+SubCategory	^[^\|]+\|P([pdistrxk])
+Person	^[^\|]+\|P[pdistrxk\-]([123])
+Gender	^[^\|]+\|P[pdistrxk\-][123\-]([mf])
+Number	^[^\|]+\|P[pdistrxk\-][123\-][mf\-]([sp])
+Case	^[^\|]+\|P[pdistrxk\-][123\-][mf\-][sp\-]([nado])
+PossessorNumber	^[^\|]+\|P[pdistrxk\-][123\-][mf\-][sp\-][nado\-]([sp])
+### Déterimants
+SubCategory	^[^\|]+\|Da....(i)	ai
+SubCategory	^[^\|]+\|Da....(d)	ad
+SubCategory	^[^\|]+\|D([adsitrk])
+Person	^[^\|]+\|D[adsitrk\-]([123])
+Gender	^[^\|]+\|D[adsitrk\-][123\-]([mf])
+Number	^[^\|]+\|D[adsitrk\-][123\-][mf\-]([sp])
+PossessorNumber	^[^\|]+\|D[adsitrk\-][123\-][mf\-][sp\-]([sp])
+### Adverbes
+SubCategory	^[^\|]+\|R([gpx\-][pcn\-])
+### Prépositions
+SubCategory	^[^\|]+\|S([pd])
+### Conjonctions
+SubCategory	^[^\|]+\|C([cs])
+
+
+

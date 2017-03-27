@@ -27,6 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -39,51 +40,51 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
  *
  */
 public class LanguageDetectorEventStream implements ClassificationEventStream {
-	private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectorEventStream.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectorEventStream.class);
 
-	private LanguageDetectorAnnotatedCorpusReader corpusReader;
-	private Set<LanguageDetectorFeature<?>> features;
+  private LanguageDetectorAnnotatedCorpusReader corpusReader;
+  private Set<LanguageDetectorFeature<?>> features;
 
-	public LanguageDetectorEventStream(LanguageDetectorAnnotatedCorpusReader corpusReader, Set<LanguageDetectorFeature<?>> features) {
-		super();
-		this.corpusReader = corpusReader;
-		this.features = features;
-	}
+  public LanguageDetectorEventStream(LanguageDetectorAnnotatedCorpusReader corpusReader, Set<LanguageDetectorFeature<?>> features) {
+    super();
+    this.corpusReader = corpusReader;
+    this.features = features;
+  }
 
-	@Override
-	public boolean hasNext() {
-		return this.corpusReader.hasNextText();
-	}
+  @Override
+  public boolean hasNext() {
+    return this.corpusReader.hasNextText();
+  }
 
-	@Override
-	public ClassificationEvent next() {
-		LanguageTaggedText languageTaggedText = this.corpusReader.nextText();
-		List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
-		for (LanguageDetectorFeature<?> feature : features) {
-			RuntimeEnvironment env = new RuntimeEnvironment();
-			FeatureResult<?> featureResult = feature.check(languageTaggedText.getText(), env);
-			if (featureResult != null)
-				featureResults.add(featureResult);
-		}
-		String classification = languageTaggedText.getLanguage().toLanguageTag();
+  @Override
+  public ClassificationEvent next() throws TalismaneException {
+    LanguageTaggedText languageTaggedText = this.corpusReader.nextText();
+    List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
+    for (LanguageDetectorFeature<?> feature : features) {
+      RuntimeEnvironment env = new RuntimeEnvironment();
+      FeatureResult<?> featureResult = feature.check(languageTaggedText.getText(), env);
+      if (featureResult != null)
+        featureResults.add(featureResult);
+    }
+    String classification = languageTaggedText.getLanguage().toLanguageTag();
 
-		if (LOG.isTraceEnabled()) {
-			for (FeatureResult<?> result : featureResults) {
-				LOG.trace(result.toString());
-			}
-			LOG.trace("classification: " + classification);
-		}
+    if (LOG.isTraceEnabled()) {
+      for (FeatureResult<?> result : featureResults) {
+        LOG.trace(result.toString());
+      }
+      LOG.trace("classification: " + classification);
+    }
 
-		ClassificationEvent event = new ClassificationEvent(featureResults, classification);
-		return event;
-	}
+    ClassificationEvent event = new ClassificationEvent(featureResults, classification);
+    return event;
+  }
 
-	@Override
-	public Map<String, String> getAttributes() {
-		Map<String, String> attributes = new LinkedHashMap<String, String>();
-		attributes.put("eventStream", this.getClass().getSimpleName());
-		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
+  @Override
+  public Map<String, String> getAttributes() {
+    Map<String, String> attributes = new LinkedHashMap<String, String>();
+    attributes.put("eventStream", this.getClass().getSimpleName());
+    attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
 
-		return attributes;
-	}
+    return attributes;
+  }
 }

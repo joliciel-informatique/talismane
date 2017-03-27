@@ -18,40 +18,40 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
 /**
  * Returns true if the token refered to by address meets the boolean criterion.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class HasFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
-	BooleanFeature<TokenWrapper> criterion;
-	
-	public HasFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
-		this.criterion = criterion;
-		this.setName(super.getName() + "(" + this.criterion.getName() + ")");
+public final class HasFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+  BooleanFeature<TokenWrapper> criterion;
 
-		this.setAddressFunction(addressFunction);
-	}
+  public HasFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
+    this.criterion = criterion;
+    this.setName(super.getName() + "(" + this.criterion.getName() + ")");
 
-	
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
-		FeatureResult<Boolean> result = null;
-		
-		FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
-		if (criterionResult!=null) {
-			result = this.generateResult(criterionResult.getOutcome());
-		}
-		
-		return result;
-	}
+    this.setAddressFunction(addressFunction);
+  }
+
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    FeatureResult<Boolean> result = null;
+
+    FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
+    if (criterionResult != null) {
+      result = this.generateResult(criterionResult.getOutcome());
+    }
+
+    return result;
+  }
 
 }

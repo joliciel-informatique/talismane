@@ -18,18 +18,72 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
+
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.utils.ArrayListNoNulls;
 
 /**
  * An interface that observes a tokeniser evaluation while its occurring.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface TokenEvaluationObserver {
-	/**
-	 * Called when the next token  sequence has been processed.
-	 */
-	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences);
-	
-	public void onEvaluationComplete();
+  /**
+   * Called when the next token sequence has been processed.
+   * 
+   * @throws IOException
+   */
+  public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) throws IOException;
+
+  public void onEvaluationComplete() throws IOException;
+
+  public static List<TokenEvaluationObserver> getTokenEvaluationObservers(File outDir, TalismaneSession session) throws IOException, TalismaneException {
+    List<TokenEvaluationObserver> observers = new ArrayListNoNulls<TokenEvaluationObserver>();
+    Writer errorFileWriter = null;
+    File errorFile = new File(outDir, session.getBaseName() + ".errorList.txt");
+    errorFile.delete();
+    errorFile.createNewFile();
+    errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false), "UTF8"));
+
+    Writer csvErrorFileWriter = null;
+    File csvErrorFile = new File(outDir, session.getBaseName() + ".errors.csv");
+    csvErrorFile.delete();
+    csvErrorFile.createNewFile();
+    csvErrorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false), session.getCsvCharset()));
+
+    File fScoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
+
+    TokenEvaluationFScoreCalculator tokenFScoreCalculator = new TokenEvaluationFScoreCalculator();
+    tokenFScoreCalculator.setErrorWriter(errorFileWriter);
+    tokenFScoreCalculator.setCsvErrorWriter(csvErrorFileWriter);
+    tokenFScoreCalculator.setFScoreFile(fScoreFile);
+    observers.add(tokenFScoreCalculator);
+
+    Writer corpusFileWriter = null;
+    File corpusFile = new File(outDir, session.getBaseName() + ".corpus.txt");
+    corpusFile.delete();
+    corpusFile.createNewFile();
+    corpusFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(corpusFile, false), "UTF8"));
+
+    TokenEvaluationCorpusWriter corpusWriter = new TokenEvaluationCorpusWriter(corpusFileWriter);
+    observers.add(corpusWriter);
+
+    List<TokenSequenceProcessor> processors = TokenSequenceProcessor.getProcessors(null, outDir, session);
+
+    for (TokenSequenceProcessor processor : processors) {
+      TokeniserGuessTemplateWriter templateWriter = new TokeniserGuessTemplateWriter(processor);
+      observers.add(templateWriter);
+    }
+
+    return observers;
+  }
 }

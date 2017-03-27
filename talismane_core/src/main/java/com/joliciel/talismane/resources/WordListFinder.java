@@ -36,40 +36,42 @@ import com.joliciel.talismane.utils.JolicielException;
  *
  */
 public class WordListFinder {
-	private static final Logger LOG = LoggerFactory.getLogger(WordListFinder.class);
-	private Map<String, WordList> wordListMap = new HashMap<>();
+  private static final Logger LOG = LoggerFactory.getLogger(WordListFinder.class);
+  private Map<String, WordList> wordListMap = new HashMap<>();
 
-	/**
-	 * Add an external word list located in a scanner from a particular
-	 * filename.
-	 */
-	public void addWordList(String fileName, Scanner scanner) {
-		LOG.debug("Reading " + fileName);
-		String typeLine = scanner.nextLine();
+  /**
+   * Add an external word list located in a scanner from a particular filename.
+   * 
+   * @throws TalismaneException
+   *           if unknown file type
+   */
+  public void addWordList(String fileName, Scanner scanner) throws TalismaneException {
+    LOG.debug("Reading " + fileName);
+    String typeLine = scanner.nextLine();
 
-		if (!typeLine.startsWith("Type: "))
-			throw new JolicielException("In file " + fileName + ", expected line starting with \"Type: \"");
+    if (!typeLine.startsWith("Type: "))
+      throw new JolicielException("In file " + fileName + ", expected line starting with \"Type: \"");
 
-		String type = typeLine.substring("Type: ".length());
+    String type = typeLine.substring("Type: ".length());
 
-		if ("WordList".equals(type)) {
-			WordList textFileWordList = new WordList(fileName, scanner);
-			this.addWordList(textFileWordList);
-		} else {
-			throw new TalismaneException("Unexpected type in file: " + fileName + ": " + type);
-		}
-	}
+    if ("WordList".equals(type)) {
+      WordList textFileWordList = new WordList(fileName, scanner);
+      this.addWordList(textFileWordList);
+    } else {
+      throw new TalismaneException("Unexpected type in file: " + fileName + ": " + type);
+    }
+  }
 
-	public void addWordList(WordList wordList) {
-		LOG.debug("Adding word list with name: " + wordList.getName());
-		this.wordListMap.put(wordList.getName(), wordList);
-	}
+  public void addWordList(WordList wordList) {
+    LOG.debug("Adding word list with name: " + wordList.getName());
+    this.wordListMap.put(wordList.getName(), wordList);
+  }
 
-	public WordList getWordList(String name) {
-		return this.wordListMap.get(name);
-	}
+  public WordList getWordList(String name) {
+    return this.wordListMap.get(name);
+  }
 
-	public Collection<WordList> getWordLists() {
-		return wordListMap.values();
-	}
+  public Collection<WordList> getWordLists() {
+    return wordListMap.values();
+  }
 }

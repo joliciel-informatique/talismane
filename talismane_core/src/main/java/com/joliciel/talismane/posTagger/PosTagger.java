@@ -18,18 +18,18 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
+import com.joliciel.talismane.sentenceAnnotators.RegexAnnotator;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenRegexFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * The PosTagger's task is to add part-of-speech tags to words within a
@@ -41,86 +41,67 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  *
  */
 public interface PosTagger {
-	/**
-	 * If this attribute is added to a {@link Token} via
-	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-	 * {@link TokenRegexFilter}), the token in question will get the pos-tag in
-	 * the attribute value assigned to it without consulting the statistical
-	 * model. This is an alternative to using pos-tagger rules.
-	 */
-	public static final String POS_TAG_ATTRIBUTE = "posTag";
+  /**
+   * If this attribute is added to a {@link Token} via
+   * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
+   * {@link RegexAnnotator}), the token in question will get the pos-tag in the
+   * attribute value assigned to it without consulting the statistical model.
+   * This is an alternative to using pos-tagger rules.
+   */
+  public static final String POS_TAG_ATTRIBUTE = "posTag";
 
-	/**
-	 * If this attribute is added to a {@link Token} via
-	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-	 * {@link TokenRegexFilter}), and the value of this attribute is
-	 * "originalLower", then the token's lemma will be set to the original
-	 * value, forced into lowercase.
-	 */
-	public static final String LEMMA_TYPE_ATTRIBUTE = "lemmaType";
+  /**
+   * If this attribute is added to a {@link Token} via
+   * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
+   * {@link RegexAnnotator}), and the value of this attribute is
+   * "originalLower", then the token's lemma will be set to the original value,
+   * forced into lowercase.
+   */
+  public static final String LEMMA_TYPE_ATTRIBUTE = "lemmaType";
 
-	/**
-	 * If this attribute is added to a {@link Token} via
-	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-	 * {@link TokenRegexFilter}), and the value of this attribute is
-	 * "originalLower", then the token's lemma will be set to the value
-	 * provided.
-	 */
-	public static final String LEMMA_ATTRIBUTE = "lemma";
+  /**
+   * If this attribute is added to a {@link Token} via
+   * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
+   * {@link RegexAnnotator}), and the value of this attribute is
+   * "originalLower", then the token's lemma will be set to the value provided.
+   */
+  public static final String LEMMA_ATTRIBUTE = "lemma";
 
-	/**
-	 * Apply PosTags to the tokens in a given sentence.
-	 * 
-	 * @param tokenSequence
-	 *            the List of tokens comprising the sentence.
-	 * @return a List of TaggedToken reflecting the PosTags applied to the
-	 *         tokens.
-	 */
-	public PosTagSequence tagSentence(TokenSequence tokenSequence);
+  /**
+   * Apply PosTags to the tokens in a given sentence.
+   * 
+   * @param tokenSequence
+   *          the List of tokens comprising the sentence.
+   * @return a List of TaggedToken reflecting the PosTags applied to the tokens.
+   * @throws UnknownPosTagException
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public PosTagSequence tagSentence(TokenSequence tokenSequence) throws UnknownPosTagException, TalismaneException, IOException;
 
-	/**
-	 * Add an analysis observer to this pos tagger.
-	 */
-	public void addObserver(ClassificationObserver observer);
+  /**
+   * Add an analysis observer to this pos tagger.
+   */
+  public void addObserver(ClassificationObserver observer);
 
-	/**
-	 * The set of features used to describe the sequence of
-	 * {@link PosTaggerContextImpl} encountered while pos-tagging. These have to
-	 * be identical to the features used to train the previously trained
-	 * pos-tagging model.
-	 */
-	public Set<PosTaggerFeature<?>> getPosTaggerFeatures();
+  /**
+   * The set of features used to describe the sequence of
+   * {@link PosTaggerContextImpl} encountered while pos-tagging. These have to
+   * be identical to the features used to train the previously trained
+   * pos-tagging model.
+   */
+  public Set<PosTaggerFeature<?>> getPosTaggerFeatures();
 
-	/**
-	 * @see #getPosTaggerRules()
-	 */
-	public void setPosTaggerRules(List<PosTaggerRule> posTaggerRules);
+  /**
+   * @see #getPosTaggerRules()
+   */
+  public void setPosTaggerRules(List<PosTaggerRule> posTaggerRules);
 
-	/**
-	 * Rules to be applied during pos-tagging, used to override the statistical
-	 * model for phenomena under-represented in the training corpus.
-	 */
-	public List<PosTaggerRule> getPosTaggerRules();
+  /**
+   * Rules to be applied during pos-tagging, used to override the statistical
+   * model for phenomena under-represented in the training corpus.
+   */
+  public List<PosTaggerRule> getPosTaggerRules();
 
-	/**
-	 * Filters to be applied to the token sequences prior to pos-tagging.
-	 */
-	public List<TokenSequenceFilter> getPreProcessingFilters();
-
-	/**
-	 * Add a pre-processing filter.
-	 */
-	public void addPreProcessingFilter(TokenSequenceFilter tokenFilter);
-
-	/**
-	 * Filters to be applied to the final pos-tag sequences after pos-tagging.
-	 */
-	public List<PosTagSequenceFilter> getPostProcessingFilters();
-
-	/**
-	 * Add a post-processing filter.
-	 */
-	public void addPostProcessingFilter(PosTagSequenceFilter posTagFilter);
-
-	public PosTagger clonePosTagger();
+  public PosTagger clonePosTagger();
 }

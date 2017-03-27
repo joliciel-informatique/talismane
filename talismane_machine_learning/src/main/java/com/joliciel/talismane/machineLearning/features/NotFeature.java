@@ -18,53 +18,41 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Reverses a feature using a boolean NOT.
- * If it is null, will return null.
+ * Reverses a feature using a boolean NOT. If it is null, will return null.
+ * 
  * @author Assaf Urieli
  *
  */
-public class NotFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
-	BooleanFeature<T> operand;
-	
-	public NotFeature(BooleanFeature<T> operand) {
-		super();
-		this.operand = operand;
-		this.setName("Not(" + operand.getName() + ")");
-	}
+public class NotFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
+  BooleanFeature<T> operand;
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Boolean> featureResult = null;
-		
-		FeatureResult<Boolean> result1 = operand.check(context, env);
-		
-		if (result1!=null) {
-			featureResult = this.generateResult(!result1.getOutcome());
-		}
-		return featureResult;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op = builder.addFeatureVariable(operand, "operand");
-		
-		builder.append("if (" + op + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = !(" + op + ");");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
+  public NotFeature(BooleanFeature<T> operand) {
+    super();
+    this.operand = operand;
+    this.setName("Not(" + operand.getName() + ")");
+  }
 
-	public BooleanFeature<T> getOperand() {
-		return operand;
-	}
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-	public void setOperand(BooleanFeature<T> operand) {
-		this.operand = operand;
-	}
-	
-	
+    FeatureResult<Boolean> result1 = operand.check(context, env);
+
+    if (result1 != null) {
+      featureResult = this.generateResult(!result1.getOutcome());
+    }
+    return featureResult;
+  }
+
+  public BooleanFeature<T> getOperand() {
+    return operand;
+  }
+
+  public void setOperand(BooleanFeature<T> operand) {
+    this.operand = operand;
+  }
+
 }

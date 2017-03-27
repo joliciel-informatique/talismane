@@ -18,61 +18,45 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Converts a non-string feature to a string feature.
- * If the feature result is null, will return the string "null".
+ * Converts a non-string feature to a string feature. If the feature result is
+ * null, will return the string "null".
+ * 
  * @author Assaf Urieli
  */
-public class ToStringAllowNullsFeature<T> extends AbstractCachableFeature<T, String> implements StringFeature<T> {
-	private static final String NULL_STRING = "null";
+public class ToStringAllowNullsFeature<T> extends AbstractCachableFeature<T, String>implements StringFeature<T> {
+  private static final String NULL_STRING = "null";
 
-	Feature<T,?> featureToString;
-	
-	public ToStringAllowNullsFeature(Feature<T,?> feature1) {
-		super();
-		this.featureToString = feature1;
-		this.setName("ToString(" + feature1.getName() + ")");
-	}
+  Feature<T, ?> featureToString;
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<String> featureResult = null;
-		
-		FeatureResult<?> result1 = featureToString.check(context, env);
-		
-		if (result1!=null) {
-			featureResult = this.generateResult(result1.getOutcome().toString());
-		} else {
-			featureResult = this.generateResult(NULL_STRING);
-		}
-		return featureResult;
-	}
+  public ToStringAllowNullsFeature(Feature<T, ?> feature1) {
+    super();
+    this.featureToString = feature1;
+    this.setName("ToString(" + feature1.getName() + ")");
+  }
 
+  @Override
+  public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> featureResult = null;
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op = builder.addFeatureVariable(featureToString, "operand");
-		
-		builder.append("if (" + op + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = " + op + ".toString();");
-		builder.outdent();
-		builder.append("} else {");
-		builder.indent();
-		builder.append(		variableName + " = \"" + NULL_STRING + "\";");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-	
-	public Feature<T, ?> getFeatureToString() {
-		return featureToString;
-	}
+    FeatureResult<?> result1 = featureToString.check(context, env);
 
-	public void setFeatureToString(Feature<T, ?> featureToString) {
-		this.featureToString = featureToString;
-	}
-	
-	
+    if (result1 != null) {
+      featureResult = this.generateResult(result1.getOutcome().toString());
+    } else {
+      featureResult = this.generateResult(NULL_STRING);
+    }
+    return featureResult;
+  }
+
+  public Feature<T, ?> getFeatureToString() {
+    return featureToString;
+  }
+
+  public void setFeatureToString(Feature<T, ?> featureToString) {
+    this.featureToString = featureToString;
+  }
+
 }

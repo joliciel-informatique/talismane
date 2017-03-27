@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.rawText.Sentence;
 
 /**
  * A simplistic implementation of a Tokeniser, using only TokenFilters and
@@ -35,38 +35,38 @@ import com.joliciel.talismane.machineLearning.Decision;
  * @author Assaf Urieli
  *
  */
-public class SimpleTokeniser extends AbstractTokeniser {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(SimpleTokeniser.class);
+public class SimpleTokeniser extends Tokeniser {
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(SimpleTokeniser.class);
 
-	public SimpleTokeniser(TalismaneSession talismaneSession) {
-		super(talismaneSession);
-	}
+  public SimpleTokeniser(TalismaneSession talismaneSession) {
+    super(talismaneSession);
+  }
 
-	SimpleTokeniser(SimpleTokeniser tokeniser) {
-		super(tokeniser);
-	}
+  SimpleTokeniser(SimpleTokeniser tokeniser) {
+    super(tokeniser);
+  }
 
-	@Override
-	protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) {
-		List<TokenisedAtomicTokenSequence> sequences = null;
+  @Override
+  protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) {
+    List<TokenisedAtomicTokenSequence> sequences = null;
 
-		sequences = new ArrayList<TokenisedAtomicTokenSequence>();
-		TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getTalismaneSession());
-		for (Token token : initialSequence.listWithWhiteSpace()) {
-			Decision tokeniserDecision = new Decision(TokeniserOutcome.SEPARATE.name());
-			TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<TokeniserOutcome>(token, tokeniserDecision,
-					TokeniserOutcome.valueOf(tokeniserDecision.getOutcome()));
-			defaultSequence.add(taggedToken);
-		}
-		sequences.add(defaultSequence);
+    sequences = new ArrayList<TokenisedAtomicTokenSequence>();
+    TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getTalismaneSession());
+    for (Token token : initialSequence.listWithWhiteSpace()) {
+      Decision tokeniserDecision = new Decision(TokeniserOutcome.SEPARATE.name());
+      TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<TokeniserOutcome>(token, tokeniserDecision,
+          TokeniserOutcome.valueOf(tokeniserDecision.getOutcome()));
+      defaultSequence.add(taggedToken);
+    }
+    sequences.add(defaultSequence);
 
-		return sequences;
-	}
+    return sequences;
+  }
 
-	@Override
-	public Tokeniser cloneTokeniser() {
-		return new SimpleTokeniser(this);
-	}
+  @Override
+  public Tokeniser cloneTokeniser() {
+    return new SimpleTokeniser(this);
+  }
 
 }

@@ -19,17 +19,18 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Thrown when a constructor isn't found for the requested feature with the arguments provided.
+ * Thrown when a constructor isn't found for the requested feature with the
+ * arguments provided.
+ * 
  * @author Assaf Urieli
  *
  */
 public class NoConstructorFoundException extends FeatureSyntaxException {
 
-	private static final long serialVersionUID = 8010492391503399151L;
+  private static final long serialVersionUID = 8010492391503399151L;
 
-	public NoConstructorFoundException(String message,
-			FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
-		super(message, descriptor, topLevelDescriptor);
-	}
+  public NoConstructorFoundException(String message, FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
+    super(message, descriptor, topLevelDescriptor);
+  }
 
 }

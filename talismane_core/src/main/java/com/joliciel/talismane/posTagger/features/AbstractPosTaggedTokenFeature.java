@@ -19,41 +19,44 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
 /**
  * An Abstract base class for features applied to a given pos-tagged token.
+ * 
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractPosTaggedTokenFeature<T,Y> extends AbstractCachableFeature<T,Y> implements PosTaggedTokenFeature<T,Y> {
-	PosTaggedTokenAddressFunction<T> addressFunction;
-	
-	public AbstractPosTaggedTokenFeature (PosTaggedTokenAddressFunction<T> addressFunction) {
-		this.addressFunction = addressFunction;
-	}
-	
-	public PosTaggedTokenAddressFunction<T> getAddressFunction() {
-		return addressFunction;
-	}
+public abstract class AbstractPosTaggedTokenFeature<T, Y> extends AbstractCachableFeature<T, Y>implements PosTaggedTokenFeature<T, Y> {
+  PosTaggedTokenAddressFunction<T> addressFunction;
 
-	public void setAddressFunction(PosTaggedTokenAddressFunction<T> addressFunction) {
-		this.addressFunction = addressFunction;
-		String name = this.getName();
-		if (name.endsWith(")")) {
-			name = name.substring(0, name.length()-1) + "," + addressFunction.getName() + ")";
-		} else {
-			name = name + "(" + addressFunction.getName() + ")";
-		}
-		this.setName(name);
-	}
-	
-	protected PosTaggedTokenWrapper getToken(T context, RuntimeEnvironment env) {
-		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(context, env);
-		if (tokenResult==null)
-			return null;
-		return tokenResult.getOutcome();
-	}
+  public AbstractPosTaggedTokenFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    this.addressFunction = addressFunction;
+  }
+
+  @Override
+  public PosTaggedTokenAddressFunction<T> getAddressFunction() {
+    return addressFunction;
+  }
+
+  public void setAddressFunction(PosTaggedTokenAddressFunction<T> addressFunction) {
+    this.addressFunction = addressFunction;
+    String name = this.getName();
+    if (name.endsWith(")")) {
+      name = name.substring(0, name.length() - 1) + "," + addressFunction.getName() + ")";
+    } else {
+      name = name + "(" + addressFunction.getName() + ")";
+    }
+    this.setName(name);
+  }
+
+  protected PosTaggedTokenWrapper getToken(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(context, env);
+    if (tokenResult == null)
+      return null;
+    return tokenResult.getOutcome();
+  }
 }

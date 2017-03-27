@@ -18,57 +18,45 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Truncates a double down to an integer.
+ * 
  * @author Assaf Urieli
  *
  */
-class TruncateFeature<T> extends AbstractFeature<T, Integer> implements
-		IntegerFeature<T> {
-	private DoubleFeature<T> featureToTruncate;
-	
-	public TruncateFeature(DoubleFeature<T> doubleFeature) {
-		super();
-		this.featureToTruncate = doubleFeature;
-		this.setName(this.featureToTruncate.getName());
-	}
+class TruncateFeature<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
+  private DoubleFeature<T> featureToTruncate;
 
-	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
-		FeatureResult<Integer> featureResult = null;
-		
-		FeatureResult<Double> doubleResult = featureToTruncate.check(context, env);
-		if (doubleResult!=null) {
-			int intResult = doubleResult.getOutcome().intValue();
-			featureResult = this.generateResult(intResult);
-		}
-		return featureResult;
-	}
+  public TruncateFeature(DoubleFeature<T> doubleFeature) {
+    super();
+    this.featureToTruncate = doubleFeature;
+    this.setName(this.featureToTruncate.getName());
+  }
 
+  @Override
+  public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Integer> featureResult = null;
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op = builder.addFeatureVariable(featureToTruncate, "operand");
-		
-		builder.append("if (" + op + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = " + op + ".intValue();");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-	public DoubleFeature<T> getDoubleFeature() {
-		return featureToTruncate;
-	}
+    FeatureResult<Double> doubleResult = featureToTruncate.check(context, env);
+    if (doubleResult != null) {
+      int intResult = doubleResult.getOutcome().intValue();
+      featureResult = this.generateResult(intResult);
+    }
+    return featureResult;
+  }
 
-	public DoubleFeature<T> getFeatureToTruncate() {
-		return featureToTruncate;
-	}
+  public DoubleFeature<T> getDoubleFeature() {
+    return featureToTruncate;
+  }
 
-	public void setFeatureToTruncate(DoubleFeature<T> featureToTruncate) {
-		this.featureToTruncate = featureToTruncate;
-	}
-	
-	
+  public DoubleFeature<T> getFeatureToTruncate() {
+    return featureToTruncate;
+  }
+
+  public void setFeatureToTruncate(DoubleFeature<T> featureToTruncate) {
+    this.featureToTruncate = featureToTruncate;
+  }
+
 }

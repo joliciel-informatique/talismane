@@ -24,53 +24,54 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * Create a dependency where Buffer[0] depends on Stack[0], remove Buffer[0], and put Stack[0] in its place.
+ * Create a dependency where Buffer[0] depends on Stack[0], remove Buffer[0],
+ * and put Stack[0] in its place.
+ * 
  * @author Assaf Urieli
  *
  */
 public class RightArcTransition extends AbstractTransition implements Transition {
-	private static final Logger LOG = LoggerFactory.getLogger(RightArcTransition.class);
-	private String label;
-	private String name;
-	
-	public RightArcTransition(String label) {
-		super();
-		this.label = label;
-	}
+  private static final Logger LOG = LoggerFactory.getLogger(RightArcTransition.class);
+  private String label;
+  private String name;
 
-	@Override
-	protected void applyInternal(ParseConfiguration configuration) {
-		PosTaggedToken head = configuration.getStack().pop();
-		PosTaggedToken dependent = configuration.getBuffer().pollFirst();
-		configuration.getBuffer().addFirst(head);
-		configuration.addDependency(head, dependent, label, this);
-	}
+  public RightArcTransition(String label) {
+    super();
+    this.label = label;
+  }
 
-	@Override
-	public boolean checkPreconditions(ParseConfiguration configuration) {
-		if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
-			}
-			return false;
-		}
-		return true;
-	}
+  @Override
+  protected void applyInternal(ParseConfiguration configuration) throws CircularDependencyException {
+    PosTaggedToken head = configuration.getStack().pop();
+    PosTaggedToken dependent = configuration.getBuffer().pollFirst();
+    configuration.getBuffer().addFirst(head);
+    configuration.addDependency(head, dependent, label, this);
+  }
 
-	@Override
-	public String getCode() {
-		if (this.name==null) {
-			this.name = "RightArc";
-			if (this.label!=null && this.label.length()>0)
-				this.name += "[" + this.label + "]";
-		}
-		
-		return this.name;
-	}
+  @Override
+  public boolean checkPreconditions(ParseConfiguration configuration) {
+    if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
+      }
+      return false;
+    }
+    return true;
+  }
 
+  @Override
+  public String getCode() {
+    if (this.name == null) {
+      this.name = "RightArc";
+      if (this.label != null && this.label.length() > 0)
+        this.name += "[" + this.label + "]";
+    }
 
-	@Override
-	public boolean doesReduce() {
-		return true;
-	}
+    return this.name;
+  }
+
+  @Override
+  public boolean doesReduce() {
+    return true;
+  }
 }

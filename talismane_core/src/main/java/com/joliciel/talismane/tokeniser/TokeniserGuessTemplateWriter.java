@@ -18,37 +18,30 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.tokeniser;
 
-import java.io.Reader;
-import java.io.Writer;
+import java.io.IOException;
 import java.util.List;
 
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
-
 /**
- * Simply a wrapper for the FreemarkerTemplateWriter, writing the best guess
- * using a freemarker template.
+ * Simply a wrapper for the TokenSequenceProcessor, writing the best guess using
+ * the processor.
+ * 
  * @author Assaf Urieli
  *
  */
 public class TokeniserGuessTemplateWriter implements TokenEvaluationObserver {
-	FreemarkerTemplateWriter freemarkerTemplateWriter;
-	Writer writer;
-	
-	public TokeniserGuessTemplateWriter(Writer writer, Reader templateReader) {
-		freemarkerTemplateWriter = new FreemarkerTemplateWriter(templateReader);
-		this.writer = writer;
-	}
+  private final TokenSequenceProcessor processor;
 
-	@Override
-	public void onEvaluationComplete() {
-		freemarkerTemplateWriter.onCompleteParse();
-	}
+  public TokeniserGuessTemplateWriter(TokenSequenceProcessor processor) {
+    this.processor = processor;
+  }
 
-	@Override
-	public void onNextTokenSequence(TokenSequence realSequence,
-			List<TokenisedAtomicTokenSequence> guessedAtomicSequences) {
-		freemarkerTemplateWriter.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence(), writer);
-	}
+  @Override
+  public void onEvaluationComplete() {
+  }
 
+  @Override
+  public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) throws IOException {
+    processor.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence());
+  }
 
 }

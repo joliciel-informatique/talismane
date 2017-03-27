@@ -18,21 +18,52 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.languageDetector;
 
-import com.joliciel.talismane.AnnotatedCorpusReader;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.corpus.AnnotatedCorpusReader;
+import com.typesafe.config.Config;
 
 /**
  * An interface for reading language tagged text from a training corpus.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface LanguageDetectorAnnotatedCorpusReader extends AnnotatedCorpusReader {
-	/**
-	 * Is there another text to be read?
-	 */
-	public boolean hasNextText();
-	
-	/**
-	 * Reads the next sentence from the corpus.
-	 */
-	public LanguageTaggedText nextText();
+  /**
+   * Is there another text to be read?
+   */
+  public abstract boolean hasNextText();
+
+  /**
+   * Reads the next sentence from the corpus.
+   */
+  public abstract LanguageTaggedText nextText();
+
+  /**
+   * Builds an annotated corpus reader for a particular Reader and Config, where
+   * the config is the local namespace. For configuration example, see
+   * talismane.core.language-detector.input in reference.conf.
+   * 
+   * @param config
+   *          the local configuration section from which we're building a reader
+   * @throws IOException
+   *           problem reading the files referred in the configuration
+   * @throws ReflectiveOperationException
+   *           if the corpus-reader class could not be instantiated
+   */
+  public static LanguageDetectorAnnotatedCorpusReader getCorpusReader(Config config, TalismaneSession session)
+      throws IOException, ReflectiveOperationException {
+    String className = config.getString("corpus-reader");
+
+    @SuppressWarnings("unchecked")
+    Class<? extends LanguageDetectorAnnotatedCorpusReader> clazz = (Class<? extends LanguageDetectorAnnotatedCorpusReader>) Class.forName(className);
+    Constructor<? extends LanguageDetectorAnnotatedCorpusReader> cons = clazz.getConstructor(Config.class, TalismaneSession.class);
+
+    LanguageDetectorAnnotatedCorpusReader corpusReader = cons.newInstance(config, session);
+
+    return corpusReader;
+  }
 }

@@ -21,13 +21,15 @@ package com.joliciel.talismane.parser.features;
 import com.joliciel.talismane.machineLearning.features.Feature;
 
 /**
- * A feature acting on a ParseConfigurationAddress, meaning a parse-configuration + an address function
- * referring to a specific token in the configuration.
- * Currently, these cannot take any constructor arguments.
+ * A feature acting on a ParseConfigurationAddress, meaning a
+ * parse-configuration + an address function referring to a specific token in
+ * the configuration. Currently, these cannot take any constructor arguments.
+ * 
  * @author Assaf Urieli
  *
- * @param <T> The feature's return type.
+ * @param <T>
+ *          The feature's return type.
  */
-public interface ParseConfigurationAddressFeature<T> extends Feature<ParseConfigurationWrapper,T> {
+public interface ParseConfigurationAddressFeature<T> extends Feature<ParseConfigurationWrapper, T> {
 
 }

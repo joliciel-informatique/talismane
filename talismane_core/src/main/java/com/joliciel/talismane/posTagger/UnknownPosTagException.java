@@ -22,19 +22,20 @@ import com.joliciel.talismane.TalismaneException;
 
 /**
  * Thrown when the posTag requested does not exist in this pos tag set.
+ * 
  * @author Assaf Urieli
  *
  */
 public class UnknownPosTagException extends TalismaneException {
-	private static final long serialVersionUID = -4972169755437613412L;
-	private String posTagCode = "";
-	
-	public UnknownPosTagException(String posTagCode) {
-		super("Unknown postag: " + posTagCode);
-		this.posTagCode = posTagCode;
-	}
+  private static final long serialVersionUID = -4972169755437613412L;
+  private String posTagCode = "";
 
-	public String getPosTagCode() {
-		return posTagCode;
-	}
+  public UnknownPosTagException(String posTagCode) {
+    super("Unknown postag: " + posTagCode);
+    this.posTagCode = posTagCode;
+  }
+
+  public String getPosTagCode() {
+    return posTagCode;
+  }
 }

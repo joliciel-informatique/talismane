@@ -20,6 +20,7 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * A feature with a Boolean result.
+ * 
  * @author Assaf Urieli
  *
  */

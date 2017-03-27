@@ -22,19 +22,14 @@ import java.util.List;
 
 /**
  * Parses a function descriptor into an actual feature.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface FeatureParser<T> {
-	/**
-	 * Parse a function descriptor and return one or more features
-	 * corresponding to it.
-	 */
-	public List<Feature<T, ?>> parse(FunctionDescriptor descriptor);
-	
-	/**
-	 * A feature dynamiser: if provided, features will by dynamised before being returned.
-	 */
-	public Dynamiser<T> getDynamiser();
-	public void setDynamiser(Dynamiser<T> dynamiser);
+  /**
+   * Parse a function descriptor and return one or more features corresponding
+   * to it.
+   */
+  public List<Feature<T, ?>> parse(FunctionDescriptor descriptor);
 }

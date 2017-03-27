@@ -29,71 +29,69 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 
 /**
  * An Empty lexicon to use as a placeholder when no lexicon is available.
+ * 
  * @author Assaf Urieli
  *
  */
 public class EmptyLexicon implements PosTaggerLexicon {
-	private static final long serialVersionUID = 1L;
-	PosTagSet posTagSet;
-	PosTagMapper posTagMapper;
+  private static final long serialVersionUID = 1L;
+  PosTagSet posTagSet;
+  PosTagMapper posTagMapper;
 
-	@Override
-	public List<LexicalEntry> getEntries(String word) {
-		return new ArrayList<LexicalEntry>();
-	}
+  @Override
+  public List<LexicalEntry> getEntries(String word) {
+    return new ArrayList<LexicalEntry>();
+  }
 
-	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma) {
-		return new ArrayList<LexicalEntry>();
-	}
+  @Override
+  public List<LexicalEntry> getEntriesForLemma(String lemma) {
+    return new ArrayList<LexicalEntry>();
+  }
 
-	@Override
-	public Set<PosTag> findPossiblePosTags(String word) {
-		return new HashSet<PosTag>();
-	}
+  @Override
+  public Set<PosTag> findPossiblePosTags(String word) {
+    return new HashSet<PosTag>();
+  }
 
-	@Override
-	public List<LexicalEntry> findLexicalEntries(String word, PosTag posTag) {
-		return new ArrayList<LexicalEntry>();
-	}
+  @Override
+  public List<LexicalEntry> findLexicalEntries(String word, PosTag posTag) {
+    return new ArrayList<LexicalEntry>();
+  }
 
-	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag) {
-		return new ArrayList<LexicalEntry>();
-	}
+  @Override
+  public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag) {
+    return new ArrayList<LexicalEntry>();
+  }
 
-	@Override
-	public List<LexicalEntry> getEntriesMatchingCriteria(
-			LexicalEntry lexicalEntry, PosTag posTag, String gender,
-			String number) {
-		return new ArrayList<LexicalEntry>();
-	}
+  @Override
+  public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number) {
+    return new ArrayList<LexicalEntry>();
+  }
 
-	public PosTagSet getPosTagSet() {
-		return posTagSet;
-	}
+  public PosTagSet getPosTagSet() {
+    return posTagSet;
+  }
 
-	public void setPosTagSet(PosTagSet posTagSet) {
-		this.posTagSet = posTagSet;
-	}
+  public void setPosTagSet(PosTagSet posTagSet) {
+    this.posTagSet = posTagSet;
+  }
 
-	public PosTagMapper getPosTagMapper() {
-		return posTagMapper;
-	}
+  public PosTagMapper getPosTagMapper() {
+    return posTagMapper;
+  }
 
-	public void setPosTagMapper(PosTagMapper posTagMapper) {
-		this.posTagMapper = posTagMapper;
-	}
+  public void setPosTagMapper(PosTagMapper posTagMapper) {
+    this.posTagMapper = posTagMapper;
+  }
 
-	@Override
-	public String getName() {
-		return this.getClass().getSimpleName();
-	}
+  @Override
+  public String getName() {
+    return this.getClass().getSimpleName();
+  }
 
-	@Override
-	public Iterator<LexicalEntry> getAllEntries() {
-		return new ArrayList<LexicalEntry>().iterator();
-	}
-
+  @Override
+  public Iterator<LexicalEntry> getAllEntries() {
+    return new ArrayList<LexicalEntry>().iterator();
+  }
 
 }

@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -34,44 +35,44 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class DependencySearchFeature extends AbstractAddressFunction {
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature;
-	private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature;
+  private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
 
-	public DependencySearchFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature,
-			BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
-		super();
-		this.referenceTokenFeature = referenceTokenFeature;
-		this.criterionFeature = criterionFeature;
+  public DependencySearchFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature,
+      BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
+    super();
+    this.referenceTokenFeature = referenceTokenFeature;
+    this.criterionFeature = criterionFeature;
 
-		this.setName(super.getName() + "(" + referenceTokenFeature.getName() + "," + criterionFeature.getName() + ")");
-	}
+    this.setName(super.getName() + "(" + referenceTokenFeature.getName() + "," + criterionFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedTokenWrapper> referenceTokenResult = referenceTokenFeature.check(configuration, env);
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    PosTaggedToken resultToken = null;
+    FeatureResult<PosTaggedTokenWrapper> referenceTokenResult = referenceTokenFeature.check(configuration, env);
 
-		if (referenceTokenResult != null) {
-			PosTaggedToken referenceToken = referenceTokenResult.getOutcome().getPosTaggedToken();
+    if (referenceTokenResult != null) {
+      PosTaggedToken referenceToken = referenceTokenResult.getOutcome().getPosTaggedToken();
 
-			ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
-			parseConfigurationAddress.setParseConfiguration(configuration);
-			for (PosTaggedToken dependent : configuration.getDependents(referenceToken)) {
-				parseConfigurationAddress.setPosTaggedToken(dependent);
-				FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress, env);
-				if (criterionResult != null) {
-					boolean criterion = criterionResult.getOutcome();
-					if (criterion) {
-						resultToken = dependent;
-						break;
-					}
-				}
-			}
-		}
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken != null)
-			featureResult = this.generateResult(resultToken);
-		return featureResult;
-	}
+      ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
+      parseConfigurationAddress.setParseConfiguration(configuration);
+      for (PosTaggedToken dependent : configuration.getDependents(referenceToken)) {
+        parseConfigurationAddress.setPosTaggedToken(dependent);
+        FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress, env);
+        if (criterionResult != null) {
+          boolean criterion = criterionResult.getOutcome();
+          if (criterion) {
+            resultToken = dependent;
+            break;
+          }
+        }
+      }
+    }
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+    if (resultToken != null)
+      featureResult = this.generateResult(resultToken);
+    return featureResult;
+  }
 }

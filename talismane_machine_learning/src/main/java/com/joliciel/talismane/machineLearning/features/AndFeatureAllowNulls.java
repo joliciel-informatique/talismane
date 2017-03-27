@@ -18,52 +18,55 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Combines any number boolean features using a boolean AND.
- * If any of the features is null, will consider them as false.
+ * Combines any number boolean features using a boolean AND. If any of the
+ * features is null, will consider them as false.
+ * 
  * @author Assaf Urieli
  *
  */
-public class AndFeatureAllowNulls<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
-	BooleanFeature<T>[] booleanFeatures;
-	
-	@SafeVarargs
-	public AndFeatureAllowNulls(BooleanFeature<T>... booleanFeatures) {
-		super();
-		this.booleanFeatures = booleanFeatures;
-		String name = "";
-		boolean firstFeature = true;
-		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
-			if (!firstFeature)
-				name += "&";
-			name += booleanFeature.getName();
-			firstFeature = false;
-		}
-		this.setName(name);
-	}
+public class AndFeatureAllowNulls<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
+  BooleanFeature<T>[] booleanFeatures;
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Boolean> featureResult = null;
-		
-		boolean booleanResult = true;
-		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
-			FeatureResult<Boolean> result = booleanFeature.check(context, env);
-			boolean value = false;
-			if (result!=null) {
-				value = result.getOutcome();
-			}
-			booleanResult = booleanResult && value;
-			if (!booleanResult)
-				break;
-		}
-		
-		featureResult = this.generateResult(booleanResult);
+  @SafeVarargs
+  public AndFeatureAllowNulls(BooleanFeature<T>... booleanFeatures) {
+    super();
+    this.booleanFeatures = booleanFeatures;
+    String name = "";
+    boolean firstFeature = true;
+    for (BooleanFeature<T> booleanFeature : booleanFeatures) {
+      if (!firstFeature)
+        name += "&";
+      name += booleanFeature.getName();
+      firstFeature = false;
+    }
+    this.setName(name);
+  }
 
-		return featureResult;
-	}
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-	public BooleanFeature<T>[] getBooleanFeatures() {
-		return booleanFeatures;
-	}
+    boolean booleanResult = true;
+    for (BooleanFeature<T> booleanFeature : booleanFeatures) {
+      FeatureResult<Boolean> result = booleanFeature.check(context, env);
+      boolean value = false;
+      if (result != null) {
+        value = result.getOutcome();
+      }
+      booleanResult = booleanResult && value;
+      if (!booleanResult)
+        break;
+    }
+
+    featureResult = this.generateResult(booleanResult);
+
+    return featureResult;
+  }
+
+  public BooleanFeature<T>[] getBooleanFeatures() {
+    return booleanFeatures;
+  }
 }

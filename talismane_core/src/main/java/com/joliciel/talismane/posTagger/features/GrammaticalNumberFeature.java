@@ -18,54 +18,30 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
-import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.joliciel.talismane.lexicon.LexicalAttribute;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 
 /**
  * The grammatical number of a given token as supplied by the lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class GrammaticalNumberFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
-	public GrammaticalNumberFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-		this.setAddressFunction(addressFunction);
-	}
+public final class GrammaticalNumberFeature<T> extends AbstractLexicalAttributeFeature<T>implements StringCollectionFeature<T> {
+  private final List<String> attributes = new ArrayList<>(1);
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
-			return null;
-		
-		FeatureResult<String> featureResult = null;
-		
-		String number = posTaggedToken.getNumber();
-		
-		if (number!=null)
-			featureResult = this.generateResult(number);
-		
-		return featureResult;
-	}
-	
+  public GrammaticalNumberFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+    this.setAddressFunction(addressFunction);
+    attributes.add(LexicalAttribute.Number.toString());
+  }
 
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getNumber()!=null) {" );
-		builder.indent();
-		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getNumber();");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-
+  @Override
+  protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) {
+    return attributes;
+  }
 }

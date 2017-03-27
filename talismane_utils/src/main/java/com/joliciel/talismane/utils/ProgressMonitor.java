@@ -21,41 +21,43 @@ package com.joliciel.talismane.utils;
 import java.util.List;
 
 /**
- * Used for monitoring progress of tasks, so that percent complete and current action
- * can be displayed to the user in a multi-threaded environment.
+ * Used for monitoring progress of tasks, so that percent complete and current
+ * action can be displayed to the user in a multi-threaded environment.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface ProgressMonitor {
 
-	/**
-	 * The percent of the task completed.
-	 */
-	public abstract double getPercentComplete();
+  /**
+   * The percent of the task completed.
+   */
+  public abstract double getPercentComplete();
 
-	/**
-	 * Get a List of current actions (resource strings)
-	 */
-	public abstract List<MessageResource> getCurrentActions();
-	
-	/**
-	 * The current action being performed.
-	 */
-	public abstract String getCurrentAction();
-	
-	/**
-	 * The arguments of the current action being performed.
-	 */
-	public abstract Object[] getCurrentArguments();
-	
-	/**
-	 * The unhandled exception that was thrown, if any, during the task being monitored.
-	 */
-	public abstract Exception getException();
-	
-	/**
-	 * Is the task finished?
-	 */
-	public boolean isFinished();
+  /**
+   * Get a List of current actions (resource strings)
+   */
+  public abstract List<MessageResource> getCurrentActions();
+
+  /**
+   * The current action being performed.
+   */
+  public abstract String getCurrentAction();
+
+  /**
+   * The arguments of the current action being performed.
+   */
+  public abstract Object[] getCurrentArguments();
+
+  /**
+   * The unhandled exception that was thrown, if any, during the task being
+   * monitored.
+   */
+  public abstract Exception getException();
+
+  /**
+   * Is the task finished?
+   */
+  public boolean isFinished();
 
 }

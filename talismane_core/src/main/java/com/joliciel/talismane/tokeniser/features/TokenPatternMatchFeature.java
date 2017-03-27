@@ -23,8 +23,9 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 
 /**
  * A feature which tests a TokenPatternMatch during tokenising.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface TokenPatternMatchFeature<Y> extends Feature<TokenPatternMatch,Y> {
+public interface TokenPatternMatchFeature<Y> extends Feature<TokenPatternMatch, Y> {
 }

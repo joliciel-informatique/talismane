@@ -18,49 +18,44 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns the wrapped literal.
+ * 
  * @author Assaf Urieli
  *
  */
-public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T,Integer> implements
-		IntegerFeature<T> {
-	private IntegerFeature<T> integerLiteralFeature;
-	
-	public IntegerLiteralFeatureWrapper(IntegerFeature<T> integerLiteralFeature) {
-		super();
-		this.integerLiteralFeature = integerLiteralFeature;
-		this.setName(integerLiteralFeature.getName());
-	}
+public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
+  private IntegerFeature<T> integerLiteralFeature;
 
-	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
-		FeatureResult<Integer> featureResult = null;
-		
-		FeatureResult<Integer> literalResult = integerLiteralFeature.check(context, env);
-		
-		if (literalResult!=null) {
-			int result = literalResult.getOutcome();
-			featureResult = this.generateResult(result);
-		}
-		
-		return featureResult;
-		
-	}
+  public IntegerLiteralFeatureWrapper(IntegerFeature<T> integerLiteralFeature) {
+    super();
+    this.integerLiteralFeature = integerLiteralFeature;
+    this.setName(integerLiteralFeature.getName());
+  }
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String int1 = builder.addFeatureVariable(integerLiteralFeature, "integer");
-		builder.append(variableName + "=" + int1 + ";");	
-		return true;
-	}
-	public IntegerFeature<T> getIntegerLiteralFeature() {
-		return integerLiteralFeature;
-	}
+  @Override
+  public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Integer> featureResult = null;
 
-	public void setIntegerLiteralFeature(IntegerFeature<T> integerLiteralFeature) {
-		this.integerLiteralFeature = integerLiteralFeature;
-	}
-	
-	
+    FeatureResult<Integer> literalResult = integerLiteralFeature.check(context, env);
+
+    if (literalResult != null) {
+      int result = literalResult.getOutcome();
+      featureResult = this.generateResult(result);
+    }
+
+    return featureResult;
+
+  }
+
+  public IntegerFeature<T> getIntegerLiteralFeature() {
+    return integerLiteralFeature;
+  }
+
+  public void setIntegerLiteralFeature(IntegerFeature<T> integerLiteralFeature) {
+    this.integerLiteralFeature = integerLiteralFeature;
+  }
+
 }

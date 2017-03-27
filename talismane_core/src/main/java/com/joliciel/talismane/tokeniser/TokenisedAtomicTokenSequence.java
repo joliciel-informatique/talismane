@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
+import com.joliciel.talismane.rawText.Sentence;
 
 /**
  * A sequence of atomic tokens tagged with tokeniser decisions, from which a
@@ -39,174 +39,151 @@ import com.joliciel.talismane.machineLearning.Solution;
  *
  */
 public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserOutcome>
-		implements ClassificationSolution, Comparable<TokenisedAtomicTokenSequence> {
-	private static final long serialVersionUID = 1L;
+    implements ClassificationSolution, Comparable<TokenisedAtomicTokenSequence> {
+  private static final long serialVersionUID = 1L;
 
-	private final Sentence sentence;
-	private final TalismaneSession talismaneSession;
+  private final Sentence sentence;
+  private final TalismaneSession talismaneSession;
 
-	private TokenSequence tokenSequence = null;
-	private List<Decision> decisions = new ArrayList<Decision>();
-	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
-	@SuppressWarnings("rawtypes")
-	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
-	double score = 1.0;
-	boolean scoreCalculated = false;
+  private TokenSequence tokenSequence = null;
+  private List<Decision> decisions = new ArrayList<Decision>();
+  private List<Solution> underlyingSolutions = new ArrayList<Solution>();
+  @SuppressWarnings("rawtypes")
+  private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
+  double score = 1.0;
+  boolean scoreCalculated = false;
 
-	public TokenisedAtomicTokenSequence(Sentence sentence, TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-		this.sentence = sentence;
-	}
+  public TokenisedAtomicTokenSequence(Sentence sentence, TalismaneSession talismaneSession) {
+    this.talismaneSession = talismaneSession;
+    this.sentence = sentence;
+  }
 
-	public TokenisedAtomicTokenSequence(Sentence sentence, int initialCapacity, TalismaneSession talismaneSession) {
-		super(initialCapacity);
-		this.sentence = sentence;
-		this.talismaneSession = talismaneSession;
-	}
+  public TokenisedAtomicTokenSequence(Sentence sentence, int initialCapacity, TalismaneSession talismaneSession) {
+    super(initialCapacity);
+    this.sentence = sentence;
+    this.talismaneSession = talismaneSession;
+  }
 
-	public TokenisedAtomicTokenSequence(TokenisedAtomicTokenSequence history) {
-		super(history);
-		this.decisions = new ArrayList<Decision>(history.getDecisions());
-		this.sentence = history.getSentence();
-		this.talismaneSession = history.talismaneSession;
-	}
+  public TokenisedAtomicTokenSequence(TokenisedAtomicTokenSequence history) {
+    super(history);
+    this.decisions = new ArrayList<Decision>(history.getDecisions());
+    this.sentence = history.getSentence();
+    this.talismaneSession = history.talismaneSession;
+  }
 
-	/**
-	 * Infer a token sequence based on the token decisions taken.
-	 */
-	public TokenSequence inferTokenSequence() {
-		if (tokenSequence == null) {
-			Map<Integer, TaggedToken<TokeniserOutcome>> indexTokenMap = new HashMap<Integer, TaggedToken<TokeniserOutcome>>();
+  /**
+   * Infer a token sequence based on the token decisions taken.
+   */
+  public TokenSequence inferTokenSequence() {
+    if (tokenSequence == null) {
+      Map<Integer, TaggedToken<TokeniserOutcome>> indexTokenMap = new HashMap<Integer, TaggedToken<TokeniserOutcome>>();
 
-			tokenSequence = new TokenSequence(sentence, this, talismaneSession);
+      tokenSequence = new TokenSequence(sentence, this, talismaneSession);
 
-			int currentStart = 0;
-			int currentEnd = 0;
-			StringBuilder currentText = new StringBuilder();
-			List<TaggedToken<TokeniserOutcome>> currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
-			boolean isWhiteSpace = true;
-			for (TaggedToken<TokeniserOutcome> decisionTag : this) {
-				currentAtomicParts.add(decisionTag);
-				indexTokenMap.put(decisionTag.getToken().getStartIndex(), decisionTag);
-				Token token = decisionTag.getToken();
+      int currentStart = 0;
+      int currentEnd = 0;
+      List<TaggedToken<TokeniserOutcome>> currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
+      boolean isWhiteSpace = true;
+      for (TaggedToken<TokeniserOutcome> decisionTag : this) {
+        currentAtomicParts.add(decisionTag);
+        indexTokenMap.put(decisionTag.getToken().getStartIndex(), decisionTag);
+        Token token = decisionTag.getToken();
 
-				if (decisionTag.getTag().equals(TokeniserOutcome.SEPARATE)) {
-					// make separation (add token)
-					if (!isWhiteSpace) {
-						this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
-						currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
-					} else {
-						this.addToken(tokenSequence, currentStart, currentEnd, currentText, null);
-					}
-					currentText = new StringBuilder();
-					currentText.append(token.getText());
-					currentStart = token.getStartIndex();
-					isWhiteSpace = true;
-				} else {
-					currentText.append(token.getText());
-				}
-				isWhiteSpace = isWhiteSpace && token.isWhiteSpace();
-				currentEnd = token.getEndIndex();
-			}
-			if (!isWhiteSpace) {
-				// TODO: S.MICHEL: current atomic parts contains "S.MICHEL" for
-				// "S.", " " for "MICHEL" -
-				// therefore we lose all attributes on MICHEL!
-				this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
-			} else {
-				this.addToken(tokenSequence, currentStart, currentEnd, currentText, null);
-			}
+        if (decisionTag.getTag().equals(TokeniserOutcome.SEPARATE)) {
+          // make separation (add token)
+          if (!isWhiteSpace) {
+            this.addToken(tokenSequence, currentStart, currentEnd, currentAtomicParts);
+            currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
+          } else {
+            this.addToken(tokenSequence, currentStart, currentEnd, null);
+          }
+          currentStart = token.getStartIndex();
+          isWhiteSpace = true;
+        }
+        isWhiteSpace = isWhiteSpace && token.isWhiteSpace();
+        currentEnd = token.getEndIndex();
+      }
+      if (!isWhiteSpace) {
+        this.addToken(tokenSequence, currentStart, currentEnd, currentAtomicParts);
+      } else {
+        this.addToken(tokenSequence, currentStart, currentEnd, null);
+      }
 
-			tokenSequence.finalise();
+      tokenSequence.finalise();
+    }
+    return tokenSequence;
+  }
 
-			// Assign any token attributes that existed on the corresponding
-			// atomic tokens.
-			for (Token token : tokenSequence) {
-				TaggedToken<TokeniserOutcome> decisionTag = indexTokenMap.get(token.getStartIndex());
-				if (decisionTag != null) {
-					Token atomicToken = decisionTag.getToken();
-					if (atomicToken.getStartIndex() == token.getStartIndex() && atomicToken.getEndIndex() == token.getEndIndex()) {
-						for (String key : atomicToken.getAttributes().keySet()) {
-							token.addAttribute(key, atomicToken.getAttributes().get(key));
-						}
-					}
-				}
-			}
-		}
-		return tokenSequence;
-	}
+  private Token addToken(TokenSequence tokenSequence, int start, int end, List<TaggedToken<TokeniserOutcome>> currentAtomicParts) {
+    Token token = null;
+    if (start == end) {
+      // do nothing
+    } else {
+      token = tokenSequence.addToken(start, end);
+      token.setAtomicParts(currentAtomicParts);
+    }
 
-	private Token addToken(TokenSequence tokenSequence, int start, int end, StringBuilder currentText, List<TaggedToken<TokeniserOutcome>> currentAtomicParts) {
-		Token token = null;
-		if (start == end) {
-			// do nothing
-		} else {
-			token = tokenSequence.addToken(start, end);
-			token.setText(currentText.toString());
-			token.setAtomicParts(currentAtomicParts);
-		}
+    return token;
+  }
 
-		return token;
-	}
+  @Override
+  public List<Decision> getDecisions() {
+    return decisions;
+  }
 
-	@Override
-	public List<Decision> getDecisions() {
-		return decisions;
-	}
+  @Override
+  public List<Solution> getUnderlyingSolutions() {
+    return underlyingSolutions;
+  }
 
-	@Override
-	public List<Solution> getUnderlyingSolutions() {
-		return underlyingSolutions;
-	}
+  @Override
+  public void addDecision(Decision decision) {
+    this.decisions.add(decision);
+  }
 
-	@Override
-	public void addDecision(Decision decision) {
-		this.decisions.add(decision);
-	}
+  @Override
+  @SuppressWarnings("rawtypes")
+  public ScoringStrategy getScoringStrategy() {
+    return scoringStrategy;
+  }
 
-	@Override
-	@SuppressWarnings("rawtypes")
-	public ScoringStrategy getScoringStrategy() {
-		return scoringStrategy;
-	}
+  @Override
+  public void setScoringStrategy(@SuppressWarnings("rawtypes") ScoringStrategy scoringStrategy) {
+    this.scoringStrategy = scoringStrategy;
+  }
 
-	@Override
-	public void setScoringStrategy(@SuppressWarnings("rawtypes") ScoringStrategy scoringStrategy) {
-		this.scoringStrategy = scoringStrategy;
-	}
+  @Override
+  @SuppressWarnings("unchecked")
 
-	@Override
-	@SuppressWarnings("unchecked")
+  public double getScore() {
+    if (!scoreCalculated) {
+      score = this.scoringStrategy.calculateScore(this);
+      scoreCalculated = true;
+    }
+    return score;
+  }
 
-	public double getScore() {
-		if (!scoreCalculated) {
-			score = this.scoringStrategy.calculateScore(this);
-			scoreCalculated = true;
-		}
-		return score;
-	}
+  @Override
+  public int compareTo(TokenisedAtomicTokenSequence o) {
+    if (this.getScore() < o.getScore()) {
+      return 1;
+    } else if (this.getScore() > o.getScore()) {
+      return -1;
+    } else {
+      return 0;
+    }
+  }
 
-	@Override
-	public int compareTo(TokenisedAtomicTokenSequence o) {
-		if (this.getScore() < o.getScore()) {
-			return 1;
-		} else if (this.getScore() > o.getScore()) {
-			return -1;
-		} else {
-			return 0;
-		}
-	}
+  /**
+   * The original sentence.
+   */
+  public Sentence getSentence() {
+    return sentence;
+  }
 
-	/**
-	 * The original sentence.
-	 */
-	public Sentence getSentence() {
-		return sentence;
-	}
-
-	public TokenisedAtomicTokenSequence cloneSequence() {
-		TokenisedAtomicTokenSequence sequence = new TokenisedAtomicTokenSequence(this);
-		return sequence;
-	}
+  public TokenisedAtomicTokenSequence cloneSequence() {
+    TokenisedAtomicTokenSequence sequence = new TokenisedAtomicTokenSequence(this);
+    return sequence;
+  }
 
 }
