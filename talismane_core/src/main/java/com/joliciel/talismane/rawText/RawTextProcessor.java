@@ -63,9 +63,9 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
   private final int originalStartIndex;
 
   /**
-   * The original index just after the last block of processed text. This is
-   * not necessarily the same as the originalStartIndex, since text be
-   * processed in portions without changing the start index of the full block.
+   * The original index just after the last block of processed text. This is not
+   * necessarily the same as the originalStartIndex, since text be processed in
+   * portions without changing the start index of the full block.
    */
   private int originalIndexProcessed = 0;
 
@@ -141,8 +141,7 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
         startMarks.add(new ImmutablePair<Boolean, Annotation<RawTextMarker>>(true, annotation));
       } else {
         if (LOG.isTraceEnabled()) {
-          LOG.trace("Start out of range: textStartPos " + textStartPos + ">= matcherStart [[" + annotation.getStart() + "]] < textEndPos "
-              + textEndPos);
+          LOG.trace("Start out of range: textStartPos " + textStartPos + ">= matcherStart [[" + annotation.getStart() + "]] < textEndPos " + textEndPos);
         }
       }
 
@@ -292,8 +291,7 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
           LOG.trace("Stack before: " + shouldProcessStack);
           LOG.trace("Text before: " + processedText.toString());
           LOG.trace("Added by filter: " + marker.getSource());
-          LOG.trace("Match text: "
-              + this.getText().subSequence(annotation.getStart(), annotation.getEnd()).toString().replace('\n', '¶').replace('\r', '¶'));
+          LOG.trace("Match text: " + this.getText().subSequence(annotation.getStart(), annotation.getEnd()).toString().replace('\n', '¶').replace('\r', '¶'));
         }
 
         boolean shouldProcess = shouldProcessStack.peek();
@@ -533,8 +531,8 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
   /**
    * Return processed text ready for sentence detection.
    * 
-   * It has sentence break and non-sentence-break annotations inherited from
-   * the present RawTextProcessor. Any sentence-break annotations added will
+   * It has sentence break and non-sentence-break annotations inherited from the
+   * present RawTextProcessor. Any sentence-break annotations added will
    * automatically get reflected in the current RollingTextBlock.
    * 
    * @return
@@ -639,9 +637,9 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
   }
 
   /**
-   * Get a list of sentences currently detected. All sentences will be
-   * complete - if the list ends with an incomplete sentence it is kept for
-   * another round.
+   * Get a list of sentences currently detected. All sentences will be complete
+   * - if the list ends with an incomplete sentence it is kept for another
+   * round.
    * 
    * @return
    */

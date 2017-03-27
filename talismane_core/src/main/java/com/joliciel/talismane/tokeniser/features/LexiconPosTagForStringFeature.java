@@ -51,7 +51,7 @@ public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Bo
   /**
    * 
    * @param posTagFeature
-   *            the PosTag we're testing for
+   *          the PosTag we're testing for
    */
   public LexiconPosTagForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature, StringFeature<TokenWrapper> posTagFeature) {
     this.posTagFeature = posTagFeature;

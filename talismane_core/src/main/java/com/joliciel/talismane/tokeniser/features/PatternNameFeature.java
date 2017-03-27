@@ -27,17 +27,18 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
  * The current pattern's name.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class PatternNameFeature extends AbstractCachableFeature<TokenPatternMatch,String> implements StringFeature<TokenPatternMatch> {
+public final class PatternNameFeature extends AbstractCachableFeature<TokenPatternMatch, String>implements StringFeature<TokenPatternMatch> {
   public PatternNameFeature() {
   }
-  
+
   @Override
   public FeatureResult<String> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
     FeatureResult<String> result = null;
-    
+
     TokenPattern pattern = tokenPatternMatch.getPattern();
     result = this.generateResult(pattern.getName());
 

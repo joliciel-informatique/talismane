@@ -32,7 +32,7 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  * @author Assaf Urieli
  *
  * @param <T>
- *            the TokenTag used to tag this token.
+ *          the TokenTag used to tag this token.
  */
 public class TaggedToken<T extends TokenTag> implements Comparable<TaggedToken<T>>, TokenWrapper {
   private static final DecimalFormat df = new DecimalFormat("0.0000");

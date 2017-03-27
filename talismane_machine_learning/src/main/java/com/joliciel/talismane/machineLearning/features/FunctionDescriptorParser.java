@@ -41,7 +41,12 @@ public class FunctionDescriptorParser {
   private static final Logger LOG = LoggerFactory.getLogger(FunctionDescriptorParser.class);
 
   private enum CharacterClass {
-    OPEN_PARENTHESIS, CLOSE_PARENTHESIS, COMMA, OPERATOR, OTHER, OTHER_SPACE
+    OPEN_PARENTHESIS,
+    CLOSE_PARENTHESIS,
+    COMMA,
+    OPERATOR,
+    OTHER,
+    OTHER_SPACE
   }
 
   private static char[][] PRECEDENCE_RULES = new char[][] { { '*', '/', '%' }, { '+', '-' }, { '=', '!', '<', '>' }, { '&', '|' } };
@@ -108,8 +113,8 @@ public class FunctionDescriptorParser {
     this.handleEmpty(rootDescriptor);
     if (rootDescriptor.getArguments().size() != 1) {
       throw new DescriptorSyntaxException(
-          "Need exactly one top-level function per descriptor in " + descriptorName + ", have " + rootDescriptor.getArguments().size()
-              + ", 1st argument: " + (rootDescriptor.getArguments().size() > 0 ? rootDescriptor.getArguments().get(0).toString() : "none"),
+          "Need exactly one top-level function per descriptor in " + descriptorName + ", have " + rootDescriptor.getArguments().size() + ", 1st argument: "
+              + (rootDescriptor.getArguments().size() > 0 ? rootDescriptor.getArguments().get(0).toString() : "none"),
           context.text, -1);
     }
 
@@ -234,8 +239,8 @@ public class FunctionDescriptorParser {
 
   /**
    * If operator is unary, add it to current string and do nothing else. If
-   * operator is binary: If current string length > 0, add it as argument to
-   * top descriptor. Take top(A) and transform it to top(operator(A)).
+   * operator is binary: If current string length > 0, add it as argument to top
+   * descriptor. Take top(A) and transform it to top(operator(A)).
    * 
    */
   void doOperator(FunctionDescriptorParseContext context) {
@@ -318,16 +323,16 @@ public class FunctionDescriptorParser {
   }
 
   /**
-   * If current string length > 0, add it as argument to top descriptor. If
-   * top descriptor is binary, pop it off the stack.
+   * If current string length > 0, add it as argument to top descriptor. If top
+   * descriptor is binary, pop it off the stack.
    */
   void addArgument(FunctionDescriptorParseContext context) {
     this.addArgument(context, false);
   }
 
   /**
-   * If current string length > 0, add it as argument to top descriptor. If
-   * top descriptor is binary, pop it off the stack.
+   * If current string length > 0, add it as argument to top descriptor. If top
+   * descriptor is binary, pop it off the stack.
    */
   void addArgument(FunctionDescriptorParseContext context, boolean asString) {
     FunctionDescriptor topOfStack = context.stack.peekFirst();
@@ -381,8 +386,8 @@ public class FunctionDescriptorParser {
 
     @Override
     public String toString() {
-      return "FunctionDescriptorParseContext [text=" + text + ", currentString=" + currentString + ", stack=" + stack + ", parenthesesStack="
-          + parenthesesStack + ", lastCharacterClass=" + lastCharacterClass + ", inQuote=" + inQuote + ", c=" + c + ", i=" + i + "]";
+      return "FunctionDescriptorParseContext [text=" + text + ", currentString=" + currentString + ", stack=" + stack + ", parenthesesStack=" + parenthesesStack
+          + ", lastCharacterClass=" + lastCharacterClass + ", inQuote=" + inQuote + ", c=" + c + ", i=" + i + "]";
     }
 
   }

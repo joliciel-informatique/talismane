@@ -32,18 +32,18 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * A StringCollectionFeature returning all of the postags in the current postagset.
+ * A StringCollectionFeature returning all of the postags in the current
+ * postagset.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class PosTagSetFeature extends AbstractStringCollectionFeature<TokenWrapper>
-  implements NeedsTalismaneSession {
-  
+public final class PosTagSetFeature extends AbstractStringCollectionFeature<TokenWrapper>implements NeedsTalismaneSession {
+
   TalismaneSession talismaneSession;
 
   @Override
-  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
-      TokenWrapper context, RuntimeEnvironment env) {
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper context, RuntimeEnvironment env) {
     PosTagSet posTagSet = talismaneSession.getPosTagSet();
     Set<PosTag> posTags = posTagSet.getTags();
     List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();

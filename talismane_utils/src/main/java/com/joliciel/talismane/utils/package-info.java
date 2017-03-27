@@ -1,4 +1,4 @@
 /**
-* Basic development utilities.
-*/
+ * Basic development utilities.
+ */
 package com.joliciel.talismane.utils;

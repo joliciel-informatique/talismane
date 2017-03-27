@@ -27,8 +27,9 @@ import java.util.Map;
 import javax.tools.JavaFileObject;
 
 /**
- * A class loader capable of handling in-memory classes -
- * otherwise it delegates to a parent class loader.
+ * A class loader capable of handling in-memory classes - otherwise it delegates
+ * to a parent class loader.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -40,8 +41,7 @@ final class InMemoryClassLoader extends ClassLoader {
   }
 
   @Override
-  protected Class<?> findClass(final String qualifiedName)
-  throws ClassNotFoundException {
+  protected Class<?> findClass(final String qualifiedName) throws ClassNotFoundException {
     JavaFileObject javaFileObject = classMap.get(qualifiedName);
     if (javaFileObject != null) {
       byte[] byteArray = ((InMemoryJavaFileObject) javaFileObject).getBytes();
@@ -63,8 +63,7 @@ final class InMemoryClassLoader extends ClassLoader {
   }
 
   @Override
-  protected synchronized Class<?> loadClass(final String name, final boolean resolve)
-    throws ClassNotFoundException {
+  protected synchronized Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
     return super.loadClass(name, resolve);
   }
 
@@ -80,7 +79,7 @@ final class InMemoryClassLoader extends ClassLoader {
     }
     return super.getResourceAsStream(name);
   }
-  
+
   public Collection<JavaFileObject> list(String packageName) {
     List<JavaFileObject> fileObjects = new ArrayList<JavaFileObject>();
     for (String qualifiedName : classMap.keySet()) {
@@ -90,6 +89,5 @@ final class InMemoryClassLoader extends ClassLoader {
     }
     return fileObjects;
   }
-
 
 }

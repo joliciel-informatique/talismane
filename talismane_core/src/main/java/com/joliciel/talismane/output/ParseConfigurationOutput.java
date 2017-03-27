@@ -39,7 +39,7 @@ public final class ParseConfigurationOutput extends ArrayList<ParseConfiguration
     for (DependencyArc dependencyArc : parseConfiguration.getDependencies()) {
       tokenDependencyMap.put(dependencyArc.getDependent().getToken(), dependencyArc);
     }
-    
+
     Map<Token, DependencyArc> tokenDependencyMapNonProj = new HashMap<Token, DependencyArc>();
     for (DependencyArc dependencyArc : parseConfiguration.getNonProjectiveDependencies()) {
       tokenDependencyMapNonProj.put(dependencyArc.getDependent().getToken(), dependencyArc);
@@ -52,18 +52,18 @@ public final class ParseConfigurationOutput extends ArrayList<ParseConfiguration
       tokenOutputMap.put(posTaggedToken.getToken(), unit);
       this.add(unit);
     }
-    
+
     for (ParseConfigurationTokenOutput unit : this) {
       DependencyArc arc = tokenDependencyMap.get(unit.getToken());
-      if (arc!=null) {
+      if (arc != null) {
         ParseConfigurationTokenOutput governorOutput = tokenOutputMap.get(arc.getHead().getToken());
         unit.setArc(arc);
         unit.setGovernor(governorOutput);
         unit.setLabel(arc.getLabel());
       }
-      
+
       DependencyArc nonProjectiveArc = tokenDependencyMapNonProj.get(unit.getToken());
-      if (nonProjectiveArc!=null) {
+      if (nonProjectiveArc != null) {
         ParseConfigurationTokenOutput governorOutput = tokenOutputMap.get(nonProjectiveArc.getHead().getToken());
         unit.setNonProjectiveArc(nonProjectiveArc);
         unit.setNonProjectiveGovernor(governorOutput);

@@ -20,11 +20,11 @@ package com.joliciel.talismane.parser;
 
 /**
  * Comparison based on number of transitions applied.
+ * 
  * @author Assaf Urieli
  *
  */
-class TransitionCountComparisonStrategy implements
-    ParseComparisonStrategy {
+class TransitionCountComparisonStrategy implements ParseComparisonStrategy {
 
   @Override
   public int getComparisonIndex(ParseConfiguration configuration) {

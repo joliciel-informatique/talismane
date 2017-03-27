@@ -82,8 +82,7 @@ class PerceptronDetailedAnalysisWriter implements ClassificationObserver {
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.joliciel.talismane.maxent.MaxentObserver#onAnalyse(java.util.List,
+   * @see com.joliciel.talismane.maxent.MaxentObserver#onAnalyse(java.util.List,
    * java.util.Collection)
    */
   @Override
@@ -147,8 +146,7 @@ class PerceptronDetailedAnalysisWriter implements ClassificationObserver {
       weightedOutcomes.add(weightedOutcome);
     }
     for (WeightedOutcome<String> weightedOutcome : weightedOutcomes) {
-      writer.append(
-          String.format("%1$-30s", weightedOutcome.getOutcome()) + String.format("%1$#15s", decFormat.format(weightedOutcome.getWeight())) + "\n");
+      writer.append(String.format("%1$-30s", weightedOutcome.getOutcome()) + String.format("%1$#15s", decFormat.format(weightedOutcome.getWeight())) + "\n");
     }
     writer.append("\n");
     writer.flush();
@@ -168,8 +166,8 @@ class PerceptronDetailedAnalysisWriter implements ClassificationObserver {
         double weight = classWeights[j];
 
         double total = value * weight;
-        writer.append(String.format("%1$-30s", outcome) + String.format("%1$#15s", decFormat.format(weight))
-            + String.format("%1$#15s", decFormat.format(total)) + "\n");
+        writer.append(
+            String.format("%1$-30s", outcome) + String.format("%1$#15s", decFormat.format(weight)) + String.format("%1$#15s", decFormat.format(total)) + "\n");
 
         double runningTotal = outcomeTotals.get(outcome);
         runningTotal += total;

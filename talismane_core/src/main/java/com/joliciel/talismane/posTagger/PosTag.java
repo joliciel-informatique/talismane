@@ -19,15 +19,14 @@ public class PosTag implements TokenTag, Comparable<PosTag>, Serializable {
   private PosTagOpenClassIndicator openClassIndicator;
 
   /**
-   * Construct a pos-tag for a given code, desciption and open-class
-   * indicator.
+   * Construct a pos-tag for a given code, desciption and open-class indicator.
    * 
    * @param code
-   *            the pos-tag's code
+   *          the pos-tag's code
    * @param description
-   *            the pos-tag's description
+   *          the pos-tag's description
    * @param openClassIndicator
-   *            the pos-tag's open class indicator.
+   *          the pos-tag's open class indicator.
    */
   public PosTag(String code, String description, PosTagOpenClassIndicator openClassIndicator) {
     this.code = code;

@@ -24,8 +24,7 @@ import java.io.InputStream;
 
 public class UnclosableInputStream extends InputStream {
   InputStream wrappedStream;
-  
-  
+
   public UnclosableInputStream(InputStream wrappedStream) {
     super();
     this.wrappedStream = wrappedStream;
@@ -75,6 +74,5 @@ public class UnclosableInputStream extends InputStream {
   public boolean markSupported() {
     return wrappedStream.markSupported();
   }
-
 
 }

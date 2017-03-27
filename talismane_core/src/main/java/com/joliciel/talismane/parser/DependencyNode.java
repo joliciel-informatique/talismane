@@ -90,7 +90,7 @@ public class DependencyNode implements Comparable<DependencyNode> {
    * existing parse tree.
    * 
    * @throws TalismaneException
-   *             if this dependent does not reflect the parse configuration
+   *           if this dependent does not reflect the parse configuration
    */
   public DependencyNode addDependent(PosTaggedToken dependent) throws TalismaneException {
     DependencyArc arc = parseConfiguration.getGoverningDependency(dependent);
@@ -203,12 +203,12 @@ public class DependencyNode implements Comparable<DependencyNode> {
 
   /**
    * Language-specific depth as a typical user would expect to see it.<br/>
-   * In French, for example, a preposition and its object would thus be a
-   * single layer of depth, equivalent to a single adjective when modifying a
-   * noun. A determinent would not add to its governor's depth.
+   * In French, for example, a preposition and its object would thus be a single
+   * layer of depth, equivalent to a single adjective when modifying a noun. A
+   * determinent would not add to its governor's depth.
    * 
    * @param zeroDepthLabels
-   *            labels which shouldn't be counted for depth calculation
+   *          labels which shouldn't be counted for depth calculation
    */
   public int getPerceivedDepth(Set<String> zeroDepthLabels) {
     int depth = 1;
@@ -227,8 +227,8 @@ public class DependencyNode implements Comparable<DependencyNode> {
   }
 
   /**
-   * Removes a node (and all of its children) from this dependency node's
-   * tree, wherever it may be located.
+   * Removes a node (and all of its children) from this dependency node's tree,
+   * wherever it may be located.
    * 
    * @return true if the node was removed.
    */
@@ -247,8 +247,8 @@ public class DependencyNode implements Comparable<DependencyNode> {
   }
 
   /**
-   * The first token comprising this dependency node, if viewed in linear
-   * order within a sentence.
+   * The first token comprising this dependency node, if viewed in linear order
+   * within a sentence.
    */
   public PosTaggedToken getFirstToken() {
     PosTaggedToken firstToken = this.getPosTaggedToken();

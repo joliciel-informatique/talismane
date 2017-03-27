@@ -39,10 +39,9 @@ public interface WritableLexicalEntry extends LexicalEntry {
 
   /**
    * If the attribute is a {@link LexicalEntry}, it will set the corresponding
-   * entry. If not, it will associate the next available OtherAttribute with
-   * the attribute name provided, and store the value against this attribute.
-   * If all eight OtherAttributes are already taken, an Exception should be
-   * thrown.
+   * entry. If not, it will associate the next available OtherAttribute with the
+   * attribute name provided, and store the value against this attribute. If all
+   * eight OtherAttributes are already taken, an Exception should be thrown.
    * 
    * @param attribute
    * @param value

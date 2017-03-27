@@ -39,7 +39,10 @@ public class SpmrlCoordinationAnnotator {
   private static final Logger LOG = LoggerFactory.getLogger(SpmrlCoordinationAnnotator.class);
 
   private static enum Option {
-    PrevConjunctGov, ConjunctionGov, PrevConjunctGovNoCommas, None
+    PrevConjunctGov,
+    ConjunctionGov,
+    PrevConjunctGovNoCommas,
+    None
   }
 
   /**
@@ -488,8 +491,8 @@ public class SpmrlCoordinationAnnotator {
 
     @Override
     public String toString() {
-      return index + "\t" + word + "\t" + lemma + "\t" + cat + "\t" + posTag + "\t" + morphology + "\t" + nonProjectiveGovernor + "\t"
-          + nonProjectiveLabel + "\t" + governor + "\t" + label;
+      return index + "\t" + word + "\t" + lemma + "\t" + cat + "\t" + posTag + "\t" + morphology + "\t" + nonProjectiveGovernor + "\t" + nonProjectiveLabel
+          + "\t" + governor + "\t" + label;
     }
   }
 }

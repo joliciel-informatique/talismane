@@ -25,13 +25,14 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * Reduce the stack, by popping Stack[0], without creating a new dependency.
+ * 
  * @author Assaf Urieli.
  *
  */
 public class ReduceTransition extends AbstractTransition implements Transition {
   private static final Logger LOG = LoggerFactory.getLogger(ReduceTransition.class);
   private static String name = "Reduce";
-  
+
   public ReduceTransition() {
     super();
   }
@@ -41,7 +42,6 @@ public class ReduceTransition extends AbstractTransition implements Transition {
     configuration.getStack().pop();
   }
 
-
   @Override
   public boolean checkPreconditions(ParseConfiguration configuration) {
     if (configuration.getStack().isEmpty()) {
@@ -50,11 +50,11 @@ public class ReduceTransition extends AbstractTransition implements Transition {
       }
       return false;
     }
-    
+
     // top of stack must already have a governor
     PosTaggedToken topOfStack = configuration.getStack().peek();
     PosTaggedToken governor = configuration.getHead(topOfStack);
-    if (governor==null) {
+    if (governor == null) {
       if (LOG.isTraceEnabled()) {
         LOG.trace("Cannot apply " + this.toString() + ": top of stack " + topOfStack + " doesn't yet have a governor.");
       }
@@ -67,7 +67,6 @@ public class ReduceTransition extends AbstractTransition implements Transition {
   public String getCode() {
     return name;
   }
-
 
   @Override
   public boolean doesReduce() {

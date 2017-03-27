@@ -41,8 +41,7 @@ public class TokenBoundary implements Serializable {
   }
 
   /**
-   * The token's text for analysis purposes, see
-   * {@link Token#getAnalyisText()}.
+   * The token's text for analysis purposes, see {@link Token#getAnalyisText()}.
    * 
    * @return
    */

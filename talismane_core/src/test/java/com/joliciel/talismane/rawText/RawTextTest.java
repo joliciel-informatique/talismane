@@ -34,8 +34,7 @@ public class RawTextTest {
 
     List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
     skips.add(new Annotation<>("1 2 3".length(), "1 2 3<skip>skip</skip>".length(), new RawTextSkipMarker("me"), labels));
-    skips.add(new Annotation<>("1 2 3<skip>skip</skip> 4".length(), "1 2 3<skip>skip</skip> 4<skip>skip</skip>".length(), new RawTextSkipMarker("me"),
-        labels));
+    skips.add(new Annotation<>("1 2 3<skip>skip</skip> 4".length(), "1 2 3<skip>skip</skip> 4<skip>skip</skip>".length(), new RawTextSkipMarker("me"), labels));
     rawText.addAnnotations(skips);
 
     List<Annotation<RawTextReplaceMarker>> replaces = new ArrayList<>();
@@ -82,8 +81,7 @@ public class RawTextTest {
     System.out.println("add sentence boundaries to the processed text (as if they were added by a sentence detector)");
     List<Annotation<SentenceBoundary>> sentenceBoundaries = new ArrayList<>();
     sentenceBoundaries.add(new Annotation<>("Sentence 1".length(), "Sentence 1 Sentence 2.".length(), new SentenceBoundary(), labels));
-    sentenceBoundaries
-        .add(new Annotation<>("Sentence 1 Sentence 2.".length(), "Sentence 1 Sentence 2. Sentence 3.".length(), new SentenceBoundary(), labels));
+    sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2.".length(), "Sentence 1 Sentence 2. Sentence 3.".length(), new SentenceBoundary(), labels));
     processedTextBlock.addAnnotations(sentenceBoundaries);
 
     assertEquals("Sentence 1 Sentence 2. Sentence 3. Sentence 4.", processedTextBlock.getText());

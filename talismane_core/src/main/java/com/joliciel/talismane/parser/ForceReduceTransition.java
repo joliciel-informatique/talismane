@@ -22,16 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Special transition for ungoverned punctuation, so as not to consider it explicitly as depending on root,
- * and not to create non-projectivity. Reduce the stack, by popping Stack[0], without creating a new dependency,
- * but with no preconditions on existing governors.
+ * Special transition for ungoverned punctuation, so as not to consider it
+ * explicitly as depending on root, and not to create non-projectivity. Reduce
+ * the stack, by popping Stack[0], without creating a new dependency, but with
+ * no preconditions on existing governors.
+ * 
  * @author Assaf Urieli.
  *
  */
 public class ForceReduceTransition extends AbstractTransition implements Transition {
   private static final Logger LOG = LoggerFactory.getLogger(ForceReduceTransition.class);
   private static String name = "ForceReduce";
-  
+
   public ForceReduceTransition() {
     super();
   }
@@ -40,7 +42,6 @@ public class ForceReduceTransition extends AbstractTransition implements Transit
   protected void applyInternal(ParseConfiguration configuration) {
     configuration.getStack().pop();
   }
-
 
   @Override
   public boolean checkPreconditions(ParseConfiguration configuration) {
@@ -57,7 +58,6 @@ public class ForceReduceTransition extends AbstractTransition implements Transit
   public String getCode() {
     return name;
   }
-
 
   @Override
   public boolean doesReduce() {

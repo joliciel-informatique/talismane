@@ -201,8 +201,7 @@ public class SpmrlConverter {
                     tokenCluster.get(2).governor = tokenCluster.get(0).index;
                     tokenCluster.get(2).label = "mod";
                     tokenCluster.get(2).copyGovernor();
-                  } else if (posTags.equals("NC|P|NC|") || posTags.equals("NC|P+D|NC|") || posTags.equals("NC|P|NPP|")
-                      || posTags.equals("NC|P+D|NPP|")) {
+                  } else if (posTags.equals("NC|P|NC|") || posTags.equals("NC|P+D|NC|") || posTags.equals("NC|P|NPP|") || posTags.equals("NC|P+D|NPP|")) {
                     tokenCluster.head = 0;
                     tokenCluster.get(1).governor = tokenCluster.get(0).index;
                     tokenCluster.get(1).label = "dep";
@@ -361,8 +360,8 @@ public class SpmrlConverter {
               for (int i = 1; i < tokenCluster.size(); i++) {
                 ConllLine conllLine = tokenCluster.get(i);
 
-                if (tokenCluster.word.length() == 0 || tokenCluster.word.endsWith("'") || tokenCluster.word.endsWith("-")
-                    || tokenCluster.word.endsWith(",") || conllLine.word.startsWith("-") || conllLine.word.equals(",")) {
+                if (tokenCluster.word.length() == 0 || tokenCluster.word.endsWith("'") || tokenCluster.word.endsWith("-") || tokenCluster.word.endsWith(",")
+                    || conllLine.word.startsWith("-") || conllLine.word.equals(",")) {
                   tokenCluster.word += conllLine.word;
                 } else {
                   tokenCluster.word += "_" + conllLine.word;
@@ -387,9 +386,9 @@ public class SpmrlConverter {
                 throw new RuntimeException("Bad postag on line: " + lineNumber + ": " + conllLine);
               }
               newLineNumber++;
-              String newLine = tokenCluster.newIndex + "\t" + tokenCluster.word + "\t" + tokenCluster.lemma + "\t" + conllLine.posTag + "\t"
-                  + conllLine.posTag2 + "\t" + conllLine.morph + "\t" + indexMap.get(conllLine.governor) + "\t" + conllLine.label + "\t"
-                  + indexMap.get(conllLine.projGov) + "\t" + conllLine.projLabel;
+              String newLine = tokenCluster.newIndex + "\t" + tokenCluster.word + "\t" + tokenCluster.lemma + "\t" + conllLine.posTag + "\t" + conllLine.posTag2
+                  + "\t" + conllLine.morph + "\t" + indexMap.get(conllLine.governor) + "\t" + conllLine.label + "\t" + indexMap.get(conllLine.projGov) + "\t"
+                  + conllLine.projLabel;
               ConllLine newConllLine = new ConllLine(newLine, lineNumber, newLineNumber);
               newLines.add(newConllLine);
             }
@@ -599,8 +598,8 @@ public class SpmrlConverter {
 
     @Override
     public String toString() {
-      String string = this.index + "\t" + this.word + "\t" + this.lemma + "\t" + this.posTag + "\t" + this.posTag2 + "\t" + this.morph + "\t"
-          + this.governor + "\t" + this.label + "\t" + this.projGov + "\t" + this.projLabel;
+      String string = this.index + "\t" + this.word + "\t" + this.lemma + "\t" + this.posTag + "\t" + this.posTag2 + "\t" + this.morph + "\t" + this.governor
+          + "\t" + this.label + "\t" + this.projGov + "\t" + this.projLabel;
       return string;
     }
   }

@@ -50,7 +50,7 @@ public class PretokenisedSequence extends TokenSequence {
    * adding the next string.
    * 
    * @throws TalismaneException
-   *             if couldn't find the token at the next sentence position
+   *           if couldn't find the token at the next sentence position
    */
   public Token addToken(String string) throws TalismaneException {
     CharSequence text = this.getSentence().getText();
@@ -87,8 +87,7 @@ public class PretokenisedSequence extends TokenSequence {
           + text.length() + ") is |" + text.subSequence(start, text.length()) + "| in sentence: |" + text + "|");
 
     if (!string.equals(text.subSequence(start, end).toString()))
-      throw new TalismaneException(
-          "Add token failed: Expected |" + string + "| but was |" + text.subSequence(start, end) + "| in sentence: |" + text + "|");
+      throw new TalismaneException("Add token failed: Expected |" + string + "| but was |" + text.subSequence(start, end) + "| in sentence: |" + text + "|");
 
     return this.addToken(start, end);
   }

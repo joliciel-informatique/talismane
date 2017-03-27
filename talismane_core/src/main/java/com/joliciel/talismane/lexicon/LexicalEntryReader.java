@@ -31,7 +31,7 @@ public interface LexicalEntryReader {
    * Read a lexical entry directly from a block of text.
    * 
    * @throws TalismaneException
-   *             if no Word was found in the lexical entry
+   *           if no Word was found in the lexical entry
    */
   public void readEntry(String text, WritableLexicalEntry lexicalEntry) throws TalismaneException;
 }

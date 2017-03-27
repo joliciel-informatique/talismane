@@ -37,28 +37,25 @@ import com.typesafe.config.Config;
  */
 public interface PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorpusReader {
   /**
-   * Read the list of tagged tokens from next sentence from the training
-   * corpus.
+   * Read the list of tagged tokens from next sentence from the training corpus.
    * 
    * @throws TalismaneException
-   *             if it's logically impossible to read the next pos-tag
-   *             sequence
+   *           if it's logically impossible to read the next pos-tag sequence
    * @throws IOException
    */
   public abstract PosTagSequence nextPosTagSequence() throws TalismaneException, IOException;
 
   /**
-   * Builds an annotated corpus reader for a particular Reader and Config,
-   * where the config is the local namespace. For configuration example, see
+   * Builds an annotated corpus reader for a particular Reader and Config, where
+   * the config is the local namespace. For configuration example, see
    * talismane.core.tokeniser.input in reference.conf.
    * 
    * @param config
-   *            the local configuration section from which we're building a
-   *            reader
+   *          the local configuration section from which we're building a reader
    * @throws IOException
-   *             problem reading the files referred in the configuration
+   *           problem reading the files referred in the configuration
    * @throws ReflectiveOperationException
-   *             if the corpus-reader class could not be instantiated
+   *           if the corpus-reader class could not be instantiated
    */
   public static PosTagAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
       throws IOException, ReflectiveOperationException {

@@ -51,8 +51,7 @@ public final class CountIfFeature extends AbstractTokenFeature<Integer>implement
     this.setAddressFunction(addressFunction);
   }
 
-  public CountIfFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature,
-      IntegerFeature<TokenWrapper> endIndexFeature) {
+  public CountIfFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
     this.criterion = criterion;
     this.startIndexFeature = startIndexFeature;
     this.endIndexFeature = endIndexFeature;

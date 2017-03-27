@@ -95,9 +95,9 @@ public class TokenPattern {
 
   /**
    * The original pattern, broken up into chunks where each chunk should match
-   * exactly one token in the token sequence. Each chunk is a standard
-   * Pattern, but may or may not be interpreted as such (e.g. .+ will only
-   * match non-separating tokens).
+   * exactly one token in the token sequence. Each chunk is a standard Pattern,
+   * but may or may not be interpreted as such (e.g. .+ will only match
+   * non-separating tokens).
    */
   public List<Pattern> getParsedPattern() {
     return this.parsedPattern;
@@ -121,8 +121,8 @@ public class TokenPattern {
   }
 
   /**
-   * Return a TokenPatternMatchSequence for each sequence of <i>n</i> tokens
-   * in a TokenSequence which match this pattern. Will also add any matches to
+   * Return a TokenPatternMatchSequence for each sequence of <i>n</i> tokens in
+   * a TokenSequence which match this pattern. Will also add any matches to
    * Token.getMatches() for the matched tokens.
    */
   public List<TokenPatternMatchSequence> match(TokenSequence tokenSequence) {
@@ -215,8 +215,7 @@ public class TokenPattern {
     } else if (!this.separatorPattern.matcher(regex).find()) {
       // no separators, we simply check for string equality
       return (regex.equals(token.getAnalyisText()));
-    } else if (regex.startsWith("\\") && !(regex.startsWith("\\d")) && !(regex.startsWith("\\s")) && !(regex.startsWith("\\p"))
-        && !(regex.startsWith("\\b"))) {
+    } else if (regex.startsWith("\\") && !(regex.startsWith("\\d")) && !(regex.startsWith("\\s")) && !(regex.startsWith("\\p")) && !(regex.startsWith("\\b"))) {
       // an escaped separator
       return (regex.substring(1).equals(token.getAnalyisText()));
     } else if (regex.length() == 1) {
@@ -432,9 +431,9 @@ public class TokenPattern {
   }
 
   /**
-   * This token pattern's user-friendly name. Can also be used to group
-   * together two patterns whose statistical distribtuion should be identical,
-   * e.g. "parce que" and "parce qu'".
+   * This token pattern's user-friendly name. Can also be used to group together
+   * two patterns whose statistical distribtuion should be identical, e.g.
+   * "parce que" and "parce qu'".
    */
   public String getName() {
     if (name == null) {

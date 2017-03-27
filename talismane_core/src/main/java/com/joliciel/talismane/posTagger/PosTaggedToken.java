@@ -71,13 +71,13 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
 
   /**
    * Construct a pos-tagged token for a given token and given decision - the
-   * {@link Decision#getOutcome()} must be a valid {@link PosTag#getCode()}
-   * from the current {@link PosTagSet}.
+   * {@link Decision#getOutcome()} must be a valid {@link PosTag#getCode()} from
+   * the current {@link PosTagSet}.
    * 
    * @param token
-   *            the token to be tagged
+   *          the token to be tagged
    * @param decision
-   *            the decision used to tag it
+   *          the decision used to tag it
    * @throws UnknownPosTagException
    */
   public PosTaggedToken(Token token, Decision decision, TalismaneSession talismaneSession) throws UnknownPosTagException {
@@ -92,8 +92,8 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
     if (lexicalEntries == null) {
       lexicalEntries = this.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
       if (lexicalEntries.size() == 0) {
-        lexicalEntries = this.getTalismaneSession().getMergedLexicon()
-            .findLexicalEntries(this.getToken().getText().toLowerCase(this.session.getLocale()), this.getTag());
+        lexicalEntries = this.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getToken().getText().toLowerCase(this.session.getLocale()),
+            this.getTag());
       }
     }
     return lexicalEntries;
@@ -208,8 +208,8 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
   }
 
   /**
-   * A string representation of all of the morpho-syntaxic information
-   * combined in CoNLL-X format.
+   * A string representation of all of the morpho-syntaxic information combined
+   * in CoNLL-X format.
    */
   public String getMorphologyForCoNLL() {
     if (morphologyForCoNLL == null) {

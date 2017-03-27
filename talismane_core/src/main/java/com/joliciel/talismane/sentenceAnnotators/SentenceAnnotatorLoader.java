@@ -84,14 +84,13 @@ public class SentenceAnnotatorLoader {
   }
 
   /**
-   * Similar to {@link #loadSentenceAnnotators(Scanner)}, but keeps a
-   * reference to the file, useful for finding the location of any descriptor
-   * errors.
+   * Similar to {@link #loadSentenceAnnotators(Scanner)}, but keeps a reference
+   * to the file, useful for finding the location of any descriptor errors.
    * 
    * @param file
-   *            the file to be read
+   *          the file to be read
    * @param charset
-   *            the charset used to read the file
+   *          the charset used to read the file
    * @throws SentenceAnnotatorLoadException
    * @throws IOException
    */
@@ -126,8 +125,7 @@ public class SentenceAnnotatorLoader {
           int equalsPos = tab.indexOf('=');
           if (equalsPos < 0) {
             if (path != null)
-              throw new SentenceAnnotatorLoadException(
-                  "Unable to parse file " + path + ", line " + lineNumber + ": missing equals sign in " + descriptor);
+              throw new SentenceAnnotatorLoadException("Unable to parse file " + path + ", line " + lineNumber + ": missing equals sign in " + descriptor);
             throw new SentenceAnnotatorLoadException("Unable to parse line " + lineNumber + ": missing equals sign in " + descriptor);
           }
 
@@ -192,9 +190,9 @@ public class SentenceAnnotatorLoader {
    * Registers a sentence annotator name, with a factory used to construct it.
    * 
    * @param name
-   *            the name used to recognise this annotator
+   *          the name used to recognise this annotator
    * @param factory
-   *            the factory to create this annotator
+   *          the factory to create this annotator
    * 
    */
   public <T extends SentenceAnnotator> void registerSentenceAnnotator(String name, SentenceAnnotatorFactory<T> factory) {

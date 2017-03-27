@@ -148,7 +148,7 @@ public class LexiconReader {
    * @return
    * @throws IOException
    * @throws TalismaneException
-   *             if the config files contained an unknown property
+   *           if the config files contained an unknown property
    */
   public List<PosTaggerLexicon> readLexicons(File lexiconPropsFile) throws IOException, TalismaneException {
     List<PosTaggerLexicon> lexicons = new ArrayList<>();

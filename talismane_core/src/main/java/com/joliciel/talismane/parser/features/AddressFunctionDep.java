@@ -39,8 +39,7 @@ public final class AddressFunctionDep extends AbstractAddressFunction {
   private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
   private IntegerFeature<ParseConfigurationWrapper> indexFeature;
 
-  public AddressFunctionDep(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
-      IntegerFeature<ParseConfigurationWrapper> indexFeature) {
+  public AddressFunctionDep(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction, IntegerFeature<ParseConfigurationWrapper> indexFeature) {
     super();
     this.addressFunction = addressFunction;
     this.indexFeature = indexFeature;

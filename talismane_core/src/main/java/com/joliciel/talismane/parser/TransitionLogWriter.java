@@ -50,12 +50,11 @@ public class TransitionLogWriter implements ParseConfigurationProcessor {
       }
       String newDepText = "";
       if (newDep != null) {
-        newDepText = newDep.getLabel() + "[" + newDep.getHead().getToken().getOriginalText().replace(' ', '_') + "|"
-            + newDep.getHead().getTag().getCode() + "," + newDep.getDependent().getToken().getOriginalText().replace(' ', '_') + "|"
-            + newDep.getDependent().getTag().getCode() + "]";
+        newDepText = newDep.getLabel() + "[" + newDep.getHead().getToken().getOriginalText().replace(' ', '_') + "|" + newDep.getHead().getTag().getCode() + ","
+            + newDep.getDependent().getToken().getOriginalText().replace(' ', '_') + "|" + newDep.getDependent().getTag().getCode() + "]";
       }
-      csvFileWriter.write(transition.getCode() + "\t" + this.getTopOfStack(currentConfiguration) + "\t" + this.getTopOfBuffer(currentConfiguration) + "\t"
-          + newDepText + "\n");
+      csvFileWriter.write(
+          transition.getCode() + "\t" + this.getTopOfStack(currentConfiguration) + "\t" + this.getTopOfBuffer(currentConfiguration) + "\t" + newDepText + "\n");
     }
     csvFileWriter.flush();
   }

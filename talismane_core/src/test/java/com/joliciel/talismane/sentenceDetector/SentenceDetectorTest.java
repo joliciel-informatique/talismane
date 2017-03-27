@@ -58,8 +58,7 @@ public class SentenceDetectorTest {
 
     String text = "Before analysis. Hello Mr. Jones. How are you, Mr. Jones? After analysis.";
 
-    AnnotatedText annotatedText = new AnnotatedText(text, "Before analysis. ".length(),
-        "Before analysis. Hello Mr. Jones. How are you, Mr. Jones?".length());
+    AnnotatedText annotatedText = new AnnotatedText(text, "Before analysis. ".length(), "Before analysis. Hello Mr. Jones. How are you, Mr. Jones?".length());
 
     List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreakMarkers = new ArrayList<>();
     noSentenceBreakMarkers.add(new Annotation<RawTextNoSentenceBreakMarker>("Before analysis. Hello ".length(), "Before analysis. Hello Mr.".length(),
@@ -129,8 +128,8 @@ public class SentenceDetectorTest {
     annotatedText.addAnnotations(existingBoundaries);
 
     List<Annotation<RawTextSentenceBreakMarker>> sentenceBreaks = new ArrayList<>();
-    sentenceBreaks.add(new Annotation<RawTextSentenceBreakMarker>("Before analysis. Hello Mr. Jones".length(),
-        "Before analysis. Hello Mr. Jones\n".length(), new RawTextSentenceBreakMarker("me"), labels));
+    sentenceBreaks.add(new Annotation<RawTextSentenceBreakMarker>("Before analysis. Hello Mr. Jones".length(), "Before analysis. Hello Mr. Jones\n".length(),
+        new RawTextSentenceBreakMarker("me"), labels));
     annotatedText.addAnnotations(sentenceBreaks);
 
     List<Integer> guessedBoundaries = sentenceDetector.detectSentences(annotatedText);

@@ -22,6 +22,7 @@ import java.util.Comparator;
 
 /**
  * Compares PosTaggedTokens, ordering them from left-to-right within a sentence.
+ * 
  * @author Assaf Urieli
  *
  */

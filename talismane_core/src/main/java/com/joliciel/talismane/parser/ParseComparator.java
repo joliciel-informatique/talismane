@@ -68,7 +68,7 @@ public class ParseComparator {
   /**
    * 
    * @throws TalismaneException
-   *             if sentences mismatched in the two corpora
+   *           if sentences mismatched in the two corpora
    * @throws IOException
    */
   public void evaluate() throws TalismaneException, IOException {

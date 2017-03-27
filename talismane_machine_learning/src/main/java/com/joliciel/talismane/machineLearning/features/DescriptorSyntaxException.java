@@ -22,15 +22,15 @@ import com.joliciel.talismane.utils.JolicielException;
 
 /**
  * Occurs when the feature descriptor syntax cannot be parsed.
+ * 
  * @author Assaf Urieli
  *
  */
 public class DescriptorSyntaxException extends JolicielException {
   private static final long serialVersionUID = -3315622182688781983L;
-  
+
   public DescriptorSyntaxException(String message, String text, int index) {
-    super( index>=0 ?
-        message + ": " + text.substring(0,index) + "{" + text.substring(index, index+1) + "}"  + text.substring(index+1)
+    super(index >= 0 ? message + ": " + text.substring(0, index) + "{" + text.substring(index, index + 1) + "}" + text.substring(index + 1)
         : message + ": " + text);
   }
 

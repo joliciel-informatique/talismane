@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A reader which reads through all the files in a given directory structure.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -48,7 +49,7 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
   private String endOfFileString = "";
   private List<CurrentFileObserver> observers = new ArrayList<CurrentFileObserver>();
   private char[] leftoverBuf = null;
-  
+
   public DirectoryReader(File dir, Charset charset) {
     super();
     this.dir = dir;
@@ -63,16 +64,16 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
 
   @Override
   public int read(char[] cbuf, int off, int len) throws IOException {
-    if (leftoverBuf!=null) {
+    if (leftoverBuf != null) {
       char[] newLeftovers = null;
-      int j=0;
-      int k=0;
-      for (int i=0; i<leftoverBuf.length; i++) {
-        if (i<cbuf.length) {
+      int j = 0;
+      int k = 0;
+      for (int i = 0; i < leftoverBuf.length; i++) {
+        if (i < cbuf.length) {
           cbuf[i] = leftoverBuf[i];
           k++;
         } else {
-          if (newLeftovers==null)
+          if (newLeftovers == null)
             newLeftovers = new char[leftoverBuf.length - cbuf.length];
           newLeftovers[j++] = leftoverBuf[i];
         }
@@ -80,8 +81,8 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
       leftoverBuf = newLeftovers;
       return k;
     }
-    if (reader==null) {
-      if (currentIndex<files.size()) {
+    if (reader == null) {
+      if (currentIndex < files.size()) {
         File file = files.get(currentIndex++);
         this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
         for (CurrentFileObserver observer : observers) {
@@ -92,18 +93,19 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
       }
     }
     int result = this.reader.read(cbuf, off, len);
-    if (result<0) {
+    if (result < 0) {
       result = endOfFileString.length();
-      if (endOfFileString.length()>cbuf.length)
+      if (endOfFileString.length() > cbuf.length)
         result = cbuf.length;
-      int j=0;
-      for (int i=0; i<endOfFileString.length(); i++) {
-        if (i<cbuf.length)
+      int j = 0;
+      for (int i = 0; i < endOfFileString.length(); i++) {
+        if (i < cbuf.length)
           cbuf[i] = endOfFileString.charAt(i);
         else {
-          if (leftoverBuf==null)
-            leftoverBuf = new char[endOfFileString.length()-cbuf.length];
-          leftoverBuf[j++] = endOfFileString.charAt(i);;
+          if (leftoverBuf == null)
+            leftoverBuf = new char[endOfFileString.length() - cbuf.length];
+          leftoverBuf[j++] = endOfFileString.charAt(i);
+          ;
         }
       }
       this.reader.close();
@@ -114,10 +116,9 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
 
   @Override
   public void close() throws IOException {
-    if (this.reader!=null)
+    if (this.reader != null)
       this.reader.close();
   }
-
 
   private void addFiles(File directory, List<File> files) {
     File[] theFiles = directory.listFiles();
@@ -144,5 +145,5 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
   public void setEndOfFileString(String endOfFileString) {
     this.endOfFileString = endOfFileString;
   }
-  
+
 }

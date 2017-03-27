@@ -92,8 +92,7 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   private long createDate = System.currentTimeMillis();
 
   /**
-   * Gets the initial configuration for a particular pos-tagged token
-   * sequence.
+   * Gets the initial configuration for a particular pos-tagged token sequence.
    */
   public ParseConfiguration(PosTagSequence posTagSequence) {
     this.posTagSequence = posTagSequence;
@@ -215,10 +214,10 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   }
 
   /**
-   * A set of potentially non-projective dependency arcs defined by the
-   * current configuration, typically because they were read from a manually
-   * annotated corpus. If non such manual dependency arcs were read, will
-   * return the standard set of dependencies.
+   * A set of potentially non-projective dependency arcs defined by the current
+   * configuration, typically because they were read from a manually annotated
+   * corpus. If non such manual dependency arcs were read, will return the
+   * standard set of dependencies.
    */
   public Set<DependencyArc> getNonProjectiveDependencies() {
     if (dependenciesNonProj == null)
@@ -227,8 +226,7 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   }
 
   /**
-   * Get dependencies which are not unlabeled dependencies pointing at the
-   * root.
+   * Get dependencies which are not unlabeled dependencies pointing at the root.
    */
   public Set<DependencyArc> getRealDependencies() {
     Set<DependencyArc> realDependencies = new TreeSet<DependencyArc>();
@@ -305,8 +303,8 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   }
 
   /**
-   * Get all dependents from left-to-rigth for a given head and given
-   * dependency label.
+   * Get all dependents from left-to-rigth for a given head and given dependency
+   * label.
    */
   public List<PosTaggedToken> getDependents(PosTaggedToken head, String label) {
     this.updateDependencyMaps();
@@ -404,9 +402,9 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    * Add the given dependency to the current configuration.
    * 
    * @param transition
-   *            the transition generating this dependency
+   *          the transition generating this dependency
    * @throws CircularDependencyException
-   *             if this would create a circular dependency
+   *           if this would create a circular dependency
    */
   public DependencyArc addDependency(PosTaggedToken head, PosTaggedToken dependent, String label, Transition transition) throws CircularDependencyException {
     DependencyArc arc = new DependencyArc(head, dependent, label);
@@ -446,7 +444,7 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    * 
    * @param arc
    * @throws CircularDependencyException
-   *             if this would create a circular dependency.
+   *           if this would create a circular dependency.
    */
   void addDependency(DependencyArc arc) throws CircularDependencyException {
     PosTaggedToken ancestor = arc.getHead();
@@ -466,12 +464,12 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    * Add the given dependency to the current configuration's non-projective
    * dependency set. This should only be used when reading a previously
    * annotated corpus, to indicate the projective and non-projective governor
-   * for a given token. If the transition system is capable of producing its
-   * own non-projective dependencies there should be no need to distinguish
-   * between projective and non-projective.
+   * for a given token. If the transition system is capable of producing its own
+   * non-projective dependencies there should be no need to distinguish between
+   * projective and non-projective.
    * 
    * @throws CircularDependencyException
-   *             if this would create a circular dependency
+   *           if this would create a circular dependency
    */
   public DependencyArc addManualNonProjectiveDependency(PosTaggedToken head, PosTaggedToken dependent, String label) throws CircularDependencyException {
     DependencyArc arc = new DependencyArc(head, dependent, label);
@@ -527,8 +525,8 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   }
 
   /**
-   * Get the dependency tree represented by this parse configuration, where
-   * the node returned is root.
+   * Get the dependency tree represented by this parse configuration, where the
+   * node returned is root.
    */
   public DependencyNode getParseTree() {
     if (parseTree == null) {
@@ -546,8 +544,8 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   }
 
   /**
-   * Returns a dependency node without any dependents attached, corresponding
-   * to the pos-tagged token provided.
+   * Returns a dependency node without any dependents attached, corresponding to
+   * the pos-tagged token provided.
    */
   public DependencyNode getDetachedDependencyNode(PosTaggedToken posTaggedToken) {
     DependencyArc arc = this.getGoverningDependency(posTaggedToken);

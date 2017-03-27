@@ -51,7 +51,7 @@ public class CSVFile {
    * file limits.
    * 
    * @param label
-   *            in standard Excel format, e.g. A1 for top-left.
+   *          in standard Excel format, e.g. A1 for top-left.
    */
   public String getValue(String label) {
     int row = formatter.getRowIndex(label);
@@ -64,9 +64,9 @@ public class CSVFile {
    * file limits.
    * 
    * @param row
-   *            zero-indexed row index, e.g. 0 for A1
+   *          zero-indexed row index, e.g. 0 for A1
    * @param column
-   *            zero-indexed column index, e.g. 0 for A1
+   *          zero-indexed column index, e.g. 0 for A1
    */
   public String getValue(int row, int column) {
     String result = null;

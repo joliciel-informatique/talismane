@@ -37,7 +37,7 @@ public class LanguageDetectorFeatureFactory {
    * @param featureDescriptors
    * @return
    * @throws TalismaneException
-   *             if an unknown feature descriptor is encountered
+   *           if an unknown feature descriptor is encountered
    */
   public Set<LanguageDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) throws TalismaneException {
     Set<LanguageDetectorFeature<?>> features = new HashSet<LanguageDetectorFeature<?>>();

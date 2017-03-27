@@ -38,8 +38,7 @@ public class DependencyLabelSet {
   private String punctuationLabel = null;
 
   /**
-   * Load a dependency label set from a scanner with the following format:
-   * <br/>
+   * Load a dependency label set from a scanner with the following format: <br/>
    * Empty lines or lines starting with # are ignored.<br/>
    * Other lines an have up to three tabs.<br/>
    * Tab 1: the label<br/>
@@ -49,7 +48,7 @@ public class DependencyLabelSet {
    * 
    * @param scanner
    * @throws TalismaneException
-   *             if two or more labels were marked as Punctuation
+   *           if two or more labels were marked as Punctuation
    */
   public DependencyLabelSet(Scanner scanner) throws TalismaneException {
     while (scanner.hasNextLine()) {
@@ -63,8 +62,7 @@ public class DependencyLabelSet {
           }
           if (parts.length > 2 && "Punctuation".equals(parts[2])) {
             if (punctuationLabel != null) {
-              throw new TalismaneException(
-                  "Only one dependency label may be marked as Punctuation. 2 were found: " + punctuationLabel + ", " + parts[0]);
+              throw new TalismaneException("Only one dependency label may be marked as Punctuation. 2 were found: " + punctuationLabel + ", " + parts[0]);
             }
             punctuationLabel = parts[0];
           }

@@ -40,11 +40,10 @@ public class WordListFinder {
   private Map<String, WordList> wordListMap = new HashMap<>();
 
   /**
-   * Add an external word list located in a scanner from a particular
-   * filename.
+   * Add an external word list located in a scanner from a particular filename.
    * 
    * @throws TalismaneException
-   *             if unknown file type
+   *           if unknown file type
    */
   public void addWordList(String fileName, Scanner scanner) throws TalismaneException {
     LOG.debug("Reading " + fileName);

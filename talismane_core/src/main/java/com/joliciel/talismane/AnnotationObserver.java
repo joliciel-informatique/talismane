@@ -32,9 +32,9 @@ public interface AnnotationObserver {
    * An event fired whenever annotations are added to the observed subject.
    * 
    * @param subject
-   *            the text to which annotations are about to be added
+   *          the text to which annotations are about to be added
    * @param annotations
-   *            the annotations getting added
+   *          the annotations getting added
    */
   public <T extends Serializable> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations);
 

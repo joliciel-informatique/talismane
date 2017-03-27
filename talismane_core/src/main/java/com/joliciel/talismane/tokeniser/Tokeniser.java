@@ -117,9 +117,9 @@ public abstract class Tokeniser implements Annotator<Sentence> {
   }
 
   /**
-   * Similar to {@link #tokeniseWithDecisions(Sentence, String...)}, but
-   * returns the token sequences inferred from the decisions, rather than the
-   * list of decisions themselves.
+   * Similar to {@link #tokeniseWithDecisions(Sentence, String...)}, but returns
+   * the token sequences inferred from the decisions, rather than the list of
+   * decisions themselves.
    * 
    * @throws IOException
    */
@@ -141,9 +141,9 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    * method, e.g. multiple spaces have been replaced by a single space.
    * 
    * @param text
-   *            the sentence to be tokenised
-   * @return a List of up to <i>n</i> TokeniserDecisionTagSequence, ordered
-   *         from most probable to least probable
+   *          the sentence to be tokenised
+   * @return a List of up to <i>n</i> TokeniserDecisionTagSequence, ordered from
+   *         most probable to least probable
    * @throws IOException
    */
 
@@ -157,9 +157,9 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    * tokenised is contained within a Sentence object.
    * 
    * @param sentence
-   *            the sentence to tokeniser
+   *          the sentence to tokeniser
    * @param labels
-   *            the labels to add to any annotations added.
+   *          the labels to add to any annotations added.
    * @throws IOException
    */
 
@@ -218,10 +218,10 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    * Build a tokeniser using the configuration provided.
    * 
    * @param session
-   *            current session
+   *          current session
    * @return a tokeniser to be used - each call returns a separate tokeniser
    * @throws IOException
-   *             if problems occurred reading the model
+   *           if problems occurred reading the model
    * @throws ClassNotFoundException
    */
   public static Tokeniser getInstance(TalismaneSession session) throws IOException, ClassNotFoundException {

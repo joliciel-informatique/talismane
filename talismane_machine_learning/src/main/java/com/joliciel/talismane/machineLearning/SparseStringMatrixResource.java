@@ -29,16 +29,18 @@ import java.util.Map;
 import com.joliciel.talismane.utils.JolicielException;
 
 /**
- * A sparse matrix indexed by Strings for both rows and columns, and containing double values.
+ * A sparse matrix indexed by Strings for both rows and columns, and containing
+ * double values.
+ * 
  * @author Assaf Urieli
  *
  */
 public class SparseStringMatrixResource implements ExternalResource<Double> {
   private static final long serialVersionUID = 1L;
   private String name;
-  
-  Map<String,TObjectDoubleMap<String>> matrix = new THashMap<String, TObjectDoubleMap<String>>();
-  
+
+  Map<String, TObjectDoubleMap<String>> matrix = new THashMap<String, TObjectDoubleMap<String>>();
+
   public SparseStringMatrixResource(String name) {
     super();
     this.name = name;
@@ -46,7 +48,7 @@ public class SparseStringMatrixResource implements ExternalResource<Double> {
 
   public void add(String string1, String string2, double value) {
     TObjectDoubleMap<String> row = matrix.get(string1);
-    if (row==null) {
+    if (row == null) {
       row = new TObjectDoubleHashMap<String>();
       matrix.put(string1, row);
     }
@@ -55,24 +57,24 @@ public class SparseStringMatrixResource implements ExternalResource<Double> {
 
   @Override
   public Double getResult(List<String> keyElements) {
-    if (keyElements.size()!=2)
+    if (keyElements.size() != 2)
       throw new JolicielException("SparseStringMatrixResource only possible with 2 key elements");
     return this.getResult(keyElements.get(0), keyElements.get(1));
   }
-  
+
   public Double getResult(String string1, String string2) {
     Double value = null;
     TObjectDoubleMap<String> row = matrix.get(string1);
-    if (row!=null && row.containsKey(string2)) {
+    if (row != null && row.containsKey(string2)) {
       value = row.get(string2);
     }
     return value;
   }
-  
+
   public double getValueOrZero(String string1, String string2) {
     double value = 0;
     TObjectDoubleMap<String> row = matrix.get(string1);
-    if (row!=null) {
+    if (row != null) {
       value = row.get(string2);
     }
     return value;
@@ -80,12 +82,12 @@ public class SparseStringMatrixResource implements ExternalResource<Double> {
 
   public TObjectDoubleIterator<String> getInnerKeys(String key) {
     TObjectDoubleMap<String> row = matrix.get(key);
-    if (row!=null) {
+    if (row != null) {
       return row.iterator();
     }
     return null;
   }
-  
+
   public String getName() {
     return name;
   }

@@ -23,39 +23,48 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Trains multiple models instead of a single model.
- * This allows us to collect features a single time, and process them many times,
- * in cases where feature collection is a costly activity.
- * In order to avoid keeping all models in memory, models will be directly written to disk
- * in a given directory.
+ * Trains multiple models instead of a single model. This allows us to collect
+ * features a single time, and process them many times, in cases where feature
+ * collection is a costly activity. In order to avoid keeping all models in
+ * memory, models will be directly written to disk in a given directory.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface ClassificationMultiModelTrainer extends
-    ClassificationModelTrainer {
+public interface ClassificationMultiModelTrainer extends ClassificationModelTrainer {
 
   /**
-   * Return the ClassificationModel trained using the CorpusEventStream provided.
-   * @param corpusEventStream the event stream containing the events to be used for training
-   * @param featureDescriptors the feature descriptors required to apply this model to new data.
+   * Return the ClassificationModel trained using the CorpusEventStream
+   * provided.
+   * 
+   * @param corpusEventStream
+   *          the event stream containing the events to be used for training
+   * @param featureDescriptors
+   *          the feature descriptors required to apply this model to new data.
    */
   public void trainModels(ClassificationEventStream corpusEventStream, List<String> featureDescriptors);
 
   /**
-   * Return the ClassificationModel trained using the CorpusEventStream provided.
-   * @param corpusEventStream the event stream containing the events to be used for training
-   * @param descriptors all of the descriptors required to perform analysis using this model (e.g. feature descriptors, etc.)
+   * Return the ClassificationModel trained using the CorpusEventStream
+   * provided.
+   * 
+   * @param corpusEventStream
+   *          the event stream containing the events to be used for training
+   * @param descriptors
+   *          all of the descriptors required to perform analysis using this
+   *          model (e.g. feature descriptors, etc.)
    */
-  public void trainModels(ClassificationEventStream corpusEventStream, Map<String,List<String>> descriptors);
+  public void trainModels(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors);
 
   /**
    * Set parameters for this trainer type.
    */
-  public void setParameterSets(List<Map<String,Object>> parameterSets);
-  
+  public void setParameterSets(List<Map<String, Object>> parameterSets);
+
   /**
    * The directory where models should be written.
    */
   public void setOutDir(File outDir);
+
   public File getOutDir();
 }

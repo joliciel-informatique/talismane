@@ -46,9 +46,9 @@ public interface RawTextAnnotator extends Annotator<AnnotatedText> {
   public void setReplacement(String replacement);
 
   /**
-   * The maximum size of text that this filter can match (without risking to
-   * add only the beginning and not the end, or vice versa). Bigger matches
-   * will throw an error.
+   * The maximum size of text that this filter can match (without risking to add
+   * only the beginning and not the end, or vice versa). Bigger matches will
+   * throw an error.
    */
   public int getBlockSize();
 

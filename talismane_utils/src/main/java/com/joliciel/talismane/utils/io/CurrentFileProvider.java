@@ -20,6 +20,7 @@ package com.joliciel.talismane.utils.io;
 
 /**
  * An interface for anybody who can change the current file being processed.
+ * 
  * @author Assaf Urieli
  *
  */

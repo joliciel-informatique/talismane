@@ -444,8 +444,8 @@ public class TokenSequenceTest {
     annotations.add(annotation3);
     annotations.add(annotation3b);
 
-    Annotation<StringAttribute> annotation4 = new Annotation<>("Pakistan International Airlines ".length(),
-        "Pakistan International Airlines Company".length(), new StringAttribute("startsWithC", "true"), labels);
+    Annotation<StringAttribute> annotation4 = new Annotation<>("Pakistan International Airlines ".length(), "Pakistan International Airlines Company".length(),
+        new StringAttribute("startsWithC", "true"), labels);
 
     annotations.add(annotation4);
     sentence.addAnnotations(annotations);
@@ -502,8 +502,8 @@ public class TokenSequenceTest {
     replacements.add(new Annotation<TextReplacement>("Replacing ft0per0".length(), "Replacing ft0per0min".length(), new TextReplacement("minute"), labels));
 
     // this last replacement should be ignored, because of the placeholder
-    replacements.add(new Annotation<TextReplacement>("Replacing ft0per0min with ".length(), "Replacing ft0per0min with foot".length(),
-        new TextReplacement("feet"), labels));
+    replacements.add(
+        new Annotation<TextReplacement>("Replacing ft0per0min with ".length(), "Replacing ft0per0min with foot".length(), new TextReplacement("feet"), labels));
 
     sentence.addAnnotations(replacements);
 

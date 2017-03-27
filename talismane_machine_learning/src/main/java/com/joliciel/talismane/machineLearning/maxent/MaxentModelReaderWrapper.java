@@ -28,7 +28,7 @@ import opennlp.model.BinaryFileDataReader;
 
 class MaxentModelReaderWrapper extends AbstractModelReader {
   AbstractModelReader reader = null;
-  
+
   public MaxentModelReaderWrapper(InputStream inputStream) {
     super(new BinaryFileDataReader(inputStream));
     reader = new GISModelReader(super.dataReader);

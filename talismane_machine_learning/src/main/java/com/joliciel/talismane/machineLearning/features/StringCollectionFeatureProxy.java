@@ -19,14 +19,16 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * A stand-in for a StringCollectionFeature at runtime, which reads one of the collection values
- * that has been stored in the context via HasRuntimeCollectionSupport.
+ * A stand-in for a StringCollectionFeature at runtime, which reads one of the
+ * collection values that has been stored in the context via
+ * HasRuntimeCollectionSupport.
+ * 
  * @author Assaf Urieli
  *
  */
-class StringCollectionFeatureProxy<T> extends AbstractFeature<T, String> implements StringFeature<T> {
+class StringCollectionFeatureProxy<T> extends AbstractFeature<T, String>implements StringFeature<T> {
   private StringCollectionFeature<T> stringCollectionFeature;
-  
+
   public StringCollectionFeatureProxy(StringCollectionFeature<T> stringCollectionFeature) {
     super();
     this.stringCollectionFeature = stringCollectionFeature;
@@ -37,7 +39,7 @@ class StringCollectionFeatureProxy<T> extends AbstractFeature<T, String> impleme
   public FeatureResult<String> check(T context, RuntimeEnvironment env) {
     FeatureResult<String> result = null;
     String outcome = (String) env.getValue(stringCollectionFeature.getName());
-    if (outcome!=null) {
+    if (outcome != null) {
       result = this.generateResult(outcome);
     }
     return result;
@@ -46,5 +48,5 @@ class StringCollectionFeatureProxy<T> extends AbstractFeature<T, String> impleme
   public StringCollectionFeature<T> getStringCollectionFeature() {
     return stringCollectionFeature;
   }
-  
+
 }

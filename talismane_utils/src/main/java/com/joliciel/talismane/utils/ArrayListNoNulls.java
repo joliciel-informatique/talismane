@@ -38,14 +38,14 @@ public class ArrayListNoNulls<E> extends ArrayList<E> {
 
   @Override
   public boolean add(E element) {
-    if (element==null)
+    if (element == null)
       throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
     return super.add(element);
   }
 
   @Override
   public void add(int index, E element) {
-    if (element==null)
+    if (element == null)
       throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
     super.add(index, element);
   }
@@ -53,7 +53,7 @@ public class ArrayListNoNulls<E> extends ArrayList<E> {
   @Override
   public boolean addAll(Collection<? extends E> c) {
     for (E element : c)
-      if (element==null)
+      if (element == null)
         throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
     return super.addAll(c);
   }
@@ -61,10 +61,9 @@ public class ArrayListNoNulls<E> extends ArrayList<E> {
   @Override
   public boolean addAll(int index, Collection<? extends E> c) {
     for (E element : c)
-      if (element==null)
+      if (element == null)
         throw new IllegalArgumentException("Cannot add null to " + ArrayListNoNulls.class.getSimpleName());
     return super.addAll(index, c);
   }
 
-  
 }

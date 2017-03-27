@@ -31,17 +31,17 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel;
  */
 public interface TransitionSystem {
   /**
-   * Predict the transitions required to generate the set of targe
-   * dependencies for a given initial configuration, also transforms the
-   * configuration so that it becomes a terminal configuration.
+   * Predict the transitions required to generate the set of targe dependencies
+   * for a given initial configuration, also transforms the configuration so
+   * that it becomes a terminal configuration.
    * 
    * @throws UnknownDependencyLabelException
-   *             if an unknown dependency label is encountered
+   *           if an unknown dependency label is encountered
    * @throws NonPredictableParseTreeException
-   *             if its impossible to predict the current parse tree using
-   *             this transition system.
+   *           if its impossible to predict the current parse tree using this
+   *           transition system.
    * @throws CircularDependencyException
-   *             if parse tree contains a circular dependency
+   *           if parse tree contains a circular dependency
    */
   void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies)
       throws UnknownDependencyLabelException, NonPredictableParseTreeException, CircularDependencyException;
@@ -50,9 +50,9 @@ public interface TransitionSystem {
    * Get the transition corresponding to a particular code.
    * 
    * @throws UnknownDependencyLabelException
-   *             if the code includes an unknown dependency label
+   *           if the code includes an unknown dependency label
    * @throws UnknownTransitionException
-   *             if the code includes an unknown transition
+   *           if the code includes an unknown transition
    */
   public Transition getTransitionForCode(String code) throws UnknownDependencyLabelException, UnknownTransitionException;
 

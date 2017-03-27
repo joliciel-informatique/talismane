@@ -38,7 +38,7 @@ public class RawTextAnnotatorFactory {
    * @param blockSize
    * @return
    * @throws TalismaneException
-   *             if a descriptor is incorrectly configured
+   *           if a descriptor is incorrectly configured
    */
   public RawTextAnnotator getAnnotator(String descriptor, int blockSize) throws TalismaneException {
     RawTextAnnotator filter = null;

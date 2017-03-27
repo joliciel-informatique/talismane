@@ -49,8 +49,8 @@ public final class AndRangeFeature extends AbstractTokenFeature<Boolean>implemen
     this.setName(super.getName() + "(" + criterion.getName() + "," + startFeature.getName() + "," + endFeature.getName() + ")");
   }
 
-  public AndRangeFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion,
-      IntegerFeature<TokenWrapper> startFeature, IntegerFeature<TokenWrapper> endFeature) {
+  public AndRangeFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startFeature,
+      IntegerFeature<TokenWrapper> endFeature) {
     this(criterion, startFeature, endFeature);
     this.setAddressFunction(addressFunction);
   }

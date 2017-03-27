@@ -56,14 +56,14 @@ public interface TokenSequenceProcessor extends Closeable {
 
   /**
    * @param writer
-   *            if provided, the main processor will write to this writer, if
-   *            null, the outDir will be used instead
+   *          if provided, the main processor will write to this writer, if
+   *          null, the outDir will be used instead
    * @param outDir
    * @param session
    * @return
    * @throws IOException
    * @throws TalismaneException
-   *             if built-in template is unknown
+   *           if built-in template is unknown
    */
   public static List<TokenSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException, TalismaneException {
     List<TokenSequenceProcessor> processors = new ArrayList<>();

@@ -34,17 +34,17 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  */
 public interface NonDeterministicPosTagger extends PosTagger {
   /**
-   * Analyse a list of token sequences, each of which represents one
-   * possibility of tokenising a given sentence, and return the n most likely
-   * pos tag sequences for the sentence. The number of token sequences
-   * provided as input can be different from the number of pos-tagging
-   * possibilities returned as output.
+   * Analyse a list of token sequences, each of which represents one possibility
+   * of tokenising a given sentence, and return the n most likely pos tag
+   * sequences for the sentence. The number of token sequences provided as input
+   * can be different from the number of pos-tagging possibilities returned as
+   * output.
    * 
    * @param tokenSequences
-   *            the n most likely token sequences for this sentence.
+   *          the n most likely token sequences for this sentence.
    * @return the n most likely postag sequences for this sentence
    * @throws UnknownPosTagException
-   *             if an unknown pos-tag is guessed
+   *           if an unknown pos-tag is guessed
    * @throws TalismaneException
    * @throws IOException
    */
@@ -56,8 +56,7 @@ public interface NonDeterministicPosTagger extends PosTagger {
   public abstract int getBeamWidth();
 
   /**
-   * Should the full tokeniser beam be propagated as input into the
-   * pos-tagger.
+   * Should the full tokeniser beam be propagated as input into the pos-tagger.
    */
   public boolean isPropagateTokeniserBeam();
 }

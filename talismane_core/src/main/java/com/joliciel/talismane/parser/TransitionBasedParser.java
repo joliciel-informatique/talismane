@@ -381,8 +381,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
             }
             nextHeap.add(configuration);
             if (LOG.isTraceEnabled()) {
-              LOG.trace("Added configuration with score " + configuration.getScore() + " to heap: " + nextHeapIndex + ", total size: "
-                  + nextHeap.size());
+              LOG.trace("Added configuration with score " + configuration.getScore() + " to heap: " + nextHeapIndex + ", total size: " + nextHeap.size());
             }
 
             configuration.clearMemory();

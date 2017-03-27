@@ -60,9 +60,9 @@ public class TokeniserEvaluator {
   /**
    * 
    * @param tokeniser
-   *            the tokeniser to evaluate
+   *          the tokeniser to evaluate
    * @param corpusReader
-   *            for reading manually separated tokens from a corpus
+   *          for reading manually separated tokens from a corpus
    */
   public TokeniserEvaluator(Tokeniser tokeniser, TokeniserAnnotatedCorpusReader corpusReader) {
     this.tokeniser = tokeniser;

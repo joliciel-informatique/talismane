@@ -36,7 +36,7 @@ import java.util.List;
  * @author Assaf Urieli
  *
  * @param <T>
- *            the data added by this annotation
+ *          the data added by this annotation
  */
 public final class Annotation<T extends Serializable> implements Comparable<Annotation<?>> {
   private final int start;

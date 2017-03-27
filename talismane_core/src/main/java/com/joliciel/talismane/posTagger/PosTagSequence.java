@@ -38,11 +38,11 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
   private final TalismaneSession talismaneSession;
 
   /**
-   * Construct an empty pos-tag sequence, based on a given
-   * {@link TokenSequence} that needs to be pos-tagged.
+   * Construct an empty pos-tag sequence, based on a given {@link TokenSequence}
+   * that needs to be pos-tagged.
    * 
    * @param tokenSequence
-   *            the token sequence to be pos-tagged.
+   *          the token sequence to be pos-tagged.
    */
   public PosTagSequence(TokenSequence tokenSequence) {
     super(tokenSequence.size());

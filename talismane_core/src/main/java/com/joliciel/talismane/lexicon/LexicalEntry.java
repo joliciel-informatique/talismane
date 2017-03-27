@@ -39,8 +39,8 @@ public interface LexicalEntry extends Serializable {
   public String getLemma();
 
   /**
-   * In some cases, a lemma may be accompanied by a complement, to
-   * differentiate it from other lemmas with the same text and category.
+   * In some cases, a lemma may be accompanied by a complement, to differentiate
+   * it from other lemmas with the same text and category.
    */
   public String getLemmaComplement();
 
@@ -75,8 +75,8 @@ public interface LexicalEntry extends Serializable {
   public List<String> getTense();
 
   /**
-   * A list of possible (language-specific) moods for this entry, when the
-   * entry is a verb.
+   * A list of possible (language-specific) moods for this entry, when the entry
+   * is a verb.
    */
   public List<String> getMood();
 
@@ -116,10 +116,10 @@ public interface LexicalEntry extends Serializable {
    * Get any attribute for this lexical entry, as a String.<br/>
    * If the attribute is a {@link LexicalAttribute}, it will return the
    * corresponding attribute.<br/>
-   * If it is a String, will try to match it to an existing OtherAttribute,
-   * and return the corresponding value.<br/>
-   * If the attribute is a List, the items will be joined together into a
-   * single pipe-delimited String.
+   * If it is a String, will try to match it to an existing OtherAttribute, and
+   * return the corresponding value.<br/>
+   * If the attribute is a List, the items will be joined together into a single
+   * pipe-delimited String.
    */
   public String getAttribute(String attribute);
 

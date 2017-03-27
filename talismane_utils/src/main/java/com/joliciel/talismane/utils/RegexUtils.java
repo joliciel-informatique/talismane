@@ -28,17 +28,16 @@ import java.util.regex.Matcher;
  */
 public class RegexUtils {
   /**
-   * For a given replacement string which can include $1, $2, etc.
-   * placeholders, and a given original text with matcher, returns a modified
-   * replacement string which fills in the placeholders from the original
-   * text.
+   * For a given replacement string which can include $1, $2, etc. placeholders,
+   * and a given original text with matcher, returns a modified replacement
+   * string which fills in the placeholders from the original text.
    * 
    * @param replacement
-   *            the replacment string
+   *          the replacment string
    * @param text
-   *            the original text
+   *          the original text
    * @param matcher
-   *            the matcher
+   *          the matcher
    */
   public static String getReplacement(String replacement, CharSequence text, Matcher matcher) {
     String newText = replacement;

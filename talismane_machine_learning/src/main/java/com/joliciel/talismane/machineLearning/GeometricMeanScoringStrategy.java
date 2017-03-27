@@ -22,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Takes the geometric mean of the individual decision scores, and multiplies it by the scores of underlying solutions.
+ * Takes the geometric mean of the individual decision scores, and multiplies it
+ * by the scores of underlying solutions.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -32,14 +34,14 @@ public class GeometricMeanScoringStrategy implements ScoringStrategy<Classificat
   @Override
   public double calculateScore(ClassificationSolution solution) {
     double score = 0;
-    if (solution!=null && solution.getDecisions().size()>0) {
+    if (solution != null && solution.getDecisions().size() > 0) {
       for (Decision decision : solution.getDecisions())
         score += decision.getProbabilityLog();
 
       score = score / solution.getDecisions().size();
     }
     score = Math.exp(score);
-    
+
     if (LOG.isTraceEnabled()) {
       LOG.trace("Score for solution: " + solution.getClass().getSimpleName());
       LOG.trace(solution.toString());
@@ -55,12 +57,12 @@ public class GeometricMeanScoringStrategy implements ScoringStrategy<Classificat
 
       LOG.trace(sb.toString());
     }
-    
+
     for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
       if (!underlyingSolution.getScoringStrategy().isAdditive())
         score = score * underlyingSolution.getScore();
     }
-    
+
     if (LOG.isTraceEnabled()) {
       for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
         if (!underlyingSolution.getScoringStrategy().isAdditive())

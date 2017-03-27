@@ -61,8 +61,8 @@ public interface ParseConfigurationProcessor extends Closeable {
    * Called when the next parse configuration is available for processing.
    * 
    * @throws TalismaneException
-   *             if an known exception occurs when processing this parse
-   *             configuration
+   *           if an known exception occurs when processing this parse
+   *           configuration
    * @throws IOException
    */
   public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws TalismaneException, IOException;
@@ -78,10 +78,10 @@ public interface ParseConfigurationProcessor extends Closeable {
    * Collect the processors specified in the session.
    * 
    * @param writer
-   *            if specified, and an output processor is in the session, will
-   *            be used for the output processor
+   *          if specified, and an output processor is in the session, will be
+   *          used for the output processor
    * @param outDir
-   *            directory in which to write the various outputs
+   *          directory in which to write the various outputs
    * @param session
    * @return
    * @throws IOException

@@ -27,20 +27,21 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
  * The current pattern's group name.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class PatternGroupNameFeature extends AbstractCachableFeature<TokenPatternMatch,String> implements StringFeature<TokenPatternMatch> {
+public final class PatternGroupNameFeature extends AbstractCachableFeature<TokenPatternMatch, String>implements StringFeature<TokenPatternMatch> {
   public PatternGroupNameFeature() {
   }
-  
+
   @Override
   public FeatureResult<String> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
     FeatureResult<String> result = null;
-    
+
     TokenPattern pattern = tokenPatternMatch.getPattern();
-    
-    if (pattern.getGroupName()!=null)
+
+    if (pattern.getGroupName() != null)
       result = this.generateResult(pattern.getGroupName());
 
     return result;

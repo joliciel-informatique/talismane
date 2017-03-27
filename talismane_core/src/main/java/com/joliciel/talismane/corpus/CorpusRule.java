@@ -46,8 +46,8 @@ public class CorpusRule {
 
   /**
    * Reads "criteria" and "actions" from a configuration.<br/>
-   * "criteria" is a map of {@link CorpusElement} to regex, which need to
-   * match the full value of the element.<br/>
+   * "criteria" is a map of {@link CorpusElement} to regex, which need to match
+   * the full value of the element.<br/>
    * "actions" is a map of {@link CorpusElement} to values, which will be
    * updated when the rule is matched.
    */
@@ -70,10 +70,10 @@ public class CorpusRule {
   }
 
   /**
-   * Apply the rule to a corpus line, and add the values that need to be
-   * updated to the values map, as long as no value yet exists for the element
-   * being updated. Thus, the first rule to match that updates a given element
-   * will win, for each element.
+   * Apply the rule to a corpus line, and add the values that need to be updated
+   * to the values map, as long as no value yet exists for the element being
+   * updated. Thus, the first rule to match that updates a given element will
+   * win, for each element.
    */
   public void apply(CorpusLine corpusLine, Map<CorpusElement, String> values) {
     boolean match = true;

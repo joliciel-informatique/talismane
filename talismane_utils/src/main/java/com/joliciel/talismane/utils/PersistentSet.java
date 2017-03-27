@@ -24,37 +24,39 @@ import java.util.Set;
 
 /**
  * A List representing dependent objects stored in the database.
+ * 
  * @author Assaf Urieli
  */
 public interface PersistentSet<E> extends Set<E> {
-    /***
-     * To be used whenever populating the list initially from the database.
-     * Makes it possible to differentiate between previously persisted objects and new ones being added.
-     */
-    public boolean addFromDB(E element);
-    
-    /***
-     * Add a whole collection at a time.
-     */
-    public boolean addAllFromDB(Collection<? extends E> c);
-    
-    /**
-     * Which items have been added that need to be persisted.
-     */
-    public List<E> getItemsAdded();
-    
-    /**
-     * Which items have been removed that need to be persisted.
-     */
-    public List<E> getItemsRemoved();
-    
-    /**
-     * Have items been added or removed from this list?
-     */
-    public boolean isDirty();
-    
-    /**
-     * After persistence, mark set as clean again.
-     */
-    public void cleanSlate();
+  /***
+   * To be used whenever populating the list initially from the database. Makes
+   * it possible to differentiate between previously persisted objects and new
+   * ones being added.
+   */
+  public boolean addFromDB(E element);
+
+  /***
+   * Add a whole collection at a time.
+   */
+  public boolean addAllFromDB(Collection<? extends E> c);
+
+  /**
+   * Which items have been added that need to be persisted.
+   */
+  public List<E> getItemsAdded();
+
+  /**
+   * Which items have been removed that need to be persisted.
+   */
+  public List<E> getItemsRemoved();
+
+  /**
+   * Have items been added or removed from this list?
+   */
+  public boolean isDirty();
+
+  /**
+   * After persistence, mark set as clean again.
+   */
+  public void cleanSlate();
 }

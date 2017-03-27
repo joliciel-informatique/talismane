@@ -23,30 +23,33 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Comparsion based on number of elements remaining on the stack and the buffer.
+ * 
  * @author Assaf Urieli
  *
  */
-class StackAndBufferSizeComparsionStrategy implements
-    ParseComparisonStrategy {
+class StackAndBufferSizeComparsionStrategy implements ParseComparisonStrategy {
 
   @Override
   public int getComparisonIndex(ParseConfiguration configuration) {
     int configurationComparisonIndex = (configuration.getPosTagSequence().getTokenSequence().getAtomicTokenCount() + 1);
-    // if the buffer's empty, this is a terminal configuration, and needs to be given the full token count
-    if (configuration.getBuffer().size()>0) {
-      // remove the atomic tokens of each element still to be processed in the buffer
+    // if the buffer's empty, this is a terminal configuration, and needs to be
+    // given the full token count
+    if (configuration.getBuffer().size() > 0) {
+      // remove the atomic tokens of each element still to be processed in the
+      // buffer
       for (PosTaggedToken posTaggedToken : configuration.getBuffer()) {
         Token token = posTaggedToken.getToken();
-        if (token.getAtomicParts().size()==0)
+        if (token.getAtomicParts().size() == 0)
           configurationComparisonIndex -= 1;
         else
           configurationComparisonIndex -= token.getAtomicParts().size();
       }
-      
-      // remove the atomic tokens of each element still to be processed in the stack
+
+      // remove the atomic tokens of each element still to be processed in the
+      // stack
       for (PosTaggedToken posTaggedToken : configuration.getStack()) {
         Token token = posTaggedToken.getToken();
-        if (token.getAtomicParts().size()==0)
+        if (token.getAtomicParts().size() == 0)
           configurationComparisonIndex -= 1;
         else
           configurationComparisonIndex -= token.getAtomicParts().size();

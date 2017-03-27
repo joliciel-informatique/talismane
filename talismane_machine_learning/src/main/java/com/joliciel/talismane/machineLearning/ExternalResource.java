@@ -22,11 +22,13 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * An external resource which returns something (T) matching
- * a list of key elements. The something could be a class (String), a value (Double),
- * a List of Strings (multi-classes), etc.
+ * An external resource which returns something (T) matching a list of key
+ * elements. The something could be a class (String), a value (Double), a List
+ * of Strings (multi-classes), etc.
+ * 
  * @author Assaf Urieli
- * @param T the something that is returned.
+ * @param T
+ *          the something that is returned.
  *
  */
 public interface ExternalResource<T> extends Serializable {
@@ -34,7 +36,7 @@ public interface ExternalResource<T> extends Serializable {
    * A unique name for this resource.
    */
   public String getName();
-  
+
   /**
    * Return the class corresponding to the key elements provided.
    */

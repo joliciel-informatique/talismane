@@ -37,8 +37,7 @@ public class ModelTrainerFactory {
    * and a given algorithm.<br/>
    * <br/>
    * It is assumed the config file passed will be a local configuration, whose
-   * root is equivalent to the talismane.machine-learning key in
-   * reference.conf
+   * root is equivalent to the talismane.machine-learning key in reference.conf
    */
   public ClassificationModelTrainer constructTrainer(Config config) {
     config.checkValid(ConfigFactory.defaultReference().getConfig("talismane.machine-learning"));

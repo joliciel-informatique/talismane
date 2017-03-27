@@ -32,8 +32,8 @@ import com.joliciel.talismane.TalismaneSession;
  */
 public class RegexAttributeAnnotator extends AbstractRegexAnnotator {
   /**
-   * Assigns default groupIndex=0, caseSensitive=true,
-   * diacricticSensitive=true, autoWordBoundaries=false.
+   * Assigns default groupIndex=0, caseSensitive=true, diacricticSensitive=true,
+   * autoWordBoundaries=false.
    * 
    * @param regex
    * @param talismaneSession

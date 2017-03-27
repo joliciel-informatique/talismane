@@ -37,11 +37,11 @@ public class AnnotatedText {
   private final List<AnnotationObserver> observers = new ArrayList<>();
 
   /**
-   * Construct an annotated text with no annotations, and analysis start at
-   * text start, and analysis end text end.
+   * Construct an annotated text with no annotations, and analysis start at text
+   * start, and analysis end text end.
    * 
    * @param text
-   *            the text to annotate
+   *          the text to annotate
    */
   public AnnotatedText(CharSequence text) {
     this(text, 0, text.length());
@@ -51,11 +51,11 @@ public class AnnotatedText {
    * Construct an annotated text with an explicit analysis start and end.
    * 
    * @param text
-   *            the text to annotate
+   *          the text to annotate
    * @param analysisStart
-   *            the analysis start-point.
+   *          the analysis start-point.
    * @param analysisEnd
-   *            the analysis end-point
+   *          the analysis end-point
    */
   public AnnotatedText(CharSequence text, int analysisStart, int analysisEnd) {
     this.text = text;
@@ -97,8 +97,7 @@ public class AnnotatedText {
 
   /**
    * The point in the text beyond which annotations can begin.<br/>
-   * More specifically, {@link Annotation#getStart()} &lt;= analysisStart.
-   * <br/>
+   * More specifically, {@link Annotation#getStart()} &lt;= analysisStart. <br/>
    * This is useful when the annotator needs more context, but must only add
    * annotations in a particular part of the text.
    */

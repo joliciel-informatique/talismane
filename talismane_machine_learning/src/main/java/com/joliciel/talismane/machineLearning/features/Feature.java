@@ -35,9 +35,9 @@ import com.joliciel.talismane.TalismaneException;
  * @author Assaf Urieli
  * 
  * @param <T>
- *            the type of the object (or context) being tested
+ *          the type of the object (or context) being tested
  * @param <Y>
- *            the type of the feature outcome (the feature return type)
+ *          the type of the feature outcome (the feature return type)
  */
 public interface Feature<T, Y> extends Comparable<Feature<T, ?>> {
 
@@ -69,8 +69,8 @@ public interface Feature<T, Y> extends Comparable<Feature<T, ?>> {
    * A single feature descriptor can result in the generation of multiple
    * features (e.g. in the case where it refers to a range of indexes). The
    * collection name groups all these features under one name - that of the
-   * feature descriptor. It can used, for example, for measuring the
-   * performance of the entire collection of features together.
+   * feature descriptor. It can used, for example, for measuring the performance
+   * of the entire collection of features together.
    */
   public String getCollectionName();
 

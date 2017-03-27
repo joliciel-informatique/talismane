@@ -29,76 +29,80 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Various generic data access utilities.
+ * 
  * @author Assaf Urieli
  *
  */
 public class DaoUtils {
   public enum LogLevel {
-    TRACE, DEBUG, INFO
+    TRACE,
+    DEBUG,
+    INFO
   }
-    private static final Logger LOG = LoggerFactory.getLogger(DaoUtils.class);
 
-    public static void LogParameters(Map<String,Object> paramMap) {
-        if (LOG.isDebugEnabled()) {
-            for (Object obj : paramMap.entrySet()) {
-                @SuppressWarnings("rawtypes")
+  private static final Logger LOG = LoggerFactory.getLogger(DaoUtils.class);
+
+  public static void LogParameters(Map<String, Object> paramMap) {
+    if (LOG.isDebugEnabled()) {
+      for (Object obj : paramMap.entrySet()) {
+        @SuppressWarnings("rawtypes")
         Entry entry = (Entry) obj;
-                LOG.debug(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
-            }
-        }
+        LOG.debug(entry.getKey() + ": " + (entry.getValue() == null ? "null" : entry.getValue().toString()));
+      }
     }
-    
-    public static void LogParameters(Map<String,Object> paramMap, LogLevel logLevel) {
-      if (logLevel.equals(LogLevel.TRACE)) {
-            if (LOG.isTraceEnabled()) {
-                for (Object obj : paramMap.entrySet()) {
-                    @SuppressWarnings("rawtypes")
-            Entry entry = (Entry) obj;
-                    LOG.trace(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
-                }
-            }
-        } else if (logLevel.equals(LogLevel.DEBUG)) {
-          if (LOG.isDebugEnabled()) {
-              for (Object obj : paramMap.entrySet()) {
-                  @SuppressWarnings("rawtypes")
+  }
+
+  public static void LogParameters(Map<String, Object> paramMap, LogLevel logLevel) {
+    if (logLevel.equals(LogLevel.TRACE)) {
+      if (LOG.isTraceEnabled()) {
+        for (Object obj : paramMap.entrySet()) {
+          @SuppressWarnings("rawtypes")
           Entry entry = (Entry) obj;
-                  LOG.debug(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
-              }
-          }
-        } else if (logLevel.equals(LogLevel.INFO)) {
-          if (LOG.isInfoEnabled()) {
-              for (Object obj : paramMap.entrySet()) {
-                  @SuppressWarnings("rawtypes")
-          Entry entry = (Entry) obj;
-                  LOG.info(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
-              }
-          }
+          LOG.trace(entry.getKey() + ": " + (entry.getValue() == null ? "null" : entry.getValue().toString()));
         }
+      }
+    } else if (logLevel.equals(LogLevel.DEBUG)) {
+      if (LOG.isDebugEnabled()) {
+        for (Object obj : paramMap.entrySet()) {
+          @SuppressWarnings("rawtypes")
+          Entry entry = (Entry) obj;
+          LOG.debug(entry.getKey() + ": " + (entry.getValue() == null ? "null" : entry.getValue().toString()));
+        }
+      }
+    } else if (logLevel.equals(LogLevel.INFO)) {
+      if (LOG.isInfoEnabled()) {
+        for (Object obj : paramMap.entrySet()) {
+          @SuppressWarnings("rawtypes")
+          Entry entry = (Entry) obj;
+          LOG.info(entry.getKey() + ": " + (entry.getValue() == null ? "null" : entry.getValue().toString()));
+        }
+      }
     }
-    
-    public static void LogParameters(Map<String,Object> paramMap, Logger log) {
-        if (log.isTraceEnabled()) {
-            for (Object obj : paramMap.entrySet()) {
-                @SuppressWarnings("rawtypes")
+  }
+
+  public static void LogParameters(Map<String, Object> paramMap, Logger log) {
+    if (log.isTraceEnabled()) {
+      for (Object obj : paramMap.entrySet()) {
+        @SuppressWarnings("rawtypes")
         Entry entry = (Entry) obj;
-                log.trace(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
-            }
-        }
+        log.trace(entry.getKey() + ": " + (entry.getValue() == null ? "null" : entry.getValue().toString()));
+      }
     }
-    
-    public static List<String> getSelectArray(String selectString, String alias) {
-        List<String> selectArray = new ArrayList<String>();
-        StringTokenizer st = new StringTokenizer(selectString, ",", false);
-        boolean haveAlias = alias!=null && alias.length()>0;
-        while (st.hasMoreTokens()) {
-            String column = st.nextToken().trim();
-            if (haveAlias)
-                selectArray.add(alias + "." + column + " as " + alias + "_" + column );
-            else
-                selectArray.add(column);
-            
-        }
-        return selectArray;
+  }
+
+  public static List<String> getSelectArray(String selectString, String alias) {
+    List<String> selectArray = new ArrayList<String>();
+    StringTokenizer st = new StringTokenizer(selectString, ",", false);
+    boolean haveAlias = alias != null && alias.length() > 0;
+    while (st.hasMoreTokens()) {
+      String column = st.nextToken().trim();
+      if (haveAlias)
+        selectArray.add(alias + "." + column + " as " + alias + "_" + column);
+      else
+        selectArray.add(column);
+
     }
+    return selectArray;
+  }
 
 }

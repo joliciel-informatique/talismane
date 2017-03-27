@@ -123,8 +123,7 @@ public class Token implements TokenWrapper {
     this.lexicon = tokenToClone.lexicon;
   }
 
-  public Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon,
-      TalismaneSession talismaneSession) {
+  public Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon, TalismaneSession talismaneSession) {
     this.talismaneSession = talismaneSession;
     this.analysisText = null;
     this.text = null;
@@ -145,9 +144,9 @@ public class Token implements TokenWrapper {
 
   /**
    * This token's text for analysis purposes. In some cases, the analysis text
-   * might group together different tokens into a single equivalence class,
-   * for example, you may wish to analyse all numbers identically by assigning
-   * the analysis text to "999".<br/>
+   * might group together different tokens into a single equivalence class, for
+   * example, you may wish to analyse all numbers identically by assigning the
+   * analysis text to "999".<br/>
    * If the token's analysis text has been set, it will be returned.<br/>
    * Else, if the token's text has been set, it will be returned.<br/>
    * Else, the original text is returned.
@@ -205,8 +204,8 @@ public class Token implements TokenWrapper {
   }
 
   /**
-   * The index of this token in the containing sequence when whitespace is
-   * taken into account.
+   * The index of this token in the containing sequence when whitespace is taken
+   * into account.
    */
 
   public int getIndexWithWhiteSpace() {
@@ -247,8 +246,8 @@ public class Token implements TokenWrapper {
   }
 
   /**
-   * A list of postags and counts for this token in a training corpus
-   * (assigned externally by a statistics service).
+   * A list of postags and counts for this token in a training corpus (assigned
+   * externally by a statistics service).
    */
   public Map<PosTag, Integer> getFrequencies() {
     return frequencies;
@@ -437,8 +436,8 @@ public class Token implements TokenWrapper {
   }
 
   /**
-   * Returns the original text column number (inside a line) at the beginning
-   * of this token.
+   * Returns the original text column number (inside a line) at the beginning of
+   * this token.
    */
 
   public int getColumnNumber() {
@@ -467,8 +466,8 @@ public class Token implements TokenWrapper {
   }
 
   /**
-   * Returns the original text column number (inside a line) at the end of
-   * this token.
+   * Returns the original text column number (inside a line) at the end of this
+   * token.
    */
 
   public int getColumnNumberEnd() {
@@ -505,8 +504,8 @@ public class Token implements TokenWrapper {
   }
 
   /**
-   * Any text that should be output as "raw" prior to outputting this token,
-   * or null if none available.
+   * Any text that should be output as "raw" prior to outputting this token, or
+   * null if none available.
    */
 
   public String getPrecedingRawOutput() {
@@ -528,8 +527,8 @@ public class Token implements TokenWrapper {
 
   /**
    * Any text that should be output as "raw" after outputting this token, or
-   * null if none available. Will only ever return non-null for the final
-   * token in a sequence.
+   * null if none available. Will only ever return non-null for the final token
+   * in a sequence.
    */
 
   public String getTrailingRawOutput() {
@@ -586,9 +585,8 @@ public class Token implements TokenWrapper {
   }
 
   /**
-   * Any attributes assigned to this token (e.g. telling downstream systems
-   * not to stem this token in a search index, in the case of a recognised
-   * acronym).
+   * Any attributes assigned to this token (e.g. telling downstream systems not
+   * to stem this token in a search index, in the case of a recognised acronym).
    */
 
   public Map<String, TokenAttribute<?>> getAttributes() {
