@@ -63,23 +63,22 @@ public class CorpusLineReader {
   private final CompactLexicalEntrySupport lexicalEntrySupport = new CompactLexicalEntrySupport("");
 
   private final Map<CorpusElement, Integer> placeholderIndexMap = new HashMap<>();
-  private final int maxGroup;
   private final List<CorpusRule> corpusRules;
 
   /**
    * 
    * @param regex
-   *            the regex used to read lines, including placeholders as
-   *            described in the class description
+   *          the regex used to read lines, including placeholders as described
+   *          in the class description
    * @param requiredElements
-   *            any elements whose placeholders have to be found in the regex
+   *          any elements whose placeholders have to be found in the regex
    * @param lexicalEntryReader
-   *            an optional lexical entry reader, for constructing a lexical
-   *            entry out of each line
+   *          an optional lexical entry reader, for constructing a lexical entry
+   *          out of each line
    * @param session
-   *            the Talismane session
+   *          the Talismane session
    * @throws TalismaneException
-   *             if the regex is missing a required placeholder
+   *           if the regex is missing a required placeholder
    */
   public CorpusLineReader(String regex, CorpusElement[] requiredElements, List<CorpusRule> corpusRules, LexicalEntryReader lexicalEntryReader,
       TalismaneSession session) throws TalismaneException {
@@ -113,8 +112,6 @@ public class CorpusLineReader {
       i++;
     }
 
-    maxGroup = i - 1;
-
     String regexWithGroups = regex;
     for (CorpusElement elementType : CorpusElement.values()) {
       String placeholder = "%" + elementType + "%";
@@ -125,15 +122,14 @@ public class CorpusLineReader {
   }
 
   /**
-   * Read one line out of the corpus, and transform it into a
-   * {@link CorpusLine}
+   * Read one line out of the corpus, and transform it into a {@link CorpusLine}
    * 
    * @param line
-   *            the line to read
+   *          the line to read
    * @param lineNumber
-   *            the line number we reached, starting at 1.
+   *          the line number we reached, starting at 1.
    * @throws TalismaneException
-   *             if the regex wasn't matched on a given line
+   *           if the regex wasn't matched on a given line
    */
   public CorpusLine read(String line, int lineNumber) throws TalismaneException {
     Matcher matcher = this.pattern.matcher(line);
