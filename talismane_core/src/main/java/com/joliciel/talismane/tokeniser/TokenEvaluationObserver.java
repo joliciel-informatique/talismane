@@ -47,6 +47,9 @@ public interface TokenEvaluationObserver {
   public void onEvaluationComplete() throws IOException;
 
   public static List<TokenEvaluationObserver> getTokenEvaluationObservers(File outDir, TalismaneSession session) throws IOException, TalismaneException {
+    if (outDir != null)
+      outDir.mkdirs();
+
     List<TokenEvaluationObserver> observers = new ArrayListNoNulls<TokenEvaluationObserver>();
     Writer errorFileWriter = null;
     File errorFile = new File(outDir, session.getBaseName() + ".errorList.txt");

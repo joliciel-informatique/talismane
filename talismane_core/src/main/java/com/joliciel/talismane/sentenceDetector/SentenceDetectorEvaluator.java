@@ -59,6 +59,9 @@ public class SentenceDetectorEvaluator {
 
   public SentenceDetectorEvaluator(Reader evalReader, File outDir, TalismaneSession session)
       throws IOException, ClassNotFoundException, ReflectiveOperationException {
+    if (outDir != null)
+      outDir.mkdirs();
+
     Config config = session.getConfig();
     this.sentenceDetector = SentenceDetector.getInstance(session);
     Config sentenceConfig = config.getConfig("talismane.core.sentence-detector");
