@@ -49,6 +49,9 @@ public interface PosTagEvaluationObserver {
   public void onEvaluationComplete() throws IOException;
 
   public static List<PosTagEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
+    if (outDir != null)
+      outDir.mkdirs();
+
     Config config = session.getConfig();
     Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
     Config evalConfig = posTaggerConfig.getConfig("evaluate");
