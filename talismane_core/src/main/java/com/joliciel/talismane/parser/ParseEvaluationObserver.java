@@ -63,6 +63,9 @@ public interface ParseEvaluationObserver {
   public void onEvaluationComplete() throws IOException;
 
   public static List<ParseEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
+    if (outDir != null)
+      outDir.mkdirs();
+
     Config config = session.getConfig();
     Config parserConfig = config.getConfig("talismane.core.parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
