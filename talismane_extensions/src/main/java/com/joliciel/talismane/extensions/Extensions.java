@@ -65,7 +65,6 @@ import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -92,9 +91,7 @@ public class Extensions {
     if (args.length > 0) {
       Set<String> argSet = new HashSet<>(Arrays.asList(args));
       if (argSet.contains("--" + ExtendedCommand.splitConllFile.name())) {
-        Map<String, String> argsMap = StringUtils.convertArgs(args);
-        ConllFileSplitter splitter = new ConllFileSplitter();
-        splitter.process(argsMap);
+        ConllFileSplitter.main(args);
         return;
       }
     }
@@ -366,8 +363,9 @@ public class Extensions {
         break;
       }
       case fromStandoff: {
-        StandoffReader standoffReader = new StandoffReader(reader, session.getConfig(), session);
+        StandoffReader standoffReader = new StandoffReader(reader, session.getConfig().getConfig("talismane.core.parser.input"), session);
         parserAnnotatedCorpusReader = standoffReader;
+        parseConfigurationProcessors.addAll(ParseConfigurationProcessor.getProcessors(writer, outDir, session));
         break;
       }
       case corpusStatistics: {
