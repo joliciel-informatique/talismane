@@ -189,6 +189,11 @@ public class Talismane {
   private final int sentenceCount;
   private final Writer writer;
 
+  private final SentenceDetector sentenceDetector;
+  private final Tokeniser tokeniser;
+  private final PosTagger posTagger;
+  private final Parser parser;
+
   /**
    * 
    * @param writer
@@ -251,6 +256,23 @@ public class Talismane {
       this.parseConfigurationProcessors = new ArrayList<>();
     }
 
+    if (this.needsSentenceDetector())
+      sentenceDetector = SentenceDetector.getInstance(session);
+    else
+      sentenceDetector = null;
+    if (this.needsTokeniser())
+      tokeniser = Tokeniser.getInstance(session);
+    else
+      tokeniser = null;
+    if (this.needsPosTagger())
+      posTagger = PosTaggers.getPosTagger(session);
+    else
+      posTagger = null;
+    if (this.needsParser())
+      parser = Parsers.getParser(session);
+    else
+      parser = null;
+
     this.writer = writer;
   }
 
@@ -267,19 +289,6 @@ public class Talismane {
   public void analyse(Reader reader) throws IOException, ReflectiveOperationException, TalismaneException {
     long startTime = System.currentTimeMillis();
     try {
-      SentenceDetector sentenceDetector = null;
-      Tokeniser tokeniser = null;
-      PosTagger posTagger = null;
-      Parser parser = null;
-      if (this.needsSentenceDetector())
-        sentenceDetector = SentenceDetector.getInstance(session);
-      if (this.needsTokeniser())
-        tokeniser = Tokeniser.getInstance(session);
-      if (this.needsPosTagger())
-        posTagger = PosTaggers.getPosTagger(session);
-      if (this.needsParser())
-        parser = Parsers.getParser(session);
-
       TokeniserAnnotatedCorpusReader tokenCorpusReader = null;
       PosTagAnnotatedCorpusReader posTagCorpusReader = null;
 

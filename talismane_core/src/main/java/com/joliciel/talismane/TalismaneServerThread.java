@@ -29,16 +29,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A server that processes the text which is sent on a socket. The assumption is
- * that the text should be handled as a single independent block. If the text
- * consists of the command "@SHUTDOWN", the thread will instruct the
- * TalismaneServer which created it to shut down as soon as all current threads
- * are finished processing.
+ * that the text should be handled as a single independent block.
  * 
  * @author Assaf Urieli
  *
  */
 class TalismaneServerThread extends Thread {
-  @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(TalismaneServerThread.class);
   private final Socket socket;
   private final TalismaneSession session;
@@ -59,7 +55,11 @@ class TalismaneServerThread extends Thread {
       talismane.analyse(in);
 
       socket.close();
+    } catch (RuntimeException e) {
+      LOG.error(e.getMessage(), e);
+      throw e;
     } catch (IOException | ReflectiveOperationException | TalismaneException e) {
+      LOG.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
   }
