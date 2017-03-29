@@ -22,7 +22,9 @@ package com.joliciel.talismane;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Annotation added to a continuous span of text. Examples could include
@@ -43,13 +45,18 @@ public final class Annotation<T extends Serializable> implements Comparable<Anno
   private final int end;
   private final T data;
   private final List<String> labels;
+  private final Set<String> processingMarks;
 
-  public Annotation(int start, int end, T data, List<String> labels) {
-    super();
+  private Annotation(int start, int end, T data, List<String> labels, Set<String> processingMarks) {
     this.start = start;
     this.end = end;
     this.data = data;
     this.labels = labels;
+    this.processingMarks = processingMarks;
+  }
+
+  public Annotation(int start, int end, T data, List<String> labels) {
+    this(start, end, data, labels, new HashSet<>());
   }
 
   public Annotation(int start, int end, T data, String[] labels) {
@@ -88,10 +95,10 @@ public final class Annotation<T extends Serializable> implements Comparable<Anno
 
   /**
    * Return a new annotation representing the current annotation data with a
-   * different start and end.
+   * different start and end. All labels and processing marks are retained.
    */
   public Annotation<T> getAnnotation(int start, int end) {
-    return new Annotation<T>(start, end, this.data, this.labels);
+    return new Annotation<T>(start, end, this.data, this.labels, this.processingMarks);
   }
 
   @Override
@@ -136,5 +143,21 @@ public final class Annotation<T extends Serializable> implements Comparable<Anno
   @Override
   public String toString() {
     return "Annotation [start=" + start + ", end=" + end + ", data=" + data + "]";
+  }
+
+  /**
+   * Add a processing mark permanently to this annotation, typically indicating
+   * that it has already been processed in a certain manner, and doesn't need to
+   * be processed again.
+   */
+  public void addProcessingMark(String mark) {
+    this.processingMarks.add(mark);
+  }
+
+  /**
+   * Has the requested processing mark been added already?
+   */
+  public boolean hasProcessingMark(String mark) {
+    return this.processingMarks.contains(mark);
   }
 }

@@ -643,8 +643,17 @@ public class TalismaneMain {
             processor.onNextText(sentence, results);
           }
         } else {
-          Talismane talismane = new Talismane(writer, outDir, session);
-          talismane.analyse(reader);
+          Mode mode = Mode.valueOf(config.getString("talismane.core.mode"));
+          switch (mode) {
+          case normal:
+            Talismane talismane = new Talismane(writer, outDir, session);
+            talismane.analyse(reader);
+            break;
+          case server:
+            TalismaneServer talismaneServer = new TalismaneServer(session);
+            talismaneServer.analyse();
+            break;
+          }
         }
 
         break;

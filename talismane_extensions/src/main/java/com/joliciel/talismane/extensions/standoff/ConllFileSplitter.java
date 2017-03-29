@@ -28,13 +28,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
-import java.util.Map;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.utils.StringUtils;
+import com.joliciel.talismane.extensions.Extensions.ExtendedCommand;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 /**
  * Class for splitting a CoNNL file into lots of smaller files.
@@ -48,13 +51,16 @@ public class ConllFileSplitter {
 
   private static DecimalFormat df = new DecimalFormat("000");
 
-  public void split(String filePath, int startIndex, int sentencesPerFile, String encoding) throws IOException {
-    String fileBase = filePath;
-    if (filePath.indexOf('.') > 0)
-      fileBase = filePath.substring(0, filePath.lastIndexOf('.'));
-    File file = new File(filePath);
+  public void split(File inFile, File outDir, int startIndex, int sentencesPerFile, String encoding) throws IOException {
+    if (outDir != null)
+      outDir.mkdirs();
+
+    String fileBase = inFile.getName();
+    if (fileBase.indexOf('.') > 0)
+      fileBase = fileBase.substring(0, fileBase.lastIndexOf('.'));
+
     Writer writer = null;
-    try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding)))) {
+    try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(inFile), encoding)))) {
 
       boolean hasSentence = false;
       int currentFileIndex = startIndex;
@@ -79,7 +85,7 @@ public class ConllFileSplitter {
               writer.flush();
               writer.close();
             }
-            File outFile = new File(fileBase + "_" + df.format(currentFileIndex) + ".tal");
+            File outFile = new File(outDir, fileBase + "_" + df.format(currentFileIndex) + ".tal");
             outFile.delete();
             outFile.createNewFile();
 
@@ -101,32 +107,39 @@ public class ConllFileSplitter {
   }
 
   public static void main(String[] args) throws IOException {
-    Map<String, String> argMap = StringUtils.convertArgs(args);
-    ConllFileSplitter splitter = new ConllFileSplitter();
-    splitter.process(argMap);
-  }
+    OptionParser parser = new OptionParser();
+    parser.accepts(ExtendedCommand.splitConllFile.name(), "split conll file into chunks");
 
-  public void process(Map<String, String> args) throws IOException {
-    String filePath = null;
-    if (args.containsKey("inFile"))
-      filePath = args.get("inFile");
-    else
-      throw new RuntimeException("Missing option: inFile");
+    OptionSpec<File> inFileOption = parser.accepts("inFile", "input file").requiredIf(ExtendedCommand.splitConllFile.name()).withRequiredArg()
+        .ofType(File.class);
+    OptionSpec<File> outDirOption = parser.accepts("outDir", "output directory").requiredIf(ExtendedCommand.splitConllFile.name()).withRequiredArg()
+        .ofType(File.class);
+    OptionSpec<String> encodingOption = parser.accepts("encoding", "encoding for input and output").withRequiredArg().ofType(String.class);
+    OptionSpec<Integer> sentencesPerFileOption = parser.accepts("sentencesPerFile", "number of sentences per chunk")
+        .requiredIf(ExtendedCommand.splitConllFile.name()).withRequiredArg().ofType(Integer.class);
+    OptionSpec<Integer> startIndexOption = parser.accepts("startIndex", "the sentence to start on").withRequiredArg().ofType(Integer.class);
 
-    int startIndex = 1;
-    if (args.containsKey("startIndex")) {
-      startIndex = Integer.parseInt(args.get("startIndex"));
+    if (args.length <= 1) {
+      parser.printHelpOn(System.out);
+      return;
     }
 
-    int sentencesPerFile = 20;
-    if (args.containsKey("sentencesPerFile")) {
-      sentencesPerFile = Integer.parseInt(args.get("sentencesPerFile"));
-    }
+    OptionSet options = parser.parse(args);
+
+    File inFile = options.valueOf(inFileOption);
+    File outDir = options.valueOf(outDirOption);
 
     String encoding = "UTF-8";
-    if (args.containsKey("encoding"))
-      encoding = args.get("encoding");
+    if (options.has(encodingOption))
+      encoding = options.valueOf(encodingOption);
 
-    this.split(filePath, startIndex, sentencesPerFile, encoding);
+    int sentencesPerFile = options.valueOf(sentencesPerFileOption);
+    int startIndex = 1;
+    if (options.has(startIndexOption))
+      startIndex = options.valueOf(startIndexOption);
+
+    ConllFileSplitter splitter = new ConllFileSplitter();
+    splitter.split(inFile, outDir, startIndex, sentencesPerFile, encoding);
   }
+
 }

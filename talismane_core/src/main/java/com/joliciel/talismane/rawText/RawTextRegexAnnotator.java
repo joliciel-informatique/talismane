@@ -197,7 +197,8 @@ public class RawTextRegexAnnotator implements RawTextAnnotator {
 
   @Override
   public String toString() {
-    return "RegexMarkerFilter [filterTypes=" + filterTypes + ", regex=" + regex + ", groupIndex=" + groupIndex + ", replacement=" + replacement + "]";
+    return "RegexMarkerFilter [filterTypes=" + filterTypes + ", regex=" + regex.replace('\n', '¶').replace('\r', '¶') + ", groupIndex=" + groupIndex
+        + ", replacement=" + replacement + "]";
   }
 
   @Override

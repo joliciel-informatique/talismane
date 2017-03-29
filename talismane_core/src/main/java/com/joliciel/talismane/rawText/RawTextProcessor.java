@@ -61,6 +61,8 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
   private final Stack<Boolean> shouldProcessStack;
   private final Stack<Boolean> shouldOutputStack;
   private final int originalStartIndex;
+  private static final String START_MARK = "START_MARK";
+  private static final String END_MARK = "END_MARK";
 
   /**
    * The original index just after the last block of processed text. This is not
@@ -120,6 +122,7 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
     LOG.debug("processText");
     List<Annotation<RawTextMarker>> annotations = this.getAnnotations(RawTextMarker.class);
     if (LOG.isTraceEnabled()) {
+      LOG.trace("finalBlock? " + finalBlock);
       LOG.trace("annotations: " + annotations.toString());
     }
 
@@ -129,10 +132,14 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
       if (LOG.isTraceEnabled())
         LOG.trace("Annotation: " + annotation.toString());
 
-      if (annotation.getStart() >= textStartPos && annotation.getStart() < textEndPos) {
+      // Note: we ensure that an annotation start only gets applied once via the
+      // START_MARK processing mark.
+      if (annotation.getStart() >= textStartPos && annotation.getStart() < textEndPos && !annotation.hasProcessingMark(START_MARK)) {
         if (LOG.isTraceEnabled()) {
-          LOG.trace("Start in range: textStartPos " + textStartPos + ">= matcherStart [[" + annotation.getStart() + "]] < textEndPos " + textEndPos);
+          LOG.trace("Start in range: textStartPos " + textStartPos + ">= matcherStart [[" + annotation.getStart() + "]] < textEndPos " + textEndPos
+              + ", start applied? " + annotation.hasProcessingMark(START_MARK));
         }
+        annotation.addProcessingMark(START_MARK);
         List<Pair<Boolean, Annotation<RawTextMarker>>> startMarks = markMap.get(annotation.getStart());
         if (startMarks == null) {
           startMarks = new ArrayList<>();
@@ -141,7 +148,8 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
         startMarks.add(new ImmutablePair<Boolean, Annotation<RawTextMarker>>(true, annotation));
       } else {
         if (LOG.isTraceEnabled()) {
-          LOG.trace("Start out of range: textStartPos " + textStartPos + ">= matcherStart [[" + annotation.getStart() + "]] < textEndPos " + textEndPos);
+          LOG.trace("Start out of range: textStartPos " + textStartPos + ">= matcherStart [[" + annotation.getStart() + "]] < textEndPos " + textEndPos
+              + ", start applied? " + annotation.hasProcessingMark(START_MARK));
         }
       }
 
@@ -151,11 +159,15 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
       // we add the end match
       // the 2nd condition is to ensure we add the end match, since empty
       // blocks can never match anything
-      if (annotation.getEnd() >= textStartPos
-          && (annotation.getEnd() < textEndPos || (annotation.getEnd() == textEndPos && rawText.length() > 0 && finalBlock))) {
+      // Note: we ensure that an annotation end only gets applied once via the
+      // END_MARK processing mark.
+      if (annotation.getEnd() >= textStartPos && (annotation.getEnd() < textEndPos || (annotation.getEnd() == textEndPos && rawText.length() > 0 && finalBlock))
+          && !annotation.hasProcessingMark(END_MARK)) {
         if (LOG.isTraceEnabled()) {
-          LOG.trace("End in range: textStartPos " + textStartPos + ">= matcherEnd [[" + annotation.getEnd() + "]] < textEndPos " + textEndPos);
+          LOG.trace("End in range: textStartPos " + textStartPos + ">= matcherEnd [[" + annotation.getEnd() + "]] < textEndPos " + textEndPos + ", finalBlock? "
+              + finalBlock + ", end applied? " + annotation.hasProcessingMark(END_MARK));
         }
+        annotation.addProcessingMark(END_MARK);
         List<Pair<Boolean, Annotation<RawTextMarker>>> endMarks = markMap.get(annotation.getEnd());
         if (endMarks == null) {
           endMarks = new ArrayList<>();
@@ -164,7 +176,8 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
         endMarks.add(new ImmutablePair<Boolean, Annotation<RawTextMarker>>(false, annotation));
       } else {
         if (LOG.isTraceEnabled()) {
-          LOG.trace("End out of range: textStartPos " + textStartPos + ">= matcherEnd [[" + annotation.getEnd() + "]] < textEndPos " + textEndPos);
+          LOG.trace("End out of range: textStartPos " + textStartPos + ">= matcherEnd [[" + annotation.getEnd() + "]] < textEndPos " + textEndPos
+              + ", finalBlock? " + finalBlock + ", end applied? " + annotation.hasProcessingMark(END_MARK));
         }
       }
     }

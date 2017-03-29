@@ -19,6 +19,7 @@
 package com.joliciel.talismane;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.ServerSocket;
 import java.util.Date;
 
@@ -43,12 +44,17 @@ public class TalismaneServer {
     this.port = session.getPort();
   }
 
-  public void analyse() throws IOException {
+  public void analyse() throws IOException, ReflectiveOperationException, TalismaneException {
     long startTime = new Date().getTime();
     ServerSocket serverSocket = null;
 
     try {
       LOG.info("Starting server...");
+
+      // load Talismane to load any required resources
+      StringWriter out = new StringWriter();
+      @SuppressWarnings("unused")
+      Talismane talismane = new Talismane(out, null, session);
 
       serverSocket = new ServerSocket(port);
       LOG.info("Server started. Waiting for clients...");
