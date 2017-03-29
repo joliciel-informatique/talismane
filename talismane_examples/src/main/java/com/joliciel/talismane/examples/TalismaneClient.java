@@ -85,6 +85,8 @@ public class TalismaneClient {
     // finished
     input += "\f\f\f";
 
+    System.out.println("Sending input to server: " + input);
+
     // Send user input to the server
     out.write(input);
     out.flush();
