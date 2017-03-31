@@ -42,14 +42,15 @@ public abstract class AbstractAnnotatedCorpusReader implements AnnotatedCorpusRe
 
   /**
    * Add attributes as specified in the config to the corpus reader. Recognises
-   * the attributes:
-   * <ul>
-   * <li>sentence-count</li>
-   * <li>start-sentence</li>
-   * <li>cross-validation.fold-count</li>
-   * <li>cross-validation.include-index</li>
-   * <li>cross-validation.exclude-index</li>
-   * </ul>
+   * the attributes:<br/>
+   * - sentence-count: how many sentences should be read<br/>
+   * - start-sentence: which sentence to start on<br/>
+   * - cross-validation.fold-count: if &gt; 0, the number of cross-validation
+   * folds<br/>
+   * - cross-validation.include-index: if cross-validation, which index to
+   * include (for evaluation)<br/>
+   * - cross-validation.exclude-index: if cross-validation, which index to
+   * exclude (for training)<br/>
    * 
    * @param config
    *          the local config for this corpus reader (local namespace)

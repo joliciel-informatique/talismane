@@ -1,8 +1,8 @@
 /**
  * Package enabling the part-of-speech tagging of a
  * {@link com.joliciel.talismane.tokeniser.TokenSequence}.<br/>
- * The central class is the ({@link com.joliciel.talismane.posTagger.PosTagger}
- * ).<br/>
+ * The central class is the {@link com.joliciel.talismane.posTagger.PosTagger}.
+ * <br/>
  * It tags based on a previously constructed classification model, converting
  * the model's outcomes to {@link com.joliciel.talismane.posTagger.PosTag} using
  * the currently set {@link com.joliciel.talismane.posTagger.PosTagSet}.<br/>
