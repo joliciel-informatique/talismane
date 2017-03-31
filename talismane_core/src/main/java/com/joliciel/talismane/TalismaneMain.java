@@ -170,11 +170,9 @@ public class TalismaneMain {
     OptionSpec<File> lexiconOption = parser.accepts("lexicon", "semi-colon delimited list of pre-compiled lexicon files").withRequiredArg().ofType(File.class)
         .withValuesSeparatedBy(';');
 
-    OptionSpec<File> textFiltersOption = parser.accepts("textFilters", "semi-colon delimited list of files containing text filters").withRequiredArg()
+    OptionSpec<File> textAnnotatorsOption = parser.accepts("textAnnotators", "semi-colon delimited list of files containing text annotators").withRequiredArg()
         .ofType(File.class).withValuesSeparatedBy(';');
-    OptionSpec<File> tokenFiltersOption = parser.accepts("tokenFilters", "semi-colon delimited list of files containing token pre-annotators").withRequiredArg()
-        .ofType(File.class).withValuesSeparatedBy(';');
-    OptionSpec<File> tokenSequenceFiltersOption = parser.accepts("tokenSequenceFilters", "semi-colon delimited list of files containing token post-annotators")
+    OptionSpec<File> sentenceAnnotatorsOption = parser.accepts("sentenceAnnotators", "semi-colon delimited list of files containing sentence annotators")
         .withRequiredArg().ofType(File.class).withValuesSeparatedBy(';');
 
     OptionSpec<String> newlineOption = parser
@@ -346,19 +344,14 @@ public class TalismaneMain {
       values.put("talismane.core.lexicons", lexiconPaths);
     }
 
-    if (options.has(textFiltersOption)) {
-      List<String> textFilterPaths = options.valuesOf(textFiltersOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-      values.put("talismane.core.annotators.text-filters", textFilterPaths);
+    if (options.has(textAnnotatorsOption)) {
+      List<String> textAnnotatorPaths = options.valuesOf(textAnnotatorsOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
+      values.put("talismane.core.annotators.text-annotators", textAnnotatorPaths);
     }
 
-    if (options.has(tokenFiltersOption)) {
-      List<String> tokenFilterPaths = options.valuesOf(tokenFiltersOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-      values.put("talismane.core.annotators.text-annotators", tokenFilterPaths);
-    }
-
-    if (options.has(tokenSequenceFiltersOption)) {
-      List<String> tokenSequenceFilterPaths = options.valuesOf(tokenSequenceFiltersOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-      values.put("talismane.core.annotators.token-sequence-filters", tokenSequenceFilterPaths);
+    if (options.has(sentenceAnnotatorsOption)) {
+      List<String> sentenceAnnotatorPaths = options.valuesOf(sentenceAnnotatorsOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
+      values.put("talismane.core.annotators.sentence-annotators", sentenceAnnotatorPaths);
     }
 
     List<String> inputLocations = Arrays.asList("talismane.core.input", "talismane.core.language-detector.input", "talismane.core.language-detector.train",
