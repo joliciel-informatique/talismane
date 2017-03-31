@@ -25,7 +25,7 @@ import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 
 /**
  * A helper class for adding generic token features to any parser requiring
- * them.
+ * them. See {@link #addFeatureClasses(FeatureClassContainer)}.
  * 
  * @author Assaf Urieli
  *
@@ -33,37 +33,35 @@ import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 public class TokenFeatureParser {
 
   /**
-   * Add token feature classes to the container provided, including:
-   * <ul>
-   * <li>AndRange: {@link AndRangeFeature}</li>
-   * <li>BackwardSearch: {@link BackwardSearchFeature}</li>
-   * <li>CountIf: {@link CountIfFeature}</li>
-   * <li>FirstWordInCompound: {@link FirstWordInCompoundFeature}</li>
-   * <li>FirstWordInSentence: {@link FirstWordInSentenceFeature}</li>
-   * <li>ForwardSearch: {@link ForwardSearchFeature}</li>
-   * <li>Has: {@link HasFeature}</li>
-   * <li>HasClosedClassesOnly: {@link HasClosedClassesOnlyFeature}</li>
-   * <li>IfThenElse: {@link IfThenElseTokenAddressFeature}</li>
-   * <li>LastWordInCompound: {@link LastWordInCompoundFeature}</li>
-   * <li>LastWordInSentence: {@link LastWordInSentenceFeature}</li>
-   * <li>LemmaForPosTag: {@link LemmaForPosTagFeature}</li>
-   * <li>LexiconAllPosTags: {@link LexiconAllPosTagsFeature}</li>
-   * <li>LexiconPosTag: {@link LexiconPosTagFeature}</li>
-   * <li>LexiconPosTagForString: {@link LexiconPosTagForStringFeature}</li>
-   * <li>LexiconPosTags: {@link LexiconPosTagsFeature}</li>
-   * <li>LexiconPosTagsForString: {@link LexiconPosTagsForStringFeature}</li>
-   * <li>NLetterPrefix: {@link NLetterPrefixFeature}</li>
-   * <li>NLetterSuffix: {@link NLetterSuffixFeature}</li>
-   * <li>Offset: {@link TokenOffsetAddressFunction}</li>
-   * <li>OrRange: {@link OrRangeFeature}</li>
-   * <li>PosTagSet: {@link PosTagSetFeature}</li>
-   * <li>Regex: {@link RegexFeature}</li>
-   * <li>TokenAt: {@link TokenAtAddressFunction}</li>
-   * <li>TokenIndex: {@link TokenIndexFeature}</li>
-   * <li>UnknownWord: {@link UnknownWordFeature}</li>
-   * <li>Word: {@link WordFeature}</li>
-   * <li>WordForm: {@link TokenWordFormFeature}</li>
-   * </ul>
+   * Add token feature classes to the container provided, including:<br/>
+   * - AndRange: {@link AndRangeFeature}<br/>
+   * - BackwardSearch: {@link BackwardSearchFeature}<br/>
+   * - CountIf: {@link CountIfFeature}<br/>
+   * - FirstWordInCompound: {@link FirstWordInCompoundFeature}<br/>
+   * - FirstWordInSentence: {@link FirstWordInSentenceFeature}<br/>
+   * - ForwardSearch: {@link ForwardSearchFeature}<br/>
+   * - Has: {@link HasFeature}<br/>
+   * - HasClosedClassesOnly: {@link HasClosedClassesOnlyFeature}<br/>
+   * - IfThenElse: {@link IfThenElseTokenAddressFeature}<br/>
+   * - LastWordInCompound: {@link LastWordInCompoundFeature}<br/>
+   * - LastWordInSentence: {@link LastWordInSentenceFeature}<br/>
+   * - LemmaForPosTag: {@link LemmaForPosTagFeature}<br/>
+   * - LexiconAllPosTags: {@link LexiconAllPosTagsFeature}<br/>
+   * - LexiconPosTag: {@link LexiconPosTagFeature}<br/>
+   * - LexiconPosTagForString: {@link LexiconPosTagForStringFeature}<br/>
+   * - LexiconPosTags: {@link LexiconPosTagsFeature}<br/>
+   * - LexiconPosTagsForString: {@link LexiconPosTagsForStringFeature}<br/>
+   * - NLetterPrefix: {@link NLetterPrefixFeature}<br/>
+   * - NLetterSuffix: {@link NLetterSuffixFeature}<br/>
+   * - Offset: {@link TokenOffsetAddressFunction}<br/>
+   * - OrRange: {@link OrRangeFeature}<br/>
+   * - PosTagSet: {@link PosTagSetFeature}<br/>
+   * - Regex: {@link RegexFeature}<br/>
+   * - TokenAt: {@link TokenAtAddressFunction}<br/>
+   * - TokenIndex: {@link TokenIndexFeature}<br/>
+   * - UnknownWord: {@link UnknownWordFeature}<br/>
+   * - Word: {@link WordFeature}<br/>
+   * - WordForm: {@link TokenWordFormFeature}<br/>
    */
   public static void addFeatureClasses(FeatureClassContainer container) {
     container.addFeatureClass("AndRange", AndRangeFeature.class);

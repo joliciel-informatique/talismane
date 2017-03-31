@@ -70,10 +70,9 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
   /**
    * In addition to the values read in
    * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
-   * , reads the following setting from the config:
-   * <ul>
-   * <li>predict-transitions</li>
-   * </ul>
+   * , reads the following setting from the config:<br/>
+   * - predict-transitions: whether or not an attempt should be made to predict
+   * transitions<br/>
    * 
    * @throws TalismaneException
    */
