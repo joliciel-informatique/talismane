@@ -37,7 +37,9 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 
 /**
- * A parser for sentence detector descriptors.
+ * A parser for sentence detector descriptors.<br/>
+ * The list of available features is given in
+ * {@link #addFeatureClasses(FeatureClassContainer)}.
  * 
  * @author Assaf Urieli
  *
@@ -79,19 +81,17 @@ public class SentenceDetectorFeatureParser extends AbstractFeatureParser<Possibl
   }
 
   /**
-   * Adds the following feature class mappings:
-   * <ul>
-   * <li>BoundaryString: {@link BoundaryStringFeature}</li>
-   * <li>InParentheses: {@link InParenthesesFeature}</li>
-   * <li>Initials: {@link InitialsFeature}</li>
-   * <li>IsStrongPunctuation: {@link IsStrongPunctuationFeature}</li>
-   * <li>NextLetterCapital: {@link NextLetterCapitalFeature}</li>
-   * <li>NextLetters: {@link NextLettersFeature}</li>
-   * <li>NextTokens: {@link NextTokensFeature}</li>
-   * <li>PreviousLetters: {@link PreviousLettersFeature}</li>
-   * <li>PreviousTokens: {@link PreviousTokensFeature}</li>
-   * <li>Surroundings: {@link SurroundingsFeature}</li>
-   * </ul>
+   * Adds the following feature class mappings:<br/>
+   * - BoundaryString: {@link BoundaryStringFeature}<br/>
+   * - InParentheses: {@link InParenthesesFeature}<br/>
+   * - Initials: {@link InitialsFeature}<br/>
+   * - IsStrongPunctuation: {@link IsStrongPunctuationFeature}<br/>
+   * - NextLetterCapital: {@link NextLetterCapitalFeature}<br/>
+   * - NextLetters: {@link NextLettersFeature}<br/>
+   * - NextTokens: {@link NextTokensFeature}<br/>
+   * - PreviousLetters: {@link PreviousLettersFeature}<br/>
+   * - PreviousTokens: {@link PreviousTokensFeature}<br/>
+   * - Surroundings: {@link SurroundingsFeature}<br/>
    */
   @Override
   public void addFeatureClasses(FeatureClassContainer container) {

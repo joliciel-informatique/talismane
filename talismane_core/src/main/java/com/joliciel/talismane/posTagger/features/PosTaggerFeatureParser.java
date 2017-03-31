@@ -48,7 +48,10 @@ import com.joliciel.talismane.tokeniser.features.TokenFeatureParser;
 import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 
 /**
- * A feature parser for PosTaggerContext features.
+ * The central class for parsing a descriptor containing pos-tagger features.
+ * <br/>
+ * The list of available features is given in
+ * {@link #addFeatureClasses(FeatureClassContainer)}.
  * 
  * @author Assaf Urieli
  *
@@ -143,19 +146,17 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
   }
 
   /**
-   * Adds the following feature class mappings:
-   * <ul>
-   * <li>Ngram: {@link NgramFeature}</li>
-   * <li>History: {@link PosTaggerHistoryAddressFunction}</li>
-   * <li>HistoryAbs: {@link HistoryAbsoluteAddressFunction}</li>
-   * <li>HistoryCountIf: {@link HistoryCountIfFeature}</li>
-   * <li>HistoryHas: {@link HistoryHasFeature}</li>
-   * <li>HistorySearch: {@link HistorySearchFeature}</li>
-   * <li>All definitions in
-   * {@link #addPosTaggedTokenFeatureClasses(FeatureClassContainer)}</li>
-   * <li>All definitions in
-   * {@link TokenFeatureParser#addFeatureClasses(FeatureClassContainer)}</li>
-   * </ul>
+   * Adds the following feature class mappings:<br/>
+   * - Ngram: {@link NgramFeature}<br/>
+   * - History: {@link PosTaggerHistoryAddressFunction}<br/>
+   * - HistoryAbs: {@link HistoryAbsoluteAddressFunction}<br/>
+   * - HistoryCountIf: {@link HistoryCountIfFeature}<br/>
+   * - HistoryHas: {@link HistoryHasFeature}<br/>
+   * - HistorySearch: {@link HistorySearchFeature}<br/>
+   * - All definitions in
+   * {@link #addPosTaggedTokenFeatureClasses(FeatureClassContainer)}<br/>
+   * - All definitions in
+   * {@link TokenFeatureParser#addFeatureClasses(FeatureClassContainer)}<br/>
    */
   @Override
   public void addFeatureClasses(FeatureClassContainer container) {
@@ -171,30 +172,28 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 
   /**
    * Add pos-tagged token feature classes to the container provided, including:
-   * <ul>
-   * <li>Aspect: {@link VerbAspectFeature}</li>
-   * <li>Case: {@link GrammaticalCaseFeature}</li>
-   * <li>Category: {@link LexicalCategoryFeature}</li>
-   * <li>ClosedClass: {@link ClosedClassFeature}</li>
-   * <li>CombinedLexicalAttributes: {@link CombinedLexicalAttributesFeature}
-   * </li>
-   * <li>Gender: {@link GrammaticalGenderFeature}</li>
-   * <li>Index: {@link PosTaggedTokenIndexFeature}</li>
-   * <li>Lemma: {@link LemmaFeature}</li>
-   * <li>LexicalAttribute: {@link LexicalAttributeFeature}</li>
-   * <li>LexicalForm: {@link WordFormFeature}</li>
-   * <li>Mood: {@link VerbMoodFeature}</li>
-   * <li>Morphology: {@link MorphologyFeature}</li>
-   * <li>Number: {@link GrammaticalNumberFeature}</li>
-   * <li>Person: {@link GrammaticalPersonFeature}</li>
-   * <li>PosTag: {@link AssignedPosTagFeature}</li>
-   * <li>PosTagIn: {@link AssignedPosTagInFeature}</li>
-   * <li>PossessorNumber: {@link PossessorNumberFeature}</li>
-   * <li>SubCategory: {@link LexicalSubCategoryFeature}</li>
-   * <li>Tense: {@link VerbTenseFeature}</li>
-   * <li>TokenHas: {@link HistoryHasFeature}</li>
-   * <li>WordForm: {@link WordFormFeature}</li>
-   * </ul>
+   * <br/>
+   * - Aspect: {@link VerbAspectFeature}<br/>
+   * - Case: {@link GrammaticalCaseFeature}<br/>
+   * - Category: {@link LexicalCategoryFeature}<br/>
+   * - ClosedClass: {@link ClosedClassFeature}<br/>
+   * - CombinedLexicalAttributes: {@link CombinedLexicalAttributesFeature} <br/>
+   * - Gender: {@link GrammaticalGenderFeature}<br/>
+   * - Index: {@link PosTaggedTokenIndexFeature}<br/>
+   * - Lemma: {@link LemmaFeature}<br/>
+   * - LexicalAttribute: {@link LexicalAttributeFeature}<br/>
+   * - LexicalForm: {@link WordFormFeature}<br/>
+   * - Mood: {@link VerbMoodFeature}<br/>
+   * - Morphology: {@link MorphologyFeature}<br/>
+   * - Number: {@link GrammaticalNumberFeature}<br/>
+   * - Person: {@link GrammaticalPersonFeature}<br/>
+   * - PosTag: {@link AssignedPosTagFeature}<br/>
+   * - PosTagIn: {@link AssignedPosTagInFeature}<br/>
+   * - PossessorNumber: {@link PossessorNumberFeature}<br/>
+   * - SubCategory: {@link LexicalSubCategoryFeature}<br/>
+   * - Tense: {@link VerbTenseFeature}<br/>
+   * - TokenHas: {@link HistoryHasFeature}<br/>
+   * - WordForm: {@link WordFormFeature}<br/>
    */
   public static void addPosTaggedTokenFeatureClasses(FeatureClassContainer container) {
     container.addFeatureClass("Aspect", VerbAspectFeature.class);
