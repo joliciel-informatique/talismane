@@ -38,7 +38,7 @@ Talismane is a natural language processing framework with sentence detector, tok
 
 **JavaDoc API**: You may also consult the [full JavaDoc API](http://joliciel-informatique.github.io/talismane/api/) online.
 
-**User's manual**: A full users's manual can be found on the [GitHub Talismane project page](http://joliciel-informatique.github.io/talismane/).
+**User's manual**: An out-of-date users's manual can be found on the [GitHub Talismane project page](http://joliciel-informatique.github.io/talismane/). For up-to-date documentation, you're far better off consulting the [ wiki](https://github.com/joliciel-informatique/talismane/wiki) or the [JavaDoc API](http://joliciel-informatique.github.io/talismane/api/) .           
 
 **Additional information** on the project can be found on the [CLLE-ERSS laboratory Talismane project home page](http://redac.univ-tlse2.fr/applications/talismane.html).
 
