@@ -77,14 +77,12 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 
   /**
    * Add attributes as specified in the config to the corpus reader. Recognises
-   * the attributes:
-   * <ul>
-   * <li>input-pattern: the pattern to match corpus line elements, see class
-   * description.</li>
-   * <li>sentence-file: where to read the correctly formatted sentences</li>
-   * <li>corpus-lexical-entry-regex: how to read the lexical entries, see
-   * {@link RegexLexicalEntryReader}</li>
-   * </ul>
+   * the attributes:<br/>
+   * - input-pattern: the pattern to match corpus line elements, see class
+   * description.<br/>
+   * - sentence-file: where to read the correctly formatted sentences<br/>
+   * - corpus-lexical-entry-regex: how to read the lexical entries, see
+   * {@link RegexLexicalEntryReader}<br/>
    * 
    * @param config
    *          the local config for this corpus reader (local namespace)
