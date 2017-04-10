@@ -395,7 +395,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
           lastReplacement = replacement.getEnd();
         }
       }
-      if (lastReplacement > token.getStartIndex()) {
+      if (lastReplacement > token.getStartIndex() && (lastReplacement - token.getStartIndex() <= token.getOriginalText().length())) {
         sb.append(token.getOriginalText().substring(lastReplacement - token.getStartIndex()));
         token.setText(sb.toString());
         if (LOG.isTraceEnabled()) {
