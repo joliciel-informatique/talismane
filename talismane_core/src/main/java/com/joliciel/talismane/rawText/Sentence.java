@@ -53,7 +53,7 @@ public class Sentence extends AnnotatedText {
   private final String fileName;
   private final File file;
   private int startLineNumber = -1;
-  private String leftoverOriginalText;
+  private String leftoverOriginalText = "";
 
   protected final TalismaneSession session;
 
