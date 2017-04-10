@@ -38,4 +38,9 @@ public class TextReplacement implements Serializable {
   public String getReplacement() {
     return replacement;
   }
+
+  @Override
+  public String toString() {
+    return "TextReplacement [replacement=" + replacement + "]";
+  }
 }
