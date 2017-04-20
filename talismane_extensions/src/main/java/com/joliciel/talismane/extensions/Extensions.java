@@ -51,6 +51,7 @@ import com.joliciel.talismane.extensions.corpus.CorpusModifier;
 import com.joliciel.talismane.extensions.corpus.CorpusProjectifier;
 import com.joliciel.talismane.extensions.corpus.CorpusProjectifier.ProjectivationStrategy;
 import com.joliciel.talismane.extensions.corpus.CorpusStatistics;
+import com.joliciel.talismane.extensions.corpus.NonProjectiveStatistics;
 import com.joliciel.talismane.extensions.corpus.PosTaggerStatistics;
 import com.joliciel.talismane.extensions.standoff.ConllFileSplitter;
 import com.joliciel.talismane.extensions.standoff.StandoffReader;
@@ -83,6 +84,7 @@ public class Extensions {
     splitConllFile,
     corpusStatistics,
     posTaggerStatistics,
+    nonProjectiveStatistics,
     modifyCorpus,
     projectify
   }
@@ -101,6 +103,7 @@ public class Extensions {
     parser.accepts(ExtendedCommand.fromStandoff.name(), "convert standoff to CoNLL");
     parser.accepts(ExtendedCommand.corpusStatistics.name(), "calculate various corpus statistics from an annotated (parsed) corpus");
     parser.accepts(ExtendedCommand.posTaggerStatistics.name(), "calculate various pos-tagger statistics from a pos-tagged corpus");
+    parser.accepts(ExtendedCommand.nonProjectiveStatistics.name(), "calculate various non-projectivity statistics from a parsed corpus");
     parser.accepts(ExtendedCommand.modifyCorpus.name(), "modify various aspects of a dependency annotation");
     parser.accepts(ExtendedCommand.projectify.name(), "automatically projectify a non-projective annotated (parsed) corpus");
     parser.acceptsAll(Arrays.asList("?", "help"), "show help").forHelp();
@@ -193,6 +196,8 @@ public class Extensions {
       command = ExtendedCommand.projectify;
     } else if (options.has(ExtendedCommand.toStandoff.name())) {
       command = ExtendedCommand.toStandoff;
+    } else if (options.has(ExtendedCommand.nonProjectiveStatistics.name())) {
+      command = ExtendedCommand.nonProjectiveStatistics;
     }
 
     if (options.has(localeOption))
@@ -387,6 +392,19 @@ public class Extensions {
         File serializationFile = new File(outDir, session.getBaseName() + "_stats.zip");
         serializationFile.delete();
         stats.setSerializationFile(serializationFile);
+
+        parseConfigurationProcessors.add(stats);
+
+        break;
+      }
+      case nonProjectiveStatistics: {
+
+        File csvFile = new File(outDir, session.getBaseName() + "_nproj.csv");
+        csvFile.delete();
+        csvFile.createNewFile();
+        Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
+
+        NonProjectiveStatistics stats = new NonProjectiveStatistics(session, csvFileWriter);
 
         parseConfigurationProcessors.add(stats);
 
