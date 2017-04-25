@@ -371,6 +371,8 @@ public class CompactLexicalEntry implements WritableLexicalEntry, Serializable {
   @Override
   public String toString() {
     return "LexicalEntry [lexiconName=" + this.getLexiconName() + ", word=" + word + ", lemma=" + lemma + ", lemmaComplement=" + this.getLemmaComplement()
-        + ", category=" + this.getCategory() + ", subCategory=" + this.getSubCategory() + ", morphology=" + this.getMorphology() + "]";
+        + ", category=" + this.getCategory() + ", subCategory=" + this.getSubCategory() + ", gender=" + this.getGender().toString() + ", number="
+        + this.getNumber().toString() + ", case=" + this.getCase().toString() + ", tense=" + this.getTense().toString() + ", person="
+        + this.getPerson().toString() + ", morphology=" + this.getMorphology() + "]";
   }
 }

@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +21,6 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
-
-import gnu.trove.map.hash.THashMap;
 
 /**
  * <p>
@@ -44,11 +43,11 @@ import gnu.trove.map.hash.THashMap;
  *
  */
 public class LexiconFile extends CompactLexicalEntrySupport implements PosTaggerLexicon, Serializable, NeedsTalismaneSession {
-  private static final long serialVersionUID = 4L;
+  private static final long serialVersionUID = 5L;
   private static final Logger LOG = LoggerFactory.getLogger(LexiconFile.class);
-  private Map<String, List<LexicalEntry>> entryMap = new THashMap<String, List<LexicalEntry>>();
-  private Map<String, List<LexicalEntry>> lemmaEntryMap = new THashMap<String, List<LexicalEntry>>();
-  private TalismaneSession talismaneSession;
+  private Map<String, List<LexicalEntry>> entryMap = new PatriciaTrie<List<LexicalEntry>>();
+  private Map<String, List<LexicalEntry>> lemmaEntryMap = new PatriciaTrie<List<LexicalEntry>>();
+  private transient TalismaneSession talismaneSession;
   private PosTagSet posTagSet;
   private PosTagMapper posTagMapper;
   private transient LexicalEntryReader reader = null;
