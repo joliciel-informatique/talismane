@@ -19,6 +19,8 @@
 package com.joliciel.talismane.lexicon;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -35,8 +37,8 @@ public class CompactLexicalEntrySupport implements Serializable {
 
   private static final int INITIAL_CAPACITY = 1000;
 
-  private Map<LexicalAttribute, Map<String, Byte>> attributeStringToByteMap = new THashMap<LexicalAttribute, Map<String, Byte>>(INITIAL_CAPACITY, 0.75f);
-  private Map<LexicalAttribute, Map<Byte, String>> attributeByteToStringMap = new THashMap<LexicalAttribute, Map<Byte, String>>(INITIAL_CAPACITY, 0.75f);
+  private Map<LexicalAttribute, Map<String, byte[]>> attributeStringToByteMap = new THashMap<>(INITIAL_CAPACITY, 0.75f);
+  private Map<LexicalAttribute, List<String>> attributeByteToStringMap = new THashMap<>(INITIAL_CAPACITY, 0.75f);
   private Map<String, LexicalAttribute> nameToAttributeMap = new THashMap<String, LexicalAttribute>();
   private int otherAttributeIndex = 0;
 
@@ -49,54 +51,79 @@ public class CompactLexicalEntrySupport implements Serializable {
     this.name = name;
   }
 
-  public byte getOrCreateAttributeCode(LexicalAttribute attribute, String value) {
-    Map<String, Byte> attributeCodes = attributeStringToByteMap.get(attribute);
-    Map<Byte, String> attributeValues = attributeByteToStringMap.get(attribute);
-    byte code = 0;
+  /**
+   * Get or create a byte array used to uniquely represent this attribute value.
+   * <br/>
+   * The last byte is guaranteed to be positive (e.g. bit 8 is 0). All other
+   * bytes are guaranteed to be negative (e.g. bit 8 is 1).
+   */
+  public byte[] getOrCreateAttributeCode(LexicalAttribute attribute, String value) {
+    Map<String, byte[]> attributeCodes = attributeStringToByteMap.get(attribute);
+    List<String> attributeValues = attributeByteToStringMap.get(attribute);
     if (attributeCodes == null) {
-      attributeCodes = new THashMap<String, Byte>();
+      attributeCodes = new THashMap<>();
       attributeStringToByteMap.put(attribute, attributeCodes);
-      attributeValues = new THashMap<Byte, String>();
+      attributeValues = new ArrayList<>();
       attributeByteToStringMap.put(attribute, attributeValues);
-
     }
 
-    Byte codeObj = attributeCodes.get(value);
-    code = codeObj == null ? 0 : codeObj.byteValue();
+    byte[] bytes = attributeCodes.get(value);
 
-    if (code == 0) {
-      code = (byte) (attributeCodes.size() + 1);
-      attributeCodes.put(value, code);
-      attributeValues.put(code, value);
+    if (bytes == null) {
+      int code = (attributeCodes.size() + 1);
+
+      // the 8th bit is used to mark the use of an additional byte
+      // thus if we need another byte, we OR it with bit 8
+      int bigBytes = code / 128;
+      int remainder = code % 128;
+      bytes = new byte[] { (byte) remainder };
+      while (bigBytes > 0) {
+        byte[] newBytes = new byte[bytes.length + 1];
+        for (int i = 0; i < bytes.length - 1; i++)
+          newBytes[i] = bytes[i];
+        newBytes[bytes.length - 1] = (byte) (bytes[bytes.length - 1] | 0b10000000);
+        remainder = bigBytes % 128;
+        bigBytes = bigBytes / 128;
+        newBytes[bytes.length] = (byte) remainder;
+        bytes = newBytes;
+      }
+
+      attributeCodes.put(value, bytes);
+      attributeValues.add(value);
     }
 
-    return code;
+    return bytes;
   }
 
-  public byte getAttributeCode(LexicalAttribute attribute, String value) {
-    Map<String, Byte> attributeCodes = attributeStringToByteMap.get(attribute);
-    byte code = 0;
-    if (attributeCodes != null) {
-      Byte codeObj = attributeCodes.get(value);
-      code = codeObj == null ? 0 : codeObj.byteValue();
+  /**
+   * Get the attribute value corresponding to a particular position in the byte
+   * array, where the bytes at this position were returned by a call to
+   * {@link #getOrCreateAttributeCode(LexicalAttribute, String)}.
+   */
+  public String getAttributeValue(LexicalAttribute attribute, byte[] bytes, int pos) {
+    byte b = bytes[pos];
+    int code = 0;
+    int i = 0;
+    while (b < 0) {
+      // remove the bit marking that an additional byte is required
+      int val = b & 0b01111111;
+      for (int j = 0; j < i; j++)
+        val *= 128;
+      code += val;
+      b = bytes[++pos];
+      i++;
     }
-    return code;
-  }
-
-  public String getAttributeValue(LexicalAttribute attribute, byte code) {
-    Map<Byte, String> attributeValues = attributeByteToStringMap.get(attribute);
-    String value = null;
-    if (attributeValues != null) {
-      value = attributeValues.get(code);
-    }
-    if (value == null)
-      value = "";
+    int val = b;
+    for (int j = 0; j < i; j++)
+      val *= 128;
+    code += val;
+    List<String> attributeValues = attributeByteToStringMap.get(attribute);
+    String value = attributeValues.get(code - 1);
     return value;
   }
 
   /**
-   * @param name
-   * @return
+   * Return the attribute corresponding to a particular attribute name.
    */
   public LexicalAttribute getAttributeForName(String name) {
     LexicalAttribute attribute = this.nameToAttributeMap.get(name);
