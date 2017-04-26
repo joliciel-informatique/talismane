@@ -93,8 +93,14 @@ public class CompactLexicalEntry implements WritableLexicalEntry, Serializable {
       if ((attributeMarker & i) > 0)
         bitCount++;
     }
-    byte code = attributeCodes[bitCount];
-    String value = lexicalEntrySupport.getAttributeValue(attribute, code);
+    int pos = 0;
+    for (int i = 0; i < bitCount; i++) {
+      byte b = attributeCodes[pos++];
+      if (b <= 0)
+        pos++;
+    }
+
+    String value = lexicalEntrySupport.getAttributeValue(attribute, attributeCodes, pos);
     return value;
   }
 
@@ -109,7 +115,7 @@ public class CompactLexicalEntry implements WritableLexicalEntry, Serializable {
   private void setValue(LexicalAttribute attribute, String value) {
     if (value == null || value.length() == 0)
       return;
-    byte code = lexicalEntrySupport.getOrCreateAttributeCode(attribute, value);
+    byte[] code = lexicalEntrySupport.getOrCreateAttributeCode(attribute, value);
 
     int attributeBit = attributeBitMap.get(attribute);
 
@@ -120,20 +126,36 @@ public class CompactLexicalEntry implements WritableLexicalEntry, Serializable {
         bitCount++;
     }
 
+    int pos = 0;
+    for (int i = 0; i < bitCount; i++) {
+      while (attributeCodes[pos] < 0)
+        pos++;
+      pos++;
+    }
+
+    int currentSize = 0;
     if ((attributeMarker & attributeBit) > 0) {
+      while (attributeCodes[pos + currentSize] < 0) {
+        currentSize++;
+      }
+      currentSize++;
+    }
+
+    int diff = code.length - currentSize;
+
+    if (currentSize == code.length) {
       // replace existing value
-      attributeCodes[bitCount] = code;
+      for (int i = 0; i < code.length; i++)
+        attributeCodes[pos + i] = code[i];
     } else {
       // insert new value, means upping all higher values
-      byte[] newAttributeCodes = new byte[attributeCodes.length + 1];
-      for (int i = 0; i < newAttributeCodes.length; i++) {
-        if (i < bitCount)
-          newAttributeCodes[i] = attributeCodes[i];
-        else if (i == bitCount)
-          newAttributeCodes[i] = code;
-        else
-          newAttributeCodes[i] = attributeCodes[i - 1];
-      }
+      byte[] newAttributeCodes = new byte[attributeCodes.length + diff];
+      for (int i = 0; i < pos; i++)
+        newAttributeCodes[i] = attributeCodes[i];
+      for (int i = 0; i < code.length; i++)
+        newAttributeCodes[pos + i] = code[i];
+      for (int i = pos + currentSize; i < attributeCodes.length; i++)
+        newAttributeCodes[i + diff] = attributeCodes[i];
       attributeCodes = newAttributeCodes;
       attributeMarker = (attributeMarker | attributeBit);
     }
@@ -370,9 +392,8 @@ public class CompactLexicalEntry implements WritableLexicalEntry, Serializable {
 
   @Override
   public String toString() {
-    return "LexicalEntry [lexiconName=" + this.getLexiconName() + ", word=" + word + ", lemma=" + lemma + ", lemmaComplement=" + this.getLemmaComplement()
-        + ", category=" + this.getCategory() + ", subCategory=" + this.getSubCategory() + ", gender=" + this.getGender().toString() + ", number="
-        + this.getNumber().toString() + ", case=" + this.getCase().toString() + ", tense=" + this.getTense().toString() + ", person="
-        + this.getPerson().toString() + ", morphology=" + this.getMorphology() + "]";
+    return "LexicalEntry [lexiconName=" + this.getLexiconName() + ", word=" + word + ", lemma=" + lemma + ", category=" + this.getCategory() + ", subCategory="
+        + this.getSubCategory() + ", gender=" + this.getGender().toString() + ", number=" + this.getNumber().toString() + ", case=" + this.getCase().toString()
+        + ", tense=" + this.getTense().toString() + ", person=" + this.getPerson().toString() + ", morphology=" + this.getMorphology() + "]";
   }
 }
