@@ -81,7 +81,7 @@ public class LexiconDeserializer {
       LOG.info("Word: " + word);
       List<LexicalEntry> entries = mergedLexicon.getEntries(word);
       for (LexicalEntry entry : entries) {
-        LOG.info(entry + ", Full morph: " + entry.getMorphology());
+        LOG.info(entry + ", Full morph: " + entry.getMorphology() + ", PosTags: " + mergedLexicon.findPossiblePosTags(word));
       }
     }
   }
