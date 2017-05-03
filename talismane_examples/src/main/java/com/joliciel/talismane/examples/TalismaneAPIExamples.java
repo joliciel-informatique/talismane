@@ -22,8 +22,8 @@ import java.util.List;
 
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.parser.DependencyNode;
 import com.joliciel.talismane.parser.ParseConfiguration;
+import com.joliciel.talismane.parser.ParseTree;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.parser.Parsers;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -86,8 +86,8 @@ public class TalismaneAPIExamples {
     // parse the pos-tag sequence
     Parser parser = Parsers.getParser(session);
     ParseConfiguration parseConfiguration = parser.parseSentence(posTagSequence);
-    DependencyNode dependencyNode = parseConfiguration.getParseTree();
-    System.out.println(dependencyNode);
+    ParseTree parseTree = new ParseTree(parseConfiguration, true);
+    System.out.println(parseTree);
 
   }
 
@@ -147,8 +147,8 @@ public class TalismaneAPIExamples {
       // parse the pos-tag sequence
       Parser parser = Parsers.getParser(session);
       ParseConfiguration parseConfiguration = parser.parseSentence(posTagSequence);
-      DependencyNode dependencyNode = parseConfiguration.getParseTree();
-      System.out.println(dependencyNode);
+      ParseTree parseTree = new ParseTree(parseConfiguration, true);
+      System.out.println(parseTree);
     }
 
   }

@@ -404,7 +404,12 @@ public class Extensions {
         csvFile.createNewFile();
         Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 
-        NonProjectiveStatistics stats = new NonProjectiveStatistics(session, csvFileWriter);
+        File csvFile2 = new File(outDir, session.getBaseName() + "_nprojnodes.csv");
+        csvFile2.delete();
+        csvFile2.createNewFile();
+        Writer csvFileWriter2 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile2, false), "UTF8"));
+
+        NonProjectiveStatistics stats = new NonProjectiveStatistics(session, csvFileWriter, csvFileWriter2);
 
         parseConfigurationProcessors.add(stats);
 
