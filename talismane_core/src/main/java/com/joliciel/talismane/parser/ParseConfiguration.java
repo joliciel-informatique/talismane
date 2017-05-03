@@ -527,7 +527,10 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   /**
    * Get the dependency tree represented by this parse configuration, where the
    * node returned is root.
+   * 
+   * @deprecated use {@link ParseTree} instead
    */
+  @Deprecated
   public DependencyNode getParseTree() {
     if (parseTree == null) {
       PosTaggedToken root = null;
