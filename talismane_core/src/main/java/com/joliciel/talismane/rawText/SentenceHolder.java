@@ -136,12 +136,14 @@ class SentenceHolder {
       String text = "";
       List<Integer> originalIndexes = new ArrayList<>();
       TreeMap<Integer, String> originalTextSegments = new TreeMap<>();
+      String leftoverOriginalText = "";
 
       if (leftover != null) {
         leftOverTextLength = leftover.getText().length();
         text = leftover.getText() + this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
         originalIndexes.addAll(leftover.getOriginalIndexes());
         originalTextSegments.putAll(leftover.getOriginalTextSegments());
+        leftoverOriginalText = leftover.getLeftoverOriginalText();
 
         leftover = null;
       } else {
@@ -204,6 +206,7 @@ class SentenceHolder {
       }
 
       Sentence sentence = new Sentence(sb.toString(), originalTextSegments, originalIndexes, !isLeftover, this.newlines, fileName, file, session);
+      sentence.setLeftoverOriginalText(leftoverOriginalText);
 
       if (LOG.isTraceEnabled()) {
         LOG.trace("sentence.setText |" + sentence.getText() + "| complete? " + sentence.isComplete());
