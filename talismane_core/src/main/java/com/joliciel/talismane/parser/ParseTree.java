@@ -206,4 +206,9 @@ public class ParseTree {
     this.root.getNonProjectiveNodes(nonProjectiveNodes);
     return nonProjectiveNodes;
   }
+
+  @Override
+  public String toString() {
+    return this.root.toString();
+  }
 }
