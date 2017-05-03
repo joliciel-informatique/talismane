@@ -29,7 +29,13 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
 
 /**
- * A node inside a dependency tree.
+ * A partial sub-tree of a syntax analysis, which might not contain all of the
+ * dependents of the parent node.<br/>
+ * 
+ * It is is constructed little by little, adding dependents using the
+ * {@link #addDependent(DependencyNode)} or
+ * {@link #addDependent(PosTaggedToken)} methods - typical usage would be the
+ * construction of noun phrases for terminology extraction.<br/>
  * 
  * @author Assaf Urieli
  *
@@ -41,9 +47,9 @@ public class DependencyNode implements Comparable<DependencyNode> {
   private DependencyNode parent;
   private final Set<DependencyNode> dependents = new TreeSet<>();
   private final ParseConfiguration parseConfiguration;
+  private Set<PosTaggedToken> yield = null;
 
   private String string = null;
-  private Boolean contiguous = null;
 
   DependencyNode(PosTaggedToken token, String label, ParseConfiguration parseConfiguration) {
     this.token = token;
@@ -280,25 +286,42 @@ public class DependencyNode implements Comparable<DependencyNode> {
    * Return true if this node is contiguous, false if it contains gaps.
    */
   public boolean isContiguous() {
-    if (contiguous == null) {
-      Set<PosTaggedToken> tokens = new TreeSet<PosTaggedToken>(new PosTaggedTokenLeftToRightComparator());
-      this.getAllNodes(tokens);
-      int currentIndex = -1;
-      contiguous = true;
-      for (PosTaggedToken token : tokens) {
-        if (currentIndex < 0) {
-          currentIndex = token.getIndex();
-        } else if (token.getIndex() == currentIndex + 1) {
-          currentIndex++;
-        } else {
-          contiguous = false;
-          break;
-        }
+    Set<PosTaggedToken> yield = this.getYield();
+    int currentIndex = -1;
+    boolean contiguous = true;
+    for (PosTaggedToken token : yield) {
+      if (currentIndex < 0) {
+        currentIndex = token.getIndex();
+      } else if (token.getIndex() == currentIndex + 1) {
+        currentIndex++;
+      } else {
+        contiguous = false;
+        break;
       }
     }
-    return contiguous.booleanValue();
+
+    return contiguous;
   }
 
+  /**
+   * The current node's yield, an ordered set of the current node and all of its
+   * descendants, that have actually been added.
+   * 
+   * @return
+   */
+  public Set<PosTaggedToken> getYield() {
+    if (yield == null) {
+      yield = new TreeSet<PosTaggedToken>(new PosTaggedTokenLeftToRightComparator());
+      this.getAllNodes(yield);
+    }
+    return yield;
+  }
+
+  /**
+   * @deprecated use {@link #getYield()} instead
+   * @param posTaggedTokens
+   */
+  @Deprecated
   public void getAllNodes(Set<PosTaggedToken> posTaggedTokens) {
     posTaggedTokens.add(this.token);
     for (DependencyNode dependent : this.getDependents()) {
@@ -308,7 +331,7 @@ public class DependencyNode implements Comparable<DependencyNode> {
 
   void setDirty() {
     this.string = null;
-    this.contiguous = null;
+    this.yield = null;
     if (this.parent != null) {
       this.parent.setDirty();
     }
