@@ -112,7 +112,7 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
           String nonProjectiveLabel = dataLine.getElement(CorpusElement.NON_PROJ_LABEL);
           if (nonProjectiveLabel != null && nonProjectiveLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(nonProjectiveLabel)) {
             throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()), dataLine.getLineNumber(),
-                dependencyLabel);
+                nonProjectiveLabel);
           }
 
         }

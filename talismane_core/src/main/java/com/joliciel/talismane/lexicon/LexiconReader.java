@@ -151,6 +151,7 @@ public class LexiconReader {
    *           if the config files contained an unknown property
    */
   public List<PosTaggerLexicon> readLexicons(File lexiconPropsFile) throws IOException, TalismaneException {
+    LOG.debug("Serializing from " + lexiconPropsFile.getPath());
     List<PosTaggerLexicon> lexicons = new ArrayList<>();
 
     File lexiconDir = lexiconPropsFile.getParentFile();
