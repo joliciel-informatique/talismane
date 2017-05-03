@@ -317,6 +317,11 @@ public class DependencyNode implements Comparable<DependencyNode> {
     return yield;
   }
 
+  /**
+   * @deprecated use {@link #getYield()} instead
+   * @param posTaggedTokens
+   */
+  @Deprecated
   public void getAllNodes(Set<PosTaggedToken> posTaggedTokens) {
     posTaggedTokens.add(this.token);
     for (DependencyNode dependent : this.getDependents()) {

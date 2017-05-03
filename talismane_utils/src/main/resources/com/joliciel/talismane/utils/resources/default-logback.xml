@@ -22,6 +22,7 @@
 	</appender>
 
 	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<target>System.err</target>
 		<encoder>
 			<charset>UTF-8</charset>
 			<pattern>%date %level %logger %thread %msg%n</pattern>
