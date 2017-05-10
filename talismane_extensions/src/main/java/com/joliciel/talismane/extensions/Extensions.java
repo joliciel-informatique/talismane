@@ -56,7 +56,7 @@ import com.joliciel.talismane.extensions.corpus.PosTaggerStatistics;
 import com.joliciel.talismane.extensions.standoff.ConllFileSplitter;
 import com.joliciel.talismane.extensions.standoff.StandoffReader;
 import com.joliciel.talismane.extensions.standoff.StandoffWriter;
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
+import com.joliciel.talismane.parser.FreemarkerParseWriter;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
@@ -362,7 +362,7 @@ public class Extensions {
         Writer standoffSentenceWriter = TalismaneMain.getWriter(standoffSentenceFile, inFile, session);
         InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoffSentences.ftl");
         Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
-        FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, standoffSentenceWriter);
+        FreemarkerParseWriter templateWriter = new FreemarkerParseWriter(templateReader, standoffSentenceWriter, session);
         parseConfigurationProcessors.add(templateWriter);
 
         break;
