@@ -48,7 +48,7 @@ public class ParseComparator {
   private final List<ParseEvaluationObserver> observers;
 
   public ParseComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
-      throws ClassNotFoundException, IOException, ReflectiveOperationException {
+      throws ClassNotFoundException, IOException, ReflectiveOperationException, TalismaneException {
     Config config = session.getConfig();
     Config parserConfig = config.getConfig("talismane.core.parser");
 
