@@ -169,7 +169,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
     List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreakMarkers = text.getAnnotations(RawTextNoSentenceBreakMarker.class);
 
     Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text.getText());
-    List<Integer> possibleBoundaries = new ArrayList<Integer>();
+    List<Integer> possibleBoundaries = new ArrayList<>();
     while (matcher.find()) {
       if (matcher.start() >= text.getAnalysisStart() && matcher.start() < text.getAnalysisEnd()) {
         boolean noSentences = false;
@@ -198,7 +198,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
         LOG.trace(" at position: " + possibleBoundary);
       }
 
-      List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
+      List<FeatureResult<?>> featureResults = new ArrayList<>();
       for (SentenceDetectorFeature<?> feature : features) {
         RuntimeEnvironment env = new RuntimeEnvironment();
         FeatureResult<?> featureResult = feature.check(boundary, env);
@@ -242,6 +242,10 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
     List<Annotation<SentenceBoundary>> existingBoundaries = text.getAnnotations(SentenceBoundary.class);
     if (existingBoundaries.size() > 0) {
       lastBoundary = existingBoundaries.get(existingBoundaries.size() - 1).getEnd();
+    }
+    // advance boundary start until a non space character is encountered
+    while (lastBoundary < text.getAnalysisEnd() && Character.isWhitespace(text.getText().charAt(lastBoundary))) {
+      lastBoundary++;
     }
     for (int guessedBoundary : guessedBoundaries) {
       if (guessedBoundary > lastBoundary) {
