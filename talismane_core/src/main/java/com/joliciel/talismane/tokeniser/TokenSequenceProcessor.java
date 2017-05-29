@@ -18,26 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.joliciel.talismane.Talismane;
-import com.joliciel.talismane.Talismane.BuiltInTemplate;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -55,59 +45,91 @@ public interface TokenSequenceProcessor extends Closeable {
   public void onNextTokenSequence(TokenSequence tokenSequence) throws IOException;
 
   /**
+   * Collect the processors specified in the configuration key
+   * talismane.core.tokeniser.output.processors.<br/>
+   * <br/>
+   * Each processor must implement this interface and must have a constructor
+   * matching one of the following signatures:<br/>
+   * - ( {@link File} outputDir, {@link TalismaneSession} session)<br/>
+   * - ( {@link TalismaneSession} session)<br/>
+   * <br/>
+   * Optionally, it can have a constructor with the following signature:<br/>
+   * - ( {@link Writer} writer, {@link TalismaneSession} session)<br/>
+   * If a writer is provided here, then the first processor with the above
+   * constructor will be given the writer.
+   * 
    * @param writer
-   *          if provided, the main processor will write to this writer, if
-   *          null, the outDir will be used instead
+   *          if specified, will be used for the first processor in the list
+   *          with a writer in the constructor
    * @param outDir
+   *          directory in which to write the various outputs
    * @param session
+   *          to read the configuration
    * @return
    * @throws IOException
    * @throws TalismaneException
-   *           if built-in template is unknown
+   *           if a processor does not implement this interface, or if no
+   *           constructor is found with the correct signature
    */
-  public static List<TokenSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException, TalismaneException {
-    List<TokenSequenceProcessor> processors = new ArrayList<>();
-
+  public static List<TokenSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session)
+      throws IOException, ReflectiveOperationException, ClassNotFoundException, TalismaneException {
     Config config = session.getConfig();
-    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    Config myConfig = config.getConfig("talismane.core.tokeniser");
 
+    List<TokenSequenceProcessor> processors = new ArrayList<>();
+    List<String> classes = myConfig.getStringList("output.processors");
     if (outDir != null)
       outDir.mkdirs();
 
-    Reader templateReader = null;
-    String configPath = "talismane.core.tokeniser.output.template";
-    if (config.hasPath(configPath)) {
-      templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-    } else {
-      String tokeniserTemplateName = null;
-      BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(tokeniserConfig.getString("output.built-in-template"));
-      switch (builtInTemplate) {
-      case standard:
-        tokeniserTemplateName = "tokeniser_template.ftl";
-        break;
-      case with_location:
-        tokeniserTemplateName = "tokeniser_template_with_location.ftl";
-        break;
-      case with_prob:
-        tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
-        break;
-      default:
-        throw new TalismaneException("Unknown builtInTemplate for tokeniser: " + builtInTemplate.name());
+    Writer firstProcessorWriter = writer;
+    for (String className : classes) {
+      @SuppressWarnings("rawtypes")
+      Class untypedClass = Class.forName(className);
+      if (!TokenSequenceProcessor.class.isAssignableFrom(untypedClass))
+        throw new TalismaneException("Class " + className + " does not implement interface " + TokenSequenceProcessor.class.getSimpleName());
+
+      @SuppressWarnings("unchecked")
+      Class<? extends TokenSequenceProcessor> clazz = untypedClass;
+
+      Constructor<? extends TokenSequenceProcessor> cons = null;
+      TokenSequenceProcessor processor = null;
+      if (firstProcessorWriter != null) {
+        try {
+          cons = clazz.getConstructor(Writer.class, TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          processor = cons.newInstance(firstProcessorWriter, session);
+          firstProcessorWriter = null;
+        }
+      }
+      if (cons == null) {
+        try {
+          cons = clazz.getConstructor(File.class, TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          processor = cons.newInstance(outDir, session);
+        }
+      }
+      if (cons == null) {
+        try {
+          cons = clazz.getConstructor(TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          processor = cons.newInstance(session);
+        } else {
+          throw new TalismaneException("No constructor found with correct signature for: " + className);
+        }
       }
 
-      String path = "output/" + tokeniserTemplateName;
-      InputStream inputStream = Talismane.class.getResourceAsStream(path);
-      if (inputStream == null)
-        throw new IOException("Resource not found in classpath: " + path);
-      templateReader = new BufferedReader(new InputStreamReader(inputStream));
+      processors.add(processor);
     }
 
-    if (writer == null) {
-      File file = new File(outDir, session.getBaseName() + "_tok.txt");
-      writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
-    }
-    FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, writer);
-    processors.add(templateWriter);
     return processors;
   }
 }

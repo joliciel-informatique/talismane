@@ -62,7 +62,8 @@ public interface ParseEvaluationObserver {
    */
   public void onEvaluationComplete() throws IOException;
 
-  public static List<ParseEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
+  public static List<ParseEvaluationObserver> getObservers(File outDir, TalismaneSession session)
+      throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
     if (outDir != null)
       outDir.mkdirs();
 
@@ -83,8 +84,7 @@ public interface ParseEvaluationObserver {
     boolean labeledEvaluation = evalConfig.getBoolean("labeled-evaluation");
 
     File fscoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
-
-    ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator(fscoreFile);
+    ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator(fscoreFile, true);
     parseFScoreCalculator.setLabeledEvaluation(labeledEvaluation);
 
     Module startModule = Module.valueOf(evalConfig.getString("start-module"));
@@ -93,6 +93,15 @@ public interface ParseEvaluationObserver {
     if (startModule == Module.tokeniser || startModule == Module.posTagger)
       parseFScoreCalculator.setHasPosTagger(true);
     observers.add(parseFScoreCalculator);
+
+    File nprojFscoreFile = new File(outDir, session.getBaseName() + ".nproj-fscores.csv");
+    ParseEvaluationFScoreCalculator parseNProjFScoreCalculator = new ParseEvaluationFScoreCalculator(nprojFscoreFile, false);
+    parseNProjFScoreCalculator.setLabeledEvaluation(labeledEvaluation);
+    if (startModule == Module.tokeniser)
+      parseNProjFScoreCalculator.setHasTokeniser(true);
+    if (startModule == Module.tokeniser || startModule == Module.posTagger)
+      parseNProjFScoreCalculator.setHasPosTagger(true);
+    observers.add(parseNProjFScoreCalculator);
 
     if (evalConfig.getBoolean("output-guesses")) {
       File csvFile = new File(outDir, session.getBaseName() + "_sentences.csv");
@@ -129,13 +138,9 @@ public interface ParseEvaluationObserver {
     }
 
     if (evalConfig.getBoolean("include-transition-log")) {
-      File csvFile = new File(outDir, session.getBaseName() + "_transitions.csv");
-      csvFile.delete();
-      csvFile.createNewFile();
-      Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
-      ParseConfigurationProcessor transitionLogWriter = new TransitionLogWriter(csvFileWriter);
+      TransitionLogWriter transitionLogWriter = new TransitionLogWriter(outDir, session);
       ParseEvaluationObserverImpl observer = new ParseEvaluationObserverImpl(transitionLogWriter);
-      observer.setWriter(csvFileWriter);
+      observer.setWriter(transitionLogWriter.getWriter());
       List<String> errorLabels = evalConfig.getStringList("error-labels");
       observer.setErrorLabels(new HashSet<>(errorLabels));
       observers.add(observer);

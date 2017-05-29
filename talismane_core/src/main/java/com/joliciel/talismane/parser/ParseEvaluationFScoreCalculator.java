@@ -42,13 +42,12 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
   private boolean labeledEvaluation = true;
   private boolean hasTokeniser = false;
   private boolean hasPosTagger = false;
-  private File fscoreFile;
+  private final File fscoreFile;
+  private final boolean projective;
 
-  public ParseEvaluationFScoreCalculator() {
-  }
-
-  public ParseEvaluationFScoreCalculator(File fscoreFile) {
+  public ParseEvaluationFScoreCalculator(File fscoreFile, boolean projective) {
     this.fscoreFile = fscoreFile;
+    this.projective = projective;
   }
 
   @Override
@@ -58,7 +57,7 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
     int mismatchedTokens = 0;
     for (PosTaggedToken posTaggedToken : posTagSequence) {
       if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
-        DependencyArc realArc = realConfiguration.getGoverningDependency(posTaggedToken);
+        DependencyArc realArc = realConfiguration.getGoverningDependency(posTaggedToken, projective);
 
         DependencyArc guessedArc = null;
 
@@ -70,7 +69,7 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
             if (!guessedToken.getToken().isEmpty() && posTaggedToken.getToken().isEmpty())
               continue;
             foundToken = true;
-            guessedArc = bestGuess.getGoverningDependency(guessedToken);
+            guessedArc = bestGuess.getGoverningDependency(guessedToken, projective);
             break;
           }
         }

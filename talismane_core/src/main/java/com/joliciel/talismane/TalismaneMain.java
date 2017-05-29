@@ -134,7 +134,7 @@ public class TalismaneMain {
     parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("analyse", "train", "evaluate", "compare", "process").forHelp();
 
     OptionSpec<Module> moduleOption = parser.accepts("module", "training / evaluation / processing module: " + Arrays.toString(Module.values()))
-        .availableIf("train", "evaluate", "compare", "process").withRequiredArg().ofType(Module.class);
+        .requiredIf("train", "process").availableIf("train", "evaluate", "compare", "process").withRequiredArg().ofType(Module.class);
     OptionSpec<Module> startModuleOption = parser.accepts("startModule", "where to start analysis (or evaluation): " + Arrays.toString(Module.values()))
         .availableIf("analyse", "evaluate").withRequiredArg().ofType(Module.class);
     OptionSpec<Module> endModuleOption = parser.accepts("endModule", "where to end analysis: " + Arrays.toString(Module.values())).availableIf("analyse")
