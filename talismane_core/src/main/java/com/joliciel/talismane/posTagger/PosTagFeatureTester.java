@@ -1,9 +1,13 @@
 package com.joliciel.talismane.posTagger;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,9 +39,12 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
   private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<>();
   private final Writer writer;
 
-  public PosTagFeatureTester(TalismaneSession session, Writer writer) throws IOException {
+  public PosTagFeatureTester(File outDir, TalismaneSession session) throws IOException {
     Config config = session.getConfig();
     Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+
+    File file = new File(outDir, session.getBaseName() + "_posTagFeatureTest.txt");
+    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
 
     String configPath = "talismane.core.pos-tagger.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
@@ -54,8 +61,6 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
     PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
     this.posTaggerFeatures = featureParser.getFeatureSet(featureDescriptors);
     this.testWords = new HashSet<>(posTaggerConfig.getStringList("output.test-words"));
-
-    this.writer = writer;
   }
 
   /**

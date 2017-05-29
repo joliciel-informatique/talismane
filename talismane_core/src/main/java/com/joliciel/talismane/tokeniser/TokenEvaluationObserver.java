@@ -46,7 +46,8 @@ public interface TokenEvaluationObserver {
 
   public void onEvaluationComplete() throws IOException;
 
-  public static List<TokenEvaluationObserver> getTokenEvaluationObservers(File outDir, TalismaneSession session) throws IOException, TalismaneException {
+  public static List<TokenEvaluationObserver> getTokenEvaluationObservers(File outDir, TalismaneSession session)
+      throws IOException, TalismaneException, ReflectiveOperationException {
     if (outDir != null)
       outDir.mkdirs();
 

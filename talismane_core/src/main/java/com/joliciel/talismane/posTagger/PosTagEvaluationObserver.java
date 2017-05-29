@@ -48,7 +48,8 @@ public interface PosTagEvaluationObserver {
 
   public void onEvaluationComplete() throws IOException;
 
-  public static List<PosTagEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
+  public static List<PosTagEvaluationObserver> getObservers(File outDir, TalismaneSession session)
+      throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
     if (outDir != null)
       outDir.mkdirs();
 

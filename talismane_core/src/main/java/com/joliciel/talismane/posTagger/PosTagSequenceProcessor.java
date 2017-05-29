@@ -18,27 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.joliciel.talismane.Talismane;
-import com.joliciel.talismane.Talismane.BuiltInTemplate;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -70,80 +59,91 @@ public interface PosTagSequenceProcessor extends Closeable {
   public void onCompleteAnalysis() throws IOException;
 
   /**
+   * Collect the processors specified in the configuration key
+   * talismane.core.pos-tagger.output.processors.<br/>
+   * <br/>
+   * Each processor must implement this interface and must have a constructor
+   * matching one of the following signatures:<br/>
+   * - ( {@link File} outputDir, {@link TalismaneSession} session)<br/>
+   * - ( {@link TalismaneSession} session)<br/>
+   * <br/>
+   * Optionally, it can have a constructor with the following signature:<br/>
+   * - ( {@link Writer} writer, {@link TalismaneSession} session)<br/>
+   * If a writer is provided here, then the first processor with the above
+   * constructor will be given the writer.
    * 
    * @param writer
-   *          if provided, the main processor will write to this writer, if
-   *          null, the outDir will be used instead
+   *          if specified, will be used for the first processor in the list
+   *          with a writer in the constructor
    * @param outDir
+   *          directory in which to write the various outputs
    * @param session
+   *          to read the configuration
    * @return
    * @throws IOException
+   * @throws TalismaneException
+   *           if a processor does not implement this interface, or if no
+   *           constructor is found with the correct signature
    */
-  public static List<PosTagSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
-    List<PosTagSequenceProcessor> processors = new ArrayList<>();
-
+  public static List<PosTagSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session)
+      throws IOException, ReflectiveOperationException, ClassNotFoundException, TalismaneException {
     Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config myConfig = config.getConfig("talismane.core.pos-tagger");
 
-    PosTagSequenceProcessor processor = null;
-    List<ProcessorType> processorTypes = posTaggerConfig.getStringList("output.processors").stream().map(f -> ProcessorType.valueOf(f))
-        .collect(Collectors.toList());
-
+    List<PosTagSequenceProcessor> processors = new ArrayList<>();
+    List<String> classes = myConfig.getStringList("output.processors");
     if (outDir != null)
       outDir.mkdirs();
 
-    for (ProcessorType type : processorTypes) {
-      switch (type) {
-      case output: {
-        Reader templateReader = null;
-        String configPath = "talismane.core.pos-tagger.output.template";
-        if (config.hasPath(configPath)) {
-          templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
+    Writer firstProcessorWriter = writer;
+    for (String className : classes) {
+      @SuppressWarnings("rawtypes")
+      Class untypedClass = Class.forName(className);
+      if (!PosTagSequenceProcessor.class.isAssignableFrom(untypedClass))
+        throw new TalismaneException("Class " + className + " does not implement interface " + PosTagSequenceProcessor.class.getSimpleName());
+
+      @SuppressWarnings("unchecked")
+      Class<? extends PosTagSequenceProcessor> clazz = untypedClass;
+
+      Constructor<? extends PosTagSequenceProcessor> cons = null;
+      PosTagSequenceProcessor processor = null;
+      if (firstProcessorWriter != null) {
+        try {
+          cons = clazz.getConstructor(Writer.class, TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          processor = cons.newInstance(firstProcessorWriter, session);
+          firstProcessorWriter = null;
+        }
+      }
+      if (cons == null) {
+        try {
+          cons = clazz.getConstructor(File.class, TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          processor = cons.newInstance(outDir, session);
+        }
+      }
+      if (cons == null) {
+        try {
+          cons = clazz.getConstructor(TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          processor = cons.newInstance(session);
         } else {
-          String templateName = null;
-          BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(posTaggerConfig.getString("output.built-in-template"));
-          switch (builtInTemplate) {
-          case standard:
-            templateName = "posTagger_template.ftl";
-            break;
-          case with_location:
-            templateName = "posTagger_template_with_location.ftl";
-            break;
-          case with_prob:
-            templateName = "posTagger_template_with_prob.ftl";
-            break;
-          case with_comments:
-            templateName = "posTagger_template_with_comments.ftl";
-            break;
-          default:
-            throw new RuntimeException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
-          }
-
-          String path = "output/" + templateName;
-          InputStream inputStream = Talismane.class.getResourceAsStream(path);
-          if (inputStream == null)
-            throw new IOException("Resource not found in classpath: " + path);
-          templateReader = new BufferedReader(new InputStreamReader(inputStream));
+          throw new TalismaneException("No constructor found with correct signature for: " + className);
         }
+      }
 
-        if (writer == null) {
-          File file = new File(outDir, session.getBaseName() + "_pos.txt");
-          writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
-        }
-
-        processor = new FreemarkerTemplateWriter(templateReader, writer);
-        processors.add(processor);
-        break;
-      }
-      case posTagFeatureTester: {
-        File file = new File(outDir, session.getBaseName() + "_posTagFeatureTest.txt");
-        Writer featureWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
-        processor = new PosTagFeatureTester(session, featureWriter);
-        processors.add(processor);
-        break;
-      }
-      }
+      processors.add(processor);
     }
+
     return processors;
   }
 }

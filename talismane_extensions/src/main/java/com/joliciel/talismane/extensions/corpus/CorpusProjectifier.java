@@ -173,7 +173,7 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
         }
       }
       if (newHead1 != null && newHead2 == null) {
-        parseConfiguration.getDependencies().remove(pair.arc1);
+        parseConfiguration.removeDependency(pair.arc1);
         String newLabel = pair.arc1.getLabel();
         if (this.nonProjectiveArcSuffix.length() > 0 && !newLabel.endsWith(this.nonProjectiveArcSuffix))
           newLabel += this.nonProjectiveArcSuffix;
@@ -182,11 +182,11 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
         // for the other arc, copy the non-projective version, in case
         // there is an attempt at manual projectivisation
         DependencyArc otherProjArc = parseConfiguration.getGoverningDependency(pair.arc2.getDependent());
-        parseConfiguration.getDependencies().remove(otherProjArc);
+        parseConfiguration.removeDependency(otherProjArc);
         parseConfiguration.addDependency(pair.arc2.getHead(), pair.arc2.getDependent(), pair.arc2.getLabel(), null);
 
       } else if (newHead1 == null && newHead2 != null) {
-        parseConfiguration.getDependencies().remove(pair.arc2);
+        parseConfiguration.removeDependency(pair.arc2);
         String newLabel = pair.arc2.getLabel();
         if (this.nonProjectiveArcSuffix.length() > 0 && !newLabel.endsWith(this.nonProjectiveArcSuffix))
           newLabel += this.nonProjectiveArcSuffix;
@@ -195,7 +195,7 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
         // for the other arc, copy the non-projective version, in case
         // there is an attempt at manual projectivisation
         DependencyArc otherProjArc = parseConfiguration.getGoverningDependency(pair.arc1.getDependent());
-        parseConfiguration.getDependencies().remove(otherProjArc);
+        parseConfiguration.removeDependency(otherProjArc);
         parseConfiguration.addDependency(pair.arc1.getHead(), pair.arc1.getDependent(), pair.arc1.getLabel(), null);
 
       } else {

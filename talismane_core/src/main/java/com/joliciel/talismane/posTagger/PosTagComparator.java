@@ -29,7 +29,7 @@ public class PosTagComparator {
   private final List<PosTagEvaluationObserver> observers;
 
   public PosTagComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
-      throws IOException, ClassNotFoundException, ReflectiveOperationException {
+      throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
     Config config = session.getConfig();
     Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 

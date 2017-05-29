@@ -98,7 +98,7 @@ public class CorpusModifier implements ParseConfigurationProcessor {
         }
 
         if (applyCommand) {
-          parseConfiguration.getDependencies().remove(arc);
+          parseConfiguration.removeDependency(arc);
           if (command.command == ModifyCommandType.Replace)
             parseConfiguration.addDependency(arc.getHead(), arc.getDependent(), command.newLabel, null);
         }

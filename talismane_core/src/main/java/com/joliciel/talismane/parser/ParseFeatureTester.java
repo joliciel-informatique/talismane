@@ -19,9 +19,13 @@
 package com.joliciel.talismane.parser;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +55,12 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
   private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<>();
   private final Writer writer;
 
-  public ParseFeatureTester(TalismaneSession session, Writer writer) throws IOException {
+  public ParseFeatureTester(File outDir, TalismaneSession session) throws IOException {
     Config config = session.getConfig();
+
+    File file = new File(outDir, session.getBaseName() + "_parseFeatureTest.txt");
+    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+
     String configPath = "talismane.core.parser.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
@@ -67,10 +75,9 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 
     ParserFeatureParser featureParser = new ParserFeatureParser(session);
     this.parseFeatures = featureParser.getFeatures(featureDescriptors);
-    this.writer = writer;
   }
 
-  public ParseFeatureTester(Set<ParseConfigurationFeature<?>> parseFeatures, Writer writer) {
+  public ParseFeatureTester(Set<ParseConfigurationFeature<?>> parseFeatures, Writer writer, TalismaneSession session) throws IOException {
     this.parseFeatures = parseFeatures;
     this.writer = writer;
   }

@@ -339,7 +339,10 @@ public class Token implements TokenWrapper {
   }
 
   public int compareTo(Token o) {
-    return this.getStartIndex() - o.getStartIndex();
+    if (this.startIndex != o.startIndex)
+      return this.startIndex - o.startIndex;
+    else
+      return this.endIndex - o.endIndex;
   }
 
   /**
