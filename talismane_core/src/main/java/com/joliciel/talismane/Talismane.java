@@ -167,7 +167,11 @@ public class Talismane {
     /**
      * Include extra columns for user-supplied comments in the training corpus.
      */
-    with_comments
+    with_comments,
+    /**
+     * Include the original lemma, morphology and category on each line.
+     */
+    original
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(Talismane.class);

@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Talismane.BuiltInTemplate;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.TalismaneException;
@@ -158,6 +159,10 @@ public class Extensions {
 
     OptionSpec<File> lexicalEntryRegexOption = parser.accepts("lexicalEntryRegex", "file describing regex for reading lexical entries in the corpus")
         .withRequiredArg().ofType(File.class);
+
+    OptionSpec<BuiltInTemplate> builtInTemplateOption = parser
+        .accepts("builtInTemplate", "pre-defined output template: " + Arrays.toString(BuiltInTemplate.values())).withRequiredArg()
+        .ofType(BuiltInTemplate.class);
 
     OptionSpec<File> referenceStatsOption = parser.accepts("referenceStats", "file containing stats for a reference corpus")
         .availableIf(ExtendedCommand.corpusStatistics.name(), ExtendedCommand.posTaggerStatistics.name()).withRequiredArg().ofType(File.class);
@@ -289,6 +294,10 @@ public class Extensions {
       values.put("talismane.core.pos-tagger.input.corpus-lexical-entry-regex", options.valueOf(lexicalEntryRegexOption).getPath());
       values.put("talismane.core.parser.input.corpus-lexical-entry-regex", options.valueOf(lexicalEntryRegexOption).getPath());
     }
+
+    if (options.has(builtInTemplateOption))
+      for (String outputLocation : outputLocations)
+        values.put(outputLocation + ".built-in-template", options.valueOf(builtInTemplateOption).name());
 
     if (options.has(logConfigFileSpec))
       LogUtils.configureLogging(options.valueOf(logConfigFileSpec));

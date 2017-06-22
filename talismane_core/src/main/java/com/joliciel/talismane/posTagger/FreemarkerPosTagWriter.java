@@ -95,6 +95,9 @@ public class FreemarkerPosTagWriter implements PosTagSequenceProcessor {
       case with_comments:
         templateName = "posTagger_template_with_comments.ftl";
         break;
+      case original:
+        templateName = "posTagger_template_original.ftl";
+        break;
       default:
         throw new RuntimeException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
       }

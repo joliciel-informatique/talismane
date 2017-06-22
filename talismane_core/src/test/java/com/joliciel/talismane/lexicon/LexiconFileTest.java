@@ -9,16 +9,26 @@ import java.util.Scanner;
 
 import org.junit.Test;
 
+import com.joliciel.talismane.TalismaneSession;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 public class LexiconFileTest {
 
   @Test
   public void testLexiconFileLoad() throws Exception {
+    System.setProperty("config.file", "src/test/resources/test.conf");
+    ConfigFactory.invalidateCaches();
+    final Config config = ConfigFactory.load();
+
+    final TalismaneSession session = new TalismaneSession(config, "");
+
     File glaffFile = new File("src/test/resources/lexicons/glaff-1.2.1_regex.txt");
     Scanner regexScanner = new Scanner(glaffFile, "UTF-8");
     RegexLexicalEntryReader reader = new RegexLexicalEntryReader(regexScanner);
     File lexFile = new File("src/test/resources/lexicons/glaff-1.2.1_letterD.txt");
     Scanner lexiconScanner = new Scanner(lexFile, "UTF-8");
-    LexiconFile lexiconFile = new LexiconFile("glaffD", lexiconScanner, reader);
+    LexiconFile lexiconFile = new LexiconFile("glaffD", lexiconScanner, reader, session);
 
     lexiconFile.load();
 

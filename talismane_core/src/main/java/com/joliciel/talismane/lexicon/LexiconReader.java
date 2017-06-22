@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -78,8 +77,6 @@ import joptsimple.OptionSpec;
  * <li><b><i>lexiconName</i>.regex</b>: the file containing the various regex
  * patterns used to extract lexical attributes from the lexicon, as described in
  * {@link RegexLexicalEntryReader}.</li>
- * <li><b><i>lexiconName</i>.posTagMap</b>: optional - the file containing the
- * PosTagMap for the lexicon, as described in {@link DefaultPosTagMapper}.</li>
  * <li><b><i>lexiconName</i>.categories</b>: optional - if included, limits the
  * categories that will be loaded to this list.</li>
  * <li><b><i>lexiconName</i>.exclusions</b>: optional - if included, reads a set
@@ -102,7 +99,7 @@ import joptsimple.OptionSpec;
  * 
  * @see LexiconFile
  * @see RegexLexicalEntryReader
- * @see DefaultPosTagMapper
+ * @see SimplePosTagMapper
  * @author Assaf Urieli
  *
  */
@@ -160,7 +157,7 @@ public class LexiconReader {
 
     String[] lexiconList = properties.get("lexicons").split(",");
 
-    List<String> knownPropertyList = Arrays.asList("file", "regex", "posTagMap", "categories", "exclusions", "encoding", "uniqueKey");
+    List<String> knownPropertyList = Arrays.asList("file", "regex", "categories", "exclusions", "encoding", "uniqueKey");
     Set<String> knownProperties = new HashSet<String>(knownPropertyList);
     for (String property : properties.keySet()) {
       if (property.equals("lexicons")) {
@@ -183,13 +180,10 @@ public class LexiconReader {
       }
     }
 
-    PosTagSet posTagSet = session.getPosTagSet();
-
     for (String lexiconName : lexiconList) {
       LOG.debug("Lexicon: " + lexiconName);
       String lexiconFilePath = properties.get(lexiconName + ".file");
       String lexiconRegexPath = properties.get(lexiconName + ".regex");
-      String lexiconPosTagMapPath = properties.get(lexiconName + ".posTagMap");
       String lexiconExclusionPath = properties.get(lexiconName + ".exclusions");
       String categoryString = properties.get(lexiconName + ".categories");
       String lexiconEncoding = properties.get(lexiconName + ".encoding");
@@ -270,7 +264,7 @@ public class LexiconReader {
 
       LOG.debug("Serializing: " + lexiconFilePath);
 
-      LexiconFile lexiconFile = new LexiconFile(lexiconName, lexiconScanner, lexicalEntryReader);
+      LexiconFile lexiconFile = new LexiconFile(lexiconName, lexiconScanner, lexicalEntryReader, session);
       if (categories != null)
         lexiconFile.setCategories(categories);
       if (exclusionAttributes != null)
@@ -282,15 +276,6 @@ public class LexiconReader {
 
       lexiconFile.load();
       inputStream.close();
-      lexiconFile.setPosTagSet(posTagSet);
-
-      if (lexiconPosTagMapPath != null) {
-        File lexiconPosTagMapFile = new File(lexiconDir, lexiconPosTagMapPath);
-        Scanner posTagMapScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconPosTagMapFile), "UTF-8")));
-        PosTagMapper posTagMapper = new DefaultPosTagMapper(posTagMapScanner, posTagSet);
-        posTagMapScanner.close();
-        lexiconFile.setPosTagMapper(posTagMapper);
-      }
 
       lexicons.add(lexiconFile);
     }
