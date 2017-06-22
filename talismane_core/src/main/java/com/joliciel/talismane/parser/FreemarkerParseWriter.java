@@ -99,6 +99,9 @@ public class FreemarkerParseWriter implements ParseConfigurationProcessor {
       case with_comments:
         templateName = "parser_conll_template_with_comments.ftl";
         break;
+      case original:
+        templateName = "parser_conll_template_original.ftl";
+        break;
       default:
         throw new RuntimeException("Unknown builtInTemplate for parser: " + builtInTemplate.name());
       }

@@ -61,6 +61,10 @@ public class CorpusLine {
      */
     POSTAG("(.+?)"),
     /**
+     * The token's category
+     */
+    CATEGORY("(.*?)"),
+    /**
      * The token's morphological traits.
      */
     MORPHOLOGY("(.*?)"),

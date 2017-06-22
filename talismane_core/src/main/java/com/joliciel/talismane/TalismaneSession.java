@@ -28,10 +28,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.vfs2.FileObject;
@@ -40,11 +42,14 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Module;
+import com.joliciel.talismane.lexicon.DefaultPosTagMapper;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconReader;
+import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.lexicon.SimplePosTagMapper;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.output.CoNLLFormatter;
 import com.joliciel.talismane.parser.ArcEagerTransitionSystem;
@@ -91,6 +96,7 @@ public class TalismaneSession {
   private final Module module;
   private final int port;
   private final PosTagSet posTagSet;
+  private final Map<String, PosTagMapper> posTagMappers = new HashMap<>();
   private final List<PosTaggerLexicon> lexicons = new ArrayList<>();
   private final PosTaggerLexicon mergedLexicon;
   private final TransitionSystem transitionSystem;
@@ -207,6 +213,7 @@ public class TalismaneSession {
     }
 
     configPath = "talismane.core.lexicons";
+    Set<String> lexiconNames = new HashSet<>();
     List<String> lexiconPaths = config.getStringList(configPath);
     for (String lexiconPath : lexiconPaths) {
       List<PosTaggerLexicon> lexicons = lexiconMap.get(lexiconPath);
@@ -227,6 +234,20 @@ public class TalismaneSession {
 
       for (PosTaggerLexicon oneLexicon : lexicons) {
         this.lexicons.add(oneLexicon);
+        lexiconNames.add(oneLexicon.getName());
+        configPath = "talismane.core.pos-tagger.pos-tag-map." + oneLexicon.getName();
+        PosTagMapper posTagMapper = null;
+        if (config.hasPath(configPath)) {
+          InputStream posTagSetFile = ConfigUtils.getFileFromConfig(config, configPath);
+          try (Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagSetFile, "UTF-8")))) {
+            posTagMapper = new SimplePosTagMapper(posTagSetScanner, posTagSet);
+          }
+        } else {
+          if (LOG.isDebugEnabled())
+            LOG.debug("Using default pos-tag-mapper for lexicon: " + oneLexicon.getName());
+          posTagMapper = new DefaultPosTagMapper(posTagSet);
+        }
+        this.posTagMappers.put(oneLexicon.getName(), posTagMapper);
       }
     }
 
@@ -237,6 +258,15 @@ public class TalismaneSession {
     else {
       LexiconChain lexiconChain = new LexiconChain(lexicons);
       mergedLexicon = lexiconChain;
+    }
+
+    configPath = "talismane.core.pos-tagger.pos-tag-map";
+
+    Set<String> lexNames = config.getConfig(configPath).root().keySet();
+    for (String lexName : lexNames) {
+      if (!lexiconNames.contains(lexName)) {
+        throw new TalismaneException("Unknown lexicon in pos-tag mappers list: " + lexName);
+      }
     }
 
     configPath = "talismane.core.word-lists";
@@ -406,6 +436,7 @@ public class TalismaneSession {
   }
 
   /**
+   * The current session's pos-tag set.
    */
   public synchronized PosTagSet getPosTagSet() {
     if (posTagSet == null)
@@ -414,6 +445,17 @@ public class TalismaneSession {
   }
 
   /**
+   * The current session's pos-tag mapper for the lexicon in question.
+   */
+  public PosTagMapper getPosTagMapper(PosTaggerLexicon lexicon) {
+    PosTagMapper posTagMapper = posTagMappers.get(lexicon.getName());
+    if (posTagMapper == null)
+      throw new RuntimeException("PosTagMapper missing for lexicon " + lexicon.getName());
+    return posTagMapper;
+  }
+
+  /**
+   * The current session's transition system.
    */
   public synchronized TransitionSystem getTransitionSystem() {
     if (transitionSystem == null)

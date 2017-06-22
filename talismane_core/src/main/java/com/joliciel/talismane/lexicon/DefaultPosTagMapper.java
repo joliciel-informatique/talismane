@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2017 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -18,12 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 
 import com.joliciel.talismane.posTagger.PosTag;
@@ -31,69 +29,18 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
 
 /**
- * <p>
- * Pos-tag mapper that maps lexical attributes to postags using a tab-delimited
- * file as input. File format is as follows:
- * </p>
- * <p>
- * Rows starting with # are comments
- * </p>
- * <p>
- * The first non-comment row needs to contain a list of tab delimited
- * attributes, e.g.
- * </p>
- * 
- * <pre>
- * Category Morphology
- * </pre>
- * <p>
- * The following rows each contain one tab per attribute, and a final tab for
- * the pos-tag, e.g.
- * </p>
- * 
- * <pre>
- * adj  Kms ADJ
- * </pre>
+ * Pos-tag mapper which assumes the entry's category is already a pos-tag.
  * 
  * @author Assaf Urieli
  *
  */
 public class DefaultPosTagMapper implements PosTagMapper {
-  private static final long serialVersionUID = 1L;
-  private PosTagSet posTagSet;
-  private Map<String, Set<PosTag>> posTagMap = new HashMap<String, Set<PosTag>>();
-  private List<String> attributes = new ArrayList<String>();
+  private final PosTagSet posTagSet;
 
-  public DefaultPosTagMapper(Scanner scanner, PosTagSet posTagSet) throws UnknownPosTagException {
-    super();
+  private Map<String, Set<PosTag>> posTagsPerCategory = new HashMap<>();
+
+  public DefaultPosTagMapper(PosTagSet posTagSet) {
     this.posTagSet = posTagSet;
-
-    boolean firstLine = true;
-
-    while (scanner.hasNextLine()) {
-      String line = scanner.nextLine();
-      if (line.startsWith("#"))
-        continue;
-      String[] parts = line.split("\t");
-      if (firstLine) {
-        for (String part : parts)
-          attributes.add(part);
-        firstLine = false;
-      } else {
-        String key = "";
-        for (int i = 0; i < attributes.size(); i++)
-          key += parts[i] + "|";
-
-        String value = parts[attributes.size()];
-        PosTag posTag = posTagSet.getPosTag(value);
-        Set<PosTag> posTags = posTagMap.get(key);
-        if (posTags == null) {
-          posTags = new HashSet<PosTag>();
-          posTagMap.put(key, posTags);
-        }
-        posTags.add(posTag);
-      }
-    }
   }
 
   @Override
@@ -103,13 +50,25 @@ public class DefaultPosTagMapper implements PosTagMapper {
 
   @Override
   public Set<PosTag> getPosTags(LexicalEntry lexicalEntry) {
-    StringBuilder sb = new StringBuilder();
-    for (String attribute : attributes)
-      sb.append(lexicalEntry.getAttribute(attribute) + "|");
-    String key = sb.toString();
-    Set<PosTag> posTags = posTagMap.get(key);
-    if (posTags == null)
-      posTags = new HashSet<PosTag>();
+    if (lexicalEntry.getCategory() == null)
+      return Collections.emptySet();
+    Set<PosTag> posTags = posTagsPerCategory.get(lexicalEntry.getCategory());
+
+    if (posTags == null) {
+      PosTag posTag = null;
+      try {
+        posTag = posTagSet.getPosTag(lexicalEntry.getCategory());
+      } catch (UnknownPosTagException e) {
+        // unknown posTag, do nothing
+      }
+      if (posTag == null)
+        posTags = Collections.emptySet();
+      else {
+        posTags = new HashSet<>();
+        posTags.add(posTag);
+      }
+      posTagsPerCategory.put(lexicalEntry.getCategory(), posTags);
+    }
     return posTags;
   }
 

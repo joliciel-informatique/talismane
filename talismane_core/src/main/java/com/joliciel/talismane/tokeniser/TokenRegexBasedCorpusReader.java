@@ -314,6 +314,13 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
       token.setLineNumberEnd(Integer.parseInt(corpusLine.getElement(CorpusElement.END_ROW)));
     if (corpusLine.hasElement(CorpusElement.END_COLUMN))
       token.setColumnNumberEnd(Integer.parseInt(corpusLine.getElement(CorpusElement.END_COLUMN)));
+    if (corpusLine.hasElement(CorpusElement.LEMMA))
+      token.setOriginalLemma(corpusLine.getElement(CorpusElement.LEMMA));
+    if (corpusLine.hasElement(CorpusElement.MORPHOLOGY))
+      token.setOriginalMorphology(corpusLine.getElement(CorpusElement.MORPHOLOGY));
+    if (corpusLine.hasElement(CorpusElement.CATEGORY))
+      token.setOriginalCategory(corpusLine.getElement(CorpusElement.CATEGORY));
+
     return token;
   }
 }
