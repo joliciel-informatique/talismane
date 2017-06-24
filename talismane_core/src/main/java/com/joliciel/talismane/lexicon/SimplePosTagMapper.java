@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
@@ -63,12 +64,13 @@ public class SimplePosTagMapper implements PosTagMapper {
   private Map<String, Set<PosTag>> posTagMap = new HashMap<String, Set<PosTag>>();
   private List<String> attributes = new ArrayList<String>();
 
-  public SimplePosTagMapper(Scanner scanner, PosTagSet posTagSet) throws UnknownPosTagException {
+  public SimplePosTagMapper(Scanner scanner, PosTagSet posTagSet) throws TalismaneException {
     super();
     this.posTagSet = posTagSet;
 
     boolean firstLine = true;
 
+    int lineNumber = 1;
     while (scanner.hasNextLine()) {
       String line = scanner.nextLine();
       if (line.startsWith("#"))
@@ -84,7 +86,12 @@ public class SimplePosTagMapper implements PosTagMapper {
           key += parts[i] + "|";
 
         String value = parts[attributes.size()];
-        PosTag posTag = posTagSet.getPosTag(value);
+        PosTag posTag = null;
+        try {
+          posTag = posTagSet.getPosTag(value);
+        } catch (UnknownPosTagException e) {
+          throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + e.getPosTagCode());
+        }
         Set<PosTag> posTags = posTagMap.get(key);
         if (posTags == null) {
           posTags = new HashSet<PosTag>();
@@ -92,6 +99,7 @@ public class SimplePosTagMapper implements PosTagMapper {
         }
         posTags.add(posTag);
       }
+      lineNumber++;
     }
   }
 

@@ -47,6 +47,7 @@ public class ConfigUtils {
   private static final Logger LOG = LoggerFactory.getLogger(ConfigUtils.class);
 
   public static InputStream getFileFromConfig(Config config, String configPath) throws IOException {
+    LOG.debug("Getting " + configPath);
     String path = config.getString(configPath);
     return getFile(config, configPath, path);
   }
