@@ -238,9 +238,9 @@ public class TalismaneSession {
         configPath = "talismane.core.pos-tagger.pos-tag-map." + oneLexicon.getName();
         PosTagMapper posTagMapper = null;
         if (config.hasPath(configPath)) {
-          InputStream posTagSetFile = ConfigUtils.getFileFromConfig(config, configPath);
-          try (Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagSetFile, "UTF-8")))) {
-            posTagMapper = new SimplePosTagMapper(posTagSetScanner, posTagSet);
+          InputStream posTagMapFile = ConfigUtils.getFileFromConfig(config, configPath);
+          try (Scanner posTagMapScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagMapFile, "UTF-8")))) {
+            posTagMapper = new SimplePosTagMapper(posTagMapScanner, posTagSet);
           }
         } else {
           if (LOG.isDebugEnabled())
