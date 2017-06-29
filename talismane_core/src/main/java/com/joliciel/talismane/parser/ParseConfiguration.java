@@ -30,6 +30,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,16 +160,20 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
 
     this.dependencies = new TreeSet<>(history.dependencies);
     this.governingDependencyMap = new HashMap<>(history.governingDependencyMap);
-    this.rightDependentMap = new HashMap<>(history.rightDependentMap);
-    this.leftDependentMap = new HashMap<>(history.leftDependentMap);
-    this.dependentMap = new HashMap<>(history.dependentMap);
-    this.dependentByLabelMap = new HashMap<>(history.dependentByLabelMap);
+    this.rightDependentMap = history.rightDependentMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
+    this.leftDependentMap = history.leftDependentMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
+    this.dependentMap = history.dependentMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
+    this.dependentByLabelMap = history.dependentByLabelMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
+        e -> new TreeMap<>(e.getValue().entrySet().stream().collect(Collectors.toMap(e2 -> e2.getKey(), e2 -> new TreeSet<>(e2.getValue()))))));
     this.dependenciesNonProj = new TreeSet<>(history.dependenciesNonProj);
     this.governingDependencyNonProjMap = new HashMap<>(history.governingDependencyNonProjMap);
-    this.rightDependentNonProjMap = new HashMap<>(history.rightDependentNonProjMap);
-    this.leftDependentNonProjMap = new HashMap<>(history.leftDependentNonProjMap);
-    this.dependentNonProjMap = new HashMap<>(history.dependentNonProjMap);
-    this.dependentByLabelNonProjMap = new HashMap<>(history.dependentByLabelNonProjMap);
+    this.rightDependentNonProjMap = history.rightDependentNonProjMap.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
+    this.leftDependentNonProjMap = history.leftDependentNonProjMap.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
+    this.dependentNonProjMap = history.dependentNonProjMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
+    this.dependentByLabelNonProjMap = history.dependentByLabelNonProjMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
+        e -> new TreeMap<>(e.getValue().entrySet().stream().collect(Collectors.toMap(e2 -> e2.getKey(), e2 -> new TreeSet<>(e2.getValue()))))));
     this.hasNonProjDependencies = history.hasNonProjDependencies;
   }
 
@@ -458,6 +463,9 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    */
   public DependencyArc addDependency(PosTaggedToken head, PosTaggedToken dependent, String label, Transition transition) throws CircularDependencyException {
     DependencyArc arc = new DependencyArc(head, dependent, label);
+    if (LOG.isTraceEnabled())
+      LOG.trace("Adding arc " + arc + " with transition " + transition);
+
     this.addDependency(arc);
     this.dependentTransitionMap.put(dependent, transition);
 
@@ -522,6 +530,20 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
       labelMap.put(arc.getLabel(), depsBylabel);
     }
     depsBylabel.add(arc.getDependent());
+
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Added arc: " + arc);
+      LOG.trace("dependencies: " + this.dependencies);
+      LOG.trace("governingDependencyMap: " + this.governingDependencyMap);
+      LOG.trace("leftDependentMap: "
+          + this.leftDependentMap.entrySet().stream().filter(map -> map.getValue().size() > 0).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())));
+      LOG.trace("rightDependentMap: "
+          + this.rightDependentMap.entrySet().stream().filter(map -> map.getValue().size() > 0).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())));
+      LOG.trace("dependentMap: "
+          + this.dependentMap.entrySet().stream().filter(map -> map.getValue().size() > 0).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())));
+      LOG.trace("dependentByLabelMap: " + this.dependentByLabelMap.entrySet().stream().filter(map -> map.getValue().size() > 0)
+          .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())));
+    }
   }
 
   public void removeDependency(DependencyArc arc) {

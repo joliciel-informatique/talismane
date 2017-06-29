@@ -388,6 +388,7 @@ public class Token implements TokenWrapper {
     int result = 1;
     result = prime * result + ((originalText == null) ? 0 : originalText.hashCode());
     result = prime * result + startIndex;
+    result = prime * result + endIndex;
     return result;
   }
 
@@ -406,6 +407,8 @@ public class Token implements TokenWrapper {
     } else if (!originalText.equals(other.originalText))
       return false;
     if (startIndex != other.startIndex)
+      return false;
+    if (endIndex != other.endIndex)
       return false;
     return true;
   }

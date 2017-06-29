@@ -27,7 +27,10 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -279,8 +282,10 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
           }
           if (LOG_FEATURES.isTraceEnabled()) {
-            for (FeatureResult<?> featureResult : parseFeatureResults) {
-              LOG_FEATURES.trace(featureResult.toString());
+            SortedSet<String> featureResultSet = parseFeatureResults.stream().map(f -> f.toString())
+                .collect(Collectors.toCollection(() -> new TreeSet<String>()));
+            for (String featureResultString : featureResultSet) {
+              LOG_FEATURES.trace(featureResultString);
             }
           }
 
