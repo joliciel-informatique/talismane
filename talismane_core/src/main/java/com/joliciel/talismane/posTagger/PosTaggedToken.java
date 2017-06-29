@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,6 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
   private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
   private List<LexicalEntry> lexicalEntries = null;
-  private static final DecimalFormat df = new DecimalFormat("0.0000");
   private String conllLemma = null;
   private String comment = "";
   private String morphologyForCoNLL = null;
@@ -105,7 +103,7 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
 
   @Override
   public String toString() {
-    return this.getToken().getText() + "|" + this.getTag() + "|" + this.getToken().getIndex() + "| prob=" + df.format(this.getDecision().getProbability());
+    return this.getToken().getText() + "|" + this.getTag() + "|" + this.getToken().getIndex();
   }
 
   @Override

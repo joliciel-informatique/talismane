@@ -29,7 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
@@ -288,8 +290,10 @@ public class PatternTokeniser extends Tokeniser {
         }
 
         if (LOG.isTraceEnabled()) {
-          for (FeatureResult<?> featureResult : tokenFeatureResults) {
-            LOG.trace(featureResult.toString());
+          SortedSet<String> featureResultSet = tokenFeatureResults.stream().map(f -> f.toString())
+              .collect(Collectors.toCollection(() -> new TreeSet<String>()));
+          for (String featureResultString : featureResultSet) {
+            LOG.trace(featureResultString);
           }
         }
 
