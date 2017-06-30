@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -108,7 +109,7 @@ public class LexiconReader {
 
   private final TalismaneSession session;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws IOException, ClassNotFoundException, SentenceAnnotatorLoadException, TalismaneException {
     OptionParser parser = new OptionParser();
     parser.accepts("serializeLexicon", "serialize lexicon");
     OptionSpec<File> lexiconPropsFileOption = parser.accepts("lexiconProps", "the lexicon properties file").withRequiredArg().required().ofType(File.class);

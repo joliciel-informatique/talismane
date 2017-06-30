@@ -42,8 +42,10 @@ import java.util.zip.ZipOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.sentenceAnnotators.DiacriticRemover;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -68,7 +70,7 @@ public class Diacriticizer implements Serializable {
   private Map<String, String> lowercasePreferences = new HashMap<String, String>();
   private Locale locale;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws IOException, ClassNotFoundException, SentenceAnnotatorLoadException, TalismaneException {
     OptionParser parser = new OptionParser();
     parser.accepts("serializeDiacriticizer", "serialize diacriticizer from lexicon");
     parser.accepts("testDiacriticizer", "test serialized diacriticizer").availableUnless("serializeDiacriticizer");

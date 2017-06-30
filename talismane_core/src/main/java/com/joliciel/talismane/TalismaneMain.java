@@ -88,6 +88,7 @@ import com.joliciel.talismane.utils.io.DirectoryWriter;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import ch.qos.logback.core.joran.spi.JoranException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -101,9 +102,22 @@ import joptsimple.OptionSpec;
 public class TalismaneMain {
   private static final Logger LOG = LoggerFactory.getLogger(TalismaneMain.class);
 
-  private final Config config;
-
   public static void main(String[] args) throws Exception {
+    Config config = ConfigFactory.load();
+    TalismaneMain talismaneMain = new TalismaneMain();
+    talismaneMain.execute(config, args);
+  }
+
+  /**
+   * Execute by processing command line options with a given default config.
+   * 
+   * @param config
+   *          the default configuration (overridden by the CLI)
+   * @param args
+   *          the command-line options
+   */
+  public void execute(Config config, String[] args)
+      throws SentenceAnnotatorLoadException, IOException, ReflectiveOperationException, TalismaneException, JoranException {
     if (args.length > 0) {
       Set<String> argSet = new HashSet<>(Arrays.asList(args));
       if (argSet.contains("--serializeLexicon")) {
@@ -576,13 +590,8 @@ public class TalismaneMain {
     if (options.has(evalFileOption))
       evalFile = options.valueOf(evalFileOption);
 
-    Config config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
-    TalismaneMain talismaneMain = new TalismaneMain(config);
-    talismaneMain.execute(inFile, outFile, outDir, evalFile);
-  }
-
-  public TalismaneMain(Config config) {
-    this.config = config;
+    Config commandLineConfig = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
+    this.execute(commandLineConfig, inFile, outFile, outDir, evalFile);
   }
 
   /**
@@ -599,10 +608,10 @@ public class TalismaneMain {
    * @throws IOException
    * @throws ReflectiveOperationException
    * @throws TalismaneException
-   *           if attempt is made to start and end on two unsuported modules.
+   *           if attempt is made to start and end on two unsupported modules.
    * @throws SentenceAnnotatorLoadException
    */
-  public void execute(File inFile, File outFile, File outDir, File evalFile)
+  public void execute(Config config, File inFile, File outFile, File outDir, File evalFile)
       throws IOException, ReflectiveOperationException, TalismaneException, SentenceAnnotatorLoadException {
     if (LOG.isTraceEnabled())
       LOG.trace(config.root().render());
