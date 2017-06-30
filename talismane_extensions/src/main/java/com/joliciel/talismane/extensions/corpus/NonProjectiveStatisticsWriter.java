@@ -18,7 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.extensions.corpus;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,7 +40,7 @@ import com.joliciel.talismane.utils.CSVFormatter;
  * @author Assaf Urieli
  *
  */
-public class NonProjectiveStatistics implements ParseConfigurationProcessor {
+public class NonProjectiveStatisticsWriter implements ParseConfigurationProcessor {
   private static final CSVFormatter CSV = new CSVFormatter();
 
   private final Writer writer;
@@ -52,10 +56,18 @@ public class NonProjectiveStatistics implements ParseConfigurationProcessor {
   private int[] gapDegreeCounts = new int[10];
   private int[] edgeDegreeCounts = new int[10];
 
-  public NonProjectiveStatistics(TalismaneSession session, Writer writer, Writer writer2) throws IOException {
+  public NonProjectiveStatisticsWriter(File outDir, TalismaneSession session) throws IOException {
     this.session = session;
-    this.writer = writer;
-    this.writer2 = writer2;
+    File csvFile = new File(outDir, session.getBaseName() + "_nproj.csv");
+    csvFile.delete();
+    csvFile.createNewFile();
+    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
+
+    File csvFile2 = new File(outDir, session.getBaseName() + "_nprojnodes.csv");
+    csvFile2.delete();
+    csvFile2.createNewFile();
+    writer2 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile2, false), "UTF8"));
+
     writer.write(CSV.format("Sentence"));
     writer.write(CSV.format("Gap degree"));
     writer.write(CSV.format("Max gap node"));
@@ -72,7 +84,6 @@ public class NonProjectiveStatistics implements ParseConfigurationProcessor {
     writer2.write(CSV.format("Edge degree"));
     writer2.write("\n");
     writer2.flush();
-
   }
 
   @Override

@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -43,7 +46,7 @@ import joptsimple.OptionSpec;
 public class LexiconDeserializer {
   private static final Logger LOG = LoggerFactory.getLogger(LexiconDeserializer.class);
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws IOException, ClassNotFoundException, SentenceAnnotatorLoadException, TalismaneException {
     OptionParser parser = new OptionParser();
     parser.accepts("testLexicon", "test lexicon");
 

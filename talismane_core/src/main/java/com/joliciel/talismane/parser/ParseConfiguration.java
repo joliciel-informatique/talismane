@@ -88,8 +88,6 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   private final Map<PosTaggedToken, NavigableSet<PosTaggedToken>> dependentNonProjMap;
   private final Map<PosTaggedToken, Map<String, NavigableSet<PosTaggedToken>>> dependentByLabelNonProjMap;
 
-  private DependencyNode parseTree = null;
-
   private List<Decision> decisions = new ArrayList<Decision>();
   private int lastProbApplied = 0;
   private List<Solution> underlyingSolutions = new ArrayList<Solution>();
@@ -669,28 +667,6 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
 
   Map<PosTaggedToken, Transition> getDependentTransitionMap() {
     return dependentTransitionMap;
-  }
-
-  /**
-   * Get the dependency tree represented by this parse configuration, where the
-   * node returned is root.
-   * 
-   * @deprecated use {@link ParseTree} instead
-   */
-  @Deprecated
-  public DependencyNode getParseTree() {
-    if (parseTree == null) {
-      PosTaggedToken root = null;
-      for (PosTaggedToken token : this.posTagSequence) {
-        if (token.getTag().equals(PosTag.ROOT_POS_TAG)) {
-          root = token;
-          break;
-        }
-      }
-      parseTree = new DependencyNode(root, "", this);
-      parseTree.autoPopulate();
-    }
-    return parseTree;
   }
 
   /**

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
@@ -33,6 +34,9 @@ import com.typesafe.config.Config;
 /**
  * Transforms a non-projective corpus to a projective corpus by attaching
  * non-projective arcs to a projective head.<br/>
+ * Does not write any output directly - this needs to be taken care of by
+ * another ParseConfigurationProcessor.<br/>
+ * <br/>
  * The strategy for selecting the projective head is as follows:<br/>
  * <ul>
  * <li>A non-projective relationship involves two arcs which cross each other.
@@ -79,7 +83,8 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
   private final String nonProjectiveArcSuffix;
   private final ProjectivationStrategy strategy;
 
-  public CorpusProjectifier(Config config) {
+  public CorpusProjectifier(TalismaneSession session) throws IOException {
+    Config config = session.getConfig();
     nonProjectiveArcSuffix = config.getString("talismane.extensions.projectifier.non-projective-arc-suffix");
     strategy = ProjectivationStrategy.valueOf(config.getString("talismane.extensions.projectifier.strategy"));
   }
