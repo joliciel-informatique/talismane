@@ -29,9 +29,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.ParseTree;
 import com.joliciel.talismane.parser.ParseTreeNode;
+import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.joliciel.talismane.utils.CSVFormatter;
 
 /**

@@ -26,7 +26,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.CircularDependencyException;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseConfigurationProcessor;
+import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.typesafe.config.Config;
 
 /**

@@ -18,19 +18,25 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +48,7 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
+import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
@@ -50,6 +57,9 @@ import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.joliciel.talismane.utils.ArrayListNoNulls;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * A non-deterministic parser implementing transition based parsing, using a
@@ -61,6 +71,8 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  */
 public class TransitionBasedParser implements NonDeterministicParser {
   private static final Logger LOG = LoggerFactory.getLogger(TransitionBasedParser.class);
+  private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
+
   private static final Logger LOG_FEATURES = LoggerFactory.getLogger(TransitionBasedParser.class.getName() + ".features");
   private static final double MIN_PROB_TO_STORE = 0.0001;
   private static final DecimalFormat df = new DecimalFormat("0.0000");
@@ -73,7 +85,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
   private final boolean propagatePosTaggerBeam;
   private final TalismaneSession session;
 
-  private ParseComparisonStrategy parseComparisonStrategy;
+  private final ParseComparisonStrategy parseComparisonStrategy;
 
   private final List<ClassificationObserver> observers;
   private final int maxAnalysisTimePerSentence;
@@ -84,26 +96,30 @@ public class TransitionBasedParser implements NonDeterministicParser {
   private List<ParserRule> parserPositiveRules;
   private List<ParserRule> parserNegativeRules;
 
-  public TransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth,
-      boolean propagatePosTaggerBeam, ParseComparisonStrategy parseComparisonStrategy, int maxAnalysisTimePerSentence, int minFreeMemory,
-      TalismaneSession session) {
-    this.decisionMaker = decisionMaker;
-    this.transitionSystem = transitionSystem;
-    this.parseFeatures = parseFeatures;
-    this.beamWidth = beamWidth;
-    this.propagatePosTaggerBeam = propagatePosTaggerBeam;
-    this.parseComparisonStrategy = parseComparisonStrategy;
-    this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
-    this.minFreeMemory = minFreeMemory;
-    this.session = session;
-    this.observers = new ArrayList<>();
-  }
+  public TransitionBasedParser(TalismaneSession session) throws IOException, ClassNotFoundException, TalismaneException {
+    Config config = session.getConfig();
+    Config parserConfig = config.getConfig("talismane.core.parser");
 
-  /**
-   * Read a non-deterministic parser directly from a model.
-   */
-  public TransitionBasedParser(ClassificationModel model, int beamWidth, boolean propagatePosTaggerBeam, ParseComparisonStrategy parseComparisonStrategy,
-      int maxAnalysisTimePerSentence, int minFreeMemory, TalismaneSession session) {
+    String configPath = "talismane.core.parser.model";
+    String modelFilePath = config.getString(configPath);
+    LOG.debug("Getting parser model from " + modelFilePath);
+    ClassificationModel model = modelMap.get(modelFilePath);
+    if (model == null) {
+      InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
+      MachineLearningModelFactory factory = new MachineLearningModelFactory();
+      model = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
+      modelMap.put(modelFilePath, model);
+    }
+
+    int beamWidth = parserConfig.getInt("beam-width");
+    boolean propagatePosTaggerBeam = parserConfig.getBoolean("propagate-pos-tagger-beam");
+
+    ParseComparisonStrategyType parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(parserConfig.getString("comparison-strategy"));
+    ParseComparisonStrategy parseComparisonStrategy = ParseComparisonStrategy.forType(parseComparisonStrategyType);
+
+    int maxAnalysisTimePerSentence = parserConfig.getInt("max-analysis-time");
+    int minFreeMemory = parserConfig.getInt("min-free-memory");
+
     this.session = session;
     this.beamWidth = beamWidth;
     this.propagatePosTaggerBeam = propagatePosTaggerBeam;
@@ -122,6 +138,55 @@ public class TransitionBasedParser implements NonDeterministicParser {
     }
 
     this.parseFeatures = parserFeatureParser.getFeatures(model.getFeatureDescriptors());
+    this.observers = new ArrayList<>();
+
+    this.setEarlyStop(parserConfig.getBoolean("early-stop"));
+
+    boolean includeDetails = parserConfig.getBoolean("output.include-details");
+    if (includeDetails) {
+      String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
+      File detailsFile = new File(detailsFilePath);
+      detailsFile.delete();
+      ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
+      this.addObserver(observer);
+    }
+
+    List<ParserRule> parserRules = new ArrayList<>();
+    ParserFeatureParser featureParser = new ParserFeatureParser(session);
+
+    configPath = "talismane.core.parser.rules";
+    List<String> textFilterPaths = config.getStringList(configPath);
+    for (String path : textFilterPaths) {
+      LOG.debug("From: " + path);
+      InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
+      try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
+        List<String> ruleDescriptors = new ArrayListNoNulls<String>();
+        while (scanner.hasNextLine()) {
+          String ruleDescriptor = scanner.nextLine();
+          if (ruleDescriptor.length() > 0) {
+            ruleDescriptors.add(ruleDescriptor);
+            LOG.trace(ruleDescriptor);
+          }
+        }
+        List<ParserRule> rules = featureParser.getRules(ruleDescriptors);
+        parserRules.addAll(rules);
+      }
+    }
+    this.setParserRules(parserRules);
+  }
+
+  TransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth,
+      boolean propagatePosTaggerBeam, ParseComparisonStrategy parseComparisonStrategy, int maxAnalysisTimePerSentence, int minFreeMemory,
+      TalismaneSession session) {
+    this.decisionMaker = decisionMaker;
+    this.transitionSystem = transitionSystem;
+    this.parseFeatures = parseFeatures;
+    this.beamWidth = beamWidth;
+    this.propagatePosTaggerBeam = propagatePosTaggerBeam;
+    this.parseComparisonStrategy = parseComparisonStrategy;
+    this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
+    this.minFreeMemory = minFreeMemory;
+    this.session = session;
     this.observers = new ArrayList<>();
   }
 
@@ -488,8 +553,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
     return minFreeMemory;
   }
 
-  @Override
-  public void setParserRules(List<ParserRule> parserRules) {
+  private void setParserRules(List<ParserRule> parserRules) {
     this.parserRules = parserRules;
     this.parserPositiveRules = new ArrayList<ParserRule>();
     this.parserNegativeRules = new ArrayList<ParserRule>();
@@ -509,11 +573,6 @@ public class TransitionBasedParser implements NonDeterministicParser {
   @Override
   public ParseComparisonStrategy getParseComparisonStrategy() {
     return parseComparisonStrategy;
-  }
-
-  @Override
-  public void setParseComparisonStrategy(ParseComparisonStrategy parseComparisonStrategy) {
-    this.parseComparisonStrategy = parseComparisonStrategy;
   }
 
   /**

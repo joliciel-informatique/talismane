@@ -422,4 +422,31 @@ public class RegexTokenAnnotatorTest {
     assertEquals(7, placeholder.getEnd());
     assertEquals("TAG", placeholder.getData().getKey());
   }
+
+  @Test
+  public void testPuctuation() throws Exception {
+    System.setProperty("config.file", "src/test/resources/test.conf");
+    ConfigFactory.invalidateCaches();
+    final Config config = ConfigFactory.load();
+    final TalismaneSession session = new TalismaneSession(config, "");
+
+    String regex = "[\\p{IsPunctuation}&&[^%$#@§¶‰‱]]+";
+    String replacement = null;
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+
+    filter.addAttribute("featureType", new StringAttribute("featureType", "punctuation"));
+    Sentence text = new Sentence("Bonjour. Comment ça va?", session);
+    filter.annotate(text);
+    @SuppressWarnings("rawtypes")
+    List<Annotation<TokenAttribute>> annotations = text.getAnnotations(TokenAttribute.class);
+    LOG.debug(annotations.toString());
+    assertEquals(2, annotations.size());
+    @SuppressWarnings("rawtypes")
+    Annotation<TokenAttribute> placeholder = annotations.get(0);
+    assertEquals("Bonjour".length(), placeholder.getStart());
+    assertEquals("Bonjour.".length(), placeholder.getEnd());
+    assertEquals("featureType", placeholder.getData().getKey());
+    assertEquals("punctuation", placeholder.getData().getValue());
+
+  }
 }
