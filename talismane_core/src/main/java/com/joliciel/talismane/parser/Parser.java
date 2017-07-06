@@ -117,11 +117,7 @@ public interface Parser {
    */
   public List<ParserRule> getParserRules();
 
-  public void setParserRules(List<ParserRule> parserRules);
-
   public ParseComparisonStrategy getParseComparisonStrategy();
-
-  public void setParseComparisonStrategy(ParseComparisonStrategy parseComparisonStrategy);
 
   public Set<ParseConfigurationFeature<?>> getParseFeatures();
 
