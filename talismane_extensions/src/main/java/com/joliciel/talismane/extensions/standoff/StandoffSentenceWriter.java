@@ -29,7 +29,7 @@ import java.io.Writer;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.parser.FreemarkerParseWriter;
+import com.joliciel.talismane.parser.output.FreemarkerParseWriter;
 
 /**
  * Writes standoff sentences readable by the Brat annotation tool: see
