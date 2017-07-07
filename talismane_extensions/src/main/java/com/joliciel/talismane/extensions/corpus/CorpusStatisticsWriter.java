@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseConfigurationProcessor;
+import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;

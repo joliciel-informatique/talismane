@@ -133,25 +133,8 @@ public class PatternTokeniser extends Tokeniser {
     }
   }
 
-  public PatternTokeniser(ClassificationModel tokeniserModel, int beamWidth, TalismaneSession session) {
-    super(session);
-    this.decisionMaker = tokeniserModel.getDecisionMaker();
-    this.beamWidth = beamWidth;
-
-    TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
-    Collection<ExternalResource<?>> externalResources = tokeniserModel.getExternalResources();
-    if (externalResources != null) {
-      for (ExternalResource<?> externalResource : externalResources) {
-        featureParser.getExternalResourceFinder().addExternalResource(externalResource);
-      }
-    }
-    this.features = featureParser.getTokenPatternMatchFeatureSet(tokeniserModel.getFeatureDescriptors());
-    this.tokeniserPatternManager = new TokeniserPatternManager(tokeniserModel.getDescriptors().get(PATTERN_DESCRIPTOR_KEY), session);
-    this.observers = new ArrayList<>();
-  }
-
-  public PatternTokeniser(DecisionMaker decisionMaker, TokeniserPatternManager tokeniserPatternManager, Set<TokenPatternMatchFeature<?>> features,
-      int beamWidth, TalismaneSession talismaneSession) {
+  PatternTokeniser(DecisionMaker decisionMaker, TokeniserPatternManager tokeniserPatternManager, Set<TokenPatternMatchFeature<?>> features, int beamWidth,
+      TalismaneSession talismaneSession) {
     super(talismaneSession);
     this.decisionMaker = decisionMaker;
     this.beamWidth = beamWidth;

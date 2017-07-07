@@ -19,6 +19,7 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,6 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
-import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.typesafe.config.Config;
 
 import gnu.trove.set.TIntSet;
@@ -60,11 +60,6 @@ import gnu.trove.set.hash.TIntHashSet;
  *
  */
 public abstract class Tokeniser implements Annotator<Sentence> {
-  public static enum TokeniserType {
-    simple,
-    pattern
-  };
-
   private static final Logger LOG = LoggerFactory.getLogger(Tokeniser.class);
 
   private static final Map<String, Tokeniser> tokeniserMap = new HashMap<>();
@@ -224,23 +219,40 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    * @throws IOException
    *           if problems occurred reading the model
    * @throws ClassNotFoundException
+   * @throws TalismaneException,
+   * @throws ReflectiveOperationException
    */
-  public static Tokeniser getInstance(TalismaneSession session) throws IOException, ClassNotFoundException {
+  public static Tokeniser getInstance(TalismaneSession session) throws IOException, ClassNotFoundException, TalismaneException, ReflectiveOperationException {
     Tokeniser tokeniser = null;
     if (session.getSessionId() != null)
       tokeniser = tokeniserMap.get(session.getSessionId());
     if (tokeniser == null) {
       Config config = session.getConfig();
       Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
-      TokeniserType tokeniserType = TokeniserType.valueOf(tokeniserConfig.getString("type"));
 
-      switch (tokeniserType) {
-      case simple:
-        tokeniser = new SimpleTokeniser(session);
-        break;
-      case pattern:
-        tokeniser = new PatternTokeniser(session);
-        break;
+      String className = tokeniserConfig.getString("tokeniser");
+
+      @SuppressWarnings("rawtypes")
+      Class untypedClass = Class.forName(className);
+      if (!Tokeniser.class.isAssignableFrom(untypedClass))
+        throw new TalismaneException("Class " + className + " does not implement interface " + Tokeniser.class.getSimpleName());
+
+      @SuppressWarnings("unchecked")
+      Class<? extends Tokeniser> clazz = untypedClass;
+
+      Constructor<? extends Tokeniser> cons = null;
+
+      if (cons == null) {
+        try {
+          cons = clazz.getConstructor(TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          tokeniser = cons.newInstance(session);
+        } else {
+          throw new TalismaneException("No constructor found with correct signature for: " + className);
+        }
       }
 
       if (session.getSessionId() != null)
