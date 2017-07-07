@@ -219,7 +219,7 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    * @throws IOException
    *           if problems occurred reading the model
    * @throws ClassNotFoundException
-   * @throws TalismaneException,
+   * @throws TalismaneException
    * @throws ReflectiveOperationException
    */
   public static Tokeniser getInstance(TalismaneSession session) throws IOException, ClassNotFoundException, TalismaneException, ReflectiveOperationException {
