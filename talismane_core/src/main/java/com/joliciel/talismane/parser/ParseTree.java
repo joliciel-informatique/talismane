@@ -44,6 +44,7 @@ public class ParseTree {
   private final ParseTreeNode root;
   private List<Pair<ParseTreeNode, ParseTreeNode>> illNestedNodes = null;
   private List<ParseTreeNode> nonProjectiveNodes = null;
+  private List<DependencyArc> nonProjectiveEdges = null;
 
   /**
    * Create a parse tree out of a given parse configuration.
@@ -125,7 +126,7 @@ public class ParseTree {
   /**
    * Get the dependency arc governing a given pos-tagged token.
    */
-  public DependencyArc getGoverningDependency(PosTaggedToken token) {
+  public DependencyArc getGoverningArc(PosTaggedToken token) {
     return this.governingDependencyMap.get(token);
   }
 
@@ -205,6 +206,20 @@ public class ParseTree {
     nonProjectiveNodes = new ArrayList<>();
     this.root.getNonProjectiveNodes(nonProjectiveNodes);
     return nonProjectiveNodes;
+  }
+
+  /**
+   * Return all non-projective edges in this tree, where a non-projective edge
+   * is one where node <i>i</i> governs node <i>j</i>, and there is some node
+   * <i>k</i> where i&lt;k&lt;j such that node <i>i</i> does not dominate node
+   * <i>k</i>.
+   */
+  public List<DependencyArc> getNonProjectiveEdges() {
+    if (nonProjectiveEdges != null)
+      return nonProjectiveEdges;
+    nonProjectiveEdges = new ArrayList<>();
+    this.root.getNonProjectiveEdges(nonProjectiveEdges);
+    return nonProjectiveEdges;
   }
 
   @Override
