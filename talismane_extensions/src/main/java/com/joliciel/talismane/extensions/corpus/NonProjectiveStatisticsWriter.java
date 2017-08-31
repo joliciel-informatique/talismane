@@ -28,6 +28,7 @@ import java.io.Writer;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseTree;
 import com.joliciel.talismane.parser.ParseTreeNode;
@@ -45,12 +46,14 @@ public class NonProjectiveStatisticsWriter implements ParseConfigurationProcesso
 
   private final Writer writer;
   private final Writer writer2;
+  private final Writer writer3;
 
   @SuppressWarnings("unused")
   private final TalismaneSession session;
   private int totalCount = 0;
   private int nonProjectiveCount = 0;
   private int nonProjectiveNodeCount = 0;
+  private int nonProjectiveEdgeCount = 0;
   private int totalNodeCount = 0;
   private int illNestedCount = 0;
   private int[] gapDegreeCounts = new int[10];
@@ -68,6 +71,11 @@ public class NonProjectiveStatisticsWriter implements ParseConfigurationProcesso
     csvFile2.createNewFile();
     writer2 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile2, false), "UTF8"));
 
+    File csvFile3 = new File(outDir, session.getBaseName() + "_nprojedges.csv");
+    csvFile3.delete();
+    csvFile3.createNewFile();
+    writer3 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile3, false), "UTF8"));
+
     writer.write(CSV.format("Sentence"));
     writer.write(CSV.format("Gap degree"));
     writer.write(CSV.format("Max gap node"));
@@ -79,11 +87,18 @@ public class NonProjectiveStatisticsWriter implements ParseConfigurationProcesso
     writer.flush();
 
     writer2.write(CSV.format("Sentence"));
+    writer2.write(CSV.format("Head"));
     writer2.write(CSV.format("Non-proj node"));
     writer2.write(CSV.format("Gap degree"));
     writer2.write(CSV.format("Edge degree"));
+    writer2.write(CSV.format("Gap heads"));
     writer2.write("\n");
     writer2.flush();
+
+    writer3.write(CSV.format("Sentence"));
+    writer3.write(CSV.format("Non-proj edge"));
+    writer3.write("\n");
+    writer3.flush();
   }
 
   @Override
@@ -116,18 +131,33 @@ public class NonProjectiveStatisticsWriter implements ParseConfigurationProcesso
 
       for (ParseTreeNode nonProjNode : parseTree.getNonProjectiveNodes()) {
         writer2.write(CSV.format(parseConfiguration.getSentence().getText().toString()));
+        writer2.write(CSV.format(nonProjNode.getPosTaggedToken().toString()));
         writer2.write(CSV.format(nonProjNode.toString()));
         writer2.write(CSV.format(nonProjNode.getGapCount()));
         writer2.write(CSV.format(nonProjNode.getEdgeCount()));
+
+        for (DependencyArc arc : nonProjNode.getGapHeads()) {
+          writer2.write(CSV.format(arc.toString()));
+        }
+
         writer2.write("\n");
         writer2.flush();
         nonProjectiveNodeCount++;
       }
-      totalNodeCount += parseConfiguration.getPosTagSequence().size() - 1;
+
+      for (DependencyArc arc : parseTree.getNonProjectiveEdges()) {
+        writer3.write(CSV.format(parseConfiguration.getSentence().getText().toString()));
+        writer3.write(CSV.format(arc.toString()));
+        writer3.write("\n");
+        writer3.flush();
+        nonProjectiveEdgeCount++;
+      }
+
     } else {
       gapDegreeCounts[0]++;
       edgeDegreeCounts[0]++;
     }
+    totalNodeCount += parseConfiguration.getPosTagSequence().size() - 1;
     totalCount++;
   }
 
@@ -137,8 +167,11 @@ public class NonProjectiveStatisticsWriter implements ParseConfigurationProcesso
     writer.write(CSV.format("total") + CSV.format(totalCount) + CSV.format(100.0) + "\n");
     int projectiveCount = totalCount - nonProjectiveCount;
     writer.write(CSV.format("projective") + CSV.format(projectiveCount) + CSV.format(((double) projectiveCount / (double) totalCount) * 100.0) + "\n");
+    writer
+        .write(CSV.format("non-projective") + CSV.format(nonProjectiveCount) + CSV.format(((double) nonProjectiveCount / (double) totalCount) * 100.0) + "\n");
     int wellNestedCount = totalCount - illNestedCount;
     writer.write(CSV.format("wellNested") + CSV.format(wellNestedCount) + CSV.format((double) wellNestedCount / (double) totalCount * 100.0) + "\n");
+    writer.write(CSV.format("ill-nested") + CSV.format(illNestedCount) + CSV.format((double) illNestedCount / (double) totalCount * 100.0) + "\n");
 
     for (int i = 0; i < 10; i++) {
       int gapDegree = gapDegreeCounts[i];
@@ -163,6 +196,14 @@ public class NonProjectiveStatisticsWriter implements ParseConfigurationProcesso
         CSV.format("projective") + CSV.format(projectiveNodeCount) + CSV.format(((double) projectiveNodeCount / (double) totalNodeCount) * 100.0) + "\n");
     writer.write(CSV.format("non-projective") + CSV.format(nonProjectiveNodeCount)
         + CSV.format(((double) nonProjectiveNodeCount / (double) totalNodeCount) * 100.0) + "\n");
+
+    int projectiveEdgeCount = totalNodeCount - nonProjectiveEdgeCount;
+    writer.write("EDGES\n");
+    writer.write(CSV.format("total") + CSV.format(totalNodeCount) + CSV.format(100.0) + "\n");
+    writer.write(
+        CSV.format("projective") + CSV.format(projectiveEdgeCount) + CSV.format(((double) projectiveEdgeCount / (double) totalNodeCount) * 100.0) + "\n");
+    writer.write(CSV.format("non-projective") + CSV.format(nonProjectiveEdgeCount)
+        + CSV.format(((double) nonProjectiveEdgeCount / (double) totalNodeCount) * 100.0) + "\n");
 
     writer.flush();
     writer.close();
