@@ -86,8 +86,4 @@ RegexTokenAnnotator	[‒–—―]	replacement=-	posTag=P	featureType=punctuatio
 # Thus, a token such as "j'" will not get the posTag for punctuation
 RegexAttributeAnnotator	[\p{IsPunctuation}&&[^%$#@§¶‰‱]]+	posTag=P	lemmaType=originalLower	featureType=punctuation
 
-#########################
-### Text normalisation ##
-#########################
-TextReplaceFilter	QuoteNormaliser	LowercaseKnownFirstWordFilter	UppercaseSeriesFilter
 

@@ -109,7 +109,7 @@ public class LexiconReader {
 
   private final TalismaneSession session;
 
-  public static void main(String[] args) throws IOException, ClassNotFoundException, SentenceAnnotatorLoadException, TalismaneException {
+  public static void main(String[] args) throws IOException, SentenceAnnotatorLoadException, TalismaneException, ReflectiveOperationException {
     OptionParser parser = new OptionParser();
     parser.accepts("serializeLexicon", "serialize lexicon");
     OptionSpec<File> lexiconPropsFileOption = parser.accepts("lexiconProps", "the lexicon properties file").withRequiredArg().required().ofType(File.class);

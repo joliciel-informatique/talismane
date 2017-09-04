@@ -18,12 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.rawText.Sentence;
@@ -39,8 +41,8 @@ public class SimpleTokeniser extends Tokeniser {
   @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(SimpleTokeniser.class);
 
-  public SimpleTokeniser(TalismaneSession talismaneSession) {
-    super(talismaneSession);
+  public SimpleTokeniser(TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
+    super(session);
   }
 
   SimpleTokeniser(SimpleTokeniser tokeniser) {

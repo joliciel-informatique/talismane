@@ -31,7 +31,7 @@ public class TokenBoundary implements Serializable {
   private static final long serialVersionUID = 1L;
 
   private final String text;
-  private final String analysisText;
+  private String analysisText;
   private final Map<String, TokenAttribute<?>> attributes;
 
   public TokenBoundary(String text, String analysisText, Map<String, TokenAttribute<?>> attributes) {
@@ -47,6 +47,13 @@ public class TokenBoundary implements Serializable {
    */
   public String getAnalysisText() {
     return analysisText;
+  }
+
+  /**
+   * Set tha analysis text to a different value.
+   */
+  protected void setAnalysisText(String analysisText) {
+    this.analysisText = analysisText;
   }
 
   /**

@@ -16,31 +16,30 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.sentenceAnnotators;
+package com.joliciel.talismane.tokeniser.filters;
 
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
-import java.util.List;
-import java.util.regex.Pattern;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
- * Removes all diacritics from text.
+ * Puts text in lower case.
  * 
  * @author Assaf Urieli
  *
  */
-public class DiacriticRemover implements TextReplacer {
-  private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+public class LowercaseFilter implements TokenFilter {
+  TalismaneSession session;
+
+  public LowercaseFilter(TalismaneSession session) {
+    this.session = session;
+  }
 
   @Override
-  public void replace(List<String> tokens) {
-    for (int i = 0; i < tokens.size(); i++) {
-      String token = tokens.get(i);
-      tokens.set(i, removeDiacritics(token));
+  public void apply(TokenSequence tokenSequence) {
+    for (Token token : tokenSequence) {
+      token.setText(token.getText().toLowerCase(session.getLocale()));
     }
   }
 
-  public static String removeDiacritics(String string) {
-    return diacriticPattern.matcher(Normalizer.normalize(string, Form.NFD)).replaceAll("");
-  }
 }
