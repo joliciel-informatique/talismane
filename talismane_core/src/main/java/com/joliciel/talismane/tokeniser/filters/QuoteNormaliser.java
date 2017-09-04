@@ -16,38 +16,37 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.sentenceAnnotators;
+package com.joliciel.talismane.tokeniser.filters;
 
-import java.util.List;
+import java.util.regex.Pattern;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
- * Puts text in lower case.
+ * Normalises all unicode characters representing some sort of double quote to
+ * simple double quote, some sort of single quote to a simple apostrophe, and
+ * some sort of dash or hyphen to a simple minus sign.
  * 
  * @author Assaf Urieli
  *
  */
-public class LowercaseFilter implements TextReplacer, NeedsTalismaneSession {
-  TalismaneSession session;
+public class QuoteNormaliser implements TokenFilter {
+  Pattern doubleQuotes = Pattern.compile("[“”„‟″‴«»]");
+  Pattern singleQuotes = Pattern.compile("[‘’]");
+  Pattern dashes = Pattern.compile("[‒–—―]");
+
+  public QuoteNormaliser(TalismaneSession session) {
+  }
 
   @Override
-  public void replace(List<String> tokens) {
-    for (int i = 0; i < tokens.size(); i++) {
-      String token = tokens.get(i);
-      tokens.set(i, token.toLowerCase(session.getLocale()));
+  public void apply(TokenSequence tokenSequence) {
+    for (Token token : tokenSequence) {
+      token.setText(doubleQuotes.matcher(token.getText()).replaceAll("\""));
+      token.setText(singleQuotes.matcher(token.getText()).replaceAll("'"));
+      token.setText(dashes.matcher(token.getText()).replaceAll("-"));
     }
-  }
-
-  @Override
-  public TalismaneSession getTalismaneSession() {
-    return session;
-  }
-
-  @Override
-  public void setTalismaneSession(TalismaneSession talismaneSession) {
-    this.session = talismaneSession;
   }
 
 }

@@ -46,7 +46,6 @@ public class SentenceAnnotatorLoader {
   private final TalismaneSession talismaneSession;
   private final Set<String> registeredNames = new HashSet<>();
   private final Map<String, SentenceAnnotatorFactory<?>> registeredFactories = new HashMap<>();
-  private final Map<String, Class<? extends TextReplacer>> registeredTextReplacers = new HashMap<>();
 
   private static final Map<String, SentenceAnnotatorLoader> instances = new HashMap<>();
 
@@ -63,15 +62,6 @@ public class SentenceAnnotatorLoader {
     this.talismaneSession = talismaneSession;
     registeredNames.add(RegexAttributeAnnotator.class.getSimpleName());
     registeredNames.add(RegexTokenAnnotator.class.getSimpleName());
-    registeredNames.add(TextReplaceFilter.class.getSimpleName());
-
-    registeredTextReplacers.put(DiacriticRemover.class.getSimpleName(), DiacriticRemover.class);
-    registeredTextReplacers.put(LowercaseFilter.class.getSimpleName(), LowercaseFilter.class);
-    registeredTextReplacers.put(LowercaseKnownFirstWordFilter.class.getSimpleName(), LowercaseKnownFirstWordFilter.class);
-    registeredTextReplacers.put(LowercaseKnownWordFilter.class.getSimpleName(), LowercaseKnownWordFilter.class);
-    registeredTextReplacers.put(QuoteNormaliser.class.getSimpleName(), QuoteNormaliser.class);
-    registeredTextReplacers.put(UppercaseSeriesFilter.class.getSimpleName(), UppercaseSeriesFilter.class);
-
   }
 
   /**
@@ -165,9 +155,7 @@ public class SentenceAnnotatorLoader {
       String className = parts[0];
 
       SentenceAnnotator filter = null;
-      if (className.equals(TextReplaceFilter.class.getSimpleName())) {
-        filter = new TextReplaceFilter(registeredTextReplacers, descriptor, talismaneSession);
-      } else if (className.equals(RegexTokenAnnotator.class.getSimpleName())) {
+      if (className.equals(RegexTokenAnnotator.class.getSimpleName())) {
         filter = new RegexTokenAnnotator(descriptor, defaultParams, talismaneSession);
       } else if (className.equals(RegexAttributeAnnotator.class.getSimpleName())) {
         filter = new RegexAttributeAnnotator(descriptor, defaultParams, talismaneSession);

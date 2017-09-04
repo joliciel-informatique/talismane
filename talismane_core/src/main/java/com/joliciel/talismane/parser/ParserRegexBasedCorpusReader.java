@@ -75,8 +75,10 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
    * transitions<br/>
    * 
    * @throws TalismaneException
+   * @throws ReflectiveOperationException
    */
-  public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
+  public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session)
+      throws IOException, TalismaneException, ReflectiveOperationException {
     super(reader, config, session);
     this.predictTransitions = config.getBoolean("predict-transitions");
   }
