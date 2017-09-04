@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2016 Joliciel Informatique
+//Copyright (C) 2015 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -16,31 +16,36 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.sentenceAnnotators;
+package com.joliciel.talismane.tokeniser.filters;
 
-import java.io.Serializable;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
+import java.util.regex.Pattern;
+
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
- * A marker to be used inside an annotation, indicating that the annotated
- * section should be replaced by another text for analysis purposes.
+ * Removes all diacritics from text.
  * 
  * @author Assaf Urieli
  *
  */
-public class TextReplacement implements Serializable {
-  private static final long serialVersionUID = 1L;
-  private final String replacement;
+public class DiacriticRemover implements TokenFilter {
+  private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
-  public TextReplacement(String replacement) {
-    this.replacement = replacement;
-  }
-
-  public String getReplacement() {
-    return replacement;
+  public DiacriticRemover(TalismaneSession session) {
   }
 
   @Override
-  public String toString() {
-    return "TextReplacement [replacement=" + replacement + "]";
+  public void apply(TokenSequence tokenSequence) {
+    for (Token token : tokenSequence) {
+      token.setText(removeDiacritics(token.getText()));
+    }
+  }
+
+  public static String removeDiacritics(String string) {
+    return diacriticPattern.matcher(Normalizer.normalize(string, Form.NFD)).replaceAll("");
   }
 }

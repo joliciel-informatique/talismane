@@ -37,6 +37,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
+import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.typesafe.config.Config;
 
 import gnu.trove.set.TIntSet;
@@ -66,13 +67,26 @@ public abstract class Tokeniser implements Annotator<Sentence> {
   private static final Map<String, Pattern> tokenSeparatorMap = new HashMap<>();
 
   private final TalismaneSession session;
+  private final List<TokenFilter> filters;
 
-  public Tokeniser(TalismaneSession session) {
+  public Tokeniser(TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
     this.session = session;
+
+    Config config = session.getConfig();
+
+    this.filters = new ArrayList<>();
+
+    String configPath = "talismane.core.tokeniser.filters";
+    List<String> filterDescriptors = config.getStringList(configPath);
+    for (String descriptor : filterDescriptors) {
+      TokenFilter filter = TokenFilter.loadFilter(descriptor, session);
+      this.filters.add(filter);
+    }
   }
 
   protected Tokeniser(Tokeniser tokeniser) {
     this.session = tokeniser.session;
+    this.filters = tokeniser.filters;
   }
 
   /**
@@ -153,7 +167,7 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    * tokenised is contained within a Sentence object.
    * 
    * @param sentence
-   *          the sentence to tokeniser
+   *          the sentence to tokenise
    * @param labels
    *          the labels to add to any annotations added.
    * @throws IOException
@@ -171,6 +185,10 @@ public abstract class Tokeniser implements Annotator<Sentence> {
     int j = 1;
     for (TokenisedAtomicTokenSequence sequence : sequences) {
       TokenSequence newTokenSequence = sequence.inferTokenSequence();
+
+      for (TokenFilter filter : filters)
+        filter.apply(newTokenSequence);
+
       if (j == 1) {
         // add annotations for the very first token sequence
         List<Annotation<TokenBoundary>> tokenBoundaries = new ArrayList<>();
