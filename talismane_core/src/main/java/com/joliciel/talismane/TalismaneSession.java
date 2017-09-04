@@ -131,14 +131,14 @@ public class TalismaneSession {
    * @throws IOException
    *           if a problem occurred when reading resources referred to by the
    *           configuration
-   * @throws ClassNotFoundException
-   *           if a resource contains the wrong serialized class or version
    * @throws TalismaneException
    *           if an unknown transition system was set in the configuration.
    * @throws SentenceAnnotatorLoadException
    *           if configuration error loading sentence annotators
+   * @throws ReflectiveOperationException
    */
-  public TalismaneSession(Config config, String sessionId) throws IOException, ClassNotFoundException, TalismaneException, SentenceAnnotatorLoadException {
+  public TalismaneSession(Config config, String sessionId)
+      throws IOException, TalismaneException, SentenceAnnotatorLoadException, ReflectiveOperationException {
     this.sessionId = sessionId;
     this.config = config;
 

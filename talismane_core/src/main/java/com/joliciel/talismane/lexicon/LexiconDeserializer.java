@@ -46,7 +46,7 @@ import joptsimple.OptionSpec;
 public class LexiconDeserializer {
   private static final Logger LOG = LoggerFactory.getLogger(LexiconDeserializer.class);
 
-  public static void main(String[] args) throws IOException, ClassNotFoundException, SentenceAnnotatorLoadException, TalismaneException {
+  public static void main(String[] args) throws IOException, SentenceAnnotatorLoadException, TalismaneException, ReflectiveOperationException {
     OptionParser parser = new OptionParser();
     parser.accepts("testLexicon", "test lexicon");
 

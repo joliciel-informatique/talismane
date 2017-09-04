@@ -23,7 +23,6 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.rawText.Sentence;
-import com.joliciel.talismane.sentenceAnnotators.TextReplacement;
 import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 
 /**
@@ -57,7 +56,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
   private boolean withRoot = false;
   private PosTagSequence posTagSequence;
   private final Map<Integer, Annotation<TokenPlaceholder>> placeholderMap;
-  private final List<Annotation<TextReplacement>> replacements;
 
   @SuppressWarnings("rawtypes")
   private final Map<String, NavigableSet<Annotation<TokenAttribute>>> attributeOrderingMap;
@@ -80,8 +78,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
       if (!placeholderMap.containsKey(placeholder.getStart()))
         placeholderMap.put(placeholder.getStart(), placeholder);
     }
-
-    this.replacements = sentence.getAnnotations(TextReplacement.class);
 
     @SuppressWarnings("rawtypes")
     List<Annotation<TokenAttribute>> tokenAttributes = sentence.getAnnotations(TokenAttribute.class);
@@ -119,7 +115,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
     this.atomicTokenCount = sequenceToClone.atomicTokenCount;
     this.posTagSequence = sequenceToClone.posTagSequence;
     this.placeholderMap = sequenceToClone.placeholderMap;
-    this.replacements = sequenceToClone.replacements;
     this.attributeOrderingMap = sequenceToClone.attributeOrderingMap;
 
     for (Token token : sequenceToClone) {
@@ -369,37 +364,12 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
     }
 
     // set token text to replacement, if required
-    boolean foundReplacement = false;
     if (this.placeholderMap.containsKey(token.getStartIndex())) {
       Annotation<TokenPlaceholder> placeholder = this.placeholderMap.get(token.getStartIndex());
       if (placeholder.getEnd() == token.getEndIndex() && placeholder.getData().getReplacement() != null) {
         token.setText(placeholder.getData().getReplacement());
-        foundReplacement = true;
         if (LOG.isTraceEnabled()) {
           LOG.trace("Set token text to: " + token.getText() + " using " + placeholder.toString());
-        }
-      }
-    }
-
-    if (!foundReplacement) {
-      int lastReplacement = token.getStartIndex();
-      StringBuilder sb = new StringBuilder();
-      for (Annotation<TextReplacement> replacement : replacements) {
-        if (replacement.getStart() >= lastReplacement && replacement.getStart() < token.getEndIndex()) {
-          sb.append(token.getOriginalText().substring(lastReplacement - token.getStartIndex(), replacement.getStart() - token.getStartIndex()));
-          sb.append(replacement.getData().getReplacement());
-
-          if (LOG.isTraceEnabled()) {
-            LOG.trace("applied replacement: " + replacement.toString());
-          }
-          lastReplacement = replacement.getEnd();
-        }
-      }
-      if (lastReplacement > token.getStartIndex() && (lastReplacement - token.getStartIndex() <= token.getOriginalText().length())) {
-        sb.append(token.getOriginalText().substring(lastReplacement - token.getStartIndex()));
-        token.setText(sb.toString());
-        if (LOG.isTraceEnabled()) {
-          LOG.trace("Set token text to: " + token.getAnalyisText());
         }
       }
     }

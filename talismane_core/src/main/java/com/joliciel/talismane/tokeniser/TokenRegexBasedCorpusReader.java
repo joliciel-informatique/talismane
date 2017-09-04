@@ -31,6 +31,7 @@ import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
+import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.typesafe.config.Config;
@@ -74,6 +75,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
   private final SentenceDetectorAnnotatedCorpusReader sentenceReader;
 
   private boolean needsToReturnBlankLine = false;
+  private final List<TokenFilter> filters;
 
   /**
    * Add attributes as specified in the config to the corpus reader. Recognises
@@ -86,9 +88,11 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
    * 
    * @param config
    *          the local config for this corpus reader (local namespace)
-   * @throws TalismaneException
+   * @throws ReflectiveOperationException
+   *           if a TokenFilter cannot be built
    */
-  public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
+  public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session)
+      throws IOException, TalismaneException, ReflectiveOperationException {
     super(config, session);
     this.regex = config.getString("input-pattern");
     this.scanner = new Scanner(reader);
@@ -122,6 +126,17 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
       }
     }
     this.corpusLineReader = new CorpusLineReader(regex, this.getRequiredElements(), corpusRules, lexicalEntryReader, session);
+
+    Config topLevelConfig = session.getConfig();
+
+    this.filters = new ArrayList<>();
+
+    configPath = "talismane.core.tokeniser.filters";
+    List<String> filterDescriptors = topLevelConfig.getStringList(configPath);
+    for (String descriptor : filterDescriptors) {
+      TokenFilter filter = TokenFilter.loadFilter(descriptor, session);
+      this.filters.add(filter);
+    }
   }
 
   protected CorpusElement[] getRequiredElements() {
@@ -245,6 +260,10 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
       for (CorpusLine corpusLine : corpusLines) {
         this.convertToToken(tokenSequence, corpusLine);
       }
+
+      for (TokenFilter filter : filters)
+        filter.apply(tokenSequence);
+
       tokenSequence.cleanSlate();
     } catch (TalismaneException e) {
       this.clearSentence();

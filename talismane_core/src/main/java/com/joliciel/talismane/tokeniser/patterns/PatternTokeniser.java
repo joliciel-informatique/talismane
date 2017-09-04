@@ -93,7 +93,7 @@ public class PatternTokeniser extends Tokeniser {
 
   private final List<ClassificationObserver> observers;
 
-  public PatternTokeniser(TalismaneSession session) throws IOException, ClassNotFoundException {
+  public PatternTokeniser(TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
     super(session);
     Config config = session.getConfig();
     Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
@@ -134,8 +134,8 @@ public class PatternTokeniser extends Tokeniser {
   }
 
   PatternTokeniser(DecisionMaker decisionMaker, TokeniserPatternManager tokeniserPatternManager, Set<TokenPatternMatchFeature<?>> features, int beamWidth,
-      TalismaneSession talismaneSession) {
-    super(talismaneSession);
+      TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
+    super(session);
     this.decisionMaker = decisionMaker;
     this.beamWidth = beamWidth;
     this.features = features;
