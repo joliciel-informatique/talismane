@@ -65,12 +65,12 @@ public class PosTaggerTrainer {
 
   public PosTaggerTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
     Config config = session.getConfig();
-    this.posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    this.posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
     this.session = session;
     this.modelFile = new File(posTaggerConfig.getString("model"));
     this.descriptors = new HashMap<>();
 
-    String configPath = "talismane.core.pos-tagger.train.features";
+    String configPath = "talismane.core." + session.getId() + ".pos-tagger.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {

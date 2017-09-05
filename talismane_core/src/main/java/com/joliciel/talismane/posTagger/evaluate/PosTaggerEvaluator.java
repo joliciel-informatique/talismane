@@ -64,7 +64,7 @@ public class PosTaggerEvaluator {
     Config config = session.getConfig();
     this.observers = PosTagEvaluationObserver.getObservers(outDir, session);
 
-    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
 
     this.corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("input"), session);
 

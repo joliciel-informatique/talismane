@@ -53,7 +53,7 @@ public class PosTagEvaluationSentenceWriter implements PosTagEvaluationObserver 
 
   public PosTagEvaluationSentenceWriter(File outDir, TalismaneSession session) throws FileNotFoundException {
     Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
     Config evalConfig = posTaggerConfig.getConfig("evaluate");
 
     File csvFile = new File(outDir, session.getBaseName() + "_sentences.csv");

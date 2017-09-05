@@ -96,10 +96,10 @@ public class PatternTokeniser extends Tokeniser {
   public PatternTokeniser(TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
     super(session);
     Config config = session.getConfig();
-    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
     this.beamWidth = tokeniserConfig.getInt("beam-width");
 
-    String configPath = "talismane.core.tokeniser.model";
+    String configPath = "talismane.core." + session.getId() + ".tokeniser.model";
     String modelFilePath = config.getString(configPath);
     LOG.debug("Getting tokeniser model from " + modelFilePath);
     ClassificationModel tokeniserModel = modelMap.get(modelFilePath);

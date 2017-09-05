@@ -63,13 +63,13 @@ public class LanguageDetectorTrainer {
 
   public LanguageDetectorTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
     Config config = session.getConfig();
-    this.languageConfig = config.getConfig("talismane.core.language-detector");
+    this.languageConfig = config.getConfig("talismane.core." + session.getId() + ".language-detector");
     this.session = session;
     this.modelFile = new File(languageConfig.getString("model"));
 
     this.descriptors = new HashMap<>();
 
-    String configPath = "talismane.core.language-detector.train.features";
+    String configPath = "talismane.core." + session.getId() + ".language-detector.train.features";
     InputStream featureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(featureFile, "UTF-8")))) {

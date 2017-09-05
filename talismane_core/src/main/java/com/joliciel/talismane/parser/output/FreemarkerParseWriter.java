@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.BuiltInTemplate;
-import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
@@ -53,8 +53,8 @@ import freemarker.template.Version;
 /**
  * Processes parser output by writing via a freemarker template. Will either use
  * the built-in template specified in
- * talismane.core.parser.output.built-in-template, or any other template
- * specified in talismane.core.parser.output.template.<br/>
+ * talismane.core.[sessionId].parser.output.built-in-template, or any other
+ * template specified in talismane.core.[sessionId].parser.output.template.<br/>
  * If no writer is specified, will write to a file with the suffix "_dep.txt".
  * 
  * @author Assaf Urieli
@@ -76,12 +76,12 @@ public class FreemarkerParseWriter implements ParseConfigurationProcessor {
 
   public FreemarkerParseWriter(Writer writer, TalismaneSession session) throws IOException {
     Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
 
     this.writer = writer;
 
     Reader templateReader = null;
-    String configPath = "talismane.core.parser.output.template";
+    String configPath = "talismane.core." + session.getId() + ".parser.output.template";
     if (config.hasPath(configPath)) {
       templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
     } else {

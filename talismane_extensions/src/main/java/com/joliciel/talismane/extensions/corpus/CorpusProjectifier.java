@@ -85,8 +85,8 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
 
   public CorpusProjectifier(TalismaneSession session) throws IOException {
     Config config = session.getConfig();
-    nonProjectiveArcSuffix = config.getString("talismane.extensions.projectifier.non-projective-arc-suffix");
-    strategy = ProjectivationStrategy.valueOf(config.getString("talismane.extensions.projectifier.strategy"));
+    nonProjectiveArcSuffix = config.getString("talismane.extensions." + session.getId() + ".projectifier.non-projective-arc-suffix");
+    strategy = ProjectivationStrategy.valueOf(config.getString("talismane.extensions." + session.getId() + ".projectifier.strategy"));
   }
 
   @Override

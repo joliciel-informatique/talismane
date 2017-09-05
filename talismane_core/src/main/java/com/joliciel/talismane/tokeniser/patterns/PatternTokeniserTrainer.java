@@ -66,12 +66,12 @@ public class PatternTokeniserTrainer {
 
   public PatternTokeniserTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
     Config config = session.getConfig();
-    this.tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    this.tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
     this.session = session;
     this.modelFile = new File(tokeniserConfig.getString("model"));
     this.descriptors = new HashMap<>();
 
-    String configPath = "talismane.core.tokeniser.train.patterns";
+    String configPath = "talismane.core." + session.getId() + ".tokeniser.train.patterns";
     InputStream tokeniserPatternFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> patternDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserPatternFile, "UTF-8")))) {
@@ -86,7 +86,7 @@ public class PatternTokeniserTrainer {
 
     TokeniserPatternManager tokeniserPatternManager = new TokeniserPatternManager(patternDescriptors, session);
 
-    configPath = "talismane.core.tokeniser.train.features";
+    configPath = "talismane.core." + session.getId() + ".tokeniser.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {

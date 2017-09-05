@@ -131,7 +131,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 
     this.filters = new ArrayList<>();
 
-    configPath = "talismane.core.tokeniser.filters";
+    configPath = "talismane.core." + session.getId() + ".tokeniser.filters";
     List<String> filterDescriptors = topLevelConfig.getStringList(configPath);
     for (String descriptor : filterDescriptors) {
       TokenFilter filter = TokenFilter.loadFilter(descriptor, session);

@@ -33,9 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.Module;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -62,7 +62,7 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 
   public ParserFScoreCalculatorByDistance(File outDir, TalismaneSession session) throws FileNotFoundException {
     Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
 
     File csvFile = new File(outDir, session.getBaseName() + "_distances.csv");

@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.BuiltInTemplate;
-import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
@@ -53,8 +53,9 @@ import freemarker.template.Version;
 /**
  * Processes pos-tagger output by writing via a freemarker template.<br/>
  * Will either use the built-in template specified in
- * talismane.core.pos-tagger.output.built-in-template, or any other template
- * specified in talismane.core.pos-tagger.output.template.<br/>
+ * talismane.core.[sessionId]pos-tagger.output.built-in-template, or any other
+ * template specified in talismane.core.[sessionId].pos-tagger.output.template.
+ * <br/>
  * If no writer is specified, will write to a file with the suffix "_pos.txt".
  * 
  * @author Assaf Urieli
@@ -74,10 +75,10 @@ public class FreemarkerPosTagWriter implements PosTagSequenceProcessor {
     this.writer = writer;
 
     Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
 
     Reader templateReader = null;
-    String configPath = "talismane.core.pos-tagger.output.template";
+    String configPath = "talismane.core." + session.getId() + ".pos-tagger.output.template";
     if (config.hasPath(configPath)) {
       templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
     } else {
