@@ -38,9 +38,10 @@ class SentenceHolder {
 
   private static final Logger LOG = LoggerFactory.getLogger(SentenceHolder.class);
   private TreeSet<Integer> sentenceBoundaries = new TreeSet<Integer>();
-  private static final Pattern duplicateWhiteSpacePattern = Pattern.compile("[" + Sentence.WHITE_SPACE + "\n\r]{2,}", Pattern.UNICODE_CHARACTER_CLASS);
-  private static final Pattern openingWhiteSpacePattern = Pattern.compile("\\A([" + Sentence.WHITE_SPACE + "\n\r]+)", Pattern.UNICODE_CHARACTER_CLASS);
-  private static final Pattern closingWhiteSpacePattern = Pattern.compile("([" + Sentence.WHITE_SPACE + "\n\r]+)\\z", Pattern.UNICODE_CHARACTER_CLASS);
+  private static final Pattern duplicateWhiteSpacePattern = Pattern.compile("[" + Sentence.WHITE_SPACE + "]{2,}", Pattern.UNICODE_CHARACTER_CLASS);
+  private static final Pattern openingWhiteSpacePattern = Pattern.compile("\\A([" + Sentence.WHITE_SPACE + "]+)", Pattern.UNICODE_CHARACTER_CLASS);
+  private static final Pattern closingWhiteSpacePattern = Pattern.compile("([" + Sentence.WHITE_SPACE + "]+)\\z", Pattern.UNICODE_CHARACTER_CLASS);
+  private static final Pattern whiteSpacePattern = Pattern.compile("([" + Sentence.WHITE_SPACE + "]+)", Pattern.UNICODE_CHARACTER_CLASS);
   private String processedText = "";
 
   private final int originalStartIndex;
@@ -132,22 +133,25 @@ class SentenceHolder {
       // is this the final incomplete sentence?
       boolean isLeftover = (!endOfBlock) && (haveLeftOvers && sentenceBoundary == this.processedText.length());
 
+      String text = this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
+      if (!isLeftover && (whiteSpacePattern.matcher(text).matches() || text.length() == 0)) {
+        // empty sentence, skip it
+        continue;
+      }
+
       int leftOverTextLength = 0;
-      String text = "";
       List<Integer> originalIndexes = new ArrayList<>();
       TreeMap<Integer, String> originalTextSegments = new TreeMap<>();
       String leftoverOriginalText = "";
 
       if (leftover != null) {
         leftOverTextLength = leftover.getText().length();
-        text = leftover.getText() + this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
+        text = leftover.getText() + text;
         originalIndexes.addAll(leftover.getOriginalIndexes());
         originalTextSegments.putAll(leftover.getOriginalTextSegments());
         leftoverOriginalText = leftover.getLeftoverOriginalText();
 
         leftover = null;
-      } else {
-        text = this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
       }
 
       // handle trim & duplicate white space here
