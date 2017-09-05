@@ -24,6 +24,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,10 +108,12 @@ public class PosTagEventStream implements ClassificationEventStream {
 
       if (LOG.isTraceEnabled()) {
         LOG.trace("Token: " + taggedToken.getToken().getAnalyisText());
-        for (FeatureResult<?> result : posTagFeatureResults) {
-          LOG.trace(result.toString());
+        SortedSet<String> featureResultSet = posTagFeatureResults.stream().map(f -> f.toString()).collect(Collectors.toCollection(() -> new TreeSet<String>()));
+        for (String featureResultString : featureResultSet) {
+          LOG.trace(featureResultString);
         }
       }
+
       event = new ClassificationEvent(posTagFeatureResults, classification);
 
       currentHistory.addPosTaggedToken(taggedToken);

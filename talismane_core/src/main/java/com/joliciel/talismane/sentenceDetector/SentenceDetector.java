@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,12 +81,12 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 
   public static SentenceDetector getInstance(TalismaneSession session) throws IOException, ClassNotFoundException {
     SentenceDetector sentenceDetector = null;
-    if (session.getSessionId() != null)
-      sentenceDetector = sentenceDetectorMap.get(session.getSessionId());
+    if (session.getId() != null)
+      sentenceDetector = sentenceDetectorMap.get(session.getId());
     if (sentenceDetector == null) {
       Config config = session.getConfig();
 
-      String configPath = "talismane.core.sentence-detector.model";
+      String configPath = "talismane.core." + session.getId() + ".sentence-detector.model";
       String modelFilePath = config.getString(configPath);
       ClassificationModel sentenceModel = modelMap.get(modelFilePath);
       if (sentenceModel == null) {
@@ -97,8 +98,8 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 
       sentenceDetector = new SentenceDetector(sentenceModel, session);
 
-      if (session.getSessionId() != null)
-        sentenceDetectorMap.put(session.getSessionId(), sentenceDetector);
+      if (session.getId() != null)
+        sentenceDetectorMap.put(session.getId(), sentenceDetector);
     }
     return sentenceDetector.cloneSentenceDetector();
   }
@@ -169,7 +170,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
     List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreakMarkers = text.getAnnotations(RawTextNoSentenceBreakMarker.class);
 
     Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text.getText());
-    List<Integer> possibleBoundaries = new ArrayList<Integer>();
+    List<Integer> possibleBoundaries = new ArrayList<>();
     while (matcher.find()) {
       if (matcher.start() >= text.getAnalysisStart() && matcher.start() < text.getAnalysisEnd()) {
         boolean noSentences = false;
@@ -198,7 +199,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
         LOG.trace(" at position: " + possibleBoundary);
       }
 
-      List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
+      List<FeatureResult<?>> featureResults = new ArrayList<>();
       for (SentenceDetectorFeature<?> feature : features) {
         RuntimeEnvironment env = new RuntimeEnvironment();
         FeatureResult<?> featureResult = feature.check(boundary, env);
@@ -206,8 +207,9 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
           featureResults.add(featureResult);
       }
       if (LOG.isTraceEnabled()) {
-        for (FeatureResult<?> result : featureResults) {
-          LOG.trace(result.toString());
+        SortedSet<String> featureResultSet = featureResults.stream().map(f -> f.toString()).collect(Collectors.toCollection(() -> new TreeSet<String>()));
+        for (String featureResultString : featureResultSet) {
+          LOG.trace(featureResultString);
         }
       }
 
@@ -242,6 +244,10 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
     List<Annotation<SentenceBoundary>> existingBoundaries = text.getAnnotations(SentenceBoundary.class);
     if (existingBoundaries.size() > 0) {
       lastBoundary = existingBoundaries.get(existingBoundaries.size() - 1).getEnd();
+    }
+    // advance boundary start until a non space character is encountered
+    while (lastBoundary < text.getAnalysisEnd() && Character.isWhitespace(text.getText().charAt(lastBoundary))) {
+      lastBoundary++;
     }
     for (int guessedBoundary : guessedBoundaries) {
       if (guessedBoundary > lastBoundary) {

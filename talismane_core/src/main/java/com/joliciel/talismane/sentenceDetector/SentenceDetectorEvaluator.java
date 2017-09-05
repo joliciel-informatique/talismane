@@ -64,7 +64,7 @@ public class SentenceDetectorEvaluator {
 
     Config config = session.getConfig();
     this.sentenceDetector = SentenceDetector.getInstance(session);
-    Config sentenceConfig = config.getConfig("talismane.core.sentence-detector");
+    Config sentenceConfig = config.getConfig("talismane.core." + session.getId() + ".sentence-detector");
     this.corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(evalReader, sentenceConfig.getConfig("input"), session);
 
     File sentenceErrorFile = new File(outDir, session.getBaseName() + "_errors.txt");

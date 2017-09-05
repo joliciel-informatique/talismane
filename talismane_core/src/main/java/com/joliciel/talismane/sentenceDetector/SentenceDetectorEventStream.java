@@ -25,7 +25,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,11 +106,14 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
         if (featureResult != null)
           featureResults.add(featureResult);
       }
+
       if (LOG.isTraceEnabled()) {
-        for (FeatureResult<?> result : featureResults) {
-          LOG.trace(result.toString());
+        SortedSet<String> featureResultSet = featureResults.stream().map(f -> f.toString()).collect(Collectors.toCollection(() -> new TreeSet<String>()));
+        for (String featureResultString : featureResultSet) {
+          LOG.trace(featureResultString);
         }
       }
+
       String classification = SentenceDetectorOutcome.IS_NOT_BOUNDARY.name();
       if (possibleBoundary == realBoundary)
         classification = SentenceDetectorOutcome.IS_BOUNDARY.name();

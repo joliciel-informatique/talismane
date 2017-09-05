@@ -91,6 +91,10 @@ public class Token implements TokenWrapper {
   private Integer lineNumberEnd = null;
   private Integer columnNumberEnd = null;
 
+  private String originalLemma = "";
+  private String originalMorphology = "";
+  private String originalCategory = "";
+
   private Map<PosTag, List<LexicalEntry>> lexicalEntryMap;
   private double probability = -1;
   private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
@@ -339,7 +343,10 @@ public class Token implements TokenWrapper {
   }
 
   public int compareTo(Token o) {
-    return this.getStartIndex() - o.getStartIndex();
+    if (this.startIndex != o.startIndex)
+      return this.startIndex - o.startIndex;
+    else
+      return this.endIndex - o.endIndex;
   }
 
   /**
@@ -381,6 +388,7 @@ public class Token implements TokenWrapper {
     int result = 1;
     result = prime * result + ((originalText == null) ? 0 : originalText.hashCode());
     result = prime * result + startIndex;
+    result = prime * result + endIndex;
     return result;
   }
 
@@ -399,6 +407,8 @@ public class Token implements TokenWrapper {
     } else if (!originalText.equals(other.originalText))
       return false;
     if (startIndex != other.startIndex)
+      return false;
+    if (endIndex != other.endIndex)
       return false;
     return true;
   }
@@ -600,6 +610,48 @@ public class Token implements TokenWrapper {
   public <T extends Serializable> void addAttribute(String key, TokenAttribute<T> value) {
     if (!attributes.containsKey(key))
       attributes.put(key, value);
+  }
+
+  /**
+   * The original lemma listed in the annotated training or evaluation corpus.
+   */
+  public String getOriginalLemma() {
+    return originalLemma;
+  }
+
+  /**
+   * Like {@link #getOriginalLemma()} but formatted for CoNLL
+   */
+  public String getOriginalLemmaForCoNLL() {
+    return talismaneSession.getCoNLLFormatter().toCoNLL(originalLemma);
+  }
+
+  public void setOriginalLemma(String originalLemma) {
+    this.originalLemma = originalLemma;
+  }
+
+  /**
+   * The original morphology listed in the annotated training or evaluation
+   * corpus.
+   */
+  public String getOriginalMorphology() {
+    return originalMorphology;
+  }
+
+  public void setOriginalMorphology(String originalMorphology) {
+    this.originalMorphology = originalMorphology;
+  }
+
+  /**
+   * The original category listed in the annotated training or evaluation
+   * corpus.
+   */
+  public String getOriginalCategory() {
+    return originalCategory;
+  }
+
+  public void setOriginalCategory(String originalCategory) {
+    this.originalCategory = originalCategory;
   }
 
 }

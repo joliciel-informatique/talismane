@@ -18,25 +18,17 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.joliciel.talismane.Talismane;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.rawText.Sentence;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -54,42 +46,91 @@ public interface SentenceProcessor extends Closeable {
   public void onNextSentence(Sentence sentence) throws IOException;
 
   /**
+   * Collect the processors specified in the configuration key
+   * talismane.core.[sessionId].sentence-detector.output.processors.<br/>
+   * <br/>
+   * Each processor must implement this interface and must have a constructor
+   * matching one of the following signatures:<br/>
+   * - ( {@link File} outputDir, {@link TalismaneSession} session)<br/>
+   * - ( {@link TalismaneSession} session)<br/>
+   * <br/>
+   * Optionally, it can have a constructor with the following signature:<br/>
+   * - ( {@link Writer} writer, {@link TalismaneSession} session)<br/>
+   * If a writer is provided here, then the first processor with the above
+   * constructor will be given the writer.
    * 
    * @param writer
-   *          if provided, the main processor will write to this writer, if
-   *          null, the outDir will be used instead
+   *          if specified, will be used for the first processor in the list
+   *          with a writer in the constructor
    * @param outDir
+   *          directory in which to write the various outputs
    * @param session
+   *          to read the configuration
    * @return
    * @throws IOException
+   * @throws TalismaneException
+   *           if a processor does not implement this interface, or if no
+   *           constructor is found with the correct signature
    */
-  public static List<SentenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
-    List<SentenceProcessor> sentenceProcessors = new ArrayList<>();
+  public static List<SentenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session)
+      throws IOException, ReflectiveOperationException, ClassNotFoundException, TalismaneException {
     Config config = session.getConfig();
+    Config myConfig = config.getConfig("talismane.core." + session.getId() + ".sentence-detector");
 
+    List<SentenceProcessor> processors = new ArrayList<>();
+    List<String> classes = myConfig.getStringList("output.processors");
     if (outDir != null)
       outDir.mkdirs();
 
-    Reader templateReader = null;
-    String configPath = "talismane.core.sentence-detector.output.template";
-    if (config.hasPath(configPath)) {
-      templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-    } else {
-      String sentenceTemplateName = "sentence_template.ftl";
-      String path = "output/" + sentenceTemplateName;
-      InputStream inputStream = Talismane.class.getResourceAsStream(path);
-      if (inputStream == null)
-        throw new IOException("Resource not found in classpath: " + path);
-      templateReader = new BufferedReader(new InputStreamReader(inputStream));
+    Writer firstProcessorWriter = writer;
+    for (String className : classes) {
+      @SuppressWarnings("rawtypes")
+      Class untypedClass = Class.forName(className);
+      if (!SentenceProcessor.class.isAssignableFrom(untypedClass))
+        throw new TalismaneException("Class " + className + " does not implement interface " + SentenceProcessor.class.getSimpleName());
 
+      @SuppressWarnings("unchecked")
+      Class<? extends SentenceProcessor> clazz = untypedClass;
+
+      Constructor<? extends SentenceProcessor> cons = null;
+      SentenceProcessor processor = null;
+      if (firstProcessorWriter != null) {
+        try {
+          cons = clazz.getConstructor(Writer.class, TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          processor = cons.newInstance(firstProcessorWriter, session);
+          firstProcessorWriter = null;
+        }
+      }
+      if (cons == null) {
+        try {
+          cons = clazz.getConstructor(File.class, TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          processor = cons.newInstance(outDir, session);
+        }
+      }
+      if (cons == null) {
+        try {
+          cons = clazz.getConstructor(TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          processor = cons.newInstance(session);
+        } else {
+          throw new TalismaneException("No constructor found with correct signature for: " + className);
+        }
+      }
+
+      processors.add(processor);
     }
-    if (writer == null) {
-      File file = new File(outDir, session.getBaseName() + "_sent.txt");
-      writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
-    }
-    FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, writer);
-    SentenceProcessor sentenceProcessor = templateWriter;
-    sentenceProcessors.add(sentenceProcessor);
-    return sentenceProcessors;
+
+    return processors;
   }
 }

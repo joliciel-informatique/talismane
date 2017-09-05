@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
@@ -44,6 +45,15 @@ public class ParseTree {
   private final ParseTreeNode root;
   private List<Pair<ParseTreeNode, ParseTreeNode>> illNestedNodes = null;
   private List<ParseTreeNode> nonProjectiveNodes = null;
+  private List<DependencyArc> nonProjectiveEdges = null;
+
+  /**
+   * Same as {@link ParseTree#ParseTree(ParseConfiguration, boolean, boolean)}
+   * but defaults attachOrphansToRoot to false.
+   */
+  public ParseTree(ParseConfiguration parseConfiguration, boolean projective) {
+    this(parseConfiguration, projective, false);
+  }
 
   /**
    * Create a parse tree out of a given parse configuration.
@@ -53,8 +63,11 @@ public class ParseTree {
    * @param projective
    *          whether we should use the projective arcs (true) or the
    *          potentially non-projective arcs (false)
+   * @param attachOrphansToRoot
+   *          if true, any unattached nodes are attached to the root, if false,
+   *          they are left unattached
    */
-  public ParseTree(ParseConfiguration parseConfiguration, boolean projective) {
+  public ParseTree(ParseConfiguration parseConfiguration, boolean projective, boolean attachOrphansToRoot) {
     this.posTaggedTokens = parseConfiguration.getPosTagSequence();
     this.parseTreeMap = new HashMap<>();
     this.dependentMap = new HashMap<>();
@@ -73,10 +86,24 @@ public class ParseTree {
       this.dependentMap.put(token, dependents);
     }
 
+    PosTaggedToken rootToken = null;
+    for (PosTaggedToken token : this.posTaggedTokens) {
+      if (token.getTag().equals(PosTag.ROOT_POS_TAG)) {
+        rootToken = token;
+        break;
+      }
+    }
+    if (rootToken == null) {
+      throw new RuntimeException("No root found in parse configuration");
+    }
+
     for (PosTaggedToken token : this.posTaggedTokens) {
       DependencyArc arc = this.governingDependencyMap.get(token);
       if (arc != null) {
         List<PosTaggedToken> dependents = this.dependentMap.get(arc.getHead());
+        dependents.add(token);
+      } else if (attachOrphansToRoot) {
+        List<PosTaggedToken> dependents = this.dependentMap.get(rootToken);
         dependents.add(token);
       }
     }
@@ -125,7 +152,7 @@ public class ParseTree {
   /**
    * Get the dependency arc governing a given pos-tagged token.
    */
-  public DependencyArc getGoverningDependency(PosTaggedToken token) {
+  public DependencyArc getGoverningArc(PosTaggedToken token) {
     return this.governingDependencyMap.get(token);
   }
 
@@ -205,6 +232,20 @@ public class ParseTree {
     nonProjectiveNodes = new ArrayList<>();
     this.root.getNonProjectiveNodes(nonProjectiveNodes);
     return nonProjectiveNodes;
+  }
+
+  /**
+   * Return all non-projective edges in this tree, where a non-projective edge
+   * is one where node <i>i</i> governs node <i>j</i>, and there is some node
+   * <i>k</i> where i&lt;k&lt;j such that node <i>i</i> does not dominate node
+   * <i>k</i>.
+   */
+  public List<DependencyArc> getNonProjectiveEdges() {
+    if (nonProjectiveEdges != null)
+      return nonProjectiveEdges;
+    nonProjectiveEdges = new ArrayList<>();
+    this.root.getNonProjectiveEdges(nonProjectiveEdges);
+    return nonProjectiveEdges;
   }
 
   @Override

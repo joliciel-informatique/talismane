@@ -55,30 +55,30 @@ import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconReader;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.Parser.PredictTransitions;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
-import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserTrainer;
+import com.joliciel.talismane.parser.evaluate.ParseComparator;
+import com.joliciel.talismane.parser.evaluate.ParserEvaluator;
+import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
-import com.joliciel.talismane.posTagger.PosTagComparator;
 import com.joliciel.talismane.posTagger.PosTagSequence;
-import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
-import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerTrainer;
+import com.joliciel.talismane.posTagger.evaluate.PosTagComparator;
+import com.joliciel.talismane.posTagger.evaluate.PosTaggerEvaluator;
+import com.joliciel.talismane.posTagger.output.PosTagSequenceProcessor;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorTrainer;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
-import com.joliciel.talismane.tokeniser.TokenComparator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
+import com.joliciel.talismane.tokeniser.evaluate.TokenComparator;
+import com.joliciel.talismane.tokeniser.evaluate.TokeniserEvaluator;
+import com.joliciel.talismane.tokeniser.output.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserTrainer;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
@@ -88,6 +88,7 @@ import com.joliciel.talismane.utils.io.DirectoryWriter;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import ch.qos.logback.core.joran.spi.JoranException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -101,9 +102,22 @@ import joptsimple.OptionSpec;
 public class TalismaneMain {
   private static final Logger LOG = LoggerFactory.getLogger(TalismaneMain.class);
 
-  private final Config config;
-
   public static void main(String[] args) throws Exception {
+    Config config = ConfigFactory.load();
+    TalismaneMain talismaneMain = new TalismaneMain();
+    talismaneMain.execute(config, args);
+  }
+
+  /**
+   * Execute by processing command line options with a given default config.
+   * 
+   * @param config
+   *          the default configuration (overridden by the CLI)
+   * @param args
+   *          the command-line options
+   */
+  public void execute(Config config, String[] args)
+      throws SentenceAnnotatorLoadException, IOException, ReflectiveOperationException, TalismaneException, JoranException {
     if (args.length > 0) {
       Set<String> argSet = new HashSet<>(Arrays.asList(args));
       if (argSet.contains("--serializeLexicon")) {
@@ -133,8 +147,11 @@ public class TalismaneMain {
     parser.accepts("process", "process annotated corpus").availableUnless("analyse", "train", "evaluate", "compare");
     parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("analyse", "train", "evaluate", "compare", "process").forHelp();
 
+    OptionSpec<String> sessionIdOption = parser.accepts("sessionId", "the current session id - configuration read as talismane.core.[sessionId]")
+        .requiredUnless("?", "help").withRequiredArg().ofType(String.class);
+
     OptionSpec<Module> moduleOption = parser.accepts("module", "training / evaluation / processing module: " + Arrays.toString(Module.values()))
-        .availableIf("train", "evaluate", "compare", "process").withRequiredArg().ofType(Module.class);
+        .requiredIf("train", "process").availableIf("train", "evaluate", "compare", "process").withRequiredArg().ofType(Module.class);
     OptionSpec<Module> startModuleOption = parser.accepts("startModule", "where to start analysis (or evaluation): " + Arrays.toString(Module.values()))
         .availableIf("analyse", "evaluate").withRequiredArg().ofType(Module.class);
     OptionSpec<Module> endModuleOption = parser.accepts("endModule", "where to end analysis: " + Arrays.toString(Module.values())).availableIf("analyse")
@@ -295,80 +312,86 @@ public class TalismaneMain {
       return;
     }
 
+    String sessionId = options.valueOf(sessionIdOption);
+
     Map<String, Object> values = new HashMap<>();
     if (options.has("analyse"))
-      values.put("talismane.core.command", Command.analyse.name());
+      values.put("talismane.core." + sessionId + ".command", Command.analyse.name());
     if (options.has("train"))
-      values.put("talismane.core.command", Command.train.name());
+      values.put("talismane.core." + sessionId + ".command", Command.train.name());
     if (options.has("evaluate"))
-      values.put("talismane.core.command", Command.evaluate.name());
+      values.put("talismane.core." + sessionId + ".command", Command.evaluate.name());
     if (options.has("compare"))
-      values.put("talismane.core.command", Command.compare.name());
+      values.put("talismane.core." + sessionId + ".command", Command.compare.name());
     if (options.has("process"))
-      values.put("talismane.core.command", Command.process.name());
+      values.put("talismane.core." + sessionId + ".command", Command.process.name());
     if (options.has(moduleOption))
-      values.put("talismane.core.module", options.valueOf(moduleOption).name());
+      values.put("talismane.core." + sessionId + ".module", options.valueOf(moduleOption).name());
     if (options.has(startModuleOption)) {
-      values.put("talismane.core.analysis.start-module", options.valueOf(startModuleOption).name());
-      values.put("talismane.core.pos-tagger.evaluate.start-module", options.valueOf(startModuleOption).name());
-      values.put("talismane.core.parser.evaluate.start-module", options.valueOf(startModuleOption).name());
+      values.put("talismane.core." + sessionId + ".analysis.start-module", options.valueOf(startModuleOption).name());
+      values.put("talismane.core." + sessionId + ".pos-tagger.evaluate.start-module", options.valueOf(startModuleOption).name());
+      values.put("talismane.core." + sessionId + ".parser.evaluate.start-module", options.valueOf(startModuleOption).name());
     }
     if (options.has(endModuleOption))
-      values.put("talismane.core.analysis.end-module", options.valueOf(endModuleOption).name());
+      values.put("talismane.core." + sessionId + ".analysis.end-module", options.valueOf(endModuleOption).name());
     if (options.has(modeOption))
-      values.put("talismane.core.mode", options.valueOf(modeOption).name());
+      values.put("talismane.core." + sessionId + ".mode", options.valueOf(modeOption).name());
     if (options.has(portOption))
-      values.put("talismane.core.port", options.valueOf(portOption));
+      values.put("talismane.core." + sessionId + ".port", options.valueOf(portOption));
 
     if (options.has(localeOption))
-      values.put("talismane.core.locale", options.valueOf(localeOption));
+      values.put("talismane.core." + sessionId + ".locale", options.valueOf(localeOption));
     if (options.has(encodingOption))
-      values.put("talismane.core.encoding", options.valueOf(encodingOption));
+      values.put("talismane.core." + sessionId + ".encoding", options.valueOf(encodingOption));
     if (options.has(inputEncodingOption))
-      values.put("talismane.core.input-encoding", options.valueOf(inputEncodingOption));
+      values.put("talismane.core." + sessionId + ".input-encoding", options.valueOf(inputEncodingOption));
     if (options.has(outputEncodingOption))
-      values.put("talismane.core.output-encoding", options.valueOf(outputEncodingOption));
+      values.put("talismane.core." + sessionId + ".output-encoding", options.valueOf(outputEncodingOption));
     if (options.has(languageModelOption))
-      values.put("talismane.core.language-detector.model", options.valueOf(languageModelOption).getPath());
+      values.put("talismane.core." + sessionId + ".language-detector.model", options.valueOf(languageModelOption).getPath());
     if (options.has(sentenceModelOption))
-      values.put("talismane.core.sentence-detector.model", options.valueOf(sentenceModelOption).getPath());
+      values.put("talismane.core." + sessionId + ".sentence-detector.model", options.valueOf(sentenceModelOption).getPath());
     if (options.has(tokeniserModelOption))
-      values.put("talismane.core.tokeniser.model", options.valueOf(tokeniserModelOption).getPath());
+      values.put("talismane.core." + sessionId + ".tokeniser.model", options.valueOf(tokeniserModelOption).getPath());
     if (options.has(posTaggerModelOption))
-      values.put("talismane.core.pos-tagger.model", options.valueOf(posTaggerModelOption).getPath());
+      values.put("talismane.core." + sessionId + ".pos-tagger.model", options.valueOf(posTaggerModelOption).getPath());
     if (options.has(parserModelOption))
-      values.put("talismane.core.parser.model", options.valueOf(parserModelOption).getPath());
+      values.put("talismane.core." + sessionId + ".parser.model", options.valueOf(parserModelOption).getPath());
 
     if (options.has(lexiconOption)) {
       List<String> lexiconPaths = options.valuesOf(lexiconOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-      values.put("talismane.core.lexicons", lexiconPaths);
+      values.put("talismane.core." + sessionId + ".lexicons", lexiconPaths);
     }
 
     if (options.has(textAnnotatorsOption)) {
       List<String> textAnnotatorPaths = options.valuesOf(textAnnotatorsOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-      values.put("talismane.core.annotators.text-annotators", textAnnotatorPaths);
+      values.put("talismane.core." + sessionId + ".annotators.text-annotators", textAnnotatorPaths);
     }
 
     if (options.has(sentenceAnnotatorsOption)) {
       List<String> sentenceAnnotatorPaths = options.valuesOf(sentenceAnnotatorsOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-      values.put("talismane.core.annotators.sentence-annotators", sentenceAnnotatorPaths);
+      values.put("talismane.core." + sessionId + ".annotators.sentence-annotators", sentenceAnnotatorPaths);
     }
 
-    List<String> inputLocations = Arrays.asList("talismane.core.input", "talismane.core.language-detector.input", "talismane.core.language-detector.train",
-        "talismane.core.language-detector.evaluate", "talismane.core.sentence-detector.input", "talismane.core.sentence-detector.train",
-        "talismane.core.sentence-detector.evaluate", "talismane.core.tokeniser.input", "talismane.core.tokeniser.train", "talismane.core.tokeniser.evaluate",
-        "talismane.core.pos-tagger.input", "talismane.core.pos-tagger.train", "talismane.core.pos-tagger.evaluate", "talismane.core.parser.input",
-        "talismane.core.parser.train", "talismane.core.parser.evaluate");
+    List<String> inputLocations = Arrays.asList("talismane.core." + sessionId + ".input", "talismane.core." + sessionId + ".language-detector.input",
+        "talismane.core." + sessionId + ".language-detector.train", "talismane.core." + sessionId + ".language-detector.evaluate",
+        "talismane.core." + sessionId + ".sentence-detector.input", "talismane.core." + sessionId + ".sentence-detector.train",
+        "talismane.core." + sessionId + ".sentence-detector.evaluate", "talismane.core." + sessionId + ".tokeniser.input",
+        "talismane.core." + sessionId + ".tokeniser.train", "talismane.core." + sessionId + ".tokeniser.evaluate",
+        "talismane.core." + sessionId + ".pos-tagger.input", "talismane.core." + sessionId + ".pos-tagger.train",
+        "talismane.core." + sessionId + ".pos-tagger.evaluate", "talismane.core." + sessionId + ".parser.input",
+        "talismane.core." + sessionId + ".parser.train", "talismane.core." + sessionId + ".parser.evaluate");
 
-    List<String> outputLocations = Arrays.asList("talismane.core.output", "talismane.core.language-detector.output", "talismane.core.sentence-detector.output",
-        "talismane.core.tokeniser.output", "talismane.core.pos-tagger.output", "talismane.core.parser.output");
+    List<String> outputLocations = Arrays.asList("talismane.core." + sessionId + ".output", "talismane.core." + sessionId + ".language-detector.output",
+        "talismane.core." + sessionId + ".sentence-detector.output", "talismane.core." + sessionId + ".tokeniser.output",
+        "talismane.core." + sessionId + ".pos-tagger.output", "talismane.core." + sessionId + ".parser.output");
 
     if (options.has(newlineOption))
-      values.put("talismane.core.newline", options.valueOf(newlineOption));
+      values.put("talismane.core." + sessionId + ".newline", options.valueOf(newlineOption));
     if (options.has(processByDefaultOption))
-      values.put("talismane.core.analysis.process-by-default", options.valueOf(processByDefaultOption));
+      values.put("talismane.core." + sessionId + ".analysis.process-by-default", options.valueOf(processByDefaultOption));
     if (options.has(blockSizeOption))
-      values.put("talismane.core.block-size", options.valueOf(blockSizeOption));
+      values.put("talismane.core." + sessionId + ".block-size", options.valueOf(blockSizeOption));
     if (options.has(sentenceCountOption))
       for (String inputLocation : inputLocations)
         values.put(inputLocation + ".sentence-count", options.valueOf(sentenceCountOption));
@@ -398,34 +421,34 @@ public class TalismaneMain {
 
     if (options.has(posTaggerRulesOption)) {
       List<String> posTaggerRulePaths = options.valuesOf(posTaggerRulesOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-      values.put("talismane.core.pos-tagger.rules", posTaggerRulePaths);
+      values.put("talismane.core." + sessionId + ".pos-tagger.rules", posTaggerRulePaths);
     }
     if (options.has(parserRulesOption)) {
       List<String> parserRulePaths = options.valuesOf(parserRulesOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-      values.put("talismane.core.parser.rules", parserRulePaths);
+      values.put("talismane.core." + sessionId + ".parser.rules", parserRulePaths);
     }
 
     if (options.has(suffixOption))
-      values.put("talismane.core.suffix", options.valueOf(suffixOption));
+      values.put("talismane.core." + sessionId + ".suffix", options.valueOf(suffixOption));
     if (options.has(outputDividerOption))
       for (String outputLocation : outputLocations)
         values.put(outputLocation + ".output-divider", options.valueOf(outputDividerOption));
 
     if (options.has(beamWidthOption)) {
-      values.put("talismane.core.pos-tagger.beam-width", options.valueOf(beamWidthOption));
-      values.put("talismane.core.parser.beam-width", options.valueOf(beamWidthOption));
+      values.put("talismane.core." + sessionId + ".pos-tagger.beam-width", options.valueOf(beamWidthOption));
+      values.put("talismane.core." + sessionId + ".parser.beam-width", options.valueOf(beamWidthOption));
     }
     if (options.has(tokeniserBeamWidthOption))
-      values.put("talismane.core.tokeniser.beam-width", options.valueOf(tokeniserBeamWidthOption));
+      values.put("talismane.core." + sessionId + ".tokeniser.beam-width", options.valueOf(tokeniserBeamWidthOption));
     if (options.has(propagateBeamOption))
-      values.put("talismane.core.parser.propagate-pos-tagger-beam", options.valueOf(propagateBeamOption));
+      values.put("talismane.core." + sessionId + ".parser.propagate-pos-tagger-beam", options.valueOf(propagateBeamOption));
 
     if (options.has(maxParseAnalysisTimeOption))
-      values.put("talismane.core.parser.max-analysis-time", options.valueOf(maxParseAnalysisTimeOption));
+      values.put("talismane.core." + sessionId + ".parser.max-analysis-time", options.valueOf(maxParseAnalysisTimeOption));
     if (options.has(minFreeMemoryOption))
-      values.put("talismane.core.parser.min-free-memory", options.valueOf(minFreeMemoryOption));
+      values.put("talismane.core." + sessionId + ".parser.min-free-memory", options.valueOf(minFreeMemoryOption));
     if (options.has(earlyStopOption))
-      values.put("talismane.core.parser.early-stop", options.valueOf(earlyStopOption));
+      values.put("talismane.core." + sessionId + ".parser.early-stop", options.valueOf(earlyStopOption));
 
     if (options.has(inputPatternFileOption) || options.has(inputPatternOption)) {
       String inputRegex = null;
@@ -461,101 +484,101 @@ public class TalismaneMain {
       } else {
         evalRegex = options.valueOf(evalPatternOption);
       }
-      values.put("talismane.core.sentence-detector.evaluate.input-pattern", evalRegex);
-      values.put("talismane.core.tokeniser.evaluate.input-pattern", evalRegex);
-      values.put("talismane.core.pos-tagger.evaluate.input-pattern", evalRegex);
-      values.put("talismane.core.parser.evaluate.input-pattern", evalRegex);
+      values.put("talismane.core." + sessionId + ".sentence-detector.evaluate.input-pattern", evalRegex);
+      values.put("talismane.core." + sessionId + ".tokeniser.evaluate.input-pattern", evalRegex);
+      values.put("talismane.core." + sessionId + ".pos-tagger.evaluate.input-pattern", evalRegex);
+      values.put("talismane.core." + sessionId + ".parser.evaluate.input-pattern", evalRegex);
     }
 
     if (options.has(csvSeparatorOption))
-      values.put("talismane.core.csv.separator", options.valueOf(csvSeparatorOption));
+      values.put("talismane.core." + sessionId + ".csv.separator", options.valueOf(csvSeparatorOption));
     if (options.has(csvEncodingOption))
-      values.put("talismane.core.csv.encoding", options.valueOf(csvEncodingOption));
+      values.put("talismane.core." + sessionId + ".csv.encoding", options.valueOf(csvEncodingOption));
     if (options.has(csvLocaleOption))
-      values.put("talismane.core.csv.locale", options.valueOf(csvLocaleOption));
+      values.put("talismane.core." + sessionId + ".csv.locale", options.valueOf(csvLocaleOption));
 
     if (options.has(includeUnknownWordResultsOption))
-      values.put("talismane.core.pos-tagger.evaluate.include-unknown-word-results", options.valueOf(includeUnknownWordResultsOption));
+      values.put("talismane.core." + sessionId + ".pos-tagger.evaluate.include-unknown-word-results", options.valueOf(includeUnknownWordResultsOption));
     if (options.has(includeLexiconCoverageOption))
-      values.put("talismane.core.pos-tagger.evaluate.include-lexicon-coverage", options.valueOf(includeLexiconCoverageOption));
+      values.put("talismane.core." + sessionId + ".pos-tagger.evaluate.include-lexicon-coverage", options.valueOf(includeLexiconCoverageOption));
 
     if (options.has(labeledEvaluationOption))
-      values.put("talismane.core.parser.evaluate.labeled-evaluation", options.valueOf(labeledEvaluationOption));
+      values.put("talismane.core." + sessionId + ".parser.evaluate.labeled-evaluation", options.valueOf(labeledEvaluationOption));
     if (options.has(processingOption))
-      values.put("talismane.core.output.option", options.valueOf(processingOption).name());
+      values.put("talismane.core." + sessionId + ".output.option", options.valueOf(processingOption).name());
     if (options.has(lexicalEntryRegexOption)) {
-      values.put("talismane.core.pos-tagger.input.corpus-lexical-entry-regex", options.valueOf(lexicalEntryRegexOption).getPath());
-      values.put("talismane.core.parser.input.corpus-lexical-entry-regex", options.valueOf(lexicalEntryRegexOption).getPath());
+      values.put("talismane.core." + sessionId + ".pos-tagger.input.corpus-lexical-entry-regex", options.valueOf(lexicalEntryRegexOption).getPath());
+      values.put("talismane.core." + sessionId + ".parser.input.corpus-lexical-entry-regex", options.valueOf(lexicalEntryRegexOption).getPath());
     }
 
     if (options.has(featuresOption)) {
-      values.put("talismane.core.language-detector.train.features", options.valueOf(featuresOption).getPath());
-      values.put("talismane.core.sentence-detector.train.features", options.valueOf(featuresOption).getPath());
-      values.put("talismane.core.tokeniser.train.features", options.valueOf(featuresOption).getPath());
-      values.put("talismane.core.pos-tagger.train.features", options.valueOf(featuresOption).getPath());
-      values.put("talismane.core.parser.train.features", options.valueOf(featuresOption).getPath());
+      values.put("talismane.core." + sessionId + ".language-detector.train.features", options.valueOf(featuresOption).getPath());
+      values.put("talismane.core." + sessionId + ".sentence-detector.train.features", options.valueOf(featuresOption).getPath());
+      values.put("talismane.core." + sessionId + ".tokeniser.train.features", options.valueOf(featuresOption).getPath());
+      values.put("talismane.core." + sessionId + ".pos-tagger.train.features", options.valueOf(featuresOption).getPath());
+      values.put("talismane.core." + sessionId + ".parser.train.features", options.valueOf(featuresOption).getPath());
     }
     if (options.has(tokeniserPatternsOption))
-      values.put("talismane.core.tokeniser.train.patterns", options.valueOf(tokeniserPatternsOption).getPath());
+      values.put("talismane.core." + sessionId + ".tokeniser.train.patterns", options.valueOf(tokeniserPatternsOption).getPath());
     if (options.has(sentenceFileOption)) {
-      values.put("talismane.core.tokeniser.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
-      values.put("talismane.core.pos-tagger.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
-      values.put("talismane.core.parser.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
+      values.put("talismane.core." + sessionId + ".tokeniser.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
+      values.put("talismane.core." + sessionId + ".pos-tagger.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
+      values.put("talismane.core." + sessionId + ".parser.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
     }
     if (options.has(languageCorpusMapOption))
-      values.put("talismane.core.language-detector.train.language-corpus-map", options.valueOf(languageCorpusMapOption).getPath());
+      values.put("talismane.core." + sessionId + ".language-detector.train.language-corpus-map", options.valueOf(languageCorpusMapOption).getPath());
     if (options.has(predictTransitionsOption))
-      values.put("talismane.core.parser.input.predict-transitions", options.valueOf(predictTransitionsOption));
+      values.put("talismane.core." + sessionId + ".parser.input.predict-transitions", options.valueOf(predictTransitionsOption));
     if (options.has(testWordsOption))
-      values.put("talismane.core.pos-tagger.output.test-words", options.valuesOf(testWordsOption));
+      values.put("talismane.core." + sessionId + ".pos-tagger.output.test-words", options.valuesOf(testWordsOption));
 
     if (options.has(algorithmOption)) {
       values.put("talismane.machine-learning.algorithm", options.valueOf(algorithmOption).name());
-      values.put("talismane.core.language-detector.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
-      values.put("talismane.core.sentence-detector.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
-      values.put("talismane.core.tokeniser.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
-      values.put("talismane.core.pos-tagger.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
-      values.put("talismane.core.parser.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+      values.put("talismane.core." + sessionId + ".language-detector.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+      values.put("talismane.core." + sessionId + ".sentence-detector.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+      values.put("talismane.core." + sessionId + ".tokeniser.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+      values.put("talismane.core." + sessionId + ".pos-tagger.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+      values.put("talismane.core." + sessionId + ".parser.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
     }
     if (options.has(cutoffOption)) {
       values.put("talismane.machine-learning.cutoff", options.valueOf(cutoffOption));
-      values.put("talismane.core.language-detector.train.machine-learning.cutoff", options.valueOf(cutoffOption));
-      values.put("talismane.core.sentence-detector.train.machine-learning.cutoff", options.valueOf(cutoffOption));
-      values.put("talismane.core.tokeniser.train.machine-learning.cutoff", options.valueOf(cutoffOption));
-      values.put("talismane.core.pos-tagger.train.machine-learning.cutoff", options.valueOf(cutoffOption));
-      values.put("talismane.core.parser.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+      values.put("talismane.core." + sessionId + ".language-detector.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+      values.put("talismane.core." + sessionId + ".sentence-detector.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+      values.put("talismane.core." + sessionId + ".tokeniser.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+      values.put("talismane.core." + sessionId + ".pos-tagger.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+      values.put("talismane.core." + sessionId + ".parser.train.machine-learning.cutoff", options.valueOf(cutoffOption));
     }
     if (options.has(linearSVMEpsilonOption)) {
       values.put("talismane.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
-      values.put("talismane.core.language-detector.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
-      values.put("talismane.core.sentence-detector.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
-      values.put("talismane.core.tokeniser.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
-      values.put("talismane.core.pos-tagger.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
-      values.put("talismane.core.parser.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+      values.put("talismane.core." + sessionId + ".language-detector.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+      values.put("talismane.core." + sessionId + ".sentence-detector.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+      values.put("talismane.core." + sessionId + ".tokeniser.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+      values.put("talismane.core." + sessionId + ".pos-tagger.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+      values.put("talismane.core." + sessionId + ".parser.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
     }
     if (options.has(linearSVMCostOption)) {
       values.put("talismane.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
-      values.put("talismane.core.language-detector.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
-      values.put("talismane.core.sentence-detector.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
-      values.put("talismane.core.tokeniser.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
-      values.put("talismane.core.pos-tagger.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
-      values.put("talismane.core.parser.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+      values.put("talismane.core." + sessionId + ".language-detector.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+      values.put("talismane.core." + sessionId + ".sentence-detector.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+      values.put("talismane.core." + sessionId + ".tokeniser.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+      values.put("talismane.core." + sessionId + ".pos-tagger.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+      values.put("talismane.core." + sessionId + ".parser.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
     }
     if (options.has(oneVsRestOption)) {
       values.put("talismane.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
-      values.put("talismane.core.language-detector.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
-      values.put("talismane.core.sentence-detector.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
-      values.put("talismane.core.tokeniser.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
-      values.put("talismane.core.pos-tagger.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
-      values.put("talismane.core.parser.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+      values.put("talismane.core." + sessionId + ".language-detector.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+      values.put("talismane.core." + sessionId + ".sentence-detector.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+      values.put("talismane.core." + sessionId + ".tokeniser.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+      values.put("talismane.core." + sessionId + ".pos-tagger.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+      values.put("talismane.core." + sessionId + ".parser.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
     }
     if (options.has(iterationsOption)) {
       values.put("talismane.machine-learning.iterations", options.valueOf(iterationsOption));
-      values.put("talismane.core.language-detector.train.machine-learning.iterations", options.valueOf(iterationsOption));
-      values.put("talismane.core.sentence-detector.train.machine-learning.iterations", options.valueOf(iterationsOption));
-      values.put("talismane.core.tokeniser.train.machine-learning.iterations", options.valueOf(iterationsOption));
-      values.put("talismane.core.pos-tagger.train.machine-learning.iterations", options.valueOf(iterationsOption));
-      values.put("talismane.core.parser.train.machine-learning.iterations", options.valueOf(iterationsOption));
+      values.put("talismane.core." + sessionId + ".language-detector.train.machine-learning.iterations", options.valueOf(iterationsOption));
+      values.put("talismane.core." + sessionId + ".sentence-detector.train.machine-learning.iterations", options.valueOf(iterationsOption));
+      values.put("talismane.core." + sessionId + ".tokeniser.train.machine-learning.iterations", options.valueOf(iterationsOption));
+      values.put("talismane.core." + sessionId + ".pos-tagger.train.machine-learning.iterations", options.valueOf(iterationsOption));
+      values.put("talismane.core." + sessionId + ".parser.train.machine-learning.iterations", options.valueOf(iterationsOption));
     }
 
     if (options.has(logConfigFileSpec))
@@ -576,18 +599,17 @@ public class TalismaneMain {
     if (options.has(evalFileOption))
       evalFile = options.valueOf(evalFileOption);
 
-    Config config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
-    TalismaneMain talismaneMain = new TalismaneMain(config);
-    talismaneMain.execute(inFile, outFile, outDir, evalFile);
-  }
-
-  public TalismaneMain(Config config) {
-    this.config = config;
+    Config commandLineConfig = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
+    this.execute(commandLineConfig, sessionId, inFile, outFile, outDir, evalFile);
   }
 
   /**
    * Execute Talismane based on the configuration provided.
    * 
+   * @param config
+   *          The configuration used for this execution
+   * @param sessionId
+   *          The current session's id
    * @param inFile
    *          The file or directory to analyse
    * @param outFile
@@ -599,23 +621,22 @@ public class TalismaneMain {
    * @throws IOException
    * @throws ReflectiveOperationException
    * @throws TalismaneException
-   *           if attempt is made to start and end on two unsuported modules.
+   *           if attempt is made to start and end on two unsupported modules.
    * @throws SentenceAnnotatorLoadException
    */
-  public void execute(File inFile, File outFile, File outDir, File evalFile)
+  public void execute(Config config, String sessionId, File inFile, File outFile, File outDir, File evalFile)
       throws IOException, ReflectiveOperationException, TalismaneException, SentenceAnnotatorLoadException {
     if (LOG.isTraceEnabled())
       LOG.trace(config.root().render());
     long startTime = System.currentTimeMillis();
-    String sessionId = "";
     TalismaneSession session = new TalismaneSession(config, sessionId);
     session.setFileForBasename(inFile);
 
     try {
       switch (session.getCommand()) {
       case analyse: {
-        Module startModule = Module.valueOf(config.getString("talismane.core.analysis.start-module"));
-        Module endModule = Module.valueOf(config.getString("talismane.core.analysis.end-module"));
+        Module startModule = Module.valueOf(config.getString("talismane.core." + sessionId + ".analysis.start-module"));
+        Module endModule = Module.valueOf(config.getString("talismane.core." + sessionId + ".analysis.end-module"));
         Reader reader = getReader(inFile, true, session);
         Writer writer = getWriter(outFile, inFile, session);
 
@@ -628,7 +649,7 @@ public class TalismaneMain {
           LanguageDetectorProcessor processor = LanguageDetectorProcessor.getProcessor(writer, session);
 
           SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(reader,
-              config.getConfig("talismane.core.language-detector.input"), session);
+              config.getConfig("talismane.core." + sessionId + ".language-detector.input"), session);
           while (corpusReader.hasNextSentence()) {
             String sentence = corpusReader.nextSentence().getText().toString();
 
@@ -636,7 +657,7 @@ public class TalismaneMain {
             processor.onNextText(sentence, results);
           }
         } else {
-          Mode mode = Mode.valueOf(config.getString("talismane.core.mode"));
+          Mode mode = Mode.valueOf(config.getString("talismane.core." + sessionId + ".mode"));
           switch (mode) {
           case normal:
             Talismane talismane = new Talismane(writer, outDir, session);
@@ -745,7 +766,7 @@ public class TalismaneMain {
 
           try {
             SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(reader,
-                config.getConfig("talismane.core.sentence-detector.input"), session);
+                config.getConfig("talismane.core." + sessionId + ".sentence-detector.input"), session);
             while (corpusReader.hasNextSentence()) {
               Sentence sentence = corpusReader.nextSentence();
               for (SentenceProcessor processor : processors)
@@ -767,7 +788,7 @@ public class TalismaneMain {
           List<TokenSequenceProcessor> processors = TokenSequenceProcessor.getProcessors(writer, outDir, session);
           try {
             TokeniserAnnotatedCorpusReader corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader,
-                config.getConfig("talismane.core.tokeniser.input"), session);
+                config.getConfig("talismane.core." + sessionId + ".tokeniser.input"), session);
             while (corpusReader.hasNextSentence()) {
               TokenSequence tokenSequence = corpusReader.nextTokenSequence();
               for (TokenSequenceProcessor processor : processors)
@@ -789,8 +810,8 @@ public class TalismaneMain {
           List<PosTagSequenceProcessor> processors = PosTagSequenceProcessor.getProcessors(writer, outDir, session);
 
           try {
-            PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.pos-tagger.input"),
-                session);
+            PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
+                config.getConfig("talismane.core." + sessionId + ".pos-tagger.input"), session);
             while (corpusReader.hasNextSentence()) {
               PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
               for (PosTagSequenceProcessor processor : processors)
@@ -813,8 +834,8 @@ public class TalismaneMain {
           List<ParseConfigurationProcessor> processors = ParseConfigurationProcessor.getProcessors(writer, outDir, session);
 
           try {
-            ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.parser.input"),
-                session);
+            ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader,
+                config.getConfig("talismane.core." + sessionId + ".parser.input"), session);
             while (corpusReader.hasNextSentence()) {
               ParseConfiguration configuration = corpusReader.nextConfiguration();
               for (ParseConfigurationProcessor processor : processors)
@@ -849,7 +870,7 @@ public class TalismaneMain {
       long totalTime = endTime - startTime;
       LOG.debug("Total time for Talismane.process(): " + totalTime);
 
-      if (config.getBoolean("talismane.core.output.log-execution-time")) {
+      if (config.getBoolean("talismane.core." + sessionId + ".output.log-execution-time")) {
         try {
           CSVFormatter CSV = new CSVFormatter();
           Writer csvFileWriter = null;

@@ -12,6 +12,6 @@
  * {@link com.joliciel.talismane.posTagger.PosTagSequence} which is a list of
  * {@link com.joliciel.talismane.posTagger.PosTaggedToken}.<br/>
  * It can be evaluated via a
- * {@link com.joliciel.talismane.posTagger.PosTaggerEvaluator}.<br/>
+ * {@link com.joliciel.talismane.posTagger.evaluate.PosTaggerEvaluator}.<br/>
  */
 package com.joliciel.talismane.posTagger;

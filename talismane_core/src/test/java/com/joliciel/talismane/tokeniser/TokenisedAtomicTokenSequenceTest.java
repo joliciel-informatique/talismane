@@ -39,7 +39,7 @@ public class TokenisedAtomicTokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
     final Sentence sentence = new Sentence("Je n'ai pas encore l'ourang-outan.", talismaneSession);
 
     TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] { TokeniserOutcome.SEPARATE, // Je

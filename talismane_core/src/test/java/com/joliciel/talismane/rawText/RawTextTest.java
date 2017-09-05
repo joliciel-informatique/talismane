@@ -26,7 +26,7 @@ public class RawTextTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String[] labels = new String[0];
     String text = "1 2 3<skip>skip</skip> 4<skip>skip</skip> five";
@@ -53,7 +53,7 @@ public class RawTextTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String[] labels = new String[0];
     String text = "Sentence 1<sent/>Sentence 2. Sentence 3. Sentence 4.";
@@ -133,7 +133,7 @@ public class RawTextTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String[] labels = new String[0];
     String text = "Mr. Jones and <skip/>Mrs. Smith.";

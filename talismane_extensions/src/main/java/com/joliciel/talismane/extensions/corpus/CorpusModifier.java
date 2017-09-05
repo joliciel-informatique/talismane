@@ -22,15 +22,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.CircularDependencyException;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseConfigurationProcessor;
+import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
+import com.typesafe.config.Config;
 
 /**
  * Modifies a corpus in simple ways, by replacing labels with other ones, or
  * removing dependencies.<br/>
- * The input file has the following format:<br/>
+ * Each rule has the following format<br/>
  * GOVPOS\tGOV\tDEPPOS\tDEP\tLABEL\tACTION\tNEWLABEL<br/>
  * Where GOVPOS is the governor's pos-tag, or * for any.<br/>
  * GOV is the governor's word form, or * for any.<br/>
@@ -54,8 +56,9 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 
   private static final String WILDCARD = "*";
 
-  public CorpusModifier(List<String> commandList) {
-    super();
+  public CorpusModifier(TalismaneSession session) throws IOException {
+    Config config = session.getConfig();
+    List<String> commandList = config.getStringList("talismane.extensions." + session.getId() + ".corpus-modifier.rules");
     for (String command : commandList) {
       if (!command.startsWith("#")) {
         ModifyCommand modifyCommand = new ModifyCommand();
@@ -98,7 +101,7 @@ public class CorpusModifier implements ParseConfigurationProcessor {
         }
 
         if (applyCommand) {
-          parseConfiguration.getDependencies().remove(arc);
+          parseConfiguration.removeDependency(arc);
           if (command.command == ModifyCommandType.Replace)
             parseConfiguration.addDependency(arc.getHead(), arc.getDependent(), command.newLabel, null);
         }

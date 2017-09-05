@@ -2,7 +2,6 @@ package com.joliciel.talismane.lexicon;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -18,18 +17,14 @@ public class LexiconReaderTest {
 
   @Test
   public void testReadLexicons() throws Exception {
-    System.setProperty("config.file", "src/test/resources/test.conf");
+    System.setProperty("config.file", "src/test/resources/testWithLex.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
-    File lexiconProperties = new File("src/test/resources/lexicons/lexicons_fr.txt");
-    LexiconReader lexiconReader = new LexiconReader(session);
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
-    List<PosTaggerLexicon> lexicons = lexiconReader.readLexicons(lexiconProperties);
-    assertEquals(3, lexicons.size());
+    PosTaggerLexicon lexicon = session.getMergedLexicon();
 
-    LexiconChain lexicon = new LexiconChain(lexicons);
     List<LexicalEntry> entries = lexicon.getEntries("dame");
     for (LexicalEntry entry : entries) {
       System.out.println(entry);

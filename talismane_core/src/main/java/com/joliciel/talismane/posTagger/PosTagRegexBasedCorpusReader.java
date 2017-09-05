@@ -70,7 +70,8 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
    * Reads the values described in
    * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
    */
-  public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
+  public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session)
+      throws IOException, TalismaneException, ReflectiveOperationException {
     super(reader, config, session);
   }
 

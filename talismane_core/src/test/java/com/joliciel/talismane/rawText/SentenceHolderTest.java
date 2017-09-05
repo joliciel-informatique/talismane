@@ -43,7 +43,7 @@ public class SentenceHolderTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
     SentenceHolder holder = new SentenceHolder(talismaneSession, 0, false);
 
     String originalText = "Hello  <b>World</b>. <o>Output this</o>How are you?  Fine<o>Output</o>,  ";
@@ -149,7 +149,7 @@ public class SentenceHolderTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
     SentenceHolder holder = new SentenceHolder(talismaneSession, 0, false);
 
     holder.setProcessedText("Hello World.");
@@ -176,7 +176,7 @@ public class SentenceHolderTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
     SentenceHolder holder = new SentenceHolder(talismaneSession, 0, false);
 
     holder.setProcessedText("Hello World. How are you? Fine thanks.");

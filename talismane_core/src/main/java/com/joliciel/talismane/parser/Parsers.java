@@ -18,29 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.ClassificationObserver;
-import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
-import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
-import com.joliciel.talismane.parser.features.ParserFeatureParser;
-import com.joliciel.talismane.parser.features.ParserRule;
-import com.joliciel.talismane.utils.ArrayListNoNulls;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -50,79 +37,44 @@ import com.typesafe.config.Config;
  *
  */
 public class Parsers {
+  @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(Parsers.class);
-  private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
   private static final Map<String, Parser> parserMap = new HashMap<>();
 
-  public static Parser getParser(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
+  public static Parser getParser(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException, ReflectiveOperationException {
     Parser parser = null;
-    if (session.getSessionId() != null)
-      parser = parserMap.get(session.getSessionId());
+    if (session.getId() != null)
+      parser = parserMap.get(session.getId());
     if (parser == null) {
       Config config = session.getConfig();
-      Config parserConfig = config.getConfig("talismane.core.parser");
+      Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+      String className = parserConfig.getString("parser");
 
-      String configPath = "talismane.core.parser.model";
-      String modelFilePath = config.getString(configPath);
-      LOG.debug("Getting parser model from " + modelFilePath);
-      ClassificationModel model = modelMap.get(modelFilePath);
-      if (model == null) {
-        InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
-        MachineLearningModelFactory factory = new MachineLearningModelFactory();
-        model = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
-        modelMap.put(modelFilePath, model);
-      }
+      @SuppressWarnings("rawtypes")
+      Class untypedClass = Class.forName(className);
+      if (!Parser.class.isAssignableFrom(untypedClass))
+        throw new TalismaneException("Class " + className + " does not implement interface " + Parser.class.getSimpleName());
 
-      int beamWidth = parserConfig.getInt("beam-width");
-      boolean propagatePosTaggerBeam = parserConfig.getBoolean("propagate-pos-tagger-beam");
+      @SuppressWarnings("unchecked")
+      Class<? extends Parser> clazz = untypedClass;
 
-      ParseComparisonStrategyType parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(parserConfig.getString("comparison-strategy"));
-      ParseComparisonStrategy parseComparisonStrategy = ParseComparisonStrategy.forType(parseComparisonStrategyType);
+      Constructor<? extends Parser> cons = null;
 
-      int maxAnalysisTimePerSentence = parserConfig.getInt("max-analysis-time");
-      int minFreeMemory = parserConfig.getInt("min-free-memory");
-
-      TransitionBasedParser transitionBasedParser = new TransitionBasedParser(model, beamWidth, propagatePosTaggerBeam, parseComparisonStrategy,
-          maxAnalysisTimePerSentence, minFreeMemory, session);
-      parser = transitionBasedParser;
-
-      transitionBasedParser.setEarlyStop(parserConfig.getBoolean("early-stop"));
-      parser.setParseComparisonStrategy(parseComparisonStrategy);
-
-      boolean includeDetails = parserConfig.getBoolean("output.include-details");
-      if (includeDetails) {
-        String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
-        File detailsFile = new File(detailsFilePath);
-        detailsFile.delete();
-        ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
-        parser.addObserver(observer);
-      }
-
-      List<ParserRule> parserRules = new ArrayList<>();
-      ParserFeatureParser featureParser = new ParserFeatureParser(session);
-
-      configPath = "talismane.core.parser.rules";
-      List<String> textFilterPaths = config.getStringList(configPath);
-      for (String path : textFilterPaths) {
-        LOG.debug("From: " + path);
-        InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
-        try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
-          List<String> ruleDescriptors = new ArrayListNoNulls<String>();
-          while (scanner.hasNextLine()) {
-            String ruleDescriptor = scanner.nextLine();
-            if (ruleDescriptor.length() > 0) {
-              ruleDescriptors.add(ruleDescriptor);
-              LOG.trace(ruleDescriptor);
-            }
-          }
-          List<ParserRule> rules = featureParser.getRules(ruleDescriptors);
-          parserRules.addAll(rules);
+      if (cons == null) {
+        try {
+          cons = clazz.getConstructor(TalismaneSession.class);
+        } catch (NoSuchMethodException e) {
+          // do nothing
+        }
+        if (cons != null) {
+          parser = cons.newInstance(session);
+        } else {
+          throw new TalismaneException("No constructor found with correct signature for: " + className);
         }
       }
-      parser.setParserRules(parserRules);
 
-      if (session.getSessionId() != null)
-        parserMap.put(session.getSessionId(), parser);
+      if (session.getId() != null)
+        parserMap.put(session.getId(), parser);
     }
     return parser.cloneParser();
   }

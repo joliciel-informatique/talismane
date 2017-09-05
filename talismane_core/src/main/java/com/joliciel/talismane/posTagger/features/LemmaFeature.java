@@ -21,17 +21,22 @@ package com.joliciel.talismane.posTagger.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.lexicon.LexicalAttribute;
+import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
+import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The lemma of a given pos-tagged token as supplied by the lexicon.
+ * The first lemma (where first is arbitrary, but will always be the same for a
+ * given word form) of a given pos-tagged token as supplied by the lexicon.
  * 
  * @author Assaf Urieli
  *
  */
-public final class LemmaFeature<T> extends AbstractLexicalAttributeFeature<T>implements StringCollectionFeature<T> {
+public final class LemmaFeature<T> extends AbstractPosTaggedTokenFeature<T, String>implements StringFeature<T> {
   private final List<String> attributes = new ArrayList<>(1);
 
   public LemmaFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
@@ -41,8 +46,21 @@ public final class LemmaFeature<T> extends AbstractLexicalAttributeFeature<T>imp
   }
 
   @Override
-  protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) {
-    return attributes;
+  protected FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
+
+    FeatureResult<String> featureResult = null;
+    List<LexicalEntry> lexicalEntries = posTaggedToken.getLexicalEntries();
+    if (lexicalEntries.size() > 0) {
+      LexicalEntry lexicalEntry = lexicalEntries.get(0);
+      featureResult = this.generateResult(lexicalEntry.getLemma());
+    }
+    return featureResult;
   }
 
 }
