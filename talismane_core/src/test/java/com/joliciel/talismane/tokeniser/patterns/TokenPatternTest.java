@@ -51,7 +51,7 @@ public class TokenPatternTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String regexp = "(?![cdCD]\\z|qu\\z|jusqu\\z).+'.+";
     TokenPattern tokenPattern = new TokenPattern(regexp, Tokeniser.getTokenSeparators(session));
@@ -380,7 +380,7 @@ public class TokenPatternTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
     final Sentence sentence = new Sentence("Qu'ensuite il aille...", session);
 
     TokenSequence tokenSequence = new TokenSequence(sentence, session);
@@ -400,7 +400,7 @@ public class TokenPatternTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
     final Sentence sentence = new Sentence("Z'ensuite il aille...", session);
 
     TokenSequence tokenSequence = new TokenSequence(sentence, session);
@@ -424,7 +424,7 @@ public class TokenPatternTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
     final Sentence sentence = new Sentence("Aix-les-Bains", session);
 
     TokenSequence tokenSequence = new TokenSequence(sentence, session);

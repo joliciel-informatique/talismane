@@ -21,7 +21,7 @@ public class LexiconFileTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     File glaffFile = new File("src/test/resources/lexicons/glaff-1.2.1_regex.txt");
     Scanner regexScanner = new Scanner(glaffFile, "UTF-8");

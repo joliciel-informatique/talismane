@@ -17,7 +17,7 @@ public class PretokenisedSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
     final Sentence sentence = new Sentence("« Il est là.  »", session);
 
     PretokenisedSequence sequence = new PretokenisedSequence(sentence, session);
