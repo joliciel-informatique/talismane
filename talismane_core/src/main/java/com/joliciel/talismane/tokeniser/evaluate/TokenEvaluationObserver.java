@@ -49,7 +49,7 @@ public interface TokenEvaluationObserver {
 
   /**
    * Collect the observers specified in the configuration key
-   * talismane.core.tokeniser.evaluate.observers.<br/>
+   * talismane.core.[sessionId].tokeniser.evaluate.observers.<br/>
    * <br/>
    * Each processor must implement this interface and must have a constructor
    * matching one of the following signatures:<br/>
@@ -73,7 +73,7 @@ public interface TokenEvaluationObserver {
       outDir.mkdirs();
 
     Config config = session.getConfig();
-    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
     Config evalConfig = tokeniserConfig.getConfig("evaluate");
 
     List<TokenEvaluationObserver> observers = new ArrayList<>();

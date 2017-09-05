@@ -49,7 +49,7 @@ public interface PosTagEvaluationObserver {
 
   /**
    * Collect the observers specified in the configuration key
-   * talismane.core.pos-tagger.evaluate.observers.<br/>
+   * talismane.core.[sessionId].pos-tagger.evaluate.observers.<br/>
    * <br/>
    * Each processor must implement this interface and must have a constructor
    * matching one of the following signatures:<br/>
@@ -73,7 +73,7 @@ public interface PosTagEvaluationObserver {
       outDir.mkdirs();
 
     Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
     Config evalConfig = posTaggerConfig.getConfig("evaluate");
 
     List<PosTagEvaluationObserver> observers = new ArrayList<>();

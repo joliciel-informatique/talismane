@@ -53,7 +53,7 @@ public interface TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotate
   /**
    * Builds an annotated corpus reader for a particular Reader and Config, where
    * the config is the local namespace. For configuration example, see
-   * talismane.core.tokeniser.input in reference.conf.
+   * talismane.core.generic.tokeniser.input in reference.conf.
    * 
    * @param config
    *          the local configuration section from which we're building a reader

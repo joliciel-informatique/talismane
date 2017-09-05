@@ -50,10 +50,10 @@ public class SentenceAnnotatorLoader {
   private static final Map<String, SentenceAnnotatorLoader> instances = new HashMap<>();
 
   public static SentenceAnnotatorLoader getInstance(TalismaneSession talismaneSession) {
-    SentenceAnnotatorLoader factory = instances.get(talismaneSession.getSessionId());
+    SentenceAnnotatorLoader factory = instances.get(talismaneSession.getId());
     if (factory == null) {
       factory = new SentenceAnnotatorLoader(talismaneSession);
-      instances.put(talismaneSession.getSessionId(), factory);
+      instances.put(talismaneSession.getId(), factory);
     }
     return factory;
   }

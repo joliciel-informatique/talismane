@@ -28,13 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.Module;
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.parser.Parsers;
-import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
@@ -65,7 +65,7 @@ public class ParserEvaluator {
       throws ClassNotFoundException, IOException, ReflectiveOperationException, TalismaneException {
     this.session = session;
     Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
 
     this.observers = ParseEvaluationObserver.getObservers(outDir, session);

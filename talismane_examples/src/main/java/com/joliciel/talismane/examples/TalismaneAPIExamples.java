@@ -39,6 +39,10 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+
 /**
  * A class showing how to analyse a sentence using the Talismane API and an
  * existing language pack.<br/>
@@ -52,23 +56,37 @@ import com.typesafe.config.ConfigFactory;
 public class TalismaneAPIExamples {
 
   public static void main(String[] args) throws Exception {
+    OptionParser parser = new OptionParser();
+    OptionSpec<Integer> exampleOption = parser.accepts("example", "which example to run").withRequiredArg().ofType(Integer.class);
+
+    OptionSpec<String> sessionIdOption = parser.accepts("sessionId", "the current session id - configuration read as talismane.core.[sessionId]")
+        .withRequiredArg().required().ofType(String.class);
+
+    if (args.length <= 1) {
+      parser.printHelpOn(System.out);
+      return;
+    }
+
+    OptionSet options = parser.parse(args);
+
     int example = 1;
-    if (args.length > 0)
-      example = Integer.parseInt(args[0]);
+    if (options.has(exampleOption)) {
+      example = options.valueOf(exampleOption);
+    }
+
+    String sessionId = options.valueOf(sessionIdOption);
+
     if (example == 1)
-      TalismaneAPIExamples.example1();
-    else if (example == 2)
-      TalismaneAPIExamples.example2();
+      example1(sessionId);
+    else
+      example2(sessionId);
   }
 
   /**
    * An example tokenising, pos-tagging and parsing a pre-existing sentence.
    */
-  public static void example1() throws Exception {
+  public static void example1(String sessionId) throws Exception {
     String text = "Les amoureux qui se bécotent sur les bancs publics ont des petites gueules bien sympathiques.";
-
-    // arbitrary session id
-    String sessionId = "";
 
     // load the Talismane configuration
     Config conf = ConfigFactory.load();
@@ -94,13 +112,10 @@ public class TalismaneAPIExamples {
   /**
    * Similar to example1, but begins with filtering and sentence detection.
    */
-  public static void example2() throws Exception {
+  public static void example2(String sessionId) throws Exception {
     String text = "Les gens qui voient de travers pensent que les bancs verts qu'on voit sur les trottoirs "
         + "sont faits pour les impotents ou les ventripotents. " + "Mais c'est une absurdité, car, à la vérité, ils sont là, c'est notoire, "
         + "pour accueillir quelque temps les amours débutants.";
-
-    // arbitrary session id
-    String sessionId = "";
 
     // load the Talismane configuration
     Config conf = ConfigFactory.load();
@@ -147,6 +162,8 @@ public class TalismaneAPIExamples {
       // parse the pos-tag sequence
       Parser parser = Parsers.getParser(session);
       ParseConfiguration parseConfiguration = parser.parseSentence(posTagSequence);
+      System.out.println(parseConfiguration);
+
       ParseTree parseTree = new ParseTree(parseConfiguration, true);
       System.out.println(parseTree);
     }

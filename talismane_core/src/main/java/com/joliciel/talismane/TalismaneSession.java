@@ -142,9 +142,9 @@ public class TalismaneSession {
     this.sessionId = sessionId;
     this.config = config;
 
-    config.checkValid(ConfigFactory.defaultReference(), "talismane.core");
+    config.checkValid(ConfigFactory.defaultReference(), "talismane.core." + sessionId);
 
-    Config talismaneConfig = config.getConfig("talismane.core");
+    Config talismaneConfig = config.getConfig("talismane.core." + sessionId);
     this.command = Command.valueOf(talismaneConfig.getString("command"));
 
     if (talismaneConfig.hasPath("module")) {
@@ -182,7 +182,7 @@ public class TalismaneSession {
     this.baseName = talismaneConfig.getString("base-name") + this.suffix;
 
     PosTagSet posTagSet = null;
-    String configPath = "talismane.core.pos-tagger.pos-tag-set";
+    String configPath = "talismane.core." + sessionId + ".pos-tagger.pos-tag-set";
     if (config.hasPath(configPath)) {
       InputStream posTagSetFile = ConfigUtils.getFileFromConfig(config, configPath);
       try (Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagSetFile, "UTF-8")))) {
@@ -192,7 +192,7 @@ public class TalismaneSession {
     }
     this.posTagSet = posTagSet;
 
-    String transitionSystemStr = config.getString("talismane.core.parser.transition-system");
+    String transitionSystemStr = config.getString("talismane.core." + sessionId + ".parser.transition-system");
     TransitionSystem transitionSystem = null;
     if (transitionSystemStr.equalsIgnoreCase("ShiftReduce")) {
       transitionSystem = new ShiftReduceTransitionSystem();
@@ -203,7 +203,7 @@ public class TalismaneSession {
     }
     this.transitionSystem = transitionSystem;
 
-    configPath = "talismane.core.parser.dependency-labels";
+    configPath = "talismane.core." + sessionId + ".parser.dependency-labels";
     if (config.hasPath(configPath)) {
       InputStream dependencyLabelFile = ConfigUtils.getFileFromConfig(config, configPath);
       try (Scanner depLabelScanner = new Scanner(new BufferedReader(new InputStreamReader(dependencyLabelFile, "UTF-8")))) {
@@ -212,7 +212,7 @@ public class TalismaneSession {
       }
     }
 
-    configPath = "talismane.core.lexicons";
+    configPath = "talismane.core." + sessionId + ".lexicons";
     Set<String> lexiconNames = new HashSet<>();
     List<String> lexiconPaths = config.getStringList(configPath);
     for (String lexiconPath : lexiconPaths) {
@@ -235,7 +235,7 @@ public class TalismaneSession {
       for (PosTaggerLexicon oneLexicon : lexicons) {
         this.lexicons.add(oneLexicon);
         lexiconNames.add(oneLexicon.getName());
-        configPath = "talismane.core.pos-tagger.pos-tag-map." + oneLexicon.getName();
+        configPath = "talismane.core." + sessionId + ".pos-tagger.pos-tag-map." + oneLexicon.getName();
         PosTagMapper posTagMapper = null;
         if (config.hasPath(configPath)) {
           InputStream posTagMapFile = ConfigUtils.getFileFromConfig(config, configPath);
@@ -260,7 +260,7 @@ public class TalismaneSession {
       mergedLexicon = lexiconChain;
     }
 
-    configPath = "talismane.core.pos-tagger.pos-tag-map";
+    configPath = "talismane.core." + sessionId + ".pos-tagger.pos-tag-map";
 
     Set<String> lexNames = config.getConfig(configPath).root().keySet();
     for (String lexName : lexNames) {
@@ -269,7 +269,7 @@ public class TalismaneSession {
       }
     }
 
-    configPath = "talismane.core.word-lists";
+    configPath = "talismane.core." + sessionId + ".word-lists";
     List<String> wordListPaths = config.getStringList(configPath);
     if (wordListPaths.size() > 0) {
       for (String path : wordListPaths) {
@@ -284,7 +284,7 @@ public class TalismaneSession {
       }
     }
 
-    configPath = "talismane.core.external-resources";
+    configPath = "talismane.core." + sessionId + ".external-resources";
     List<String> externalResourcePaths = config.getStringList(configPath);
     if (externalResourcePaths.size() > 0) {
       for (String path : externalResourcePaths) {
@@ -299,7 +299,7 @@ public class TalismaneSession {
       }
     }
 
-    configPath = "talismane.core.lowercase-preferences";
+    configPath = "talismane.core." + sessionId + ".lowercase-preferences";
 
     if (config.hasPath(configPath)) {
       InputStream lowercasePreferencesFile = ConfigUtils.getFileFromConfig(config, configPath);
@@ -317,7 +317,7 @@ public class TalismaneSession {
     }
 
     Diacriticizer diacriticizer = null;
-    configPath = "talismane.core.diacriticizer";
+    configPath = "talismane.core." + sessionId + ".diacriticizer";
     if (config.hasPath(configPath)) {
       String diacriticizerPath = config.getString(configPath);
       diacriticizer = diacriticizerMap.get(diacriticizerPath);
@@ -389,7 +389,7 @@ public class TalismaneSession {
 
     RawTextAnnotatorFactory factory = new RawTextAnnotatorFactory();
 
-    configPath = "talismane.core.annotators.text-annotators";
+    configPath = "talismane.core." + sessionId + ".annotators.text-annotators";
     List<String> textAnnotatorPaths = config.getStringList(configPath);
     for (String path : textAnnotatorPaths) {
       LOG.debug("From: " + path);
@@ -412,7 +412,7 @@ public class TalismaneSession {
     SentenceAnnotatorLoader tokenFilterFactory = SentenceAnnotatorLoader.getInstance(this);
     this.sentenceAnnotators = new ArrayList<>();
     this.sentenceAnnotatorDescriptors = new ArrayList<>();
-    configPath = "talismane.core.annotators.sentence-annotators";
+    configPath = "talismane.core." + sessionId + ".annotators.sentence-annotators";
     List<String> sentenceAnnotatorPaths = config.getStringList(configPath);
     for (String path : sentenceAnnotatorPaths) {
       LOG.debug("From: " + path);
@@ -528,7 +528,7 @@ public class TalismaneSession {
     return externalResourceFinder;
   }
 
-  public String getSessionId() {
+  public String getId() {
     return sessionId;
   }
 

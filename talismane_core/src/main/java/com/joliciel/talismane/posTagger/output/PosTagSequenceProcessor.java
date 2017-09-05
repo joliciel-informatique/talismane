@@ -61,7 +61,7 @@ public interface PosTagSequenceProcessor extends Closeable {
 
   /**
    * Collect the processors specified in the configuration key
-   * talismane.core.pos-tagger.output.processors.<br/>
+   * talismane.core.[sessionId].pos-tagger.output.processors.<br/>
    * <br/>
    * Each processor must implement this interface and must have a constructor
    * matching one of the following signatures:<br/>
@@ -89,7 +89,7 @@ public interface PosTagSequenceProcessor extends Closeable {
   public static List<PosTagSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session)
       throws IOException, ReflectiveOperationException, ClassNotFoundException, TalismaneException {
     Config config = session.getConfig();
-    Config myConfig = config.getConfig("talismane.core.pos-tagger");
+    Config myConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
 
     List<PosTagSequenceProcessor> processors = new ArrayList<>();
     List<String> classes = myConfig.getStringList("output.processors");

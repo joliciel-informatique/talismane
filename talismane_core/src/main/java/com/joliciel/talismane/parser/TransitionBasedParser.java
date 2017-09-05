@@ -98,9 +98,9 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
   public TransitionBasedParser(TalismaneSession session) throws IOException, ClassNotFoundException, TalismaneException {
     Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
 
-    String configPath = "talismane.core.parser.model";
+    String configPath = "talismane.core." + session.getId() + ".parser.model";
     String modelFilePath = config.getString(configPath);
     LOG.debug("Getting parser model from " + modelFilePath);
     ClassificationModel model = modelMap.get(modelFilePath);
@@ -154,7 +154,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
     List<ParserRule> parserRules = new ArrayList<>();
     ParserFeatureParser featureParser = new ParserFeatureParser(session);
 
-    configPath = "talismane.core.parser.rules";
+    configPath = "talismane.core." + session.getId() + ".parser.rules";
     List<String> textFilterPaths = config.getStringList(configPath);
     for (String path : textFilterPaths) {
       LOG.debug("From: " + path);

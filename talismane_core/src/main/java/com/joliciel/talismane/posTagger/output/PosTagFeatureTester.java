@@ -45,12 +45,12 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
 
   public PosTagFeatureTester(File outDir, TalismaneSession session) throws IOException {
     Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
 
     File file = new File(outDir, session.getBaseName() + "_posTagFeatureTest.txt");
     this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
 
-    String configPath = "talismane.core.pos-tagger.train.features";
+    String configPath = "talismane.core." + session.getId() + ".pos-tagger.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {

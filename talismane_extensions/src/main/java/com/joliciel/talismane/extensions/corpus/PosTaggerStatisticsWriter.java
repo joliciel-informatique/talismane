@@ -79,8 +79,8 @@ public class PosTaggerStatisticsWriter implements PosTagSequenceProcessor {
     serializationFile.delete();
 
     Config config = session.getConfig();
-    if (config.hasPath("talismane.extensions.pos-tagger-statistics.reference-stats")) {
-      String referenceStatsPath = config.getString("talismane.extensions.pos-tagger-statistics.reference-stats");
+    if (config.hasPath("talismane.extensions." + session.getId() + ".pos-tagger-statistics.reference-stats")) {
+      String referenceStatsPath = config.getString("talismane.extensions." + session.getId() + ".pos-tagger-statistics.reference-stats");
       File referenceStatsFile = new File(referenceStatsPath);
       this.referenceStats = PosTaggerStatistics.loadFromFile(referenceStatsFile);
     } else {

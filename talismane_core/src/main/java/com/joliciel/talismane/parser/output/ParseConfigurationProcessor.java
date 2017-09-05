@@ -57,7 +57,7 @@ public interface ParseConfigurationProcessor extends Closeable {
 
   /**
    * Collect the processors specified in the configuration key
-   * talismane.core.parser.output.processors.<br/>
+   * talismane.core.[sessionId].parser.output.processors.<br/>
    * <br/>
    * Each processor must implement this interface and must have a constructor
    * matching one of the following signatures:<br/>
@@ -85,7 +85,7 @@ public interface ParseConfigurationProcessor extends Closeable {
   public static List<ParseConfigurationProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session)
       throws IOException, ReflectiveOperationException, ClassNotFoundException, TalismaneException {
     Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
 
     List<ParseConfigurationProcessor> processors = new ArrayList<>();
     List<String> classes = parserConfig.getStringList("output.processors");
