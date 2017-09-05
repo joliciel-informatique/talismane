@@ -62,12 +62,12 @@ public class LanguageDetector {
 
   public static LanguageDetector getInstance(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
     LanguageDetector languageDetector = null;
-    if (session.getSessionId() != null)
-      languageDetector = languageDetectorMap.get(session.getSessionId());
+    if (session.getId() != null)
+      languageDetector = languageDetectorMap.get(session.getId());
     if (languageDetector == null) {
       Config config = session.getConfig();
 
-      String configPath = "talismane.core.language-detector.model";
+      String configPath = "talismane.core." + session.getId() + ".language-detector.model";
       String modelFilePath = config.getString(configPath);
       ClassificationModel model = modelMap.get(modelFilePath);
       if (model == null) {
@@ -79,8 +79,8 @@ public class LanguageDetector {
 
       languageDetector = new LanguageDetector(model);
 
-      if (session.getSessionId() != null)
-        languageDetectorMap.put(session.getSessionId(), languageDetector);
+      if (session.getId() != null)
+        languageDetectorMap.put(session.getId(), languageDetector);
     }
     return languageDetector;
   }

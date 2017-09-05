@@ -63,7 +63,7 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
     File file = new File(outDir, session.getBaseName() + "_parseFeatureTest.txt");
     this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
 
-    String configPath = "talismane.core.parser.train.features";
+    String configPath = "talismane.core." + session.getId() + ".parser.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {

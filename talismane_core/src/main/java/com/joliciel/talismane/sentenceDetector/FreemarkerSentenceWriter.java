@@ -52,8 +52,8 @@ import freemarker.template.Version;
 /**
  * Processes sentence detector output by writing via a freemarker template.<br/>
  * Will use the template specified in
- * talismane.core.sentence-detector.output.template if provided, otherwise the
- * default sentence_template.ftl.<br/>
+ * talismane.core.[sessionId].sentence-detector.output.template if provided,
+ * otherwise the default sentence_template.ftl.<br/>
  * If no writer is specified, will write to a file with the suffix "_sent.txt".
  * 
  * @author Assaf Urieli
@@ -75,7 +75,7 @@ public class FreemarkerSentenceWriter implements SentenceProcessor {
     Config config = session.getConfig();
 
     Reader templateReader = null;
-    String configPath = "talismane.core.sentence-detector.output.template";
+    String configPath = "talismane.core." + session.getId() + ".sentence-detector.output.template";
     if (config.hasPath(configPath)) {
       templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
     } else {

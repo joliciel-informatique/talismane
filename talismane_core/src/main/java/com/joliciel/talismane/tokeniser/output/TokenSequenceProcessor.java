@@ -47,7 +47,7 @@ public interface TokenSequenceProcessor extends Closeable {
 
   /**
    * Collect the processors specified in the configuration key
-   * talismane.core.tokeniser.output.processors.<br/>
+   * talismane.core.[sessionId].tokeniser.output.processors.<br/>
    * <br/>
    * Each processor must implement this interface and must have a constructor
    * matching one of the following signatures:<br/>
@@ -75,7 +75,7 @@ public interface TokenSequenceProcessor extends Closeable {
   public static List<TokenSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session)
       throws IOException, ReflectiveOperationException, ClassNotFoundException, TalismaneException {
     Config config = session.getConfig();
-    Config myConfig = config.getConfig("talismane.core.tokeniser");
+    Config myConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
 
     List<TokenSequenceProcessor> processors = new ArrayList<>();
     List<String> classes = myConfig.getStringList("output.processors");

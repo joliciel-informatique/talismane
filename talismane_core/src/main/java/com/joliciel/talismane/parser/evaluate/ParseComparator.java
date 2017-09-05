@@ -52,7 +52,7 @@ public class ParseComparator {
   public ParseComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
       throws ClassNotFoundException, IOException, ReflectiveOperationException, TalismaneException {
     Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
 
     this.referenceCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(referenceReader, parserConfig.getConfig("input"), session);
 

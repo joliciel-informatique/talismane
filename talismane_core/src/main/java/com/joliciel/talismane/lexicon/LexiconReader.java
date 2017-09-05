@@ -112,6 +112,11 @@ public class LexiconReader {
   public static void main(String[] args) throws IOException, SentenceAnnotatorLoadException, TalismaneException, ReflectiveOperationException {
     OptionParser parser = new OptionParser();
     parser.accepts("serializeLexicon", "serialize lexicon");
+    parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("serializeLexicon").forHelp();
+
+    OptionSpec<String> sessionIdOption = parser.accepts("sessionId", "the current session id - configuration read as talismane.core.[sessionId]")
+        .requiredUnless("?", "help").withRequiredArg().ofType(String.class);
+
     OptionSpec<File> lexiconPropsFileOption = parser.accepts("lexiconProps", "the lexicon properties file").withRequiredArg().required().ofType(File.class);
     OptionSpec<File> outFileOption = parser.accepts("outFile", "where to write the lexicon").withRequiredArg().required().ofType(File.class);
 
@@ -126,7 +131,7 @@ public class LexiconReader {
     File outFile = options.valueOf(outFileOption);
 
     Config config = ConfigFactory.load();
-    String sessionId = "";
+    String sessionId = options.valueOf(sessionIdOption);
     TalismaneSession session = new TalismaneSession(config, sessionId);
 
     LexiconReader lexiconSerializer = new LexiconReader(session);

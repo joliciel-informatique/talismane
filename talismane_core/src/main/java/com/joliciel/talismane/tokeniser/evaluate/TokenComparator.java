@@ -68,7 +68,7 @@ public class TokenComparator {
       throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
     this.session = session;
     Config config = session.getConfig();
-    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
 
     Tokeniser tokeniser = Tokeniser.getInstance(session);
 

@@ -79,8 +79,8 @@ public class CorpusStatisticsWriter implements ParseConfigurationProcessor {
     serializationFile.delete();
 
     Config config = session.getConfig();
-    if (config.hasPath("talismane.extensions.corpus-statistics.reference-stats")) {
-      String referenceStatsPath = config.getString("talismane.extensions.corpus-statistics.reference-stats");
+    if (config.hasPath("talismane.extensions." + session.getId() + ".corpus-statistics.reference-stats")) {
+      String referenceStatsPath = config.getString("talismane.extensions." + session.getId() + ".corpus-statistics.reference-stats");
       File referenceStatsFile = new File(referenceStatsPath);
       this.referenceStats = CorpusStatistics.loadFromFile(referenceStatsFile);
     } else {

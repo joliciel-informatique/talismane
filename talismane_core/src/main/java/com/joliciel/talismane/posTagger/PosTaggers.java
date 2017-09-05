@@ -43,11 +43,11 @@ public class PosTaggers {
 
   public static PosTagger getPosTagger(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException, ReflectiveOperationException {
     PosTagger posTagger = null;
-    if (session.getSessionId() != null)
-      posTagger = posTaggerMap.get(session.getSessionId());
+    if (session.getId() != null)
+      posTagger = posTaggerMap.get(session.getId());
     if (posTagger == null) {
       Config config = session.getConfig();
-      Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+      Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
       String className = posTaggerConfig.getString("pos-tagger");
 
       @SuppressWarnings("rawtypes")
@@ -73,8 +73,8 @@ public class PosTaggers {
         }
       }
 
-      if (session.getSessionId() != null)
-        posTaggerMap.put(session.getSessionId(), posTagger);
+      if (session.getId() != null)
+        posTaggerMap.put(session.getId(), posTagger);
     }
     return posTagger.clonePosTagger();
   }

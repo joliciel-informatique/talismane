@@ -8,7 +8,8 @@
 target/
 dist/
 build/
-distTerminology/
+logs/
+examples/french/output/
 talismane_core/languagePacks/english/languagePack/*.zip
 talismane_core/languagePacks/french/languagePack/*.zip
 .settings

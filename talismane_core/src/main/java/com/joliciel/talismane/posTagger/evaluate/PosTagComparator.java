@@ -33,7 +33,7 @@ public class PosTagComparator {
   public PosTagComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
       throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
     Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
 
     this.referenceCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(referenceReader, posTaggerConfig.getConfig("input"), session);
 

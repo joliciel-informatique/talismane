@@ -76,7 +76,7 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 
     this.filters = new ArrayList<>();
 
-    String configPath = "talismane.core.tokeniser.filters";
+    String configPath = "talismane.core." + session.getId() + ".tokeniser.filters";
     List<String> filterDescriptors = config.getStringList(configPath);
     for (String descriptor : filterDescriptors) {
       TokenFilter filter = TokenFilter.loadFilter(descriptor, session);
@@ -242,11 +242,11 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    */
   public static Tokeniser getInstance(TalismaneSession session) throws IOException, ClassNotFoundException, TalismaneException, ReflectiveOperationException {
     Tokeniser tokeniser = null;
-    if (session.getSessionId() != null)
-      tokeniser = tokeniserMap.get(session.getSessionId());
+    if (session.getId() != null)
+      tokeniser = tokeniserMap.get(session.getId());
     if (tokeniser == null) {
       Config config = session.getConfig();
-      Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+      Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
 
       String className = tokeniserConfig.getString("tokeniser");
 
@@ -273,8 +273,8 @@ public abstract class Tokeniser implements Annotator<Sentence> {
         }
       }
 
-      if (session.getSessionId() != null)
-        tokeniserMap.put(session.getSessionId(), tokeniser);
+      if (session.getId() != null)
+        tokeniserMap.put(session.getId(), tokeniser);
     }
 
     return tokeniser.cloneTokeniser();
@@ -284,12 +284,12 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    * A pattern matching default separators for tokens.
    */
   public static Pattern getTokenSeparators(TalismaneSession session) {
-    Pattern tokenSeparators = tokenSeparatorMap.get(session.getSessionId());
+    Pattern tokenSeparators = tokenSeparatorMap.get(session.getId());
     if (tokenSeparators == null) {
       Config config = session.getConfig();
-      String separatorRegex = config.getString("talismane.core.tokeniser.separators");
+      String separatorRegex = config.getString("talismane.core." + session.getId() + ".tokeniser.separators");
       tokenSeparators = Pattern.compile(separatorRegex, Pattern.UNICODE_CHARACTER_CLASS);
-      tokenSeparatorMap.put(session.getSessionId(), tokenSeparators);
+      tokenSeparatorMap.put(session.getId(), tokenSeparators);
     }
     return tokenSeparators;
   }

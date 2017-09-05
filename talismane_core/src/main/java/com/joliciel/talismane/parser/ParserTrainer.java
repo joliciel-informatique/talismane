@@ -65,12 +65,12 @@ public class ParserTrainer {
 
   public ParserTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
     Config config = session.getConfig();
-    this.parserConfig = config.getConfig("talismane.core.parser");
+    this.parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
     this.session = session;
     this.modelFile = new File(parserConfig.getString("model"));
     this.descriptors = new HashMap<>();
 
-    String configPath = "talismane.core.parser.train.features";
+    String configPath = "talismane.core." + session.getId() + ".parser.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
