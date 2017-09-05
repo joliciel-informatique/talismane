@@ -54,7 +54,7 @@ public interface SentenceDetectorAnnotatedCorpusReader extends AnnotatedCorpusRe
   /**
    * Builds an annotated corpus reader for a particular Reader and Config, where
    * the config is the local namespace. For configuration example, see
-   * talismane.core.sentence-detector.input in reference.conf.
+   * talismane.core.generic.sentence-detector.input in reference.conf.
    * 
    * @param config
    *          the local configuration section from which we're building a reader

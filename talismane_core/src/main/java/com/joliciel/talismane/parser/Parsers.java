@@ -43,11 +43,11 @@ public class Parsers {
 
   public static Parser getParser(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException, ReflectiveOperationException {
     Parser parser = null;
-    if (session.getSessionId() != null)
-      parser = parserMap.get(session.getSessionId());
+    if (session.getId() != null)
+      parser = parserMap.get(session.getId());
     if (parser == null) {
       Config config = session.getConfig();
-      Config parserConfig = config.getConfig("talismane.core.parser");
+      Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
       String className = parserConfig.getString("parser");
 
       @SuppressWarnings("rawtypes")
@@ -73,8 +73,8 @@ public class Parsers {
         }
       }
 
-      if (session.getSessionId() != null)
-        parserMap.put(session.getSessionId(), parser);
+      if (session.getId() != null)
+        parserMap.put(session.getId(), parser);
     }
     return parser.cloneParser();
   }

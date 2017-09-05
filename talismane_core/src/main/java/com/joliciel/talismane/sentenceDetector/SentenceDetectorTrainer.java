@@ -63,13 +63,13 @@ public class SentenceDetectorTrainer {
 
   public SentenceDetectorTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
     Config config = session.getConfig();
-    this.sentenceConfig = config.getConfig("talismane.core.sentence-detector");
+    this.sentenceConfig = config.getConfig("talismane.core." + session.getId() + ".sentence-detector");
     this.session = session;
     this.modelFile = new File(sentenceConfig.getString("model"));
 
     this.descriptors = new HashMap<>();
 
-    String configPath = "talismane.core.sentence-detector.train.features";
+    String configPath = "talismane.core." + session.getId() + ".sentence-detector.train.features";
     InputStream featureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(featureFile, "UTF-8")))) {

@@ -54,7 +54,7 @@ public class ParserFScoreCalculator implements ParseEvaluationObserver {
 
   public ParserFScoreCalculator(File outDir, TalismaneSession session) throws IOException {
     Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
     this.projective = evalConfig.getBoolean("projective");
     this.labeledEvaluation = evalConfig.getBoolean("labeled-evaluation");

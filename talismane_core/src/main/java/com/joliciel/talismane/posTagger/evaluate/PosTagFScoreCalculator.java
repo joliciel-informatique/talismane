@@ -50,7 +50,7 @@ public class PosTagFScoreCalculator implements PosTagEvaluationObserver {
 
   public PosTagFScoreCalculator(File outDir, TalismaneSession session) {
     Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
     Config evalConfig = posTaggerConfig.getConfig("evaluate");
 
     this.fScoreFile = new File(outDir, session.getBaseName() + "_fscores.csv");

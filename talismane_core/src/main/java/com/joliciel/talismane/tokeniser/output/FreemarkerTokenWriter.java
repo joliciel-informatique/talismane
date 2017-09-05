@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.BuiltInTemplate;
-import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
@@ -53,8 +53,9 @@ import freemarker.template.Version;
 /**
  * Processes tokeniser output by writing via a freemarker template.<br/>
  * Will either use the built-in template specified in
- * talismane.core.tokeniser.output.built-in-template, or any other template
- * specified in talismane.core.tokeniser.output.template.<br/>
+ * talismane.core.[sessionId].tokeniser.output.built-in-template, or any other
+ * template specified in talismane.core.[sessionId].tokeniser.output.template.
+ * <br/>
  * If no writer is specified, will write to a file with the suffix "_tok.txt".
  * 
  * @author Assaf Urieli
@@ -74,10 +75,10 @@ public class FreemarkerTokenWriter implements TokenSequenceProcessor {
     this.writer = writer;
 
     Config config = session.getConfig();
-    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
 
     Reader templateReader = null;
-    String configPath = "talismane.core.tokeniser.output.template";
+    String configPath = "talismane.core." + session.getId() + ".tokeniser.output.template";
     if (config.hasPath(configPath)) {
       templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
     } else {

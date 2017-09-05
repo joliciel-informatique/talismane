@@ -81,12 +81,12 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 
   public static SentenceDetector getInstance(TalismaneSession session) throws IOException, ClassNotFoundException {
     SentenceDetector sentenceDetector = null;
-    if (session.getSessionId() != null)
-      sentenceDetector = sentenceDetectorMap.get(session.getSessionId());
+    if (session.getId() != null)
+      sentenceDetector = sentenceDetectorMap.get(session.getId());
     if (sentenceDetector == null) {
       Config config = session.getConfig();
 
-      String configPath = "talismane.core.sentence-detector.model";
+      String configPath = "talismane.core." + session.getId() + ".sentence-detector.model";
       String modelFilePath = config.getString(configPath);
       ClassificationModel sentenceModel = modelMap.get(modelFilePath);
       if (sentenceModel == null) {
@@ -98,8 +98,8 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 
       sentenceDetector = new SentenceDetector(sentenceModel, session);
 
-      if (session.getSessionId() != null)
-        sentenceDetectorMap.put(session.getSessionId(), sentenceDetector);
+      if (session.getId() != null)
+        sentenceDetectorMap.put(session.getId(), sentenceDetector);
     }
     return sentenceDetector.cloneSentenceDetector();
   }

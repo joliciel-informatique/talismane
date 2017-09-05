@@ -56,7 +56,7 @@ public class TokeniserEvaluator {
     this.tokeniser = Tokeniser.getInstance(session);
     this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
 
-    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
 
     this.corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("input"), session);
   }

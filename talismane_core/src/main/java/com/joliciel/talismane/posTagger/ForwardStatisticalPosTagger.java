@@ -90,11 +90,11 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 
   public ForwardStatisticalPosTagger(TalismaneSession session) throws IOException, ClassNotFoundException, TalismaneException {
     Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
     int beamWidth = posTaggerConfig.getInt("beam-width");
     boolean propagateTokeniserBeam = posTaggerConfig.getBoolean("propagate-tokeniser-beam");
 
-    String configPath = "talismane.core.pos-tagger.model";
+    String configPath = "talismane.core." + session.getId() + ".pos-tagger.model";
     String modelFilePath = config.getString(configPath);
     LOG.debug("Getting pos-tagger model from " + modelFilePath);
     ClassificationModel model = modelMap.get(modelFilePath);
@@ -132,7 +132,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 
     List<PosTaggerRule> posTaggerRules = new ArrayList<>();
 
-    configPath = "talismane.core.pos-tagger.rules";
+    configPath = "talismane.core." + session.getId() + ".pos-tagger.rules";
     List<String> textFilterPaths = config.getStringList(configPath);
     for (String path : textFilterPaths) {
       LOG.debug("From: " + path);

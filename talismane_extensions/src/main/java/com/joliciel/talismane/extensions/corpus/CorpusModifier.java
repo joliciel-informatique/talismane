@@ -58,7 +58,7 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 
   public CorpusModifier(TalismaneSession session) throws IOException {
     Config config = session.getConfig();
-    List<String> commandList = config.getStringList("talismane.extensions.corpus-modifier.rules");
+    List<String> commandList = config.getStringList("talismane.extensions." + session.getId() + ".corpus-modifier.rules");
     for (String command : commandList) {
       if (!command.startsWith("#")) {
         ModifyCommand modifyCommand = new ModifyCommand();

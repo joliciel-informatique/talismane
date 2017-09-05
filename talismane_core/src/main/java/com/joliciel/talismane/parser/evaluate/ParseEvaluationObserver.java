@@ -61,7 +61,7 @@ public interface ParseEvaluationObserver {
 
   /**
    * Collect the observers specified in the configuration key
-   * talismane.core.parser.evaluate.observers.<br/>
+   * talismane.core.[sessionId].parser.evaluate.observers.<br/>
    * <br/>
    * Each processor must implement this interface and must have a constructor
    * matching one of the following signatures:<br/>
@@ -85,7 +85,7 @@ public interface ParseEvaluationObserver {
       outDir.mkdirs();
 
     Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
 
     List<ParseEvaluationObserver> observers = new ArrayList<>();

@@ -61,7 +61,7 @@ public class TransitionLogWriter implements ParseConfigurationProcessor, ParseEv
     this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
 
     Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
     this.errorLabels = new HashSet<>(evalConfig.getStringList("error-labels"));
   }
