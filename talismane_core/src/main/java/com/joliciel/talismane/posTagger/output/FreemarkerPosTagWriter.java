@@ -65,6 +65,7 @@ public class FreemarkerPosTagWriter implements PosTagSequenceProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(FreemarkerPosTagWriter.class);
   private final Template template;
   private final Writer writer;
+  private int sentenceNumber = 0;
 
   public FreemarkerPosTagWriter(File outDir, TalismaneSession session) throws IOException {
     this(new BufferedWriter(
@@ -138,8 +139,10 @@ public class FreemarkerPosTagWriter implements PosTagSequenceProcessor {
 
   @Override
   public void onNextPosTagSequence(PosTagSequence posTagSequence) throws IOException {
+    sentenceNumber++;
     Map<String, Object> model = new HashMap<String, Object>();
     model.put("sentence", posTagSequence);
+    model.put("sentenceNumber", sentenceNumber);
     model.put("text", posTagSequence.getTokenSequence().getSentence().getText());
     model.put("LOG", LOG);
     this.process(model);
