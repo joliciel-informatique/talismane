@@ -138,7 +138,3 @@ RegexTokenAnnotator	[‒–—―]	replacement=-	posTag=PONCT	featureType=punctu
 RegexTokenAnnotator	[.!?]+	posTag=PONCT	lemmaType=originalLower	featureType=punctuation
 RegexAttributeAnnotator	[\p{IsPunctuation}&&[^%$#@§¶‰‱]]+	posTag=PONCT	lemmaType=originalLower	featureType=punctuation
 
-#########################
-### Text normalisation ##
-#########################
-TextReplaceFilter	QuoteNormaliser	LowercaseKnownFirstWordFilter	UppercaseSeriesFilter

@@ -31,10 +31,15 @@ import java.util.Scanner;
  * A class allowing us to extract information from a CSV file.
  */
 public class CSVFile {
-  private CSVFormatter formatter = new CSVFormatter();
-  List<List<String>> cellMatrix = new ArrayList<List<String>>();
+  private final CSVFormatter formatter;
+  private final List<List<String>> cellMatrix = new ArrayList<List<String>>();
 
   public CSVFile(File file, String encoding) {
+    this(new CSVFormatter(), file, encoding);
+  }
+
+  public CSVFile(CSVFormatter formatter, File file, String encoding) {
+    this.formatter = formatter;
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding)))) {
       while (scanner.hasNextLine()) {
         String line = scanner.nextLine();

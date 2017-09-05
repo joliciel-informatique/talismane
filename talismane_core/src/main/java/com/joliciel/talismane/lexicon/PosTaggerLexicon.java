@@ -23,7 +23,6 @@ import java.util.Set;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTagSet;
 
 /**
  * An interface for retrieving lexical information from a lexicon, including
@@ -62,19 +61,4 @@ public interface PosTaggerLexicon extends Lexicon {
    * the criteria provided (posTag, gender, number).
    */
   public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number);
-
-  /**
-   * The PosTagSet to use when retrieving postags for a given word.
-   */
-  public abstract PosTagSet getPosTagSet();
-
-  public abstract void setPosTagSet(PosTagSet posTagSet);
-
-  /**
-   * The PosTagMapper to use when selecting the possible pos-tags for a given
-   * lexical entry.
-   */
-  public PosTagMapper getPosTagMapper();
-
-  public void setPosTagMapper(PosTagMapper posTagMapper);
 }

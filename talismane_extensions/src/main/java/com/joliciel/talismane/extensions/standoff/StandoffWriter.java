@@ -19,9 +19,13 @@
 package com.joliciel.talismane.extensions.standoff;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -33,10 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.output.ParseConfigurationOutput;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseConfigurationProcessor;
+import com.joliciel.talismane.parser.output.ParseConfigurationOutput;
+import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.joliciel.talismane.utils.LogUtils;
 
 import freemarker.cache.NullCacheStorage;
@@ -46,6 +50,16 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.Version;
 
+/**
+ * Writes standoff annotations readable by the Brat annotation tool: see
+ * http://brat.nlplab.org/
+ * 
+ * To be useable by Brat, these need to be accompanied in the same directory by
+ * sentences written using the {@link StandoffSentenceWriter}.
+ * 
+ * @author Assaf Urieli
+ *
+ */
 public class StandoffWriter implements ParseConfigurationProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(StandoffWriter.class);
   private final Template template;
@@ -56,6 +70,11 @@ public class StandoffWriter implements ParseConfigurationProcessor {
   private int characterCount = 0;
 
   private final String punctuationDepLabel;
+
+  public StandoffWriter(File outDir, TalismaneSession session) throws IOException {
+    this(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + ".ann"), false), session.getOutputCharset())),
+        session);
+  }
 
   public StandoffWriter(Writer writer, TalismaneSession session) throws IOException {
     punctuationDepLabel = session.getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();

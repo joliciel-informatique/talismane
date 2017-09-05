@@ -173,6 +173,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
   /**
    * Add pos-tagged token feature classes to the container provided, including:
    * <br/>
+   * - AllLemmas: {@link AllLemmasFeature}<br/>
    * - Aspect: {@link VerbAspectFeature}<br/>
    * - Case: {@link GrammaticalCaseFeature}<br/>
    * - Category: {@link LexicalCategoryFeature}<br/>
@@ -196,6 +197,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
    * - WordForm: {@link WordFormFeature}<br/>
    */
   public static void addPosTaggedTokenFeatureClasses(FeatureClassContainer container) {
+    container.addFeatureClass("AllLemmas", AllLemmasFeature.class);
     container.addFeatureClass("Aspect", VerbAspectFeature.class);
     container.addFeatureClass("Case", GrammaticalCaseFeature.class);
     container.addFeatureClass("Category", LexicalCategoryFeature.class);

@@ -28,10 +28,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.vfs2.FileObject;
@@ -40,11 +42,14 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Module;
+import com.joliciel.talismane.lexicon.DefaultPosTagMapper;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconReader;
+import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.lexicon.SimplePosTagMapper;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.output.CoNLLFormatter;
 import com.joliciel.talismane.parser.ArcEagerTransitionSystem;
@@ -91,6 +96,7 @@ public class TalismaneSession {
   private final Module module;
   private final int port;
   private final PosTagSet posTagSet;
+  private final Map<String, PosTagMapper> posTagMappers = new HashMap<>();
   private final List<PosTaggerLexicon> lexicons = new ArrayList<>();
   private final PosTaggerLexicon mergedLexicon;
   private final TransitionSystem transitionSystem;
@@ -125,20 +131,20 @@ public class TalismaneSession {
    * @throws IOException
    *           if a problem occurred when reading resources referred to by the
    *           configuration
-   * @throws ClassNotFoundException
-   *           if a resource contains the wrong serialized class or version
    * @throws TalismaneException
    *           if an unknown transition system was set in the configuration.
    * @throws SentenceAnnotatorLoadException
    *           if configuration error loading sentence annotators
+   * @throws ReflectiveOperationException
    */
-  public TalismaneSession(Config config, String sessionId) throws IOException, ClassNotFoundException, TalismaneException, SentenceAnnotatorLoadException {
+  public TalismaneSession(Config config, String sessionId)
+      throws IOException, TalismaneException, SentenceAnnotatorLoadException, ReflectiveOperationException {
     this.sessionId = sessionId;
     this.config = config;
 
-    config.checkValid(ConfigFactory.defaultReference(), "talismane.core");
+    config.checkValid(ConfigFactory.defaultReference(), "talismane.core." + sessionId);
 
-    Config talismaneConfig = config.getConfig("talismane.core");
+    Config talismaneConfig = config.getConfig("talismane.core." + sessionId);
     this.command = Command.valueOf(talismaneConfig.getString("command"));
 
     if (talismaneConfig.hasPath("module")) {
@@ -176,7 +182,7 @@ public class TalismaneSession {
     this.baseName = talismaneConfig.getString("base-name") + this.suffix;
 
     PosTagSet posTagSet = null;
-    String configPath = "talismane.core.pos-tagger.pos-tag-set";
+    String configPath = "talismane.core." + sessionId + ".pos-tagger.pos-tag-set";
     if (config.hasPath(configPath)) {
       InputStream posTagSetFile = ConfigUtils.getFileFromConfig(config, configPath);
       try (Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagSetFile, "UTF-8")))) {
@@ -186,7 +192,7 @@ public class TalismaneSession {
     }
     this.posTagSet = posTagSet;
 
-    String transitionSystemStr = config.getString("talismane.core.parser.transition-system");
+    String transitionSystemStr = config.getString("talismane.core." + sessionId + ".parser.transition-system");
     TransitionSystem transitionSystem = null;
     if (transitionSystemStr.equalsIgnoreCase("ShiftReduce")) {
       transitionSystem = new ShiftReduceTransitionSystem();
@@ -197,7 +203,7 @@ public class TalismaneSession {
     }
     this.transitionSystem = transitionSystem;
 
-    configPath = "talismane.core.parser.dependency-labels";
+    configPath = "talismane.core." + sessionId + ".parser.dependency-labels";
     if (config.hasPath(configPath)) {
       InputStream dependencyLabelFile = ConfigUtils.getFileFromConfig(config, configPath);
       try (Scanner depLabelScanner = new Scanner(new BufferedReader(new InputStreamReader(dependencyLabelFile, "UTF-8")))) {
@@ -206,7 +212,8 @@ public class TalismaneSession {
       }
     }
 
-    configPath = "talismane.core.lexicons";
+    configPath = "talismane.core." + sessionId + ".lexicons";
+    Set<String> lexiconNames = new HashSet<>();
     List<String> lexiconPaths = config.getStringList(configPath);
     for (String lexiconPath : lexiconPaths) {
       List<PosTaggerLexicon> lexicons = lexiconMap.get(lexiconPath);
@@ -227,6 +234,20 @@ public class TalismaneSession {
 
       for (PosTaggerLexicon oneLexicon : lexicons) {
         this.lexicons.add(oneLexicon);
+        lexiconNames.add(oneLexicon.getName());
+        configPath = "talismane.core." + sessionId + ".pos-tagger.pos-tag-map." + oneLexicon.getName();
+        PosTagMapper posTagMapper = null;
+        if (config.hasPath(configPath)) {
+          InputStream posTagMapFile = ConfigUtils.getFileFromConfig(config, configPath);
+          try (Scanner posTagMapScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagMapFile, "UTF-8")))) {
+            posTagMapper = new SimplePosTagMapper(posTagMapScanner, posTagSet);
+          }
+        } else {
+          if (LOG.isDebugEnabled())
+            LOG.debug("Using default pos-tag-mapper for lexicon: " + oneLexicon.getName());
+          posTagMapper = new DefaultPosTagMapper(posTagSet);
+        }
+        this.posTagMappers.put(oneLexicon.getName(), posTagMapper);
       }
     }
 
@@ -239,7 +260,16 @@ public class TalismaneSession {
       mergedLexicon = lexiconChain;
     }
 
-    configPath = "talismane.core.word-lists";
+    configPath = "talismane.core." + sessionId + ".pos-tagger.pos-tag-map";
+
+    Set<String> lexNames = config.getConfig(configPath).root().keySet();
+    for (String lexName : lexNames) {
+      if (!lexiconNames.contains(lexName)) {
+        throw new TalismaneException("Unknown lexicon in pos-tag mappers list: " + lexName);
+      }
+    }
+
+    configPath = "talismane.core." + sessionId + ".word-lists";
     List<String> wordListPaths = config.getStringList(configPath);
     if (wordListPaths.size() > 0) {
       for (String path : wordListPaths) {
@@ -254,7 +284,7 @@ public class TalismaneSession {
       }
     }
 
-    configPath = "talismane.core.external-resources";
+    configPath = "talismane.core." + sessionId + ".external-resources";
     List<String> externalResourcePaths = config.getStringList(configPath);
     if (externalResourcePaths.size() > 0) {
       for (String path : externalResourcePaths) {
@@ -269,7 +299,7 @@ public class TalismaneSession {
       }
     }
 
-    configPath = "talismane.core.lowercase-preferences";
+    configPath = "talismane.core." + sessionId + ".lowercase-preferences";
 
     if (config.hasPath(configPath)) {
       InputStream lowercasePreferencesFile = ConfigUtils.getFileFromConfig(config, configPath);
@@ -287,7 +317,7 @@ public class TalismaneSession {
     }
 
     Diacriticizer diacriticizer = null;
-    configPath = "talismane.core.diacriticizer";
+    configPath = "talismane.core." + sessionId + ".diacriticizer";
     if (config.hasPath(configPath)) {
       String diacriticizerPath = config.getString(configPath);
       diacriticizer = diacriticizerMap.get(diacriticizerPath);
@@ -359,7 +389,7 @@ public class TalismaneSession {
 
     RawTextAnnotatorFactory factory = new RawTextAnnotatorFactory();
 
-    configPath = "talismane.core.annotators.text-annotators";
+    configPath = "talismane.core." + sessionId + ".annotators.text-annotators";
     List<String> textAnnotatorPaths = config.getStringList(configPath);
     for (String path : textAnnotatorPaths) {
       LOG.debug("From: " + path);
@@ -382,7 +412,7 @@ public class TalismaneSession {
     SentenceAnnotatorLoader tokenFilterFactory = SentenceAnnotatorLoader.getInstance(this);
     this.sentenceAnnotators = new ArrayList<>();
     this.sentenceAnnotatorDescriptors = new ArrayList<>();
-    configPath = "talismane.core.annotators.sentence-annotators";
+    configPath = "talismane.core." + sessionId + ".annotators.sentence-annotators";
     List<String> sentenceAnnotatorPaths = config.getStringList(configPath);
     for (String path : sentenceAnnotatorPaths) {
       LOG.debug("From: " + path);
@@ -406,6 +436,7 @@ public class TalismaneSession {
   }
 
   /**
+   * The current session's pos-tag set.
    */
   public synchronized PosTagSet getPosTagSet() {
     if (posTagSet == null)
@@ -414,6 +445,17 @@ public class TalismaneSession {
   }
 
   /**
+   * The current session's pos-tag mapper for the lexicon in question.
+   */
+  public PosTagMapper getPosTagMapper(PosTaggerLexicon lexicon) {
+    PosTagMapper posTagMapper = posTagMappers.get(lexicon.getName());
+    if (posTagMapper == null)
+      throw new RuntimeException("PosTagMapper missing for lexicon " + lexicon.getName());
+    return posTagMapper;
+  }
+
+  /**
+   * The current session's transition system.
    */
   public synchronized TransitionSystem getTransitionSystem() {
     if (transitionSystem == null)
@@ -486,7 +528,7 @@ public class TalismaneSession {
     return externalResourceFinder;
   }
 
-  public String getSessionId() {
+  public String getId() {
     return sessionId;
   }
 

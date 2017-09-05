@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -43,9 +47,13 @@ import joptsimple.OptionSpec;
 public class LexiconDeserializer {
   private static final Logger LOG = LoggerFactory.getLogger(LexiconDeserializer.class);
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws IOException, SentenceAnnotatorLoadException, TalismaneException, ReflectiveOperationException {
     OptionParser parser = new OptionParser();
     parser.accepts("testLexicon", "test lexicon");
+    parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("testLexicon").forHelp();
+
+    OptionSpec<String> sessionIdOption = parser.accepts("sessionId", "the current session id - configuration read as talismane.core.[sessionId]")
+        .requiredUnless("?", "help").withRequiredArg().ofType(String.class);
 
     OptionSpec<String> lexiconFilesOption = parser.accepts("lexicon", "lexicon(s), semi-colon delimited").withRequiredArg().ofType(String.class)
         .withValuesSeparatedBy(';');
@@ -59,18 +67,19 @@ public class LexiconDeserializer {
 
     OptionSet options = parser.parse(args);
 
+    String sessionId = options.valueOf(sessionIdOption);
+
     Config config = null;
     if (options.has(lexiconFilesOption)) {
       List<String> lexiconFiles = options.valuesOf(lexiconFilesOption);
 
       Map<String, Object> values = new HashMap<>();
-      values.put("talismane.core.lexicons", lexiconFiles);
+      values.put("talismane.core." + sessionId + ".lexicons", lexiconFiles);
       config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
     } else {
       config = ConfigFactory.load();
     }
 
-    String sessionId = "";
     TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
 
     List<String> words = options.valuesOf(wordsOption);

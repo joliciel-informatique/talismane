@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.posTagger.PosTagSet;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -78,8 +78,6 @@ import joptsimple.OptionSpec;
  * <li><b><i>lexiconName</i>.regex</b>: the file containing the various regex
  * patterns used to extract lexical attributes from the lexicon, as described in
  * {@link RegexLexicalEntryReader}.</li>
- * <li><b><i>lexiconName</i>.posTagMap</b>: optional - the file containing the
- * PosTagMap for the lexicon, as described in {@link DefaultPosTagMapper}.</li>
  * <li><b><i>lexiconName</i>.categories</b>: optional - if included, limits the
  * categories that will be loaded to this list.</li>
  * <li><b><i>lexiconName</i>.exclusions</b>: optional - if included, reads a set
@@ -102,7 +100,7 @@ import joptsimple.OptionSpec;
  * 
  * @see LexiconFile
  * @see RegexLexicalEntryReader
- * @see DefaultPosTagMapper
+ * @see SimplePosTagMapper
  * @author Assaf Urieli
  *
  */
@@ -111,9 +109,14 @@ public class LexiconReader {
 
   private final TalismaneSession session;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws IOException, SentenceAnnotatorLoadException, TalismaneException, ReflectiveOperationException {
     OptionParser parser = new OptionParser();
     parser.accepts("serializeLexicon", "serialize lexicon");
+    parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("serializeLexicon").forHelp();
+
+    OptionSpec<String> sessionIdOption = parser.accepts("sessionId", "the current session id - configuration read as talismane.core.[sessionId]")
+        .requiredUnless("?", "help").withRequiredArg().ofType(String.class);
+
     OptionSpec<File> lexiconPropsFileOption = parser.accepts("lexiconProps", "the lexicon properties file").withRequiredArg().required().ofType(File.class);
     OptionSpec<File> outFileOption = parser.accepts("outFile", "where to write the lexicon").withRequiredArg().required().ofType(File.class);
 
@@ -128,7 +131,7 @@ public class LexiconReader {
     File outFile = options.valueOf(outFileOption);
 
     Config config = ConfigFactory.load();
-    String sessionId = "";
+    String sessionId = options.valueOf(sessionIdOption);
     TalismaneSession session = new TalismaneSession(config, sessionId);
 
     LexiconReader lexiconSerializer = new LexiconReader(session);
@@ -160,7 +163,7 @@ public class LexiconReader {
 
     String[] lexiconList = properties.get("lexicons").split(",");
 
-    List<String> knownPropertyList = Arrays.asList("file", "regex", "posTagMap", "categories", "exclusions", "encoding", "uniqueKey");
+    List<String> knownPropertyList = Arrays.asList("file", "regex", "categories", "exclusions", "encoding", "uniqueKey");
     Set<String> knownProperties = new HashSet<String>(knownPropertyList);
     for (String property : properties.keySet()) {
       if (property.equals("lexicons")) {
@@ -183,13 +186,10 @@ public class LexiconReader {
       }
     }
 
-    PosTagSet posTagSet = session.getPosTagSet();
-
     for (String lexiconName : lexiconList) {
       LOG.debug("Lexicon: " + lexiconName);
       String lexiconFilePath = properties.get(lexiconName + ".file");
       String lexiconRegexPath = properties.get(lexiconName + ".regex");
-      String lexiconPosTagMapPath = properties.get(lexiconName + ".posTagMap");
       String lexiconExclusionPath = properties.get(lexiconName + ".exclusions");
       String categoryString = properties.get(lexiconName + ".categories");
       String lexiconEncoding = properties.get(lexiconName + ".encoding");
@@ -270,7 +270,7 @@ public class LexiconReader {
 
       LOG.debug("Serializing: " + lexiconFilePath);
 
-      LexiconFile lexiconFile = new LexiconFile(lexiconName, lexiconScanner, lexicalEntryReader);
+      LexiconFile lexiconFile = new LexiconFile(lexiconName, lexiconScanner, lexicalEntryReader, session);
       if (categories != null)
         lexiconFile.setCategories(categories);
       if (exclusionAttributes != null)
@@ -282,15 +282,6 @@ public class LexiconReader {
 
       lexiconFile.load();
       inputStream.close();
-      lexiconFile.setPosTagSet(posTagSet);
-
-      if (lexiconPosTagMapPath != null) {
-        File lexiconPosTagMapFile = new File(lexiconDir, lexiconPosTagMapPath);
-        Scanner posTagMapScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconPosTagMapFile), "UTF-8")));
-        PosTagMapper posTagMapper = new DefaultPosTagMapper(posTagMapScanner, posTagSet);
-        posTagMapScanner.close();
-        lexiconFile.setPosTagMapper(posTagMapper);
-      }
 
       lexicons.add(lexiconFile);
     }

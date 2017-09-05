@@ -29,7 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
@@ -91,13 +93,13 @@ public class PatternTokeniser extends Tokeniser {
 
   private final List<ClassificationObserver> observers;
 
-  public PatternTokeniser(TalismaneSession session) throws IOException, ClassNotFoundException {
+  public PatternTokeniser(TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
     super(session);
     Config config = session.getConfig();
-    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
     this.beamWidth = tokeniserConfig.getInt("beam-width");
 
-    String configPath = "talismane.core.tokeniser.model";
+    String configPath = "talismane.core." + session.getId() + ".tokeniser.model";
     String modelFilePath = config.getString(configPath);
     LOG.debug("Getting tokeniser model from " + modelFilePath);
     ClassificationModel tokeniserModel = modelMap.get(modelFilePath);
@@ -131,26 +133,9 @@ public class PatternTokeniser extends Tokeniser {
     }
   }
 
-  public PatternTokeniser(ClassificationModel tokeniserModel, int beamWidth, TalismaneSession session) {
+  PatternTokeniser(DecisionMaker decisionMaker, TokeniserPatternManager tokeniserPatternManager, Set<TokenPatternMatchFeature<?>> features, int beamWidth,
+      TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
     super(session);
-    this.decisionMaker = tokeniserModel.getDecisionMaker();
-    this.beamWidth = beamWidth;
-
-    TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
-    Collection<ExternalResource<?>> externalResources = tokeniserModel.getExternalResources();
-    if (externalResources != null) {
-      for (ExternalResource<?> externalResource : externalResources) {
-        featureParser.getExternalResourceFinder().addExternalResource(externalResource);
-      }
-    }
-    this.features = featureParser.getTokenPatternMatchFeatureSet(tokeniserModel.getFeatureDescriptors());
-    this.tokeniserPatternManager = new TokeniserPatternManager(tokeniserModel.getDescriptors().get(PATTERN_DESCRIPTOR_KEY), session);
-    this.observers = new ArrayList<>();
-  }
-
-  public PatternTokeniser(DecisionMaker decisionMaker, TokeniserPatternManager tokeniserPatternManager, Set<TokenPatternMatchFeature<?>> features,
-      int beamWidth, TalismaneSession talismaneSession) {
-    super(talismaneSession);
     this.decisionMaker = decisionMaker;
     this.beamWidth = beamWidth;
     this.features = features;
@@ -288,8 +273,10 @@ public class PatternTokeniser extends Tokeniser {
         }
 
         if (LOG.isTraceEnabled()) {
-          for (FeatureResult<?> featureResult : tokenFeatureResults) {
-            LOG.trace(featureResult.toString());
+          SortedSet<String> featureResultSet = tokenFeatureResults.stream().map(f -> f.toString())
+              .collect(Collectors.toCollection(() -> new TreeSet<String>()));
+          for (String featureResultString : featureResultSet) {
+            LOG.trace(featureResultString);
           }
         }
 

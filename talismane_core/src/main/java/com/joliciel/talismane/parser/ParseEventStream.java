@@ -24,6 +24,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,9 +106,13 @@ public class ParseEventStream implements ClassificationEventStream {
         FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
         if (featureResult != null) {
           parseFeatureResults.add(featureResult);
-          if (LOG.isTraceEnabled()) {
-            LOG.trace(featureResult.toString());
-          }
+        }
+      }
+
+      if (LOG.isTraceEnabled()) {
+        SortedSet<String> featureResultSet = parseFeatureResults.stream().map(f -> f.toString()).collect(Collectors.toCollection(() -> new TreeSet<String>()));
+        for (String featureResultString : featureResultSet) {
+          LOG.trace(featureResultString);
         }
       }
 

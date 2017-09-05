@@ -31,15 +31,15 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.parser.Parsers;
+import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSequence;
-import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggers;
+import com.joliciel.talismane.posTagger.output.PosTagSequenceProcessor;
 import com.joliciel.talismane.rawText.RawTextAnnotator;
 import com.joliciel.talismane.rawText.RollingTextBlock;
 import com.joliciel.talismane.rawText.Sentence;
@@ -47,9 +47,9 @@ import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
+import com.joliciel.talismane.tokeniser.output.TokenSequenceProcessor;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
@@ -167,7 +167,11 @@ public class Talismane {
     /**
      * Include extra columns for user-supplied comments in the training corpus.
      */
-    with_comments
+    with_comments,
+    /**
+     * Include the original lemma, morphology and category on each line.
+     */
+    original
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(Talismane.class);
@@ -211,7 +215,7 @@ public class Talismane {
   public Talismane(Writer writer, File outDir, TalismaneSession session) throws IOException, ReflectiveOperationException, TalismaneException {
     this.session = session;
     this.config = session.getConfig();
-    Config analyseConfig = config.getConfig("talismane.core.analysis");
+    Config analyseConfig = config.getConfig("talismane.core." + session.getId() + ".analysis");
 
     this.startModule = Module.valueOf(analyseConfig.getString("start-module"));
     this.endModule = Module.valueOf(analyseConfig.getString("end-module"));
@@ -222,7 +226,7 @@ public class Talismane {
 
     this.processByDefault = analyseConfig.getBoolean("process-by-default");
     this.stopOnError = analyseConfig.getBoolean("stop-on-error");
-    this.sentenceCount = config.getInt("talismane.core.input.sentence-count");
+    this.sentenceCount = config.getInt("talismane.core." + session.getId() + ".input.sentence-count");
     boolean outputIntermediateModules = analyseConfig.getBoolean("output-intermediate-modules");
 
     if (this.endModule == Module.sentenceDetector) {
@@ -293,11 +297,13 @@ public class Talismane {
       PosTagAnnotatedCorpusReader posTagCorpusReader = null;
 
       if (this.startModule.equals(Module.posTagger)) {
-        tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.tokeniser.input"), session);
+        tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader,
+            config.getConfig("talismane.core." + session.getId() + ".tokeniser.input"), session);
       }
 
       if (this.startModule.equals(Module.parser)) {
-        posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.pos-tagger.input"), session);
+        posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
+            config.getConfig("talismane.core." + session.getId() + ".pos-tagger.input"), session);
       }
 
       LinkedList<String> textSegments = new LinkedList<String>();

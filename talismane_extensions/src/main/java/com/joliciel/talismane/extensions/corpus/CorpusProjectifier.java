@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseConfigurationProcessor;
+import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.typesafe.config.Config;
@@ -33,6 +34,9 @@ import com.typesafe.config.Config;
 /**
  * Transforms a non-projective corpus to a projective corpus by attaching
  * non-projective arcs to a projective head.<br/>
+ * Does not write any output directly - this needs to be taken care of by
+ * another ParseConfigurationProcessor.<br/>
+ * <br/>
  * The strategy for selecting the projective head is as follows:<br/>
  * <ul>
  * <li>A non-projective relationship involves two arcs which cross each other.
@@ -79,9 +83,10 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
   private final String nonProjectiveArcSuffix;
   private final ProjectivationStrategy strategy;
 
-  public CorpusProjectifier(Config config) {
-    nonProjectiveArcSuffix = config.getString("talismane.extensions.projectifier.non-projective-arc-suffix");
-    strategy = ProjectivationStrategy.valueOf(config.getString("talismane.extensions.projectifier.strategy"));
+  public CorpusProjectifier(TalismaneSession session) throws IOException {
+    Config config = session.getConfig();
+    nonProjectiveArcSuffix = config.getString("talismane.extensions." + session.getId() + ".projectifier.non-projective-arc-suffix");
+    strategy = ProjectivationStrategy.valueOf(config.getString("talismane.extensions." + session.getId() + ".projectifier.strategy"));
   }
 
   @Override
@@ -173,7 +178,7 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
         }
       }
       if (newHead1 != null && newHead2 == null) {
-        parseConfiguration.getDependencies().remove(pair.arc1);
+        parseConfiguration.removeDependency(pair.arc1);
         String newLabel = pair.arc1.getLabel();
         if (this.nonProjectiveArcSuffix.length() > 0 && !newLabel.endsWith(this.nonProjectiveArcSuffix))
           newLabel += this.nonProjectiveArcSuffix;
@@ -182,11 +187,11 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
         // for the other arc, copy the non-projective version, in case
         // there is an attempt at manual projectivisation
         DependencyArc otherProjArc = parseConfiguration.getGoverningDependency(pair.arc2.getDependent());
-        parseConfiguration.getDependencies().remove(otherProjArc);
+        parseConfiguration.removeDependency(otherProjArc);
         parseConfiguration.addDependency(pair.arc2.getHead(), pair.arc2.getDependent(), pair.arc2.getLabel(), null);
 
       } else if (newHead1 == null && newHead2 != null) {
-        parseConfiguration.getDependencies().remove(pair.arc2);
+        parseConfiguration.removeDependency(pair.arc2);
         String newLabel = pair.arc2.getLabel();
         if (this.nonProjectiveArcSuffix.length() > 0 && !newLabel.endsWith(this.nonProjectiveArcSuffix))
           newLabel += this.nonProjectiveArcSuffix;
@@ -195,7 +200,7 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
         // for the other arc, copy the non-projective version, in case
         // there is an attempt at manual projectivisation
         DependencyArc otherProjArc = parseConfiguration.getGoverningDependency(pair.arc1.getDependent());
-        parseConfiguration.getDependencies().remove(otherProjArc);
+        parseConfiguration.removeDependency(otherProjArc);
         parseConfiguration.addDependency(pair.arc1.getHead(), pair.arc1.getDependent(), pair.arc1.getLabel(), null);
 
       } else {

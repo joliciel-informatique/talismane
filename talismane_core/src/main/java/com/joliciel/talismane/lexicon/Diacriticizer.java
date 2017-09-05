@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.Collator;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,8 +43,10 @@ import java.util.zip.ZipOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.sentenceAnnotators.DiacriticRemover;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
+import com.joliciel.talismane.tokeniser.filters.DiacriticRemover;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -68,10 +71,15 @@ public class Diacriticizer implements Serializable {
   private Map<String, String> lowercasePreferences = new HashMap<String, String>();
   private Locale locale;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws IOException, SentenceAnnotatorLoadException, TalismaneException, ReflectiveOperationException {
     OptionParser parser = new OptionParser();
     parser.accepts("serializeDiacriticizer", "serialize diacriticizer from lexicon");
     parser.accepts("testDiacriticizer", "test serialized diacriticizer").availableUnless("serializeDiacriticizer");
+
+    parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("serializeDiacriticizer", "testDiacriticizer").forHelp();
+
+    OptionSpec<String> sessionIdOption = parser.accepts("sessionId", "the current session id - configuration read as talismane.core.[sessionId]")
+        .requiredUnless("?", "help").withRequiredArg().ofType(String.class);
 
     OptionSpec<String> lexiconFilesOption = parser.accepts("lexicon", "lexicon(s), semi-colon delimited").withRequiredArg().ofType(String.class)
         .withValuesSeparatedBy(';');
@@ -87,18 +95,19 @@ public class Diacriticizer implements Serializable {
 
     OptionSet options = parser.parse(args);
 
+    String sessionId = options.valueOf(sessionIdOption);
+
     Config config = null;
     if (options.has(lexiconFilesOption)) {
       List<String> lexiconFiles = options.valuesOf(lexiconFilesOption);
 
       Map<String, Object> values = new HashMap<>();
-      values.put("talismane.core.lexicons", lexiconFiles);
+      values.put("talismane.core." + sessionId + ".lexicons", lexiconFiles);
       config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
     } else {
       config = ConfigFactory.load();
     }
 
-    String sessionId = "";
     TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
 
     File diacriticizerFile = options.valueOf(diacriticizerOption);

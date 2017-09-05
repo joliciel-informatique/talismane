@@ -168,7 +168,7 @@ public class CorpusLineReader {
     for (CorpusElement element : updateValues.keySet()) {
       String value = updateValues.get(element);
       if (LOG.isTraceEnabled()) {
-        LOG.trace("Updating " + element.name() + " from '" + corpusLine.getElement(element) + "' to '" + value + "'");
+        LOG.trace("On line " + lineNumber + ", updating " + element.name() + " from '" + corpusLine.getElement(element) + "' to '" + value + "'");
       }
       corpusLine.setElement(element, value);
     }

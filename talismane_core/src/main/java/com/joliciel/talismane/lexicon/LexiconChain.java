@@ -26,7 +26,6 @@ import java.util.TreeSet;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTagSet;
 
 /**
  * A chain of lexicons that can be used to pool lexical information.
@@ -101,36 +100,6 @@ public class LexiconChain implements PosTaggerLexicon {
       entries.addAll(lexicon.getEntriesMatchingCriteria(lexicalEntry, posTag, gender, number));
     }
     return entries;
-  }
-
-  @Override
-  public PosTagSet getPosTagSet() {
-    if (this.lexicons.size() > 0) {
-      PosTaggerLexicon lexicon = this.lexicons.get(0);
-      return lexicon.getPosTagSet();
-    }
-    return null;
-  }
-
-  @Override
-  public void setPosTagSet(PosTagSet posTagSet) {
-    for (PosTaggerLexicon lexicon : lexicons)
-      lexicon.setPosTagSet(posTagSet);
-  }
-
-  @Override
-  public PosTagMapper getPosTagMapper() {
-    if (this.lexicons.size() > 0) {
-      PosTaggerLexicon lexicon = this.lexicons.get(0);
-      return lexicon.getPosTagMapper();
-    }
-    return null;
-  }
-
-  @Override
-  public void setPosTagMapper(PosTagMapper posTagMapper) {
-    for (PosTaggerLexicon lexicon : lexicons)
-      lexicon.setPosTagMapper(posTagMapper);
   }
 
   @Override

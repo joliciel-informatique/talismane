@@ -19,7 +19,6 @@
 package com.joliciel.talismane.parser;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
@@ -84,7 +83,7 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
   private ParseTreeNode(PosTaggedToken token, ParseTreeNode parent) {
     this.parseTree = parent.parseTree;
     this.token = token;
-    DependencyArc arc = parseTree.getGoverningDependency(token);
+    DependencyArc arc = parseTree.getGoverningArc(token);
     if (arc != null)
       this.label = arc.getLabel();
     else
@@ -209,10 +208,41 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
   }
 
   /**
+   * Collect all non-projective edges in this node's sub-tree, where a
+   * non-projective edge is one where node <i>i</i> governs node <i>j</i>, and
+   * there is some node <i>k</i> where i&lt;k&lt;j such that node <i>i</i> does
+   * not dominate node <i>k</i>.
+   * 
+   * @param nonProjectiveEdges
+   *          the list to fill
+   */
+  public void getNonProjectiveEdges(List<DependencyArc> nonProjectiveEdges) {
+    Set<PosTaggedToken> yield = this.getYield();
+    for (ParseTreeNode child : this.getChildren()) {
+      int i = this.getIndex() < child.getIndex() ? this.getIndex() : child.getIndex();
+      int j = this.getIndex() > child.getIndex() ? this.getIndex() : child.getIndex();
+      boolean projective = true;
+      for (int k = i + 1; k < j; k++) {
+        PosTaggedToken other = this.parseTree.getPosTaggedTokens().get(k);
+        if (!yield.contains(other)) {
+          projective = false;
+          break;
+        }
+      }
+      if (!projective) {
+        DependencyArc arc = this.parseTree.getGoverningArc(child.getPosTaggedToken());
+        if (arc != null)
+          nonProjectiveEdges.add(arc);
+      }
+    }
+    for (ParseTreeNode child : this.getChildren()) {
+      child.getNonProjectiveEdges(nonProjectiveEdges);
+    }
+  }
+
+  /**
    * The current node's yield, an ordered set of the current node and all of its
    * descendants.
-   * 
-   * @return
    */
   public NavigableSet<PosTaggedToken> getYield() {
     if (yield == null) {
@@ -227,6 +257,33 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
     for (ParseTreeNode dependent : this.getChildren()) {
       dependent.getAllNodes(posTaggedTokens);
     }
+  }
+
+  /**
+   * Non-projectivity: for all tokens in the gaps of the current node's yield,
+   * returns the arcs governing the heads of the disjoint subtrees in these
+   * gaps.
+   */
+  public List<DependencyArc> getGapHeads() {
+    List<DependencyArc> gapHeads = new ArrayList<>();
+    NavigableSet<PosTaggedToken> yield = this.getYield();
+
+    int i = yield.first().getIndex();
+    int j = yield.last().getIndex();
+
+    for (int k = i + 1; k < j; k++) {
+      PosTaggedToken other = this.parseTree.getPosTaggedTokens().get(k);
+      if (!yield.contains(other)) {
+        DependencyArc otherArc = this.parseTree.getGoverningArc(other);
+        if (otherArc != null) {
+          PosTaggedToken otherHead = otherArc.getHead();
+          if (otherHead.getIndex() < i || otherHead.getIndex() > j) {
+            gapHeads.add(otherArc);
+          }
+        }
+      }
+    }
+    return gapHeads;
   }
 
   /**
@@ -280,22 +337,7 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
    * yield. A connected component is a connected subtree.
    */
   public int getEdgeCount() {
-    NavigableSet<PosTaggedToken> yield = this.getYield();
-    int currentIndex = -1;
-    int edgeCount = 0;
-    for (PosTaggedToken token : yield) {
-      if (currentIndex < 0) {
-        // do nothing: first token
-      } else if (token.getIndex() == currentIndex + 1) {
-        // do nothing: not a gap
-      } else {
-        List<ParseTreeNode> connectedComponents = this.getConnectedComponents(currentIndex, token.getIndex());
-        edgeCount += connectedComponents.size();
-      }
-      currentIndex = token.getIndex();
-    }
-
-    return edgeCount;
+    return this.getGapHeads().size();
   }
 
   /**
@@ -316,32 +358,5 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
       edgeDegree = new ImmutablePair<ParseTreeNode, Integer>(this, maxEdgeCount);
     }
     return edgeDegree;
-  }
-
-  /**
-   * Non-projectivity: returns a list of connected components found between the
-   * tokens at indexes start and end, not including start and end.
-   */
-  private List<ParseTreeNode> getConnectedComponents(int start, int end) {
-    if (end - start <= 1)
-      return Collections.emptyList();
-
-    List<ParseTreeNode> nodes = new ArrayList<>();
-    for (int i = start + 1; i < end; i++) {
-      PosTaggedToken token = parseTree.getPosTaggedTokens().get(i);
-      boolean foundParent = false;
-      for (ParseTreeNode parentNode : nodes) {
-        if (parentNode.getYield().contains(token)) {
-          foundParent = true;
-          break;
-        }
-      }
-      if (!foundParent) {
-        ParseTreeNode node = parseTree.getNode(token);
-        nodes.add(node);
-      }
-    }
-
-    return nodes;
   }
 }

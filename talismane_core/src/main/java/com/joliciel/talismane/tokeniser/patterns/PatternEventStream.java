@@ -24,6 +24,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,9 +188,13 @@ public class PatternEventStream implements ClassificationEventStream {
         FeatureResult<?> featureResult = feature.check(tokenPatternMatch, env);
         if (featureResult != null) {
           tokenFeatureResults.add(featureResult);
-          if (LOG.isTraceEnabled()) {
-            LOG.trace(featureResult.toString());
-          }
+        }
+      }
+
+      if (LOG.isTraceEnabled()) {
+        SortedSet<String> featureResultSet = tokenFeatureResults.stream().map(f -> f.toString()).collect(Collectors.toCollection(() -> new TreeSet<String>()));
+        for (String featureResultString : featureResultSet) {
+          LOG.trace(featureResultString);
         }
       }
 
