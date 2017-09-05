@@ -28,7 +28,7 @@ public class CombinedLexicalAttributesTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     Sentence sentence = new Sentence("je demande", session);
     TokenSequence tokenSequence = new TokenSequence(sentence, session);
@@ -63,7 +63,7 @@ public class CombinedLexicalAttributesTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     Sentence sentence = new Sentence("blah", session);
     TokenSequence tokenSequence = new TokenSequence(sentence, session);

@@ -22,7 +22,7 @@ public class SimpleTokeniserTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String[] labels = new String[0];
 

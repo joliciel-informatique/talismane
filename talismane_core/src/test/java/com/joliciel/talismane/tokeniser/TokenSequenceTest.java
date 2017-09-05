@@ -43,7 +43,7 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
     final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan.", talismaneSession);
 
     TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
@@ -146,7 +146,7 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
     final Sentence sentence = new Sentence("The quick brown fox.", talismaneSession);
 
     TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
@@ -185,7 +185,7 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
 
     String[] labels = new String[0];
 
@@ -316,7 +316,7 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
 
     String[] labels = new String[0];
 
@@ -414,7 +414,7 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
 
     String[] labels = new String[0];
 

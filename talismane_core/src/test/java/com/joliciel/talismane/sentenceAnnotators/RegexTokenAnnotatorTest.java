@@ -27,7 +27,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String regex = "\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b";
     String replacement = "Email";
@@ -49,7 +49,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String regex = "\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b";
     String replacement = "\\$Email$2:$1";
@@ -73,7 +73,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String regex = "\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b";
     String replacement = "\\$Email$2$1";
@@ -96,7 +96,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String regex = "\\b(\\d)(\\d)?\\b";
     String replacement = "Number$1$2";
@@ -123,7 +123,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     final List<String> wordList = new ArrayList<String>();
     wordList.add("Chloé");
@@ -149,7 +149,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     final List<String> wordList = new ArrayList<String>();
     wordList.add("Chloé");
@@ -175,7 +175,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     final List<String> wordList = new ArrayList<String>();
     wordList.add("Chloé");
@@ -201,7 +201,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     final List<String> wordList = new ArrayList<String>();
     wordList.add("Chloé");
@@ -227,7 +227,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String regex = "hello 123";
     String replacement = null;
@@ -356,7 +356,7 @@ public class RegexTokenAnnotatorTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String regex = "hé";
     String replacement = null;
@@ -403,7 +403,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String regex = "^Résumé\\.";
     String replacement = null;
@@ -428,7 +428,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     String regex = "[\\p{IsPunctuation}&&[^%$#@§¶‰‱]]+";
     String replacement = null;

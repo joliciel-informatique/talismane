@@ -21,7 +21,7 @@ public class LexiconReaderTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "test");
 
     PosTaggerLexicon lexicon = session.getMergedLexicon();
 
