@@ -231,7 +231,8 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
       }
       if (!projective) {
         DependencyArc arc = this.parseTree.getGoverningArc(child.getPosTaggedToken());
-        nonProjectiveEdges.add(arc);
+        if (arc != null)
+          nonProjectiveEdges.add(arc);
       }
     }
     for (ParseTreeNode child : this.getChildren()) {
@@ -274,9 +275,11 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
       PosTaggedToken other = this.parseTree.getPosTaggedTokens().get(k);
       if (!yield.contains(other)) {
         DependencyArc otherArc = this.parseTree.getGoverningArc(other);
-        PosTaggedToken otherHead = otherArc.getHead();
-        if (otherHead.getIndex() < i || otherHead.getIndex() > j) {
-          gapHeads.add(otherArc);
+        if (otherArc != null) {
+          PosTaggedToken otherHead = otherArc.getHead();
+          if (otherHead.getIndex() < i || otherHead.getIndex() > j) {
+            gapHeads.add(otherArc);
+          }
         }
       }
     }
