@@ -63,6 +63,7 @@ public class FreemarkerSentenceWriter implements SentenceProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(FreemarkerSentenceWriter.class);
   private final Template template;
   private final Writer writer;
+  private int sentenceNumber = 0;
 
   public FreemarkerSentenceWriter(File outDir, TalismaneSession session) throws IOException, TalismaneException {
     this(new BufferedWriter(
@@ -114,8 +115,10 @@ public class FreemarkerSentenceWriter implements SentenceProcessor {
 
   @Override
   public void onNextSentence(Sentence sentence) throws IOException {
+    sentenceNumber++;
     Map<String, Object> model = new HashMap<String, Object>();
     model.put("sentence", sentence);
+    model.put("sentenceNumber", sentenceNumber);
     model.put("LOG", LOG);
     this.process(model);
   }

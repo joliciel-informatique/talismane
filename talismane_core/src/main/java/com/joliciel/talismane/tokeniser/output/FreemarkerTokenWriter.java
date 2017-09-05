@@ -65,6 +65,7 @@ public class FreemarkerTokenWriter implements TokenSequenceProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(FreemarkerTokenWriter.class);
   private final Template template;
   private final Writer writer;
+  private int sentenceNumber = 0;
 
   public FreemarkerTokenWriter(File outDir, TalismaneSession session) throws IOException, TalismaneException {
     this(new BufferedWriter(
@@ -132,8 +133,10 @@ public class FreemarkerTokenWriter implements TokenSequenceProcessor {
 
   @Override
   public void onNextTokenSequence(TokenSequence tokenSequence) throws IOException {
+    sentenceNumber++;
     Map<String, Object> model = new HashMap<String, Object>();
     model.put("sentence", tokenSequence);
+    model.put("sentenceNumber", sentenceNumber);
     model.put("text", tokenSequence.getSentence().getText());
     model.put("LOG", LOG);
     this.process(model);

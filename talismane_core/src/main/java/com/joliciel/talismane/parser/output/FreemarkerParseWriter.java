@@ -147,6 +147,7 @@ public class FreemarkerParseWriter implements ParseConfigurationProcessor {
     Map<String, Object> model = new HashMap<String, Object>();
     ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
     model.put("sentence", output);
+    model.put("sentenceNumber", sentenceCount + 1);
     model.put("configuration", parseConfiguration);
     model.put("tokenCount", tokenCount);
     model.put("relationCount", relationCount);
