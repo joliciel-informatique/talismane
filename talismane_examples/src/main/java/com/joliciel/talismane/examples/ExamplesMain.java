@@ -12,7 +12,7 @@ package com.joliciel.talismane.examples;
  * Example:<br/>
  * 
  * <pre>
- * java -Xmx2G -jar talismane-examples-X.X.Xb.jar TalismaneAPITest frenchLanguagePack-X.X.Xb.zip
+ * java -Xmx2G -jar talismane-examples-X.X.Xb.jar TalismaneAPITest --sessionId=fr --example=2
  * </pre>
  * 
  * @author Assaf Urieli

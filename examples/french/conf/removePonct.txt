@@ -1,2 +1,0 @@
-#GOV	DEP	OLDLABEL	ACTION	NEWLABEL
-*	*	PONCT	*	ponct	Remove
