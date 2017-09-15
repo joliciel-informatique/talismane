@@ -29,6 +29,8 @@ public class CoNLLFormatter {
    * Convert a string to CoNLL format.
    */
   public String toCoNLL(String text) {
+    if (text == null)
+      text = "";
     if (spacesToUnderscores) {
       String conllText = text.replace("_", "&und;");
       conllText = conllText.replace(' ', '_');
