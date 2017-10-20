@@ -217,6 +217,13 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
    *          the list to fill
    */
   public void getNonProjectiveEdges(List<DependencyArc> nonProjectiveEdges) {
+    this.getMyNonProjectiveEdges(nonProjectiveEdges);
+    for (ParseTreeNode child : this.getChildren()) {
+      child.getNonProjectiveEdges(nonProjectiveEdges);
+    }
+  }
+
+  private void getMyNonProjectiveEdges(List<DependencyArc> nonProjectiveEdges) {
     Set<PosTaggedToken> yield = this.getYield();
     for (ParseTreeNode child : this.getChildren()) {
       int i = this.getIndex() < child.getIndex() ? this.getIndex() : child.getIndex();
@@ -234,9 +241,6 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
         if (arc != null)
           nonProjectiveEdges.add(arc);
       }
-    }
-    for (ParseTreeNode child : this.getChildren()) {
-      child.getNonProjectiveEdges(nonProjectiveEdges);
     }
   }
 
@@ -331,13 +335,30 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
   }
 
   /**
-   * Non-projectivity: returns the number of connected components contained in
-   * the interval defined by the start and end of this node's yield, which are
-   * not themselves dominated by this node, i.e. not themselves contained in the
-   * yield. A connected component is a connected subtree.
+   * Non-projectivity: for each edge directly governed by this node, counts the
+   * number of connected components contained inside the interval defined by the
+   * edge, which are not themselves dominated by this node, i.e. not contained
+   * in the node's yield. A connected component is a connected subtree. Returns
+   * the maximum edge count.
    */
   public int getEdgeCount() {
-    return this.getGapHeads().size();
+    List<DependencyArc> nonProjectiveEdges = new ArrayList<>();
+    this.getMyNonProjectiveEdges(nonProjectiveEdges);
+    List<DependencyArc> gapHeads = this.getGapHeads();
+    int maxEdgeCount = 0;
+    for (DependencyArc nonProjectiveEdge : nonProjectiveEdges) {
+      int edgeCount = 0;
+      PosTaggedToken child = nonProjectiveEdge.getDependent();
+      int i = this.getIndex() < child.getIndex() ? this.getIndex() : child.getIndex();
+      int j = this.getIndex() > child.getIndex() ? this.getIndex() : child.getIndex();
+      for (DependencyArc gapHead : gapHeads) {
+        if (gapHead.getDependent().getIndex() > i && gapHead.getDependent().getIndex() < j)
+          edgeCount++;
+      }
+      if (edgeCount > maxEdgeCount)
+        maxEdgeCount = edgeCount;
+    }
+    return maxEdgeCount;
   }
 
   /**
@@ -348,10 +369,10 @@ public class ParseTreeNode implements Comparable<ParseTreeNode> {
     int maxEdgeCount = this.getEdgeCount();
     Pair<ParseTreeNode, Integer> edgeDegree = null;
     for (ParseTreeNode childNode : this.children) {
-      Pair<ParseTreeNode, Integer> childGapDegree = childNode.getEdgeDegree();
-      if (childGapDegree.getRight() > maxEdgeCount) {
-        maxEdgeCount = childGapDegree.getRight();
-        edgeDegree = childGapDegree;
+      Pair<ParseTreeNode, Integer> childEdgeDegree = childNode.getEdgeDegree();
+      if (childEdgeDegree.getRight() > maxEdgeCount) {
+        maxEdgeCount = childEdgeDegree.getRight();
+        edgeDegree = childEdgeDegree;
       }
     }
     if (edgeDegree == null) {
