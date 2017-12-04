@@ -52,7 +52,8 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
   private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
   private List<LexicalEntry> lexicalEntries = null;
-  private String conllLemma = null;
+  private boolean lemmaFetched = false;
+  private String lemma = null;
   private String comment = "";
   private String morphologyForCoNLL = null;
   private PosTagSequence posTagSequence;
@@ -136,12 +137,14 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
   }
 
   /**
-   * The lemma of the "best" lexical entry as encoded for the CoNLL output
-   * format.
+   * This pos-tagged token's lemma, or null if no lemma found.<br/>
+   * If there are multiple lexical entries, the first one's lemma is returned.
+   * <br/>
+   * If all possible lemmas are required, they need to be retrieved from
+   * {@link #getLexicalEntries()}.
    */
-  public String getLemmaForCoNLL() {
-    if (conllLemma == null) {
-      String lemma = "";
+  public String getLemma() {
+    if (!this.lemmaFetched) {
       String lemmaType = null;
       StringAttribute lemmaTypeAttribute = (StringAttribute) this.getToken().getAttributes().get(PosTagger.LEMMA_TYPE_ATTRIBUTE);
       if (lemmaTypeAttribute != null)
@@ -151,16 +154,22 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
       if (explicitLemmaAttribute != null)
         explicitLemma = explicitLemmaAttribute.getValue();
       if (explicitLemma != null) {
-        lemma = explicitLemma;
+        this.lemma = explicitLemma;
       } else if (lemmaType != null && lemmaType.equals("originalLower")) {
-        lemma = this.getToken().getOriginalText().toLowerCase(this.session.getLocale());
+        this.lemma = this.getToken().getOriginalText().toLowerCase(this.session.getLocale());
       } else if (this.getLexicalEntries().size() > 0) {
-        lemma = this.getLexicalEntries().get(0).getLemma();
+        this.lemma = this.getLexicalEntries().get(0).getLemma();
       }
-      conllLemma = session.getCoNLLFormatter().toCoNLL(lemma);
-
+      this.lemmaFetched = true;
     }
-    return conllLemma;
+    return this.lemma;
+  }
+
+  /**
+   * Like {@link #getLemma()} but encoded for the CoNLL output format.
+   */
+  public String getLemmaForCoNLL() {
+    return session.getCoNLLFormatter().toCoNLL(this.getLemma());
   }
 
   /**
