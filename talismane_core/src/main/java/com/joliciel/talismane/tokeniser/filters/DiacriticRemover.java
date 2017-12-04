@@ -33,7 +33,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  *
  */
 public class DiacriticRemover implements TokenFilter {
-  private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+  public static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
   public DiacriticRemover(TalismaneSession session) {
   }
