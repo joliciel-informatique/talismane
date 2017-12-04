@@ -177,6 +177,10 @@ public class Diacriticizer implements Serializable {
     // contain precomposed characters
     originalWord = this.recompose(originalWord);
 
+    // in case there are any unattached diacritics left after recomposing, we
+    // remove them here
+    originalWord = DiacriticRemover.diacriticPattern.matcher(originalWord).replaceAll("");
+
     String undecorated = DiacriticRemover.removeDiacritics(originalWord);
     String key = undecorated.toLowerCase();
     String lowercase = originalWord.toLowerCase();
