@@ -120,4 +120,30 @@ public class DiacriticizerTest {
 		assertTrue(results.contains("mangé"));
 	}
 
+	@Test
+	public void testUnattachedCombiningDiacritic(@NonStrict final Lexicon lexicon) {
+
+		new NonStrictExpectations() {
+			LexicalEntry l1;
+
+			{
+				List<LexicalEntry> lexicalEntries = new ArrayList<LexicalEntry>();
+				lexicalEntries.add(l1);
+
+				l1.getWord();
+				returns("mangé");
+
+				lexicon.getAllEntries();
+				returns(lexicalEntries.iterator());
+			}
+		};
+
+		Diacriticizer diacriticizer = new Diacriticizer();
+		diacriticizer.setLocale(Locale.FRENCH);
+		diacriticizer.addLexicon(lexicon);
+
+		Set<String> results = diacriticizer.diacriticize("mangé\u0301");
+		assertEquals(1, results.size());
+		assertEquals("mangé", results.iterator().next());
+	}
 }
