@@ -48,7 +48,6 @@ class SentenceHolder {
   private final List<Integer> originalIndexes = new ArrayList<>();
   private TreeMap<Integer, String> originalTextSegments = new TreeMap<Integer, String>();
   private final TreeMap<Integer, Integer> newlines = new TreeMap<Integer, Integer>();
-  private String fileName = "";
   private File file = null;
   private final boolean endOfBlock;
 
@@ -94,8 +93,9 @@ class SentenceHolder {
    */
   public List<Sentence> getDetectedSentences(Sentence leftover) {
     if (LOG.isTraceEnabled()) {
-      LOG.trace("getDetectedSentences. leftover=" + leftover);
+      LOG.trace("getDetectedSentences at " + System.identityHashCode(this) + ". leftover=" + leftover);
       LOG.trace("processedText: " + processedText);
+      LOG.trace("file: " + (file == null ? "null" : file.getPath()));
     }
 
     List<Sentence> sentences = new ArrayList<Sentence>();
@@ -209,11 +209,11 @@ class SentenceHolder {
           sb.append(text.charAt(j));
       }
 
-      Sentence sentence = new Sentence(sb.toString(), originalTextSegments, originalIndexes, !isLeftover, this.newlines, fileName, file, session);
+      Sentence sentence = new Sentence(sb.toString(), originalTextSegments, originalIndexes, !isLeftover, this.newlines, file, session);
       sentence.setLeftoverOriginalText(leftoverOriginalText);
 
       if (LOG.isTraceEnabled()) {
-        LOG.trace("sentence.setText |" + sentence.getText() + "| complete? " + sentence.isComplete());
+        LOG.trace("sentence.setText |" + sentence.getText() + "| complete? " + sentence.isComplete() + "|file: " + sentence.getFileName());
       }
 
       sentences.add(sentence);
@@ -238,14 +238,6 @@ class SentenceHolder {
 
   public void setProcessedText(String processedText) {
     this.processedText = processedText;
-  }
-
-  public String getFileName() {
-    return fileName;
-  }
-
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
   }
 
   public File getFile() {

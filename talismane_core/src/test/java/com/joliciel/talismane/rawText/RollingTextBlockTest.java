@@ -30,7 +30,7 @@ public class RollingTextBlockTest {
 
     String[] labels = new String[0];
 
-    RollingTextBlock textBlock = new RollingTextBlock(true, session);
+    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
     textBlock = textBlock.roll("One ");
     List<Annotation<String>> annotations = new ArrayList<>();
     annotations.add(new Annotation<String>(0, "One".length(), "1", labels));
@@ -91,7 +91,7 @@ public class RollingTextBlockTest {
 
     String[] labels = new String[0];
 
-    RollingTextBlock textBlock = new RollingTextBlock(true, session);
+    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
     textBlock = textBlock.roll("1 ");
     textBlock = textBlock.roll("2 ");
     textBlock = textBlock.roll("3<skip>skip</skip> 4<sk");
@@ -135,7 +135,7 @@ public class RollingTextBlockTest {
 
     String[] labels = new String[0];
 
-    RollingTextBlock textBlock = new RollingTextBlock(true, session);
+    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
     textBlock = textBlock.roll("1 ");
     textBlock = textBlock.roll("2 ");
     textBlock = textBlock.roll("3<skip>skip</skip> 4<sk");
@@ -173,7 +173,7 @@ public class RollingTextBlockTest {
 
     String[] labels = new String[0];
 
-    RollingTextBlock textBlock = new RollingTextBlock(true, session);
+    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
     textBlock = textBlock.roll("Sentence 1<sent/>Sentence 2. Sentence");
     textBlock = textBlock.roll(" 3.");
 
@@ -303,7 +303,7 @@ public class RollingTextBlockTest {
     String[] labels = new String[0];
 
     // String text = "I see Mr. Jones and <skip/>Mrs. Smith.";
-    RollingTextBlock textBlock = new RollingTextBlock(true, session);
+    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
     textBlock = textBlock.roll("I see ");
     textBlock = textBlock.roll("Mr. Jones ");
     textBlock = textBlock.roll("and <sk");
