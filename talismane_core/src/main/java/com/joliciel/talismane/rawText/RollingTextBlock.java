@@ -30,6 +30,8 @@ import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.AnnotationObserver;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
+import com.joliciel.talismane.utils.io.CurrentFileProvider;
 
 /**
  * A block of raw text, always containing four sub-blocks, which are rolled in
@@ -111,8 +113,8 @@ public class RollingTextBlock extends RawTextProcessor {
   private final String block3;
   private final String block4;
 
-  private String fileName = "";
   private File file = null;
+  private final RollingFileProvider provider;
 
   private final SentenceHolder sentenceHolder1;
   private final SentenceHolder sentenceHolder2;
@@ -124,7 +126,7 @@ public class RollingTextBlock extends RawTextProcessor {
    * Creates a new RollingTextBlock with prev, current and next all set to empty
    * strings.
    */
-  public RollingTextBlock(boolean processByDefault, TalismaneSession session) {
+  public RollingTextBlock(boolean processByDefault, TalismaneSession session, CurrentFileProvider currentFileProvider) {
     super("", processByDefault, session);
     this.session = session;
     this.block1 = "";
@@ -136,6 +138,13 @@ public class RollingTextBlock extends RawTextProcessor {
     this.sentenceHolder1.setProcessedText("");
     this.sentenceHolder2 = new SentenceHolder(session, 0, true);
     this.sentenceHolder2.setProcessedText("");
+
+    if (currentFileProvider != null) {
+      this.provider = new RollingFileProvider(this);
+      currentFileProvider.addCurrentFileObserver(provider);
+    } else {
+      this.provider = null;
+    }
   }
 
   private RollingTextBlock(RollingTextBlock predecessor, String nextText, List<Annotation<?>> annotations) {
@@ -149,18 +158,24 @@ public class RollingTextBlock extends RawTextProcessor {
 
     this.session = predecessor.session;
 
-    this.fileName = predecessor.fileName;
     this.file = predecessor.file;
+    this.provider = predecessor.provider;
+    if (this.provider != null)
+      this.provider.setParent(this);
 
     this.sentenceHolder1 = predecessor.sentenceHolder2;
     this.sentenceHolder2 = predecessor.sentenceHolder3;
 
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("After roll: ");
-      LOG.trace("block1: " + block1.replace('\n', '¶').replace('\r', '¶'));
-      LOG.trace("block2: " + block2.replace('\n', '¶').replace('\r', '¶'));
-      LOG.trace("block3: " + block3.replace('\n', '¶').replace('\r', '¶'));
-      LOG.trace("block4: " + block4.replace('\n', '¶').replace('\r', '¶'));
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("After roll: ");
+      LOG.debug("block1: " + block1.replace('\n', '¶').replace('\r', '¶'));
+      LOG.debug("block2: " + block2.replace('\n', '¶').replace('\r', '¶'));
+      LOG.debug("block3: " + block3.replace('\n', '¶').replace('\r', '¶'));
+      LOG.debug("block4: " + block4.replace('\n', '¶').replace('\r', '¶'));
+      LOG.debug("sentenceHolder1 at " + System.identityHashCode(sentenceHolder1) + " file "
+          + (sentenceHolder1.getFile() == null ? "null" : sentenceHolder1.getFile().getPath()));
+      LOG.debug("sentenceHolder2 at " + System.identityHashCode(sentenceHolder2) + " file "
+          + (sentenceHolder2.getFile() == null ? "null" : sentenceHolder2.getFile().getPath()));
     }
   }
 
@@ -182,9 +197,9 @@ public class RollingTextBlock extends RawTextProcessor {
    * @return a new text block as described above
    */
   public RollingTextBlock roll(String nextText) {
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("roll");
-      LOG.trace("nextText: " + nextText.replace('\n', '¶').replace('\r', '¶'));
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("roll");
+      LOG.debug("nextText: " + nextText.replace('\n', '¶').replace('\r', '¶'));
     }
     this.processText();
 
@@ -261,6 +276,11 @@ public class RollingTextBlock extends RawTextProcessor {
     int textEndPos = this.block1.length() + this.block2.length() + this.block3.length();
 
     this.sentenceHolder3 = super.processText(textStartPos, textEndPos, this.block3, this.block4.length() == 0);
+    this.sentenceHolder3.setFile(file);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Created new sentenceHolder3 at " + System.identityHashCode(sentenceHolder3) + " with file "
+          + (sentenceHolder3.getFile() == null ? "null" : sentenceHolder3.getFile().getPath()));
+    }
   }
 
   @Override
@@ -291,9 +311,26 @@ public class RollingTextBlock extends RawTextProcessor {
 
   @Override
   public void onNextFile(File file) {
+    if (LOG.isDebugEnabled())
+      LOG.debug("Setting current file to: " + file.getPath());
     this.file = file;
-    this.fileName = file.getPath();
     super.onNextFile(file);
   }
 
+  private static final class RollingFileProvider implements CurrentFileObserver {
+    private RollingTextBlock parent;
+
+    private RollingFileProvider(RollingTextBlock parent) {
+      this.parent = parent;
+    }
+
+    protected void setParent(RollingTextBlock parent) {
+      this.parent = parent;
+    }
+
+    @Override
+    public void onNextFile(File file) {
+      this.parent.onNextFile(file);
+    }
+  }
 }

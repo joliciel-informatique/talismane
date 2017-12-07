@@ -50,7 +50,6 @@ public class Sentence extends AnnotatedText {
   private final List<Integer> originalIndexes;
   private final boolean complete;
   private final TreeMap<Integer, Integer> newlines;
-  private final String fileName;
   private final File file;
   private int startLineNumber = -1;
   private String leftoverOriginalText = "";
@@ -58,23 +57,22 @@ public class Sentence extends AnnotatedText {
   protected final TalismaneSession session;
 
   public Sentence(CharSequence text, TreeMap<Integer, String> originalTextSegments, List<Integer> originalIndexes, boolean complete,
-      TreeMap<Integer, Integer> newlines, String fileName, File file, TalismaneSession session) {
+      TreeMap<Integer, Integer> newlines, File file, TalismaneSession session) {
     super(text);
     this.originalTextSegments = originalTextSegments;
     this.originalIndexes = originalIndexes;
     this.complete = complete;
     this.newlines = newlines;
-    this.fileName = fileName;
     this.file = file;
     this.session = session;
   }
 
-  public Sentence(CharSequence text, String fileName, File file, TalismaneSession session) {
-    this(text, new TreeMap<>(), new ArrayList<>(), true, new TreeMap<>(), fileName, file, session);
+  public Sentence(CharSequence text, File file, TalismaneSession session) {
+    this(text, new TreeMap<>(), new ArrayList<>(), true, new TreeMap<>(), file, session);
   }
 
   public Sentence(CharSequence text, TalismaneSession session) {
-    this(text, "", null, session);
+    this(text, null, session);
   }
 
   /**
@@ -170,7 +168,7 @@ public class Sentence extends AnnotatedText {
    */
 
   public String getFileName() {
-    return fileName;
+    return (file == null ? "" : file.getPath());
   }
 
   /**

@@ -63,6 +63,7 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
   private final int originalStartIndex;
   private static final String START_MARK = "START_MARK";
   private static final String END_MARK = "END_MARK";
+  private File currentFile;
 
   /**
    * The original index just after the last block of processed text. This is not
@@ -707,11 +708,8 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
     // the sentenceHolder boundary happens to be a sentence boundary, hence
     // position 0.
     if (currentHolder.getOriginalTextSegments().size() > 0) {
-      String fileName = "";
-      File file = null;
-
       if (leftover == null) {
-        leftover = new Sentence("", fileName, file, session);
+        leftover = new Sentence("", currentFile, session);
       }
       StringBuilder segmentsToInsert = new StringBuilder();
 
@@ -751,5 +749,6 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
     this.lineNumber = 1;
     this.originalIndexProcessed = 0;
     this.leftoverNewline = 0;
+    this.currentFile = file;
   }
 }

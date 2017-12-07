@@ -24,11 +24,11 @@ import com.joliciel.talismane.utils.LogUtils;
  */
 public class DirectoryWriter extends Writer implements CurrentFileObserver {
   private static final Logger LOG = LoggerFactory.getLogger(DirectoryReader.class);
-  private File inDir;
-  private File outDir;
-  private String suffix;
+  private final File inDir;
+  private final File outDir;
+  private final String suffix;
+  private final Charset charset;
   private Writer writer;
-  private Charset charset;
 
   /**
    * 
@@ -58,11 +58,15 @@ public class DirectoryWriter extends Writer implements CurrentFileObserver {
         writer.close();
       }
 
-      String baseName = file.getName();
-      if (baseName.indexOf('.') > 0) {
-        baseName = baseName.substring(0, baseName.lastIndexOf('.'));
+      String fileName = file.getName();
+      if (suffix != null) {
+        if (fileName.indexOf('.') > 0) {
+          fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+        }
+        fileName += suffix;
       }
-      baseName += suffix;
+      if (LOG.isDebugEnabled())
+        LOG.debug("Writing to " + fileName);
 
       // need to construct relative directory tree
       Stack<File> parents = new Stack<File>();
@@ -80,7 +84,7 @@ public class DirectoryWriter extends Writer implements CurrentFileObserver {
       }
 
       // path constructed, make the file
-      File outFile = new File(outSubDir, baseName);
+      File outFile = new File(outSubDir, fileName);
       outFile.delete();
       outFile.createNewFile();
       writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), charset));
