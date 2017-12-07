@@ -177,9 +177,12 @@ public class TalismaneSession {
 
     locale = Locale.forLanguageTag(talismaneConfig.getString("locale"));
 
-    this.suffix = talismaneConfig.getString("suffix");
+    if (talismaneConfig.hasPath("suffix"))
+      this.suffix = talismaneConfig.getString("suffix");
+    else
+      this.suffix = null;
 
-    this.baseName = talismaneConfig.getString("base-name") + this.suffix;
+    this.baseName = talismaneConfig.getString("base-name") + (this.suffix == null ? "" : this.suffix);
 
     PosTagSet posTagSet = null;
     String configPath = "talismane.core." + sessionId + ".pos-tagger.pos-tag-set";
