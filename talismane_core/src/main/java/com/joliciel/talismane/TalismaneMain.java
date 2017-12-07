@@ -166,6 +166,12 @@ public class TalismaneMain {
     OptionSpec<File> outDirOption = parser.accepts("outDir", "output directory (for writing evaluation and analysis files other than the standard output)")
         .withRequiredArg().ofType(File.class);
 
+    OptionSpec<Boolean> keepDirStructureOption = parser
+        .accepts("keepDirStructure",
+            "for analyse and process: if true, and inFile is a directory," + " outFile will be generated as a directory"
+                + " and the inFile directory structure will be maintained")
+        .availableIf("analyse", "process").availableIf(inFileOption).withRequiredArg().ofType(Boolean.class);
+
     OptionSpec<String> inputPatternOption = parser.accepts("inputPattern", "input pattern").withRequiredArg().ofType(String.class);
     OptionSpec<File> inputPatternFileOption = parser.accepts("inputPatternFile", "input pattern file").availableUnless(inputPatternOption).withRequiredArg()
         .ofType(File.class);
@@ -599,8 +605,12 @@ public class TalismaneMain {
     if (options.has(evalFileOption))
       evalFile = options.valueOf(evalFileOption);
 
+    boolean keepDirectoryStructure = !outFile.getName().contains(".");
+    if (options.has(keepDirStructureOption))
+      keepDirectoryStructure = options.valueOf(keepDirStructureOption);
+
     Config commandLineConfig = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
-    this.execute(commandLineConfig, sessionId, inFile, outFile, outDir, evalFile);
+    this.execute(commandLineConfig, sessionId, inFile, outFile, outDir, evalFile, keepDirectoryStructure);
   }
 
   /**
@@ -617,6 +627,10 @@ public class TalismaneMain {
    * @param outDir
    *          The directory for writing additional output files (other than the
    *          main analysis).
+   * @param keepDirectoryStructure
+   *          For analyse and process: if true, and inFile is a directory,
+   *          outFile will be interpreted as a directory and the inFile
+   *          directory struture will be maintained
    * @param evalFile
    * @throws IOException
    * @throws ReflectiveOperationException
@@ -624,7 +638,7 @@ public class TalismaneMain {
    *           if attempt is made to start and end on two unsupported modules.
    * @throws SentenceAnnotatorLoadException
    */
-  public void execute(Config config, String sessionId, File inFile, File outFile, File outDir, File evalFile)
+  public void execute(Config config, String sessionId, File inFile, File outFile, File outDir, File evalFile, boolean keepDirectoryStructure)
       throws IOException, ReflectiveOperationException, TalismaneException, SentenceAnnotatorLoadException {
     if (LOG.isTraceEnabled())
       LOG.trace(config.root().render());
@@ -638,7 +652,7 @@ public class TalismaneMain {
         Module startModule = Module.valueOf(config.getString("talismane.core." + sessionId + ".analysis.start-module"));
         Module endModule = Module.valueOf(config.getString("talismane.core." + sessionId + ".analysis.end-module"));
         Reader reader = getReader(inFile, true, session);
-        Writer writer = getWriter(outFile, inFile, session);
+        Writer writer = getWriter(outFile, inFile, keepDirectoryStructure, reader, session);
 
         if (startModule == Module.languageDetector) {
           if (endModule != Module.languageDetector)
@@ -758,7 +772,7 @@ public class TalismaneMain {
       }
       case process: {
         Reader reader = getReader(inFile, true, session);
-        Writer writer = getWriter(outFile, inFile, session);
+        Writer writer = getWriter(outFile, inFile, keepDirectoryStructure, reader, session);
         IOException ioException = null;
         switch (session.getModule()) {
         case sentenceDetector: {
@@ -889,7 +903,7 @@ public class TalismaneMain {
     }
   }
 
-  public static Reader getReader(File file, boolean forAnalysis, TalismaneSession session) throws IOException {
+  private static Reader getReader(File file, boolean forAnalysis, TalismaneSession session) throws IOException {
     if (file == null)
       return new BufferedReader(new InputStreamReader(System.in, session.getInputCharset()));
 
@@ -907,23 +921,24 @@ public class TalismaneMain {
     return new BufferedReader(new InputStreamReader(inFile, session.getInputCharset()));
   }
 
-  public static Writer getWriter(File outFile, File inFile, TalismaneSession session) throws IOException {
+  private static Writer getWriter(File outFile, File inFile, boolean keepDirectoryStructure, Reader reader, TalismaneSession session) throws IOException {
     if (outFile == null)
       return new BufferedWriter(new OutputStreamWriter(System.out, session.getOutputCharset()));
 
-    if (outFile.isDirectory()) {
+    if (inFile.isDirectory() && keepDirectoryStructure) {
       outFile.mkdirs();
       DirectoryWriter directoryWriter = new DirectoryWriter(inFile, outFile, session.getSuffix(), session.getOutputCharset());
+
       return directoryWriter;
+    } else {
+      File outDir = outFile.getParentFile();
+      if (outDir != null)
+        outDir.mkdirs();
+      outFile.delete();
+      outFile.createNewFile();
+
+      return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), session.getOutputCharset()));
     }
-
-    File outDir = outFile.getParentFile();
-    if (outDir != null)
-      outDir.mkdirs();
-    outFile.delete();
-    outFile.createNewFile();
-
-    return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), session.getOutputCharset()));
 
   }
 }

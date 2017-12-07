@@ -297,13 +297,13 @@ public class Talismane {
       PosTagAnnotatedCorpusReader posTagCorpusReader = null;
 
       if (this.startModule.equals(Module.posTagger)) {
-        tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader,
-            config.getConfig("talismane.core." + session.getId() + ".tokeniser.input"), session);
+        tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core." + session.getId() + ".tokeniser.input"),
+            session);
       }
 
       if (this.startModule.equals(Module.parser)) {
-        posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
-            config.getConfig("talismane.core." + session.getId() + ".pos-tagger.input"), session);
+        posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core." + session.getId() + ".pos-tagger.input"),
+            session);
       }
 
       LinkedList<String> textSegments = new LinkedList<String>();
@@ -315,11 +315,8 @@ public class Talismane {
       boolean finished = false;
       int sentenceCount = 0;
 
-      RollingTextBlock rollingTextBlock = new RollingTextBlock(this.processByDefault, session);
-
-      if (reader instanceof CurrentFileProvider) {
-        ((CurrentFileProvider) reader).addCurrentFileObserver(rollingTextBlock);
-      }
+      CurrentFileProvider currentFileProvider = reader instanceof CurrentFileProvider ? (CurrentFileProvider) reader : null;
+      RollingTextBlock rollingTextBlock = new RollingTextBlock(this.processByDefault, session, currentFileProvider);
 
       int endBlockCharacterCount = 0;
 
@@ -459,13 +456,14 @@ public class Talismane {
             for (SentenceAnnotator annotator : session.getSentenceAnnotators())
               annotator.annotate(sentence);
 
-            if (sentence.getLeftoverOriginalText() != null) {
-              writer.append(sentence.getLeftoverOriginalText() + "\n");
-            }
             if (writer instanceof CurrentFileObserver && sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
               currentFile = sentence.getFile();
               LOG.debug("Setting current file to " + currentFile.getPath());
               ((CurrentFileObserver) writer).onNextFile(currentFile);
+            }
+
+            if (sentence.getLeftoverOriginalText().length() > 0) {
+              writer.append(sentence.getLeftoverOriginalText() + "\n");
             }
 
             for (SentenceProcessor sentenceProcessor : sentenceProcessors) {
