@@ -148,7 +148,7 @@ public class TalismaneMain {
     parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("analyse", "train", "evaluate", "compare", "process").forHelp();
 
     OptionSpec<String> sessionIdOption = parser.accepts("sessionId", "the current session id - configuration read as talismane.core.[sessionId]")
-        .requiredUnless("?", "help").withRequiredArg().ofType(String.class);
+        .requiredIf("analyse", "train", "evaluate", "compare", "process").withRequiredArg().ofType(String.class);
 
     OptionSpec<Module> moduleOption = parser.accepts("module", "training / evaluation / processing module: " + Arrays.toString(Module.values()))
         .requiredIf("train", "process").availableIf("train", "evaluate", "compare", "process").withRequiredArg().ofType(Module.class);
@@ -605,7 +605,7 @@ public class TalismaneMain {
     if (options.has(evalFileOption))
       evalFile = options.valueOf(evalFileOption);
 
-    boolean keepDirectoryStructure = !outFile.getName().contains(".");
+    boolean keepDirectoryStructure = outFile != null && !outFile.getName().contains(".");
     if (options.has(keepDirStructureOption))
       keepDirectoryStructure = options.valueOf(keepDirStructureOption);
 
