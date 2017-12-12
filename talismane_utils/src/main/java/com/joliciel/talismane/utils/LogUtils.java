@@ -20,7 +20,6 @@ package com.joliciel.talismane.utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -158,9 +157,7 @@ public class LogUtils {
    * @throws JoranException
    */
   public static void configureLogging(String logConfigPath) throws JoranException {
-    File logConfigFile = null;
-    if (logConfigPath != null)
-      logConfigFile = new File(logConfigPath);
+    File logConfigFile = new File(logConfigPath);
     configureLogging(logConfigFile);
   }
 
@@ -174,23 +171,14 @@ public class LogUtils {
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
     JoranConfigurator configurator = new JoranConfigurator();
     configurator.setContext(loggerContext);
-    if (logConfigFile != null) {
-      if (logConfigFile.exists()) {
-        // Call context.reset() to clear any previous configuration,
-        // e.g. default configuration
-        loggerContext.reset();
-        configurator.doConfigure(logConfigFile);
-      } else {
-        throw new JolicielException("missing logConfigFile: " + logConfigFile.getPath());
-      }
-    } else {
-      InputStream stream = LogUtils.class.getResourceAsStream("/com/joliciel/talismane/utils/resources/default-logback.xml");
 
-      configurator.setContext(loggerContext);
+    if (logConfigFile.exists()) {
       // Call context.reset() to clear any previous configuration,
       // e.g. default configuration
       loggerContext.reset();
-      configurator.doConfigure(stream);
+      configurator.doConfigure(logConfigFile);
+    } else {
+      throw new JolicielException("missing logConfigFile: " + logConfigFile.getPath());
     }
   }
 }

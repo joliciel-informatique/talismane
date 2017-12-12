@@ -107,7 +107,8 @@ public class LanguageDetectorTrainer {
 
     String logConfigPath = argsMap.get("logConfigFile");
     argsMap.remove("logConfigFile");
-    LogUtils.configureLogging(logConfigPath);
+    if (logConfigPath != null)
+      LogUtils.configureLogging(logConfigPath);
 
     Config config = ConfigFactory.load();
     String sessionId = "";
