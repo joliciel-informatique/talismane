@@ -44,7 +44,8 @@ public class SpmrlConverter {
 
     String logConfigPath = argMap.get("logConfigFile");
     argMap.remove("logConfigFile");
-    LogUtils.configureLogging(logConfigPath);
+    if (logConfigPath != null)
+      LogUtils.configureLogging(logConfigPath);
 
     String spmrlPath = "";
     String suffix = "tal";
