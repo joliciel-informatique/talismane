@@ -11,7 +11,7 @@ ADV	adverbe	OPEN
 ADVWH	adverbe intérrogatif	CLOSED
 CC	conjonction de coordination	CLOSED
 CLO	clitique objet	CLOSED
-CLR	clitique réflexif	CLOSED
+CLR	clitique réflechi	CLOSED
 CLS	clitique sujet	CLOSED
 CS	conjonction de subordination	CLOSED
 DET	déteriminant	CLOSED

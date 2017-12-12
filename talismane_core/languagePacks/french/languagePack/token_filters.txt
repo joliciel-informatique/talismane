@@ -8,6 +8,7 @@ RegexTokenAnnotator	\b((((http)|(https)|(ftp)|(irc)|(ircs)|(gopher)|(telnet)|(nn
 
 RegexTokenAnnotator	\bi\.e\.\B	posTag=P	lemmaType=originalLower
 RegexTokenAnnotator	\be\.g\.\B	posTag=P	lemmaType=originalLower
+RegexTokenAnnotator	\bpeut-[êe]tre\b	replacement=peut-être	lemma=peut-être	posTag=ADV
 
 ########################
 #### Pronouns ##########
