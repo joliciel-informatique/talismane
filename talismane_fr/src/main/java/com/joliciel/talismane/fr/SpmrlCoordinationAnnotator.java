@@ -63,7 +63,8 @@ public class SpmrlCoordinationAnnotator {
   public void calc(Map<String, String> argMap) throws Exception {
     String logConfigPath = argMap.get("logConfigFile");
     argMap.remove("logConfigFile");
-    LogUtils.configureLogging(logConfigPath);
+    if (logConfigPath != null)
+      LogUtils.configureLogging(logConfigPath);
 
     String refFilePath = null;
     Option option = Option.None;
