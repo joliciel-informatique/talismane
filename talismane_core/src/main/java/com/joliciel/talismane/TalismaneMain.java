@@ -83,6 +83,7 @@ import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserTrainer;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.WeightedOutcome;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.joliciel.talismane.utils.io.DirectoryReader;
 import com.joliciel.talismane.utils.io.DirectoryWriter;
 import com.typesafe.config.Config;
@@ -718,7 +719,7 @@ public class TalismaneMain {
         break;
       }
       case evaluate: {
-        Reader reader = getReader(inFile, true, session);
+        Reader reader = getReader(inFile, false, session);
 
         switch (session.getModule()) {
         case sentenceDetector: {
@@ -747,8 +748,8 @@ public class TalismaneMain {
         break;
       }
       case compare: {
-        Reader reader = getReader(inFile, true, session);
-        Reader evalReader = getReader(evalFile, true, session);
+        Reader reader = getReader(inFile, false, session);
+        Reader evalReader = getReader(evalFile, false, session);
         switch (session.getModule()) {
         case tokeniser: {
           TokenComparator comparator = new TokenComparator(reader, evalReader, outDir, session);
@@ -771,8 +772,9 @@ public class TalismaneMain {
         break;
       }
       case process: {
-        Reader reader = getReader(inFile, true, session);
+        Reader reader = getReader(inFile, false, session);
         Writer writer = getWriter(outFile, inFile, keepDirectoryStructure, reader, session);
+        File currentFile = null;
         IOException ioException = null;
         switch (session.getModule()) {
         case sentenceDetector: {
@@ -783,6 +785,10 @@ public class TalismaneMain {
                 config.getConfig("talismane.core." + sessionId + ".sentence-detector.input"), session);
             while (corpusReader.hasNextSentence()) {
               Sentence sentence = corpusReader.nextSentence();
+              if (writer instanceof CurrentFileObserver && !sentence.getFile().equals(currentFile)) {
+                currentFile = sentence.getFile();
+                ((CurrentFileObserver) writer).onNextFile(currentFile);
+              }
               for (SentenceProcessor processor : processors)
                 processor.onNextSentence(sentence);
             }
@@ -805,6 +811,11 @@ public class TalismaneMain {
                 config.getConfig("talismane.core." + sessionId + ".tokeniser.input"), session);
             while (corpusReader.hasNextSentence()) {
               TokenSequence tokenSequence = corpusReader.nextTokenSequence();
+              Sentence sentence = tokenSequence.getSentence();
+              if (writer instanceof CurrentFileObserver && !sentence.getFile().equals(currentFile)) {
+                currentFile = sentence.getFile();
+                ((CurrentFileObserver) writer).onNextFile(currentFile);
+              }
               for (TokenSequenceProcessor processor : processors)
                 processor.onNextTokenSequence(tokenSequence);
             }
@@ -828,6 +839,11 @@ public class TalismaneMain {
                 config.getConfig("talismane.core." + sessionId + ".pos-tagger.input"), session);
             while (corpusReader.hasNextSentence()) {
               PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
+              Sentence sentence = posTagSequence.getTokenSequence().getSentence();
+              if (writer instanceof CurrentFileObserver && !sentence.getFile().equals(currentFile)) {
+                currentFile = sentence.getFile();
+                ((CurrentFileObserver) writer).onNextFile(currentFile);
+              }
               for (PosTagSequenceProcessor processor : processors)
                 processor.onNextPosTagSequence(posTagSequence);
             }
@@ -852,6 +868,11 @@ public class TalismaneMain {
                 config.getConfig("talismane.core." + sessionId + ".parser.input"), session);
             while (corpusReader.hasNextSentence()) {
               ParseConfiguration configuration = corpusReader.nextConfiguration();
+              Sentence sentence = configuration.getSentence();
+              if (writer instanceof CurrentFileObserver && !sentence.getFile().equals(currentFile)) {
+                currentFile = sentence.getFile();
+                ((CurrentFileObserver) writer).onNextFile(currentFile);
+              }
               for (ParseConfigurationProcessor processor : processors)
                 processor.onNextParseConfiguration(configuration);
             }

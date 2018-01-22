@@ -249,7 +249,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
             text += " ";
           text += word;
         }
-        sentence = new Sentence(text, session);
+        sentence = new Sentence(text, currentFile, session);
       }
 
       for (SentenceAnnotator tokenFilter : session.getSentenceAnnotators()) {
