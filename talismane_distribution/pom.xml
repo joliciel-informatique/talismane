@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.joliciel.talismane</groupId>
     <artifactId>talismane-parent</artifactId>
-    <version>5.0.4</version>
+    <version>5.0.5</version>
     <relativePath>../talismane_parent</relativePath>
   </parent>
 
