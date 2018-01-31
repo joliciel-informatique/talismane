@@ -456,10 +456,23 @@ public class Talismane {
             for (SentenceAnnotator annotator : session.getSentenceAnnotators())
               annotator.annotate(sentence);
 
-            if (writer instanceof CurrentFileObserver && sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
+            if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
               currentFile = sentence.getFile();
               LOG.debug("Setting current file to " + currentFile.getPath());
-              ((CurrentFileObserver) writer).onNextFile(currentFile);
+              if (writer instanceof CurrentFileObserver)
+                ((CurrentFileObserver) writer).onNextFile(currentFile);
+              for (SentenceProcessor processor : sentenceProcessors)
+                if (processor instanceof CurrentFileObserver)
+                  ((CurrentFileObserver) processor).onNextFile(currentFile);
+              for (TokenSequenceProcessor processor : tokenSequenceProcessors)
+                if (processor instanceof CurrentFileObserver)
+                  ((CurrentFileObserver) processor).onNextFile(currentFile);
+              for (PosTagSequenceProcessor processor : posTagSequenceProcessors)
+                if (processor instanceof CurrentFileObserver)
+                  ((CurrentFileObserver) processor).onNextFile(currentFile);
+              for (ParseConfigurationProcessor processor : parseConfigurationProcessors)
+                if (processor instanceof CurrentFileObserver)
+                  ((CurrentFileObserver) processor).onNextFile(currentFile);
             }
 
             if (sentence.getLeftoverOriginalText().length() > 0) {

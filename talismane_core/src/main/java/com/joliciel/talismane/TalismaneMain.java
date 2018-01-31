@@ -785,9 +785,13 @@ public class TalismaneMain {
                 config.getConfig("talismane.core." + sessionId + ".sentence-detector.input"), session);
             while (corpusReader.hasNextSentence()) {
               Sentence sentence = corpusReader.nextSentence();
-              if (writer instanceof CurrentFileObserver && !sentence.getFile().equals(currentFile)) {
+              if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
                 currentFile = sentence.getFile();
-                ((CurrentFileObserver) writer).onNextFile(currentFile);
+                if (writer instanceof CurrentFileObserver)
+                  ((CurrentFileObserver) writer).onNextFile(currentFile);
+                for (SentenceProcessor processor : processors)
+                  if (processor instanceof CurrentFileObserver)
+                    ((CurrentFileObserver) processor).onNextFile(currentFile);
               }
               for (SentenceProcessor processor : processors)
                 processor.onNextSentence(sentence);
@@ -812,9 +816,13 @@ public class TalismaneMain {
             while (corpusReader.hasNextSentence()) {
               TokenSequence tokenSequence = corpusReader.nextTokenSequence();
               Sentence sentence = tokenSequence.getSentence();
-              if (writer instanceof CurrentFileObserver && !sentence.getFile().equals(currentFile)) {
+              if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
                 currentFile = sentence.getFile();
-                ((CurrentFileObserver) writer).onNextFile(currentFile);
+                if (writer instanceof CurrentFileObserver)
+                  ((CurrentFileObserver) writer).onNextFile(currentFile);
+                for (TokenSequenceProcessor processor : processors)
+                  if (processor instanceof CurrentFileObserver)
+                    ((CurrentFileObserver) processor).onNextFile(currentFile);
               }
               for (TokenSequenceProcessor processor : processors)
                 processor.onNextTokenSequence(tokenSequence);
@@ -840,9 +848,13 @@ public class TalismaneMain {
             while (corpusReader.hasNextSentence()) {
               PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
               Sentence sentence = posTagSequence.getTokenSequence().getSentence();
-              if (writer instanceof CurrentFileObserver && !sentence.getFile().equals(currentFile)) {
+              if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
                 currentFile = sentence.getFile();
-                ((CurrentFileObserver) writer).onNextFile(currentFile);
+                if (writer instanceof CurrentFileObserver)
+                  ((CurrentFileObserver) writer).onNextFile(currentFile);
+                for (PosTagSequenceProcessor processor : processors)
+                  if (processor instanceof CurrentFileObserver)
+                    ((CurrentFileObserver) processor).onNextFile(currentFile);
               }
               for (PosTagSequenceProcessor processor : processors)
                 processor.onNextPosTagSequence(posTagSequence);
@@ -869,9 +881,13 @@ public class TalismaneMain {
             while (corpusReader.hasNextSentence()) {
               ParseConfiguration configuration = corpusReader.nextConfiguration();
               Sentence sentence = configuration.getSentence();
-              if (writer instanceof CurrentFileObserver && !sentence.getFile().equals(currentFile)) {
+              if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
                 currentFile = sentence.getFile();
-                ((CurrentFileObserver) writer).onNextFile(currentFile);
+                if (writer instanceof CurrentFileObserver)
+                  ((CurrentFileObserver) writer).onNextFile(currentFile);
+                for (ParseConfigurationProcessor processor : processors)
+                  if (processor instanceof CurrentFileObserver)
+                    ((CurrentFileObserver) processor).onNextFile(currentFile);
               }
               for (ParseConfigurationProcessor processor : processors)
                 processor.onNextParseConfiguration(configuration);

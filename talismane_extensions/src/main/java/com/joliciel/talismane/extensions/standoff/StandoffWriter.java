@@ -42,6 +42,7 @@ import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.output.ParseConfigurationOutput;
 import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
 
 import freemarker.cache.NullCacheStorage;
 import freemarker.template.Configuration;
@@ -60,7 +61,7 @@ import freemarker.template.Version;
  * @author Assaf Urieli
  *
  */
-public class StandoffWriter implements ParseConfigurationProcessor {
+public class StandoffWriter implements ParseConfigurationProcessor, CurrentFileObserver {
   private static final Logger LOG = LoggerFactory.getLogger(StandoffWriter.class);
   private final Template template;
   private final Writer writer;
@@ -131,6 +132,14 @@ public class StandoffWriter implements ParseConfigurationProcessor {
   @Override
   public void close() throws IOException {
     this.writer.close();
+  }
+
+  @Override
+  public void onNextFile(File file) {
+    sentenceCount = 0;
+    tokenCount = 0;
+    relationCount = 0;
+    characterCount = 0;
   }
 
 }
