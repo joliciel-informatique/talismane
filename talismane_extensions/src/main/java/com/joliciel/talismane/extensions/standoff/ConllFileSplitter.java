@@ -66,6 +66,7 @@ public class ConllFileSplitter {
       int currentFileIndex = startIndex;
 
       int sentenceCount = 0;
+      int rowCount = 0;
 
       while (scanner.hasNextLine()) {
         String line = scanner.nextLine();
@@ -79,8 +80,9 @@ public class ConllFileSplitter {
           if (!hasSentence) {
             hasSentence = true;
             sentenceCount++;
+            rowCount = 0;
           }
-          if (writer == null || sentenceCount % sentencesPerFile == 1) {
+          if (sentenceCount % sentencesPerFile == 1 && rowCount == 0) {
             if (writer != null) {
               writer.flush();
               writer.close();
@@ -91,11 +93,11 @@ public class ConllFileSplitter {
 
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile, false), encoding));
             currentFileIndex++;
-            hasSentence = false;
           }
 
           writer.write(line + "\n");
           writer.flush();
+          rowCount++;
         }
       }
     } finally {
