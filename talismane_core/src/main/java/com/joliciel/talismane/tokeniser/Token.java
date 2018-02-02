@@ -138,6 +138,11 @@ public class Token implements TokenWrapper {
     this.endIndex = endIndex;
     if (text.length() == 0)
       this.whiteSpace = false;
+    // next two checks are to increase performance only
+    else if (" ".equals(text))
+      this.whiteSpace = true;
+    else if (!Character.isWhitespace(text.charAt(0)))
+      this.whiteSpace = false;
     else if (whiteSpacePattern.matcher(text).matches())
       this.whiteSpace = true;
     else

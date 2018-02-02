@@ -153,7 +153,6 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
       Token emptyToken = tokenSequence.addEmptyToken(0);
       emptyToken.setText("[ROOT]");
       tokenSequence.setWithRoot(true);
-      tokenSequence.finalise();
 
       Decision rootDecision = new Decision(PosTag.ROOT_POS_TAG.getCode());
       try {
@@ -191,7 +190,6 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
       }
       this.remove(0);
       tokenSequence.setWithRoot(false);
-      tokenSequence.finalise();
     }
   }
 
@@ -265,7 +263,6 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
       for (Token token : emptyTokensToRemove) {
         this.tokenSequence.removeEmptyToken(token);
       }
-      this.tokenSequence.finalise();
 
       i = 0;
       for (PosTaggedToken posTaggedToken : cloneList) {

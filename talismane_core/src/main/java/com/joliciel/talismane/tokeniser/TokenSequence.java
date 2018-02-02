@@ -52,7 +52,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
   private boolean scoreCalculated = false;
   private TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
   private Integer atomicTokenCount = null;
-  private boolean finalised = false;
   private boolean withRoot = false;
   private PosTagSequence posTagSequence;
   private final Map<Integer, Annotation<TokenPlaceholder>> placeholderMap;
@@ -169,8 +168,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
     if (currentPos < text.length())
       this.addToken(currentPos, text.length());
-
-    this.finalise();
   }
 
   /**
@@ -232,22 +229,18 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
    * correct on the component tokens, and so that all attributes are correctly
    * assigned to component tokens from the containing sentence.
    */
-  public void finalise() {
-    if (!finalised) {
-      finalised = true;
-      int i = 0;
-      for (Token token : this.listWithWhiteSpace) {
-        token.setIndexWithWhiteSpace(i++);
-      }
-      i = 0;
-      for (Token token : this) {
-        token.setIndex(i++);
-      }
+  private void reindex() {
+    int i = 0;
+    for (Token token : this.listWithWhiteSpace) {
+      token.setIndexWithWhiteSpace(i++);
+    }
+    i = 0;
+    for (Token token : this) {
+      token.setIndex(i++);
     }
   }
 
   void markModified() {
-    this.finalised = false;
     this.tokenSplits = null;
     this.atomicTokenCount = null;
   }
@@ -260,7 +253,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
   public double getScore() {
     if (!this.scoreCalculated) {
-      this.finalise();
       if (LOG.isTraceEnabled())
         LOG.trace(this.toString());
       score = 1.0;
@@ -308,11 +300,11 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
    */
 
   public Token addToken(int start, int end) {
-    return this.addToken(start, end, false);
+    return this.addTokenInternal(start, end, false);
   }
 
   @SuppressWarnings("unchecked")
-  Token addToken(int start, int end, boolean allowEmpty) {
+  Token addTokenInternal(int start, int end, boolean allowEmpty) {
     if (!allowEmpty && start == end)
       return null;
 
@@ -322,18 +314,18 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
     int prevTokenIndex = -1;
     int i = 0;
-    for (Token aToken : this.listWithWhiteSpace) {
-      if (aToken.getStartIndex() > end) {
+    for (i = this.listWithWhiteSpace.size() - 1; i >= 0; i--) {
+      Token aToken = this.listWithWhiteSpace.get(i);
+      if (aToken.getEndIndex() <= start) {
+        prevTokenIndex = i;
         break;
       } else if (aToken.getStartIndex() == start && aToken.getEndIndex() == end) {
         return aToken;
       } else if (aToken.getStartIndex() < end && aToken.getEndIndex() > start) {
         tokensToRemove.add(aToken);
-      } else if (aToken.getEndIndex() <= start) {
-        prevTokenIndex = i;
       }
-      i++;
     }
+    boolean lastToken = prevTokenIndex == this.listWithWhiteSpace.size() - 1;
 
     for (Token tokenToRemove : tokensToRemove) {
       this.listWithWhiteSpace.remove(tokenToRemove);
@@ -347,14 +339,12 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
     if (!token.isWhiteSpace()) {
       prevTokenIndex = -1;
-      i = 0;
-      for (Token aToken : this) {
-        if (aToken.getStartIndex() > end) {
-          break;
-        } else if (aToken.getEndIndex() <= start) {
+      for (i = this.size() - 1; i >= 0; i--) {
+        Token aToken = this.get(i);
+        if (aToken.getEndIndex() <= start) {
           prevTokenIndex = i;
+          break;
         }
-        i++;
       }
 
       super.add(prevTokenIndex + 1, token);
@@ -391,7 +381,9 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
     }
 
     this.markModified();
-    this.finalise();
+    if (!lastToken) {
+      this.reindex();
+    }
 
     return token;
   }
@@ -401,7 +393,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
    */
 
   public Token addEmptyToken(int position) {
-    return this.addToken(position, position, true);
+    return this.addTokenInternal(position, position, true);
   }
 
   /**

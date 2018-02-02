@@ -202,8 +202,6 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 
         tokenSequence.setWithRoot(true);
 
-        tokenSequence.finalise();
-
         configuration = new ParseConfiguration(posTagSequence);
 
         for (StandoffToken standoffToken : tokens) {
