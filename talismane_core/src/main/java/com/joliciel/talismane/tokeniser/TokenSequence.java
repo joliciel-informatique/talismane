@@ -21,7 +21,6 @@ import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
-import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 
@@ -53,7 +52,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
   private TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
   private Integer atomicTokenCount = null;
   private boolean withRoot = false;
-  private PosTagSequence posTagSequence;
   private final Map<Integer, Annotation<TokenPlaceholder>> placeholderMap;
 
   @SuppressWarnings("rawtypes")
@@ -112,7 +110,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
     this.scoreCalculated = true;
     this.underlyingAtomicTokenSequence = sequenceToClone.underlyingAtomicTokenSequence;
     this.atomicTokenCount = sequenceToClone.atomicTokenCount;
-    this.posTagSequence = sequenceToClone.posTagSequence;
     this.placeholderMap = sequenceToClone.placeholderMap;
     this.attributeOrderingMap = sequenceToClone.attributeOrderingMap;
 
@@ -466,20 +463,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
     }
     sb.append('|');
     return sb.toString();
-  }
-
-  /**
-   * A PosTagSequence enclosing this token sequence - only useful in tokeniser
-   * evaluation, when we want to know the pos-tags in the original annotated
-   * corpus.
-   */
-
-  public PosTagSequence getPosTagSequence() {
-    return posTagSequence;
-  }
-
-  public void setPosTagSequence(PosTagSequence posTagSequence) {
-    this.posTagSequence = posTagSequence;
   }
 
   public PosTaggerLexicon getLexicon() {

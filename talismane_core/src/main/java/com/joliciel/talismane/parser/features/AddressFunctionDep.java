@@ -18,8 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
-import java.util.Iterator;
-import java.util.NavigableSet;
+import java.util.List;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -57,12 +56,9 @@ public final class AddressFunctionDep extends AbstractAddressFunction {
       int index = indexResult.getOutcome();
       PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
       if (referenceToken != null) {
-        NavigableSet<PosTaggedToken> dependents = configuration.getDependents(referenceToken);
-        Iterator<PosTaggedToken> iDeps = dependents.iterator();
+        List<PosTaggedToken> dependents = configuration.getDependents(referenceToken);
         if (index < dependents.size()) {
-          for (int i = 0; i <= index; i++) {
-            resultToken = iDeps.next();
-          }
+          resultToken = dependents.get(index);
         }
       }
     }

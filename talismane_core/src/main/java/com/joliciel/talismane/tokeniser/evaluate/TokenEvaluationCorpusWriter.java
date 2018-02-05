@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -62,7 +61,6 @@ public class TokenEvaluationCorpusWriter implements TokenEvaluationObserver {
     }
 
     int prevEndIndex = 0;
-    int i = 0;
     for (Token token : realSequence) {
       corpusWriter.write(token.getOriginalText());
       Set<String> authorities = new TreeSet<String>();
@@ -73,10 +71,6 @@ public class TokenEvaluationCorpusWriter implements TokenEvaluationObserver {
           authorities.addAll(guessedAuthorities.get(index));
         }
       }
-      if (realSequence.getPosTagSequence() != null) {
-        PosTaggedToken posTaggedToken = realSequence.getPosTagSequence().get(i);
-        corpusWriter.write("\t" + posTaggedToken.getTag().getCode());
-      }
       corpusWriter.write("\t" + correct);
       for (String authority : authorities) {
         if (!authority.startsWith("_")) {
@@ -86,7 +80,6 @@ public class TokenEvaluationCorpusWriter implements TokenEvaluationObserver {
       corpusWriter.write("\n");
       corpusWriter.flush();
       prevEndIndex = token.getEndIndex();
-      i++;
     }
     corpusWriter.write("\n");
   }
