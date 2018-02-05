@@ -10,11 +10,11 @@
 //
 //Talismane is distributed in the hope that it will be useful,
 //but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //GNU Affero General Public License for more details.
 //
 //You should have received a copy of the GNU Affero General Public License
-//along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
+//along with Talismane. If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
@@ -128,6 +128,11 @@ public class Token implements TokenWrapper {
 		this.index = index;
 		if (text.length() == 0)
 			this.whiteSpace = false;
+		// next two checks are to increase performance only
+		else if (" ".equals(text))
+			this.whiteSpace = true;
+		else if (!Character.isWhitespace(text.charAt(0)))
+			this.whiteSpace = false;
 		else if (whiteSpacePattern.matcher(text).matches())
 			this.whiteSpace = true;
 
@@ -147,8 +152,8 @@ public class Token implements TokenWrapper {
 	}
 
 	/**
-	 * The original text represented by this token, before filters updated it
-	 * for analysis.
+	 * The original text represented by this token, before filters updated it for
+	 * analysis.
 	 */
 
 	public String getOriginalText() {
@@ -168,8 +173,8 @@ public class Token implements TokenWrapper {
 	}
 
 	/**
-	 * The index of this token in the containing sequence when whitespace is
-	 * taken into account.
+	 * The index of this token in the containing sequence when whitespace is taken
+	 * into account.
 	 */
 
 	public int getIndexWithWhiteSpace() {
@@ -210,8 +215,8 @@ public class Token implements TokenWrapper {
 	}
 
 	/**
-	 * A list of postags and counts for this token in a training corpus
-	 * (assigned externally by a statistics service).
+	 * A list of postags and counts for this token in a training corpus (assigned
+	 * externally by a statistics service).
 	 */
 
 	public Map<PosTag, Integer> getFrequencies() {
@@ -411,8 +416,8 @@ public class Token implements TokenWrapper {
 	}
 
 	/**
-	 * Returns the original text column number (inside a line) at the beginning
-	 * of this token.
+	 * Returns the original text column number (inside a line) at the beginning of
+	 * this token.
 	 */
 
 	public int getColumnNumber() {
@@ -441,8 +446,8 @@ public class Token implements TokenWrapper {
 	}
 
 	/**
-	 * Returns the original text column number (inside a line) at the end of
-	 * this token.
+	 * Returns the original text column number (inside a line) at the end of this
+	 * token.
 	 */
 
 	public int getColumnNumberEnd() {
@@ -479,8 +484,8 @@ public class Token implements TokenWrapper {
 	}
 
 	/**
-	 * Any text that should be output as "raw" prior to outputting this token,
-	 * or null if none available.
+	 * Any text that should be output as "raw" prior to outputting this token, or
+	 * null if none available.
 	 */
 
 	public String getPrecedingRawOutput() {
@@ -500,8 +505,8 @@ public class Token implements TokenWrapper {
 
 	/**
 	 * Any text that should be output as "raw" after outputting this token, or
-	 * null if none available. Will only ever return non-null for the final
-	 * token in a sequence.
+	 * null if none available. Will only ever return non-null for the final token
+	 * in a sequence.
 	 */
 
 	public String getTrailingRawOutput() {
@@ -556,9 +561,8 @@ public class Token implements TokenWrapper {
 	}
 
 	/**
-	 * Any attributes assigned to this token (e.g. telling downstream systems
-	 * not to stem this token in a search index, in the case of a recognised
-	 * acronym).
+	 * Any attributes assigned to this token (e.g. telling downstream systems not
+	 * to stem this token in a search index, in the case of a recognised acronym).
 	 */
 
 	public Map<String, TokenAttribute<?>> getAttributes() {
