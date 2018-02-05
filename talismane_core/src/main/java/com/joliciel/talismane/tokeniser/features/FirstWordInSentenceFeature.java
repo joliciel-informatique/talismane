@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import java.util.regex.Pattern;
+
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -34,6 +36,8 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  *
  */
 public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+  static Pattern integerPattern = Pattern.compile("\\d+");
+
   public FirstWordInSentenceFeature() {
   }
 
@@ -64,21 +68,8 @@ public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boole
       if (tokenSequence.size() > 2)
         word2 = tokenSequence.get(2).getAnalyisText();
 
-      boolean word0IsInteger = false;
-      try {
-        Integer.parseInt(word0);
-        word0IsInteger = true;
-      } catch (NumberFormatException nfe) {
-        word0IsInteger = false;
-      }
-
-      boolean word1IsInteger = false;
-      try {
-        Integer.parseInt(word1);
-        word1IsInteger = true;
-      } catch (NumberFormatException nfe) {
-        word1IsInteger = false;
-      }
+      boolean word0IsInteger = integerPattern.matcher(word0).matches();
+      boolean word1IsInteger = integerPattern.matcher(word1).matches();
 
       if (word0.equals("\"") || word0.equals("-") || word0.equals("--") || word0.equals("—") || word0.equals("*") || word0.equals("(")) {
         startIndex = 1;

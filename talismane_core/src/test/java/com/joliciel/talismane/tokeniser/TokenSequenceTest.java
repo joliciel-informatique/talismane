@@ -158,7 +158,6 @@ public class TokenSequenceTest {
     tokenSequence.addToken(10, 12); // br - should be removed by brown
     tokenSequence.addToken(12, 15); // own - should be removed by brown
     tokenSequence.addToken(10, 15); // brown
-    tokenSequence.finalise();
 
     assertEquals(5, tokenSequence.size());
     int i = 0;

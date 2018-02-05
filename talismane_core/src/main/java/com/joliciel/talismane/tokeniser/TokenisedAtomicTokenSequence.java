@@ -108,8 +108,6 @@ public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserO
       } else {
         this.addToken(tokenSequence, currentStart, currentEnd, null);
       }
-
-      tokenSequence.finalise();
     }
     return tokenSequence;
   }

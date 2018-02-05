@@ -20,7 +20,7 @@ package com.joliciel.talismane.parser;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,9 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +56,7 @@ import com.joliciel.talismane.rawText.Sentence;
  * @author Assaf Urieli
  */
 public final class ParseConfiguration implements Comparable<ParseConfiguration>, ClassificationSolution, ParseConfigurationWrapper, HasFeatureCache {
+
   private static final Logger LOG = LoggerFactory.getLogger(ParseConfiguration.class);
 
   private PosTagSequence posTagSequence;
@@ -72,21 +71,17 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
 
   // Projective dependency information
   private final NavigableSet<DependencyArc> dependencies;
-  private final Map<PosTaggedToken, DependencyArc> governingDependencyMap;
-  private final Map<PosTaggedToken, NavigableSet<PosTaggedToken>> leftDependentMap;
-  private final Map<PosTaggedToken, NavigableSet<PosTaggedToken>> rightDependentMap;
-  private final Map<PosTaggedToken, NavigableSet<PosTaggedToken>> dependentMap;
-  private final Map<PosTaggedToken, Map<String, NavigableSet<PosTaggedToken>>> dependentByLabelMap;
-  private final Map<PosTaggedToken, Transition> dependentTransitionMap;
+  private final DependencyArc[] governingDependencyMap;
+  private final int[] governorMap;
+  private final String[] labelMap;
+  private final Transition[] dependentTransitionMap;
 
   // Non-projective equivalents to above
   private boolean hasNonProjDependencies = false;
   private final NavigableSet<DependencyArc> dependenciesNonProj;
-  private final Map<PosTaggedToken, DependencyArc> governingDependencyNonProjMap;
-  private final Map<PosTaggedToken, NavigableSet<PosTaggedToken>> leftDependentNonProjMap;
-  private final Map<PosTaggedToken, NavigableSet<PosTaggedToken>> rightDependentNonProjMap;
-  private final Map<PosTaggedToken, NavigableSet<PosTaggedToken>> dependentNonProjMap;
-  private final Map<PosTaggedToken, Map<String, NavigableSet<PosTaggedToken>>> dependentByLabelNonProjMap;
+  private final DependencyArc[] governingDependencyNonProjMap;
+  private final int[] governorNonProjMap;
+  private final String[] labelNonProjMap;
 
   private List<Decision> decisions = new ArrayList<Decision>();
   private int lastProbApplied = 0;
@@ -114,27 +109,19 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
     this.stack = new ArrayDeque<PosTaggedToken>();
     this.stack.push(rootToken);
 
-    this.dependentTransitionMap = new HashMap<>();
+    this.dependentTransitionMap = new Transition[posTagSequence.size()];
 
     this.dependencies = new TreeSet<>();
-    this.governingDependencyMap = new HashMap<>();
-    this.rightDependentMap = new HashMap<>();
-    this.leftDependentMap = new HashMap<>();
-    this.dependentMap = new HashMap<>();
-    this.dependentByLabelMap = new HashMap<>();
-    this.dependenciesNonProj = new TreeSet<>();
-    this.governingDependencyNonProjMap = new HashMap<>();
-    this.rightDependentNonProjMap = new HashMap<>();
-    this.leftDependentNonProjMap = new HashMap<>();
-    this.dependentNonProjMap = new HashMap<>();
-    this.dependentByLabelNonProjMap = new HashMap<>();
+    this.governingDependencyMap = new DependencyArc[posTagSequence.size()];
+    this.governorMap = new int[posTagSequence.size()];
+    Arrays.fill(this.governorMap, -1);
 
-    for (PosTaggedToken token : this.posTagSequence) {
-      this.dependentMap.put(token, new TreeSet<>());
-      this.leftDependentMap.put(token, new TreeSet<>());
-      this.rightDependentMap.put(token, new TreeSet<>());
-      this.dependentByLabelMap.put(token, new TreeMap<>());
-    }
+    this.labelMap = new String[posTagSequence.size()];
+    this.dependenciesNonProj = new TreeSet<>();
+    this.governingDependencyNonProjMap = new DependencyArc[posTagSequence.size()];
+    this.governorNonProjMap = new int[posTagSequence.size()];
+    Arrays.fill(this.governorNonProjMap, -1);
+    this.labelNonProjMap = new String[posTagSequence.size()];
 
     this.transitions = new ArrayList<Transition>();
     this.scoringStrategy = new GeometricMeanScoringStrategy();
@@ -150,35 +137,35 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
     this.underlyingSolutions.add(this.posTagSequence);
     this.buffer = new ArrayDeque<>(history.buffer);
     this.stack = new ArrayDeque<>(history.stack);
-    this.dependentTransitionMap = new HashMap<>(history.dependentTransitionMap);
+    this.dependentTransitionMap = Arrays.copyOf(history.dependentTransitionMap, history.dependentTransitionMap.length);
 
     this.decisions = new ArrayList<Decision>(history.decisions);
     this.lastProbApplied = history.lastProbApplied;
     this.scoringStrategy = history.scoringStrategy;
 
     this.dependencies = new TreeSet<>(history.dependencies);
-    this.governingDependencyMap = new HashMap<>(history.governingDependencyMap);
-    this.rightDependentMap = history.rightDependentMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
-    this.leftDependentMap = history.leftDependentMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
-    this.dependentMap = history.dependentMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
-    this.dependentByLabelMap = history.dependentByLabelMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
-        e -> new TreeMap<>(e.getValue().entrySet().stream().collect(Collectors.toMap(e2 -> e2.getKey(), e2 -> new TreeSet<>(e2.getValue()))))));
-    this.dependenciesNonProj = new TreeSet<>(history.dependenciesNonProj);
-    this.governingDependencyNonProjMap = new HashMap<>(history.governingDependencyNonProjMap);
-    this.rightDependentNonProjMap = history.rightDependentNonProjMap.entrySet().stream()
-        .collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
-    this.leftDependentNonProjMap = history.leftDependentNonProjMap.entrySet().stream()
-        .collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
-    this.dependentNonProjMap = history.dependentNonProjMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> new TreeSet<>(e.getValue())));
-    this.dependentByLabelNonProjMap = history.dependentByLabelNonProjMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
-        e -> new TreeMap<>(e.getValue().entrySet().stream().collect(Collectors.toMap(e2 -> e2.getKey(), e2 -> new TreeSet<>(e2.getValue()))))));
+    this.governingDependencyMap = Arrays.copyOf(history.governingDependencyMap, history.governingDependencyMap.length);
+    this.governorMap = Arrays.copyOf(history.governorMap, history.governorMap.length);
+    this.labelMap = Arrays.copyOf(history.labelMap, history.labelMap.length);
+
     this.hasNonProjDependencies = history.hasNonProjDependencies;
+    if (this.hasNonProjDependencies) {
+      this.dependenciesNonProj = new TreeSet<>(history.dependenciesNonProj);
+      this.governingDependencyNonProjMap = Arrays.copyOf(history.governingDependencyNonProjMap, history.governingDependencyNonProjMap.length);
+      this.governorNonProjMap = Arrays.copyOf(history.governorNonProjMap, history.governorNonProjMap.length);
+      this.labelNonProjMap = Arrays.copyOf(history.labelNonProjMap, history.labelNonProjMap.length);
+    } else {
+      this.dependenciesNonProj = new TreeSet<>();
+      this.governingDependencyNonProjMap = new DependencyArc[posTagSequence.size()];
+      this.governorNonProjMap = new int[posTagSequence.size()];
+      Arrays.fill(this.governorNonProjMap, -1);
+      this.labelNonProjMap = new String[posTagSequence.size()];
+    }
   }
 
   /**
    * Get the PosTag Sequence on which this ParseSequence is based.
    */
-
   public PosTagSequence getPosTagSequence() {
     return this.posTagSequence;
   }
@@ -335,9 +322,9 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    */
   public DependencyArc getGoverningDependency(PosTaggedToken dependent, boolean projective) {
     if (!projective && this.hasNonProjectiveDependencies()) {
-      return this.governingDependencyNonProjMap.get(dependent);
+      return this.governingDependencyNonProjMap[dependent.getIndex()];
     } else {
-      return this.governingDependencyMap.get(dependent);
+      return this.governingDependencyMap[dependent.getIndex()];
     }
   }
 
@@ -346,7 +333,7 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    */
   public Transition getTransition(DependencyArc arc) {
     PosTaggedToken dependent = arc.getDependent();
-    Transition transition = this.dependentTransitionMap.get(dependent);
+    Transition transition = this.dependentTransitionMap[dependent.getIndex()];
     return transition;
   }
 
@@ -354,7 +341,7 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    * Same as {@link #getLeftDependents(PosTaggedToken, boolean)} for
    * projective=true.
    */
-  public NavigableSet<PosTaggedToken> getLeftDependents(PosTaggedToken head) {
+  public List<PosTaggedToken> getLeftDependents(PosTaggedToken head) {
     return this.getLeftDependents(head, true);
   }
 
@@ -366,19 +353,24 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    *          if true, consider projective set, if false consider non-projective
    *          set.
    */
-  public NavigableSet<PosTaggedToken> getLeftDependents(PosTaggedToken head, boolean projective) {
+  public List<PosTaggedToken> getLeftDependents(PosTaggedToken head, boolean projective) {
+    int[] govMap = this.governorMap;
     if (!projective && this.hasNonProjectiveDependencies()) {
-      return this.leftDependentNonProjMap.get(head);
-    } else {
-      return this.leftDependentMap.get(head);
+      govMap = this.governorNonProjMap;
     }
+    List<PosTaggedToken> deps = new ArrayList<>();
+    for (int i = 0; i < head.getIndex(); i++) {
+      if (govMap[i] == head.getIndex())
+        deps.add(posTagSequence.get(i));
+    }
+    return deps;
   }
 
   /**
    * Same as {@link #getRightDependents(PosTaggedToken, boolean)} for
    * projective=true.
    */
-  public NavigableSet<PosTaggedToken> getRightDependents(PosTaggedToken head) {
+  public List<PosTaggedToken> getRightDependents(PosTaggedToken head) {
     return this.getRightDependents(head, true);
   }
 
@@ -386,19 +378,24 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    * Get a list of right-hand dependents ordered from left-to-right of a given
    * head in the current set of dependencies.
    */
-  public NavigableSet<PosTaggedToken> getRightDependents(PosTaggedToken head, boolean projective) {
+  public List<PosTaggedToken> getRightDependents(PosTaggedToken head, boolean projective) {
+    int[] govMap = this.governorMap;
     if (!projective && this.hasNonProjectiveDependencies()) {
-      return this.rightDependentNonProjMap.get(head);
-    } else {
-      return this.rightDependentMap.get(head);
+      govMap = this.governorNonProjMap;
     }
+    List<PosTaggedToken> deps = new ArrayList<>();
+    for (int i = head.getIndex(); i < govMap.length; i++) {
+      if (govMap[i] == head.getIndex())
+        deps.add(posTagSequence.get(i));
+    }
+    return deps;
   }
 
   /**
    * Same as {@link #getDependents(PosTaggedToken, boolean)} for
    * projective=true.
    */
-  public NavigableSet<PosTaggedToken> getDependents(PosTaggedToken head) {
+  public List<PosTaggedToken> getDependents(PosTaggedToken head) {
     return this.getDependents(head, true);
   }
 
@@ -410,19 +407,24 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    *          if true, consider projective set, if false consider non-projective
    *          set.
    */
-  public NavigableSet<PosTaggedToken> getDependents(PosTaggedToken head, boolean projective) {
+  public List<PosTaggedToken> getDependents(PosTaggedToken head, boolean projective) {
+    int[] govMap = this.governorMap;
     if (!projective && this.hasNonProjectiveDependencies()) {
-      return this.dependentNonProjMap.get(head);
-    } else {
-      return this.dependentMap.get(head);
+      govMap = this.governorNonProjMap;
     }
+    List<PosTaggedToken> deps = new ArrayList<>();
+    for (int i = 0; i < govMap.length; i++) {
+      if (govMap[i] == head.getIndex())
+        deps.add(posTagSequence.get(i));
+    }
+    return deps;
   }
 
   /**
    * Same as {@link #getDependents(PosTaggedToken, String, boolean)} for
    * projective=true.
    */
-  public NavigableSet<PosTaggedToken> getDependents(PosTaggedToken head, String label) {
+  public List<PosTaggedToken> getDependents(PosTaggedToken head, String label) {
     return this.getDependents(head, label, true);
   }
 
@@ -434,20 +436,18 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
    *          if true, consider projective set, if false consider non-projective
    *          set.
    */
-  public NavigableSet<PosTaggedToken> getDependents(PosTaggedToken head, String label, boolean projective) {
-    NavigableSet<PosTaggedToken> deps = null;
-    Map<String, NavigableSet<PosTaggedToken>> labelMap;
+  public List<PosTaggedToken> getDependents(PosTaggedToken head, String label, boolean projective) {
+    int[] govMap = this.governorMap;
+    String[] labelMap = this.labelMap;
     if (!projective && this.hasNonProjectiveDependencies()) {
-      labelMap = this.dependentByLabelNonProjMap.get(head);
-    } else {
-      labelMap = this.dependentByLabelMap.get(head);
+      govMap = this.governorNonProjMap;
+      labelMap = this.labelNonProjMap;
     }
-
-    if (labelMap != null) {
-      deps = labelMap.get(label);
+    List<PosTaggedToken> deps = new ArrayList<>();
+    for (int i = 0; i < govMap.length; i++) {
+      if (govMap[i] == head.getIndex() && label.equals(labelMap[i]))
+        deps.add(posTagSequence.get(i));
     }
-    if (deps == null)
-      deps = Collections.emptyNavigableSet();
     return deps;
   }
 
@@ -465,7 +465,7 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
       LOG.trace("Adding arc " + arc + " with transition " + transition);
 
     this.addDependency(arc);
-    this.dependentTransitionMap.put(dependent, transition);
+    this.dependentTransitionMap[dependent.getIndex()] = transition;
 
     // calculate probability based on decisions
     if (LOG.isTraceEnabled())
@@ -512,53 +512,23 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
     }
 
     this.dependencies.add(arc);
-    this.governingDependencyMap.put(arc.getDependent(), arc);
-    Set<PosTaggedToken> halfDependents;
-    if (arc.getDependent().getIndex() < arc.getHead().getIndex())
-      halfDependents = leftDependentMap.get(arc.getHead());
-    else
-      halfDependents = rightDependentMap.get(arc.getHead());
-    halfDependents.add(arc.getDependent());
-    dependentMap.get(arc.getHead()).add(arc.getDependent());
-
-    Map<String, NavigableSet<PosTaggedToken>> labelMap = this.dependentByLabelMap.get(arc.getHead());
-    NavigableSet<PosTaggedToken> depsBylabel = labelMap.get(arc.getLabel());
-    if (depsBylabel == null) {
-      depsBylabel = new TreeSet<>();
-      labelMap.put(arc.getLabel(), depsBylabel);
-    }
-    depsBylabel.add(arc.getDependent());
+    this.governingDependencyMap[arc.getDependent().getIndex()] = arc;
+    this.governorMap[arc.getDependent().getIndex()] = arc.getHead().getIndex();
+    this.labelMap[arc.getDependent().getIndex()] = arc.getLabel();
 
     if (LOG.isTraceEnabled()) {
       LOG.trace("Added arc: " + arc);
       LOG.trace("dependencies: " + this.dependencies);
       LOG.trace("governingDependencyMap: " + this.governingDependencyMap);
-      LOG.trace("leftDependentMap: "
-          + this.leftDependentMap.entrySet().stream().filter(map -> map.getValue().size() > 0).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())));
-      LOG.trace("rightDependentMap: "
-          + this.rightDependentMap.entrySet().stream().filter(map -> map.getValue().size() > 0).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())));
-      LOG.trace("dependentMap: "
-          + this.dependentMap.entrySet().stream().filter(map -> map.getValue().size() > 0).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())));
-      LOG.trace("dependentByLabelMap: " + this.dependentByLabelMap.entrySet().stream().filter(map -> map.getValue().size() > 0)
-          .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())));
     }
   }
 
   public void removeDependency(DependencyArc arc) {
     if (this.dependencies.contains(arc)) {
       this.dependencies.remove(arc);
-      this.governingDependencyMap.remove(arc.getDependent());
-      Set<PosTaggedToken> halfDependents;
-      if (arc.getDependent().getIndex() < arc.getHead().getIndex())
-        halfDependents = leftDependentMap.get(arc.getHead());
-      else
-        halfDependents = rightDependentMap.get(arc.getHead());
-      halfDependents.remove(arc.getDependent());
-      dependentMap.get(arc.getHead()).remove(arc.getDependent());
-
-      Map<String, NavigableSet<PosTaggedToken>> labelMap = this.dependentByLabelMap.get(arc.getHead());
-      NavigableSet<PosTaggedToken> depsBylabel = labelMap.get(arc.getLabel());
-      depsBylabel.remove(arc.getDependent());
+      this.governingDependencyMap[arc.getDependent().getIndex()] = null;
+      this.governorMap[arc.getDependent().getIndex()] = -1;
+      this.labelMap[arc.getDependent().getIndex()] = null;
     }
   }
 
@@ -576,12 +546,6 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   public DependencyArc addManualNonProjectiveDependency(PosTaggedToken head, PosTaggedToken dependent, String label) throws CircularDependencyException {
     if (!this.hasNonProjDependencies) {
       this.hasNonProjDependencies = true;
-      for (PosTaggedToken token : this.posTagSequence) {
-        this.dependentNonProjMap.put(token, new TreeSet<>());
-        this.leftDependentNonProjMap.put(token, new TreeSet<>());
-        this.rightDependentNonProjMap.put(token, new TreeSet<>());
-        this.dependentByLabelNonProjMap.put(token, new TreeMap<>());
-      }
     }
 
     DependencyArc arc = new DependencyArc(head, dependent, label);
@@ -595,22 +559,9 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
 
     this.dependenciesNonProj.add(arc);
 
-    this.governingDependencyNonProjMap.put(arc.getDependent(), arc);
-    Set<PosTaggedToken> halfDependents;
-    if (arc.getDependent().getIndex() < arc.getHead().getIndex())
-      halfDependents = leftDependentNonProjMap.get(arc.getHead());
-    else
-      halfDependents = rightDependentNonProjMap.get(arc.getHead());
-    halfDependents.add(arc.getDependent());
-    dependentNonProjMap.get(arc.getHead()).add(arc.getDependent());
-
-    Map<String, NavigableSet<PosTaggedToken>> labelMap = this.dependentByLabelNonProjMap.get(arc.getHead());
-    NavigableSet<PosTaggedToken> depsBylabel = labelMap.get(arc.getLabel());
-    if (depsBylabel == null) {
-      depsBylabel = new TreeSet<>();
-      labelMap.put(arc.getLabel(), depsBylabel);
-    }
-    depsBylabel.add(arc.getDependent());
+    this.governingDependencyNonProjMap[arc.getDependent().getIndex()] = arc;
+    this.governorNonProjMap[arc.getDependent().getIndex()] = arc.getHead().getIndex();
+    this.labelNonProjMap[arc.getDependent().getIndex()] = arc.getLabel();
 
     return arc;
   }
@@ -618,18 +569,9 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   public void removeNonProjectiveDependency(DependencyArc arc) {
     if (this.dependenciesNonProj.contains(arc)) {
       this.dependenciesNonProj.remove(arc);
-      this.governingDependencyNonProjMap.remove(arc.getDependent());
-      Set<PosTaggedToken> halfDependents;
-      if (arc.getDependent().getIndex() < arc.getHead().getIndex())
-        halfDependents = leftDependentNonProjMap.get(arc.getHead());
-      else
-        halfDependents = rightDependentNonProjMap.get(arc.getHead());
-      halfDependents.remove(arc.getDependent());
-      dependentMap.get(arc.getHead()).remove(arc.getDependent());
-
-      Map<String, NavigableSet<PosTaggedToken>> labelMap = this.dependentByLabelNonProjMap.get(arc.getHead());
-      NavigableSet<PosTaggedToken> depsBylabel = labelMap.get(arc.getLabel());
-      depsBylabel.remove(arc.getDependent());
+      this.governingDependencyNonProjMap[arc.getDependent().getIndex()] = null;
+      this.governorMap[arc.getDependent().getIndex()] = -1;
+      this.labelNonProjMap[arc.getDependent().getIndex()] = null;
     }
   }
 
@@ -663,10 +605,6 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
     }
     sb.append("]");
     return sb.toString();
-  }
-
-  Map<PosTaggedToken, Transition> getDependentTransitionMap() {
-    return dependentTransitionMap;
   }
 
   /**

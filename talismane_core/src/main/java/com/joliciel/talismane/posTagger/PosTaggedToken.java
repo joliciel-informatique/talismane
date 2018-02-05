@@ -48,7 +48,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedTokenWrapper, HasFeatureCache, PosTaggerContext {
+public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedTokenWrapper, HasFeatureCache {
   private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
   private List<LexicalEntry> lexicalEntries = null;
@@ -56,7 +56,6 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
   private String lemma = null;
   private String comment = "";
   private String morphologyForCoNLL = null;
-  private PosTagSequence posTagSequence;
 
   private TalismaneSession session;
 
@@ -188,22 +187,6 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
    */
   public int getIndex() {
     return this.getToken().getIndex();
-  }
-
-  /**
-   * The sequence containing this pos-tagged token.
-   */
-  public PosTagSequence getPosTagSequence() {
-    return posTagSequence;
-  }
-
-  public void setPosTagSequence(PosTagSequence posTagSequence) {
-    this.posTagSequence = posTagSequence;
-  }
-
-  @Override
-  public PosTagSequence getHistory() {
-    return this.posTagSequence;
   }
 
   public TalismaneSession getTalismaneSession() {
