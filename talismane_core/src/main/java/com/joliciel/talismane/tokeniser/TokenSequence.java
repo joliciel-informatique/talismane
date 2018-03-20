@@ -53,6 +53,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
   private Integer atomicTokenCount = null;
   private boolean withRoot = false;
   private final Map<Integer, Annotation<TokenPlaceholder>> placeholderMap;
+  private boolean defaultTokensFound = false;
 
   @SuppressWarnings("rawtypes")
   private final Map<String, NavigableSet<Annotation<TokenAttribute>>> attributeOrderingMap;
@@ -131,40 +132,44 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
    * {@link TokenPlaceholder} annotations have been added.
    */
   public void findDefaultTokens() {
-    CharSequence text = sentence.getText();
-    Pattern separatorPattern = Tokeniser.getTokenSeparators(session);
-    Matcher matcher = separatorPattern.matcher(text);
-    Set<Integer> separatorMatches = new HashSet<Integer>();
-    while (matcher.find())
-      separatorMatches.add(matcher.start());
+    if (!defaultTokensFound) {
+      CharSequence text = sentence.getText();
+      Pattern separatorPattern = Tokeniser.getTokenSeparators(session);
+      Matcher matcher = separatorPattern.matcher(text);
+      Set<Integer> separatorMatches = new HashSet<Integer>();
+      while (matcher.find())
+        separatorMatches.add(matcher.start());
 
-    int currentPos = 0;
-    for (int i = 0; i < text.length(); i++) {
-      if (placeholderMap.containsKey(i)) {
-        if (i > currentPos)
-          this.addToken(currentPos, i);
-        Annotation<TokenPlaceholder> placeholder = placeholderMap.get(i);
-        Token token = this.addToken(placeholder.getStart(), placeholder.getEnd());
-        if (placeholder.getData().getReplacement() != null)
-          token.setText(placeholder.getData().getReplacement());
+      int currentPos = 0;
+      for (int i = 0; i < text.length(); i++) {
+        if (placeholderMap.containsKey(i)) {
+          if (i > currentPos)
+            this.addToken(currentPos, i);
+          Annotation<TokenPlaceholder> placeholder = placeholderMap.get(i);
+          Token token = this.addToken(placeholder.getStart(), placeholder.getEnd());
+          if (placeholder.getData().getReplacement() != null)
+            token.setText(placeholder.getData().getReplacement());
 
-        if (separatorPattern.matcher(token.getText()).matches())
-          token.setSeparator(true);
+          if (separatorPattern.matcher(token.getText()).matches())
+            token.setSeparator(true);
 
-        // skip until after the placeholder
-        i = placeholder.getEnd() - 1;
-        currentPos = placeholder.getEnd();
-      } else if (separatorMatches.contains(i)) {
-        if (i > currentPos)
-          this.addToken(currentPos, i);
-        Token separator = this.addToken(i, i + 1);
-        separator.setSeparator(true);
-        currentPos = i + 1;
+          // skip until after the placeholder
+          i = placeholder.getEnd() - 1;
+          currentPos = placeholder.getEnd();
+        } else if (separatorMatches.contains(i)) {
+          if (i > currentPos)
+            this.addToken(currentPos, i);
+          Token separator = this.addToken(i, i + 1);
+          separator.setSeparator(true);
+          currentPos = i + 1;
+        }
       }
-    }
 
-    if (currentPos < text.length())
-      this.addToken(currentPos, text.length());
+      if (currentPos < text.length())
+        this.addToken(currentPos, text.length());
+
+      this.defaultTokensFound = true;
+    }
   }
 
   /**
