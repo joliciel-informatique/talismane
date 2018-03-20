@@ -52,8 +52,10 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureParser;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
@@ -191,9 +193,14 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
     Set<Integer> guessedBoundaries = new TreeSet<>(
         sentenceBreakMarkers.stream().filter(f -> f.getEnd() >= text.getAnalysisStart()).map(f -> f.getEnd()).collect(Collectors.toList()));
 
+    // Share one token sequence for all possible boundaries, to avoid tokenising
+    // multiple times
+    Sentence sentence = new Sentence(text.getText(), session);
+    TokenSequence tokenSequence = new TokenSequence(sentence, session);
+
     List<PossibleSentenceBoundary> boundaries = new ArrayList<>();
     for (int possibleBoundary : possibleBoundaries) {
-      PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(text.getText(), possibleBoundary, session);
+      PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(tokenSequence, possibleBoundary);
       if (LOG.isTraceEnabled()) {
         LOG.trace("Testing boundary: " + boundary);
         LOG.trace(" at position: " + possibleBoundary);
