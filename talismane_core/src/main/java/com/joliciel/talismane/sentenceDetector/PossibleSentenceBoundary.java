@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.util.List;
+
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
@@ -28,15 +30,31 @@ public class PossibleSentenceBoundary {
   private static final int NUM_CHARS = 30;
   private final CharSequence text;
   private final int index;
-  private TokenSequence tokenSequence;
+  private final TokenSequence tokenSequence;
   private String string;
   private int tokenIndex = -1;
 
-  private final TalismaneSession talismaneSession;
+  /**
+   * Build a possible sentence boundary from a token sequence, thus enabling us
+   * to re-use the same token sequence for multiple possible sentence
+   * boundaries.
+   */
+  public PossibleSentenceBoundary(TokenSequence tokenSequence, int index) {
+    this.tokenSequence = tokenSequence;
+    this.tokenSequence.findDefaultTokens();
+    this.text = tokenSequence.getSentence().getText();
+    this.index = index;
+  }
 
-  public PossibleSentenceBoundary(CharSequence text, int index, TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  /**
+   * Build a possible sentence boundary for a given text, which means token
+   * sequences will be re-generated for each possible sentence boundary.
+   */
+  public PossibleSentenceBoundary(CharSequence text, int index, TalismaneSession session) {
     this.text = text;
+    Sentence sentence = new Sentence(text.toString(), session);
+    this.tokenSequence = new TokenSequence(sentence, session);
+    this.tokenSequence.findDefaultTokens();
     this.index = index;
   }
 
@@ -60,11 +78,6 @@ public class PossibleSentenceBoundary {
    * A token sequence representing the text.
    */
   public TokenSequence getTokenSequence() {
-    if (tokenSequence == null) {
-      Sentence sentence = new Sentence(text.toString(), talismaneSession);
-      tokenSequence = new TokenSequence(sentence, talismaneSession);
-      tokenSequence.findDefaultTokens();
-    }
     return tokenSequence;
   }
 
@@ -80,10 +93,27 @@ public class PossibleSentenceBoundary {
    */
   public int getTokenIndexWithWhitespace() {
     if (tokenIndex < 0) {
-      for (Token token : this.getTokenSequence().listWithWhiteSpace()) {
-        if (token.getStartIndex() >= index) {
+      // perform binary search to find token index quickly
+      List<Token> tokens = this.getTokenSequence().listWithWhiteSpace();
+      int current = tokens.size() / 2;
+      int step = current;
+      while (tokenIndex < 0) {
+        Token token = tokens.get(current);
+        if (token.getStartIndex() <= index && index < token.getEndIndex()) {
           tokenIndex = token.getIndexWithWhiteSpace();
           break;
+        }
+        step = step / 2;
+        if (step < 1)
+          step = 1;
+
+        if (token.getStartIndex() <= index) {
+          current += step;
+        } else if (token.getStartIndex() > index) {
+          current -= step;
+        }
+        if (current < 0 || current >= tokens.size()) {
+          throw new RuntimeException("Binary search failed. Current = " + current + ", Size = " + tokens.size());
         }
       }
     }
