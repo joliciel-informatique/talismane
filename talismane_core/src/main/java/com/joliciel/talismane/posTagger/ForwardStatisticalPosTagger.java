@@ -379,7 +379,9 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
     List<PosTagSequence> sequences = new ArrayList<PosTagSequence>();
     int i = 0;
     while (!finalHeap.isEmpty()) {
-      sequences.add(finalHeap.poll());
+      // clone the pos tag sequences to ensure they don't share any underlying
+      // data (e.g. token sequences)
+      sequences.add(finalHeap.poll().clonePosTagSequence());
       i++;
       if (i >= this.getBeamWidth())
         break;
