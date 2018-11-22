@@ -1,0 +1,8 @@
+Word	^([^\t]+)\t[^\t]+\t[^\t]+\t[^\t]*$
+Lemma	^[^\t]+\t([^\t]+)\t[^\t]+\t[^\t]*$
+Category	^[^\t]+\t[^\t]+\t([^\t]+)\t[^\t]*$
+SubCategory	\bs=([a-z]+)\b
+Gender	\bg=([mf])\b
+Number	\bn=([ps])\b
+Person	\bp=([123])\b
+PossessorNumber	\bposs=([ps])\b

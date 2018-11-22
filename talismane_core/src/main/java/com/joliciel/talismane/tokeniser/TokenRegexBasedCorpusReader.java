@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 
   private boolean needsToReturnBlankLine = false;
   private final List<TokenFilter> filters;
+  private final List<Pattern> skipLinePatterns;
 
   /**
    * Add attributes as specified in the config to the corpus reader. Recognises
@@ -137,6 +139,12 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
       TokenFilter filter = TokenFilter.loadFilter(descriptor, session);
       this.filters.add(filter);
     }
+
+    List<String> skipLineRegexes = config.getStringList("skip-line-patterns");
+    skipLinePatterns = new ArrayList<>();
+    for (String skipLineRegex : skipLineRegexes) {
+      skipLinePatterns.add(Pattern.compile(skipLineRegex));
+    }
   }
 
   protected CorpusElement[] getRequiredElements() {
@@ -152,11 +160,19 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
         List<CorpusLine> dataLines = new ArrayList<>();
         if (!this.hasNextLine())
           break;
-        while ((this.hasNextLine() || dataLines.size() > 0) && tokenSequence == null) {
+
+        lineReadLoop: while ((this.hasNextLine() || dataLines.size() > 0) && tokenSequence == null) {
           String line = "";
           if (this.hasNextLine())
             line = this.nextLine().replace("\r", "");
           lineNumber++;
+
+          for (Pattern skipLinePattern : skipLinePatterns) {
+            if (skipLinePattern.matcher(line).matches()) {
+              continue lineReadLoop;
+            }
+          }
+
           if (line.length() > 0) {
             CorpusLine dataLine = corpusLineReader.read(line, lineNumber);
 

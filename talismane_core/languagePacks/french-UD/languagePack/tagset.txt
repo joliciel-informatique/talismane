@@ -1,0 +1,21 @@
+French UD
+fr
+ADJ	adjective	OPEN
+ADP	adposition	CLOSED
+ADP+DET	adposition+determinant	CLOSED
+ADP+PRON	adposition+pronoun	CLOSED
+ADV	adverb	OPEN
+AUX	auxiliary	CLOSED
+CCONJ	coordinating conjunction	CLOSED
+DET	determiner	CLOSED
+INTJ	interjection	OPEN
+NOUN	noun	OPEN
+NUM	numeral	CLOSED
+PART	particle	CLOSED
+PRON	pronoun	CLOSED
+PROPN	proper noun	OPEN
+PUNCT	punctuation	CLOSED
+SCONJ	subordinating conjunction	CLOSED
+SYM	symbol	OPEN
+VERB	verb	OPEN
+X	other	OPEN

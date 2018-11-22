@@ -1,0 +1,470 @@
+# Lefff 3.2 to Talismane tagset mapping
+Category	Morphology
+adj	f	ADJ
+adj	fp	ADJ
+adj	fs	ADJ
+adj	m	ADJ
+adj	mp	ADJ
+adj	ms	ADJ
+adj		ADJ
+adj		ADJ
+adj	p	ADJ
+adj	s	ADJ
+adj	Kfs	ADJ
+adj	Kfp	ADJ
+adj	Kms	ADJ
+adj	Kmp	ADJ
+adj	K	ADJ
+adj	Km	ADJ
+adjPref		ADV
+adv		ADV
+adv	e	ADV
+advm		ADV
+advp		ADV
+advPref		ADV
+advneg		ADV
+advwh		ADV
+auxAvoir	C12s	AUX
+auxAvoir	C1p	AUX
+auxAvoir	C2p	AUX
+auxAvoir	C3p	AUX
+auxAvoir	C3s	AUX
+auxAvoir	F1p	AUX
+auxAvoir	F1s	AUX
+auxAvoir	F2p	AUX
+auxAvoir	F2s	AUX
+auxAvoir	F3p	AUX
+auxAvoir	F3s	AUX
+auxAvoir	G	AUX
+auxAvoir	I12s	AUX
+auxAvoir	I1p	AUX
+auxAvoir	I2p	AUX
+auxAvoir	I3p	AUX
+auxAvoir	I3s	AUX
+auxAvoir	J12s	AUX
+auxAvoir	J1p	AUX
+auxAvoir	J2p	AUX
+auxAvoir	J3p	AUX
+auxAvoir	J3s	AUX
+auxAvoir	Kfp	AUX
+auxAvoir	Kfs	AUX
+auxAvoir	Kmp	AUX
+auxAvoir	Kms	AUX
+auxAvoir		AUX
+auxAvoir	P1p	AUX
+auxAvoir	P1s	AUX
+auxAvoir	P2p	AUX
+auxAvoir	P2s	AUX
+auxAvoir	P3p	AUX
+auxAvoir	P3s	AUX
+auxAvoir	PFIJTSC	AUX
+auxAvoir	PFIJTSC	AUX
+auxAvoir	PFIJTSC	AUX
+auxAvoir	PFIJTSC	AUX
+auxAvoir	PFIJTSC	AUX
+auxAvoir	PFIJTSC	AUX
+auxAvoir	PFIJTSC	AUX
+auxAvoir	PFIJTSC	AUX
+auxAvoir	S1p	AUX
+auxAvoir	S1s	AUX
+auxAvoir	S2p	AUX
+auxAvoir	S2s	AUX
+auxAvoir	S3p	AUX
+auxAvoir	S3s	AUX
+auxAvoir	T1p	AUX
+auxAvoir	T1s	AUX
+auxAvoir	T2p	AUX
+auxAvoir	T2s	AUX
+auxAvoir	T3p	AUX
+auxAvoir	T3s	AUX
+auxAvoir	W	AUX
+auxAvoir	Y1p	AUX
+auxAvoir	Y2p	AUX
+auxAvoir	Y2s	AUX
+auxEtre	C12s	AUX
+auxEtre	C1p	AUX
+auxEtre	C2p	AUX
+auxEtre	C3p	AUX
+auxEtre	C3s	AUX
+auxEtre	F1p	AUX
+auxEtre	F1s	AUX
+auxEtre	F2p	AUX
+auxEtre	F2s	AUX
+auxEtre	F3p	AUX
+auxEtre	F3s	AUX
+auxEtre	G	AUX
+auxEtre	I12s	AUX
+auxEtre	I1p	AUX
+auxEtre	I2p	AUX
+auxEtre	I3p	AUX
+auxEtre	I3s	AUX
+auxEtre	J12s	AUX
+auxEtre	J1p	AUX
+auxEtre	J2p	AUX
+auxEtre	J3p	AUX
+auxEtre	J3s	AUX
+auxEtre	K	AUX
+auxEtre	K	AUX
+auxEtre		AUX
+auxEtre	P1p	AUX
+auxEtre	P1s	AUX
+auxEtre	P2p	AUX
+auxEtre	P2s	AUX
+auxEtre	P3p	AUX
+auxEtre	P3s	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	PFIJTSC	AUX
+auxEtre	S1p	AUX
+auxEtre	S1s	AUX
+auxEtre	S2p	AUX
+auxEtre	S2s	AUX
+auxEtre	S3p	AUX
+auxEtre	S3s	AUX
+auxEtre	T1p	AUX
+auxEtre	T1s	AUX
+auxEtre	T2p	AUX
+auxEtre	T2s	AUX
+auxEtre	T3p	AUX
+auxEtre	T3s	AUX
+auxEtre	W	AUX
+auxEtre	Y1p	AUX
+auxEtre	Y2p	AUX
+auxEtre	Y2s	AUX
+cla	1p	PRON
+cla	1s	PRON
+cla	2p	PRON
+cla	2s	PRON
+cla	3fs	PRON
+cla	3ms	PRON
+cla	3p	PRON
+cla	3s	PRON
+cla		PRON
+clar	3p	PRON
+clar	3s	PRON
+cld	1p	PRON
+cld	1s	PRON
+cld	2p	PRON
+cld	2s	PRON
+cld	3p	PRON
+cld	3s	PRON
+cld		PRON
+cld		PRON
+cldr	3p	PRON
+cldr	3s	PRON
+clg		PRON
+clg		PRON
+cll		PRON
+cll		PRON
+cln	1p	PRON
+cln	1s	PRON
+cln	2p	PRON
+cln	2s	PRON
+cln	3fp	PRON
+cln	3fs	PRON
+cln	3mp	PRON
+cln	3ms	PRON
+cln	3s	PRON
+cln		PRON
+cln		PRON
+cln	s	PRON
+clneg		ADV
+clr	1p	PRON
+clr	1s	PRON
+clr	2p	PRON
+clr	2s	PRON
+clr	3p	PRON
+clr	3s	PRON
+clr		PRON
+clr		PRON
+coo		CCONJ
+csu		SCONJ
+det	fp	DET
+det	fs	DET
+det	fs_P1s	DET
+det	fs_P2s	DET
+det	fs_P3s	DET
+det	mp	DET
+det	ms	DET
+det		DET
+det		DET
+det	p	DET
+det	p_P1p	DET
+det	p_P1s	DET
+det	p_P2p	DET
+det	p_P2s	DET
+det	p_P3p	DET
+det	p_P3s	DET
+det	s	DET
+det	s_P1p	DET
+det	s_P1s	DET
+det	s_P2p	DET
+det	s_P2s	DET
+det	s_P3p	DET
+det	s_P3s	DET
+detwh	fp	DET
+detwh	fs	DET
+detwh	mp	DET
+detwh	ms	DET
+detwh	p	DET
+epsilon		PUNCT
+etr		X
+nc	f	NOUN
+nc	f	NOUN
+nc	fp	NOUN
+nc	fs	NOUN
+nc	m	NOUN
+nc	m	NOUN
+nc	mp	NOUN
+nc	ms	NOUN
+nc		NOUN
+nc		NOUN
+nc	p	NOUN
+nc	s	NOUN
+ncpred		NOUN
+np	fp	PROPN
+np	fs	PROPN
+np	mp	PROPN
+np	ms	PROPN
+np		PROPN
+np	s	PROPN
+pdem	fp	PRON
+pdem	fs	PRON
+pdem	mp	PRON
+pdem	ms	PRON
+pdem		PRON
+pdem		PRON
+pneg	fp	PRON
+pneg	fs	PRON
+pneg	mp	PRON
+pneg	ms	PRON
+pneg	s	PRON
+poncts		PUNCT
+ponctw		PUNCT
+ppers	1p	PRON
+ppers	1s	PRON
+ppers	2p	PRON
+ppers	2s	PRON
+ppers	3fp	PRON
+ppers	3fs	PRON
+ppers	3mp	PRON
+ppers	3ms	PRON
+ppers	s	PRON
+prel	fp	PRON
+prel	fs	PRON
+prel	mp	PRON
+prel	ms	PRON
+prel		PRON
+prel		PRON
+prep		ADP
+pres		INTJ
+pri	fp	PRON
+pri	fs	PRON
+pri	mp	PRON
+pri	ms	PRON
+pri		PRON
+pro	3	PRON
+pro	3	PRON
+pro	3	PRON
+pro	3fp	PRON
+pro	3fs	PRON
+pro	3fs	PRON
+pro	3m	PRON
+pro	3m	PRON
+pro	3m	PRON
+pro	3mp	PRON
+pro	3mp	PRON
+pro	3ms	PRON
+pro	3ms	PRON
+pro	3s	PRON
+pro	3s	PRON
+pro	f	PRON
+pro	f	PRON
+pro	f	PRON
+pro	fp	PRON
+pro	fp	PRON
+pro	fp_P1p	PRON
+pro	fp_P1p	PRON
+pro	fp_P1s	PRON
+pro	fp_P1s	PRON
+pro	fp_P2p	PRON
+pro	fp_P2p	PRON
+pro	fp_P2s	PRON
+pro	fp_P2s	PRON
+pro	fp_P3p	PRON
+pro	fp_P3p	PRON
+pro	fp_P3s	PRON
+pro	fp_P3s	PRON
+pro	fs	PRON
+pro	fs	PRON
+pro	fs_P1p	PRON
+pro	fs_P1p	PRON
+pro	fs_P1s	PRON
+pro	fs_P1s	PRON
+pro	fs_P2p	PRON
+pro	fs_P2p	PRON
+pro	fs_P2s	PRON
+pro	fs_P2s	PRON
+pro	fs_P3p	PRON
+pro	fs_P3p	PRON
+pro	fs_P3s	PRON
+pro	fs_P3s	PRON
+pro	m	PRON
+pro	m	PRON
+pro	m	PRON
+pro	mp	PRON
+pro	mp	PRON
+pro	mp_P1p	PRON
+pro	mp_P1p	PRON
+pro	mp_P1s	PRON
+pro	mp_P1s	PRON
+pro	mp_P2p	PRON
+pro	mp_P2p	PRON
+pro	mp_P2s	PRON
+pro	mp_P2s	PRON
+pro	mp_P3p	PRON
+pro	mp_P3p	PRON
+pro	mp_P3s	PRON
+pro	mp_P3s	PRON
+pro	ms	PRON
+pro	ms	PRON
+pro	ms_P1p	PRON
+pro	ms_P1p	PRON
+pro	ms_P1s	PRON
+pro	ms_P1s	PRON
+pro	ms_P2p	PRON
+pro	ms_P2p	PRON
+pro	ms_P2s	PRON
+pro	ms_P2s	PRON
+pro	ms_P3p	PRON
+pro	ms_P3p	PRON
+pro	ms_P3s	PRON
+pro	ms_P3s	PRON
+pro		PRON
+pro		PRON
+pro		PRON
+pro	p	PRON
+pro	p	PRON
+pro	s	PRON
+pro	s	PRON
+prowh	fp	PRON
+prowh	fs	PRON
+prowh	mp	PRON
+prowh	ms	PRON
+sbound		X
+v	C12s	VERB
+v	C1p	VERB
+v	C1s	VERB
+v	C2p	VERB
+v	C3p	VERB
+v	C3s	VERB
+v	F1p	VERB
+v	F1s	VERB
+v	F2p	VERB
+v	F2s	VERB
+v	F3p	VERB
+v	F3s	VERB
+v	fp	NOUN
+v	fs	NOUN
+v	G	VERB
+v	I12s	VERB
+v	I1p	VERB
+v	I1s	VERB
+v	I2p	VERB
+v	I3p	VERB
+v	I3s	VERB
+v	J12s	VERB
+v	J1p	VERB
+v	J1s	VERB
+v	J2p	VERB
+v	J2s	VERB
+v	J3p	VERB
+v	J3s	VERB
+v	K	VERB
+v	K	VERB
+v	Kfp	VERB
+v	Kfs	VERB
+v	Km	VERB
+v	Km	VERB
+v	Kmp	VERB
+v	Kms	VERB
+v	K	ADJ
+v	K	ADJ
+v	Kfp	ADJ
+v	Kfs	ADJ
+v	Km	ADJ
+v	Km	ADJ
+v	Kmp	ADJ
+v	Kms	ADJ
+v	mp	NOUN
+v	ms	NOUN
+v		VERB
+v	P12s	VERB
+v	P1p	VERB
+v	P1s	VERB
+v	P2p	VERB
+v	P2s	VERB
+v	P3p	VERB
+v	P3s	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PFIJTSC	VERB
+v	PJ12s	VERB
+v	PS13s	VERB
+v	PS13s	VERB
+v	PS2s	VERB
+v	PS2s	VERB
+v	PS3	VERB
+v	PS3	VERB
+v	PS3	VERB
+v	PS3	VERB
+v	PS3p	VERB
+v	PS3p	VERB
+v	PS3s	VERB
+v	PS3s	VERB
+v	S13s	VERB
+v	S1p	VERB
+v	S1s	VERB
+v	S2p	VERB
+v	S2s	VERB
+v	S3p	VERB
+v	S3s	VERB
+v	ST2s	VERB
+v	ST2s	VERB
+v	T1p	VERB
+v	T1s	VERB
+v	T2p	VERB
+v	T2s	VERB
+v	T3p	VERB
+v	T3s	VERB
+v	W	VERB
+v	Y	VERB
+v	Y1p	VERB
+v	Y2p	VERB
+v	Y2s	VERB

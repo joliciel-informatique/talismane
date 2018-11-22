@@ -65,6 +65,11 @@ public class Sentence extends AnnotatedText {
     this.newlines = newlines;
     this.file = file;
     this.session = session;
+
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Constructed sentence: |" + text + "|");
+      LOG.trace("Original text segments: " + originalTextSegments);
+    }
   }
 
   public Sentence(CharSequence text, File file, TalismaneSession session) {
