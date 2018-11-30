@@ -14,13 +14,19 @@
 !?!?	!	PUNCT	
 "	"	PUNCT	
 "	"	PUNCT	
+"	"	SYM	
+#	#	SYM	
 $	$	NOUN	g=m
+$	$	SYM	
 %	%	NOUN	g=m
+%	%	SYM	
 &	&	CCONJ	
 &	&	CCONJ	
+&	&	SYM	
 &amp;	&amp;	CCONJ	
 '	'	PUNCT	
 '	'	PUNCT	
+'	'	SYM	
 ''	''	PUNCT	
 's	's	PART	
 (	(	PUNCT	
@@ -31,12 +37,14 @@ $	$	NOUN	g=m
 )	)	PUNCT	
 *	*	PUNCT	
 *	*	PUNCT	
+*	*	SYM	
 +	+	ADP	
 +	+	ADP	
 +	+	ADV	
 +	+	CCONJ	
 +	+	PUNCT	
 +	+	PUNCT	
++	+	SYM	
 +/-	+/-	ADP	
 +/-	+/-	ADP	
 ,	,	PUNCT	
@@ -65,6 +73,7 @@ $	$	NOUN	g=m
 -nous	nous	PRON	p=1|n=p
 -nous	nous	PRON	p=1|n=p
 -on	on	PRON	p=3|n=s
+-onem	-onem	SYM	
 -t	t	PART	
 -t'	toi	PRON	p=2|n=s
 -t-	t	PART	
@@ -81,6 +90,7 @@ $	$	NOUN	g=m
 -vous	vous	PRON	p=2|n=p
 -vs	vous	PRON	p=2|n=p
 -vs	vous	PRON	p=2|n=p
+-x	-x	SYM	
 -y	y	PRON	
 -être	-être	AUX	t=W
 .	.	PUNCT	
@@ -99,8 +109,12 @@ $	$	NOUN	g=m
 /	/	PUNCT	
 :	:	PUNCT	
 :	:	PUNCT	
+:)	:)	SYM	
+:-)	:-)	SYM	
 ;	;	PUNCT	
 ;	;	PUNCT	
+;)	;)	SYM	
+;-)	;-)	SYM	
 <	<	ADP	
 <	<	ADP	
 <	<	PUNCT	
@@ -108,9 +122,11 @@ $	$	NOUN	g=m
 =	=	ADP	
 =	=	PUNCT	
 =	=	PUNCT	
+=	=	SYM	
 >	>	ADP	
 >	>	PUNCT	
 >	>	PUNCT	
+>	>	SYM	
 ?	?	PUNCT	
 ?	?	PUNCT	
 ?!	?	PUNCT	
@@ -118,6 +134,19 @@ $	$	NOUN	g=m
 ?!?!	?	PUNCT	
 @	@	ADP	
 @	@	PUNCT	
+Ar	Ar	SYM	
+C	C	SYM	
+CM	CM	SYM	
+CO₂	CO₂	SYM	
+H	H	SYM	
+He	He	SYM	
+Hg	Hg	SYM	
+H₂	H₂	SYM	
+H₂O	H₂O	SYM	
+H₂S	H₂S	SYM	
+M	M	SYM	
+N₂	N₂	SYM	
+O₂	O₂	SYM	
 [	[	PUNCT	
 [	[	PUNCT	
 [...]	...	PUNCT	
@@ -581,8 +610,8 @@ c-à-d	c'est à dire	CCONJ
 c-à-d.	c-à-d.	CCONJ	
 c.-à.-d.	c'est à dire	CCONJ	
 c/	contre	ADP	
-ca	ça	PRON	n=s
 ca	circa	ADP	
+ca	ça	PRON	n=s
 ca.	circa	ADP	
 car	car	CCONJ	
 car	car	CCONJ	
@@ -638,6 +667,8 @@ chez	chez	ADP
 ci	ci	PART	
 ci-devant	ci-devant	ADP	
 circa	circa	ADP	
+cm²	cm²	SYM	
+cm³	cm³	SYM	
 combien	combien	ADV	
 combien	combien	PRON	g=f|n=p
 combien	combien	PRON	g=f|n=s
@@ -1431,6 +1462,7 @@ lorsque	lorsque	SCONJ
 lui	lui	PRON	g=m|p=3|n=s
 lui	lui	PRON	p=3|n=s
 lui-même	lui-même	PRON	g=m|p=3|n=s
+m	m	SYM	
 m'	me	PRON	p=1|n=s
 m'	me	PRON	p=1|n=s
 ma	ma	DET	g=f|p=1|poss=s|n=s
@@ -1469,6 +1501,8 @@ moultes	moult	DET	g=f|n=p
 moults	moult	DET	g=m|n=p
 moyennant	moyennant	ADP	
 moyennant	moyennant	ADP	
+m²	m²	SYM	
+m³	m³	SYM	
 méga	méga	PART	
 même	même	CCONJ	
 même	même	CCONJ	
@@ -1522,6 +1556,7 @@ nulle	nul	DET	g=f|n=s
 nulle	nul	PRON	g=f|n=s
 nulles	nul	PRON	g=f|n=p
 nuls	nuls	PRON	g=m|n=p
+n°	n°	SYM	
 on	avoir	AUX	n=p|p=3|t=P
 on	on	PRON	p=3|n=s
 on ne sais quel	on ne sais quel	DET	g=m|n=s
@@ -2200,6 +2235,7 @@ vu	vu	ADP
 vu	vu	ADP	
 x	x	ADP	
 x	x	PUNCT	
+x	x	SYM	
 y	y	ADP	
 y	y	PRON	
 y compris	y compris	ADP	
@@ -2210,17 +2246,25 @@ y compris	y compris	ADP
 }	}	PUNCT	
 }	}	PUNCT	
 ¡	¡	PUNCT	
+¢	¢	SYM	
+£	£	SYM	
+¥	¥	SYM	
+¥	¥	SYM	
 §	§	PUNCT	
 «	«	PUNCT	
 ­	­	PUNCT	
 °	°	NOUN	g=m
+°	°	SYM	
 ±	±	ADP	
 ±	±	ADP	
+±	±	SYM	
 ¶	¶	PUNCT	
 ·	·	PUNCT	
 ·	·	PUNCT	
+º	º	SYM	
 »	»	PUNCT	
 ¿	¿	PUNCT	
+×	×	SYM	
 à	avoir	AUX	n=s|p=3|t=P
 à	à	ADP	
 à	à	ADP	
@@ -2492,7 +2536,9 @@ y compris	y compris	ADP
 été	être	AUX	n=p|g=m|t=K
 êtes	être	AUX	n=p|p=2|t=P
 être	être	AUX	t=W
+؋	؋	SYM	
 ،	,	PUNCT	
+฿	฿	SYM	
 ‐	-	PUNCT	
 ‒	-	PUNCT	
 –	-	PUNCT	
@@ -2505,13 +2551,25 @@ y compris	y compris	ADP
 “	"	PUNCT	
 ”	"	PUNCT	
 †	†	PUNCT	
+†	†	SYM	
 ‡	‡	PUNCT	
 •	•	PUNCT	
 …	...	PUNCT	
 ‰	‰	NOUN	g=m
 ″	"	PUNCT	
 ⁄	/	PUNCT	
+₡	₡	SYM	
+₨	₨	SYM	
+₪	₪	SYM	
+₫	₫	SYM	
+€	€	SYM	
+₱	₱	SYM	
+₴	₴	SYM	
+₼	₼	SYM	
+₽	₽	SYM	
 №	№	NOUN	g=m|n=s
+№	№	SYM	
+﷼	﷼	SYM	
 #### Nombres (mieux gérés par des expressions régulières) ####
 123	999	NUM	n=p|s=card
 1999	1999	NUM	n=p|s=card
