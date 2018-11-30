@@ -36,6 +36,7 @@ import com.joliciel.talismane.corpus.CorpusLine.CorpusElement;
 import com.joliciel.talismane.corpus.CorpusLineReader;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader;
 import com.typesafe.config.Config;
@@ -81,9 +82,9 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
   }
 
   @Override
-  protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException, IOException {
+  protected void processSentence(Sentence sentence, List<CorpusLine> corpusLines) throws TalismaneException, IOException {
     try {
-      super.processSentence(corpusLines);
+      super.processSentence(sentence, corpusLines);
       posTagSequence = new PosTagSequence(tokenSequence);
       int i = 0;
       for (CorpusLine corpusLine : corpusLines) {
@@ -147,7 +148,7 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 
     // set the lexical entry if we have one
     if (corpusLine.getLexicalEntry() != null) {
-      List<LexicalEntry> lexicalEntrySet = new ArrayList<LexicalEntry>(1);
+      List<LexicalEntry> lexicalEntrySet = new ArrayList<>(1);
       lexicalEntrySet.add(corpusLine.getLexicalEntry());
       posTaggedToken.setLexicalEntries(lexicalEntrySet);
     }

@@ -148,6 +148,10 @@ public class CorpusLine {
     return this.elements.containsKey(type);
   }
 
+  Map<CorpusElement, String> getElements() {
+    return elements;
+  }
+
   /**
    * Get the lexical entry extracted from this line's elements, including the
    * morphology.
@@ -184,6 +188,20 @@ public class CorpusLine {
   public int getIndex() {
     if (this.hasElement(CorpusElement.INDEX)) {
       return Integer.parseInt(this.getElement(CorpusElement.INDEX));
+    }
+    return -1;
+  }
+
+  public int getGovernorIndex() {
+    if (this.hasElement(CorpusElement.GOVERNOR)) {
+      return Integer.parseInt(this.getElement(CorpusElement.GOVERNOR));
+    }
+    return -1;
+  }
+
+  public int getNonProjGovernorIndex() {
+    if (this.hasElement(CorpusElement.NON_PROJ_GOVERNOR)) {
+      return Integer.parseInt(this.getElement(CorpusElement.NON_PROJ_GOVERNOR));
     }
     return -1;
   }
