@@ -10,15 +10,18 @@ aux:pass
 case
 cc
 ccomp
+compound
 conj
 cop
 csubj
 csubj:pass
 dep
 det
+discourse
 dislocated
 expl
 fixed
+flat
 flat:foreign
 flat:name
 goeswith
@@ -39,6 +42,7 @@ obl:mod
 orphan
 parataxis
 punct
+reparandum
 root
 vocative
 xcomp
