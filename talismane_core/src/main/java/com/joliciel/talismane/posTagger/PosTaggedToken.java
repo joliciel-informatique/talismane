@@ -48,8 +48,8 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedTokenWrapper, HasFeatureCache {
-  private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
+public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedTokenWrapper, HasFeatureCache {
+  private Map<String, FeatureResult<?>> featureResults = new HashMap<>();
 
   private List<LexicalEntry> lexicalEntries = null;
   private boolean lemmaFetched = false;
@@ -322,5 +322,12 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
       morphologyForCoNLL = sb.toString();
     }
     return morphologyForCoNLL;
+  }
+
+  /**
+   * Is this an artificial root pos-tagged token?
+   */
+  public boolean isRoot() {
+    return this.getTag().equals(PosTag.ROOT_POS_TAG);
   }
 }
