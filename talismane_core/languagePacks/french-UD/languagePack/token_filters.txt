@@ -39,13 +39,16 @@ RegexTokenAnnotator	\b(-on)(?!\-)\b	replacement=on	group=1
 RegexTokenAnnotator	\b(?!rendez)\w+(-vous)(?!\-)\b	replacement=vous	group=1
 RegexTokenAnnotator	\b(-m['’])(?!\-)\b	replacement=moi	group=1
 RegexTokenAnnotator	\b(-t['’])(?!\-)\b	replacement=toi	group=1
+RegexTokenAnnotator \b\w+(-\w+)*-(?!(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y|elle|elles|il|ils|on|vous|m|t))\w+\b
+RegexTokenAnnotator \b(\w+(-\w+)*)-(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y|elle|elles|il|ils|on|vous|m|t)\b	group=1
+
 
 ###################
 ### Apostrophes ###
 ###################
-RegexTokenAnnotator	\b(chefs?|mains?|ma[iî]tres?|hors)[ -]d['’]((oe|œ)uvres?)\b	caseSensitive=false
+RegexTokenAnnotator	\b(chefs?|mains?|ma[iî]tres?|hors)-d['’]((oe|œ)uvres?)\b	caseSensitive=false
 RegexTokenAnnotator	\bprud['’](homme|hommes|homal|homaux|homale|homales)\b	caseSensitive=false
-RegexTokenAnnotator	\b(trompes?)[ -]l['’](oe|œ)il\b	caseSensitive=false
+RegexTokenAnnotator	\b(trompes?)-l['’](oe|œ)il\b	caseSensitive=false
 RegexTokenAnnotator	\baujourd['’]hui\b	lemma=aujourd'hui	caseSensitive=false
 RegexTokenAnnotator	\brendez-vous\b	lemma=rendez-vous	caseSensitive=false
 RegexTokenAnnotator	\bc['’]	replacement=ce	lemma=ce	caseSensitive=false
