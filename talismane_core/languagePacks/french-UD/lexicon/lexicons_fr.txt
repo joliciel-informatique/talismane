@@ -1,0 +1,9 @@
+lexicons=TalismaneFrClosed,Lefff
+TalismaneFrClosed.file=TalismaneFrClosed.txt
+TalismaneFrClosed.regex=TalismaneFrClosed_regex.txt
+Lefff.file=../../french/lexicon/lefff-ext-3.2.txt.zip
+Lefff.regex=lefff-ext-3.2_regex.txt
+Lefff.exclusions=lefff-ext-3.2_exclusions.txt
+Lefff.categories=adj,adv,advneg,auxAvoir,auxEtre,nc,np,v
+Lefff.encoding=Cp1252
+Lefff.uniqueKey=Word,Lemma,Category,SubCategory,Morphology

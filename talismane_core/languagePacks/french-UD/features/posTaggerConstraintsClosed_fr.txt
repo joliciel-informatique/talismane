@@ -1,0 +1,15 @@
+###### CONSTRAINTS ######
+!ADP  Not(LexiconPosTag("ADP"))
+!AUX  Not(LexiconPosTag("AUX"))
+!CCONJ	Not(LexiconPosTag("CCONJ"))
+!DET  Not(LexiconPosTag("DET"))
+!PRON	Not(LexiconPosTag("PRON"))
+!PUNCT  Not(LexiconPosTag("PUNCT"))
+!SCONJ	Not(LexiconPosTag("SCONJ"))
+###### Token patterns ######
+PROPN	Word("EntitéNomméeURL")
+PROPN	Word("EntitéNomméeAdresseMail")
+PROPN	Word("EntitéNomméeTél")
+ADP	Word("i.e.")
+ADP	Word("e.g.")
+PUNCT	Regex("[\.\?\!]+")

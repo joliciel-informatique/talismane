@@ -35,6 +35,7 @@ import com.joliciel.talismane.corpus.CorpusLine.CorpusElement;
 import com.joliciel.talismane.corpus.CorpusLineReader;
 import com.joliciel.talismane.posTagger.PosTagRegexBasedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader;
 import com.typesafe.config.Config;
 
@@ -89,14 +90,14 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
   }
 
   @Override
-  protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException, IOException {
+  protected void processSentence(Sentence sentence, List<CorpusLine> corpusLines) throws TalismaneException, IOException {
     try {
-      super.processSentence(corpusLines);
+      super.processSentence(sentence, corpusLines);
       PosTaggedToken rootToken = posTagSequence.prependRoot();
       idTokenMap.put(0, rootToken);
 
       TransitionSystem transitionSystem = session.getTransitionSystem();
-      Set<DependencyArc> dependencies = new TreeSet<DependencyArc>();
+      Set<DependencyArc> dependencies = new TreeSet<>();
       for (CorpusLine dataLine : corpusLines) {
         int headIndex = 0;
         if (dataLine.hasElement(CorpusElement.GOVERNOR))
@@ -138,7 +139,7 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
       // Add manual non-projective dependencies,
       // if there are any
       if (this.getCorpusLineReader().hasPlaceholder(CorpusElement.NON_PROJ_GOVERNOR)) {
-        Set<DependencyArc> nonProjDeps = new TreeSet<DependencyArc>();
+        Set<DependencyArc> nonProjDeps = new TreeSet<>();
         if (LOG.isTraceEnabled())
           LOG.trace("Non projective dependencies: ");
 

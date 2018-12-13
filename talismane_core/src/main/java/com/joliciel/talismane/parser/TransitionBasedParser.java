@@ -160,7 +160,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
       LOG.debug("From: " + path);
       InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
       try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
-        List<String> ruleDescriptors = new ArrayListNoNulls<String>();
+        List<String> ruleDescriptors = new ArrayListNoNulls<>();
         while (scanner.hasNextLine()) {
           String ruleDescriptor = scanner.nextLine();
           if (ruleDescriptor.length() > 0) {
@@ -210,7 +210,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
   @Override
   public ParseConfiguration parseSentence(PosTagSequence posTagSequence) throws TalismaneException, IOException {
-    List<PosTagSequence> posTagSequences = new ArrayList<PosTagSequence>();
+    List<PosTagSequence> posTagSequences = new ArrayList<>();
     posTagSequences.add(posTagSequence);
     List<ParseConfiguration> parseConfigurations = this.parseSentence(posTagSequences);
     ParseConfiguration parseConfiguration = parseConfigurations.get(0);
@@ -233,9 +233,9 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
     TokenSequence tokenSequence = posTagSequences.get(0).getTokenSequence();
 
-    TreeMap<Integer, PriorityQueue<ParseConfiguration>> heaps = new TreeMap<Integer, PriorityQueue<ParseConfiguration>>();
+    TreeMap<Integer, PriorityQueue<ParseConfiguration>> heaps = new TreeMap<>();
 
-    PriorityQueue<ParseConfiguration> heap0 = new PriorityQueue<ParseConfiguration>();
+    PriorityQueue<ParseConfiguration> heap0 = new PriorityQueue<>();
     for (PosTagSequence posTagSequence : posTagSequences) {
       // add an initial ParseConfiguration for each postag sequence
       ParseConfiguration initialConfiguration = new ParseConfiguration(posTagSequence);
@@ -249,7 +249,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
     PriorityQueue<ParseConfiguration> backupHeap = null;
 
     PriorityQueue<ParseConfiguration> finalHeap = null;
-    PriorityQueue<ParseConfiguration> terminalHeap = new PriorityQueue<ParseConfiguration>();
+    PriorityQueue<ParseConfiguration> terminalHeap = new PriorityQueue<>();
     while (heaps.size() > 0) {
       Entry<Integer, PriorityQueue<ParseConfiguration>> heapEntry = heaps.pollFirstEntry();
       PriorityQueue<ParseConfiguration> currentHeap = heapEntry.getValue();
@@ -262,7 +262,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
       // systematically set the final heap here, just in case we exit
       // "naturally" with no more heaps
       finalHeap = heapEntry.getValue();
-      backupHeap = new PriorityQueue<ParseConfiguration>();
+      backupHeap = new PriorityQueue<>();
 
       // we jump out when either (a) all tokens have been attached or
       // (b) we go over the max alloted time
@@ -312,7 +312,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
           LOG.trace(history.getPosTagSequence().toString());
         }
 
-        List<Decision> decisions = new ArrayList<Decision>();
+        List<Decision> decisions = new ArrayList<>();
 
         // test the positive rules on the current configuration
         boolean ruleApplied = false;
@@ -338,7 +338,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
         if (!ruleApplied) {
           // test the features on the current configuration
-          List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
+          List<FeatureResult<?>> parseFeatureResults = new ArrayList<>();
           for (ParseConfigurationFeature<?> feature : this.parseFeatures) {
             RuntimeEnvironment env = new RuntimeEnvironment();
             FeatureResult<?> featureResult = feature.check(history, env);
@@ -348,7 +348,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
           }
           if (LOG_FEATURES.isTraceEnabled()) {
             SortedSet<String> featureResultSet = parseFeatureResults.stream().map(f -> f.toString())
-                .collect(Collectors.toCollection(() -> new TreeSet<String>()));
+                .collect(Collectors.toCollection(() -> new TreeSet<>()));
             for (String featureResultString : featureResultSet) {
               LOG_FEATURES.trace(featureResultString);
             }
@@ -361,7 +361,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
             observer.onAnalyse(history, parseFeatureResults, decisions);
           }
 
-          List<Decision> decisionShortList = new ArrayList<Decision>(decisions.size());
+          List<Decision> decisionShortList = new ArrayList<>(decisions.size());
           for (Decision decision : decisions) {
             if (decision.getProbability() > MIN_PROB_TO_STORE)
               decisionShortList.add(decision);
@@ -369,7 +369,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
           decisions = decisionShortList;
 
           // apply the negative rules
-          Set<Transition> eliminatedTransitions = new HashSet<Transition>();
+          Set<String> eliminatedTransitions = new HashSet<>();
           if (parserNegativeRules != null) {
             for (ParserRule rule : parserNegativeRules) {
               if (LOG.isTraceEnabled()) {
@@ -378,16 +378,16 @@ public class TransitionBasedParser implements NonDeterministicParser {
               RuntimeEnvironment env = new RuntimeEnvironment();
               FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
               if (ruleResult != null && ruleResult.getOutcome()) {
-                eliminatedTransitions.addAll(rule.getTransitions());
-                if (LOG.isTraceEnabled()) {
-                  for (Transition eliminatedTransition : rule.getTransitions())
-                    LOG.trace("Rule applies. Eliminating transition: " + eliminatedTransition.getCode());
+                for (Transition transition : rule.getTransitions()) {
+                  eliminatedTransitions.add(transition.getCode());
+                  if (LOG.isTraceEnabled())
+                    LOG.trace("Rule applies. Eliminating transition: " + transition.getCode());
                 }
               }
             }
 
             if (eliminatedTransitions.size() > 0) {
-              decisionShortList = new ArrayList<Decision>();
+              decisionShortList = new ArrayList<>();
               for (Decision decision : decisions) {
                 if (!eliminatedTransitions.contains(decision.getOutcome())) {
                   decisionShortList.add(decision);
@@ -444,7 +444,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
               if (configuration.isTerminal())
                 nextHeap = terminalHeap;
               else
-                nextHeap = new PriorityQueue<ParseConfiguration>();
+                nextHeap = new PriorityQueue<>();
               heaps.put(nextHeapIndex, nextHeap);
               if (LOG.isTraceEnabled())
                 LOG.trace("Created heap with index: " + nextHeapIndex);
@@ -477,7 +477,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
     } // next atomic index
 
     // return the best sequences on the heap
-    List<ParseConfiguration> bestConfigurations = new ArrayList<ParseConfiguration>();
+    List<ParseConfiguration> bestConfigurations = new ArrayList<>();
     int i = 0;
 
     if (finalHeap.isEmpty())
@@ -555,8 +555,8 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
   private void setParserRules(List<ParserRule> parserRules) {
     this.parserRules = parserRules;
-    this.parserPositiveRules = new ArrayList<ParserRule>();
-    this.parserNegativeRules = new ArrayList<ParserRule>();
+    this.parserPositiveRules = new ArrayList<>();
+    this.parserNegativeRules = new ArrayList<>();
     for (ParserRule rule : parserRules) {
       if (rule.isNegative())
         parserNegativeRules.add(rule);

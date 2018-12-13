@@ -1,0 +1,22 @@
+Word	^\d+\t([^\t]+)\t
+Lemma	^\d+\t[^\t]+\t([^\t]+)\t
+Category	^\d+\t[^\t]+\t[^\t]+\t([^\t]+)\t
+Morphology	^\d+\t[^\t]+\t[^\t]+\t[^\t]+\t[^\t]+\t([^\t]*)\t
+Gender	\bg=([mf])\b
+Number	\bn=([ps])\b
+Person(stop=false)	\bp=(1)2?3?\b
+Person(stop=false)	\bp=1?(2)3?\b
+Person(stop=true)	\bp=1?2?(3)\b
+PossessorNumber	\bposs=([ps])\b
+Tense(stop=false)	\bt=[FIJTSCKGWY]*(P)[FIJTSCKGWY]*\b
+Tense(stop=false)	\bt=[PIJTSCKGWY]*(F)[PIJTSCKGWY]*\b
+Tense(stop=false)	\bt=[PFJTSCKGWY]*(I)[PFJTSCKGWY]*\b
+Tense(stop=false)	\bt=[PFITSCKGWY]*(J)[PFITSCKGWY]*\b
+Tense(stop=false)	\bt=[PFIJSCKGWY]*(T)[PFIJSCKGWY]*\b
+Tense(stop=false)	\bt=[PFIJTCKGWY]*(S)[PFIJTCKGWY]*\b
+Tense(stop=false)	\bt=[PFIJTSKGWY]*(C)[PFIJTSKGWY]*\b
+Tense(stop=false)	\bt=[PFIJTSCGWY]*(K)[PFIJTSCGWY]*\b
+Tense(stop=false)	\bt=[PFIJTSCKWY]*(G)[PFIJTSCKWY]*\b
+Tense(stop=false)	\bt=[PFIJTSCKGY]*(W)[PFIJTSCKGY]*\b
+Tense(stop=true)	\bt=[PFIJTSCKGW]*(Y)[PFIJTSCKGW]*\b
+

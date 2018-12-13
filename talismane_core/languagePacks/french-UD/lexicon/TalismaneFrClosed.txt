@@ -1,0 +1,2706 @@
+############################################################
+# Assaf Urieli, TalismaneFrClosed: lexicon for closed category forms in French.
+# Version 1.0
+# Available under the free licence LGPL-LR (Lesser General Public License For Linguistic Resources)
+# which should have been included with this distribution (LGPLLR.txt) and can be downloaded at 
+# http://infolingu.univ-mlv.fr/DonneesLinguistiques/Lexiques-Grammaires/lgpllr.html
+############################################################
+ 、	,	PUNCT	
+!	!	PUNCT	
+!	!	PUNCT	
+!!	!	PUNCT	
+!!!	!	PUNCT	
+!?	!	PUNCT	
+!?!?	!	PUNCT	
+"	"	PUNCT	
+"	"	PUNCT	
+"	"	SYM	
+#	#	SYM	
+$	$	NOUN	g=m
+$	$	SYM	
+%	%	NOUN	g=m
+%	%	SYM	
+&	&	CCONJ	
+&	&	CCONJ	
+&	&	SYM	
+&amp;	&amp;	CCONJ	
+'	'	PUNCT	
+'	'	PUNCT	
+'	'	SYM	
+''	''	PUNCT	
+'s	's	PART	
+(	(	PUNCT	
+(	(	PUNCT	
+(*)	(*)	PUNCT	
+(...)	...	PUNCT	
+)	)	PUNCT	
+)	)	PUNCT	
+*	*	PUNCT	
+*	*	PUNCT	
+*	*	SYM	
++	+	ADP	
++	+	ADP	
++	+	ADV	
++	+	CCONJ	
++	+	PUNCT	
++	+	PUNCT	
++	+	SYM	
++/-	+/-	ADP	
++/-	+/-	ADP	
+,	,	PUNCT	
+,	,	PUNCT	
+-	-	ADP	
+-	-	CCONJ	
+-	-	PUNCT	
+-	-	PUNCT	
+--	--	PUNCT	
+->	->	PUNCT	
+-ce	ce	PRON	
+-ci	ci	PART	
+-elle	elle	PRON	g=f|p=3|n=s
+-elles	elles	PRON	g=f|p=3|n=p
+-en	en	PRON	
+-il	il	PRON	g=m|p=3|n=s
+-ils	ils	PRON	g=m|p=3|n=p
+-je	je	PRON	p=1|n=s
+-la	la	PRON	g=f|p=3|n=s
+-le	le	PRON	g=m|p=3|n=s
+-les	les	PRON	p=3|n=p
+-leur	leur	PRON	p=3|n=p
+-lui	lui	PRON	p=3|n=s
+-m'	moi	PRON	p=1|n=s
+-moi	moi	PRON	p=1|n=s
+-nous	nous	PRON	p=1|n=p
+-nous	nous	PRON	p=1|n=p
+-on	on	PRON	p=3|n=s
+-onem	-onem	SYM	
+-t	t	PART	
+-t'	toi	PRON	p=2|n=s
+-t-	t	PART	
+-t-elle	elle	PRON	g=f|p=3|n=s
+-t-elles	elles	PRON	g=f|p=3|n=p
+-t-en	en	PRON	
+-t-il	-il	PRON	g=m|p=3|n=s
+-t-ils	ils	PRON	g=m|p=3|n=p
+-t-on	on	PRON	p=3|n=s
+-t-y	y	PRON	
+-toi	toi	PRON	p=2|n=s
+-tu	tu	PRON	p=2|n=s
+-vous	vous	PRON	p=2|n=p
+-vous	vous	PRON	p=2|n=p
+-vs	vous	PRON	p=2|n=p
+-vs	vous	PRON	p=2|n=p
+-x	-x	SYM	
+-y	y	PRON	
+-être	-être	AUX	t=W
+.	.	PUNCT	
+.	.	PUNCT	
+..	..	PUNCT	
+...	...	PUNCT	
+...	...	PUNCT	
+....	....	PUNCT	
+.....	.....	PUNCT	
+......	......	PUNCT	
+........	........	PUNCT	
+/	/	ADP	
+/	/	CCONJ	
+/	/	CCONJ	
+/	/	PUNCT	
+/	/	PUNCT	
+:	:	PUNCT	
+:	:	PUNCT	
+:)	:)	SYM	
+:-)	:-)	SYM	
+;	;	PUNCT	
+;	;	PUNCT	
+;)	;)	SYM	
+;-)	;-)	SYM	
+<	<	ADP	
+<	<	ADP	
+<	<	PUNCT	
+=	=	ADP	
+=	=	ADP	
+=	=	PUNCT	
+=	=	PUNCT	
+=	=	SYM	
+>	>	ADP	
+>	>	PUNCT	
+>	>	PUNCT	
+>	>	SYM	
+?	?	PUNCT	
+?	?	PUNCT	
+?!	?	PUNCT	
+?!?	?	PUNCT	
+?!?!	?	PUNCT	
+@	@	ADP	
+@	@	PUNCT	
+Ar	Ar	SYM	
+C	C	SYM	
+CM	CM	SYM	
+CO₂	CO₂	SYM	
+H	H	SYM	
+He	He	SYM	
+Hg	Hg	SYM	
+H₂	H₂	SYM	
+H₂O	H₂O	SYM	
+H₂S	H₂S	SYM	
+M	M	SYM	
+N₂	N₂	SYM	
+O₂	O₂	SYM	
+[	[	PUNCT	
+[	[	PUNCT	
+[...]	...	PUNCT	
+[…]	[…]	PUNCT	
+\	/	PUNCT	
+]	]	PUNCT	
+]	]	PUNCT	
+^	^	PUNCT	
+^	^	PUNCT	
+_	_	PUNCT	
+`	`	PUNCT	
+a	a	ADP	
+a	a	AUX	n=s|p=3|t=P
+abord	abord	ADP	
+about	about	ADP	
+ad	ad	ADP	
+afin	afin	ADP	
+afin	afin	ADP	
+afin	afin	SCONJ	
+afin	afin	SCONJ	
+afin d'	afin de	ADP	
+afin de	afin de	ADP	
+afin des	afin de	ADP+DET	n=p
+afin du	afin de	ADP+DET	g=m|n=s
+afin qu'	afin que	SCONJ	
+afin que	afin que	SCONJ	
+ai	avoir	AUX	n=s|p=1|t=P
+aie	avoir	AUX	n=s|p=1|t=P
+aient	avoir	AUX	n=p|p=3|t=I
+aime	aimer	AUX	n=s|p=3|t=P
+aiment	aimer	AUX	t=W
+aimeraient	aimer	AUX	n=p|p=3|t=C
+aimerais	aimer	AUX	n=s|p=12|t=C
+aimerions	aimer	AUX	n=p|p=1|t=C
+ainsi	ainsi	CCONJ	
+ainsi	ainsi	SCONJ	
+ainsi	ainsi	SCONJ	
+ainsi qu'	ainsi que	CCONJ	
+ainsi qu'	ainsi que	SCONJ	
+ainsi que	ainsi que	CCONJ	
+ainsi que	ainsi que	SCONJ	
+ait	avoir	AUX	n=s|p=3|t=I
+alias	alias	ADP	
+allaient	aller	AUX	n=p|p=3|t=I
+allait	aller	AUX	n=s|p=3|t=I
+aller	aller	AUX	t=W
+allons	aller	AUX	n=p|p=1|t=P
+alors	alors	ADP	
+alors	alors	SCONJ	
+alors	alors	SCONJ	
+alors même qu'	alors même que	SCONJ	
+alors même que	alors même que	SCONJ	
+alors qu'	alors que	SCONJ	
+alors que	alors que	SCONJ	
+and	and	CCONJ	
+ans	ans	CCONJ	
+anti-de	anti-de	ADP	
+apr.	après	ADP	
+apres	apres	ADP	
+après	après	ADP	
+après	après	ADP	
+après	après	SCONJ	
+après qu'	après que	SCONJ	
+après que	après que	SCONJ	
+as	avoir	AUX	n=s|p=2|t=P
+assez d'	assez de	DET	
+assez de	assez de	DET	
+at	at	ADP	
+attendu	attendu	ADP	
+attendu qu'	attendu que	SCONJ	
+attendu que	attendu que	SCONJ	
+au	au	ADP	
+au	à	ADP+DET	g=m|n=s
+au beau milieu d'	au beau milieu de	ADP	
+au beau milieu de	au beau milieu de	ADP	
+au beau milieu des	au beau milieu de	ADP+DET	n=p
+au beau milieu du	au beau milieu de	ADP+DET	g=m|n=s
+au bord d'	au bord de	ADP	
+au bord de	au bord de	ADP	
+au bord des	au bord de	ADP+DET	n=p
+au bord du	au bord de	ADP+DET	g=m|n=s
+au bout d'	au bout de	ADP	
+au bout de	au bout de	ADP	
+au bout des	au bout de	ADP+DET	n=p
+au bout du	au bout de	ADP+DET	g=m|n=s
+au bénéfice d'	au bénéfice de	ADP	
+au bénéfice de	au bénéfice de	ADP	
+au bénéfice des	au bénéfice de	ADP+DET	n=p
+au bénéfice du	au bénéfice de	ADP+DET	g=m|n=s
+au cas où	au cas où	SCONJ	
+au centre d'	au centre de	ADP	
+au centre de	au centre de	ADP	
+au centre des	au centre de	ADP+DET	n=p
+au centre du	au centre de	ADP+DET	g=m|n=s
+au coeur d'	au coeur de	ADP	
+au coeur de	au coeur de	ADP	
+au coeur des	au coeur de	ADP+DET	n=p
+au coeur du	au coeur de	ADP+DET	g=m|n=s
+au comble d'	au comble de	ADP	
+au comble de	au comble de	ADP	
+au comble des	au comble de	ADP+DET	n=p
+au comble du	au comble de	ADP+DET	g=m|n=s
+au cours d'	au cours de	ADP	
+au cours de	au cours de	ADP	
+au cours des	au cours de	ADP+DET	n=p
+au cours du	au cours de	ADP+DET	g=m|n=s
+au côté d'	au côté de	ADP	
+au côté de	au côté de	ADP	
+au côté des	au côté de	ADP+DET	n=p
+au côté du	au côté de	ADP+DET	g=m|n=s
+au dehors d'	au dehors de	ADP	
+au dehors de	au dehors de	ADP	
+au dehors des	au dehors de	ADP+DET	n=p
+au dehors du	au dehors de	ADP+DET	g=m|n=s
+au delà d'	au delà de	ADP	
+au delà de	au delà de	ADP	
+au delà des	au delà de	ADP+DET	n=p
+au delà du	au delà de	ADP+DET	g=m|n=s
+au dessous d'	au dessous de	ADP	
+au dessous de	au dessous de	ADP	
+au dessous des	au dessous de	ADP+DET	n=p
+au dessous du	au dessous de	ADP+DET	g=m|n=s
+au dessus d'	au dessus de	ADP	
+au dessus de	au dessus de	ADP	
+au dessus des	au dessus de	ADP+DET	n=p
+au dessus du	au dessus de	ADP+DET	g=m|n=s
+au devant d'	au devant de	ADP	
+au devant de	au devant de	ADP	
+au devant des	au devant de	ADP+DET	n=p
+au devant du	au devant de	ADP+DET	g=m|n=s
+au début d'	au début de	ADP	
+au début de	au début de	ADP	
+au début des	au début de	ADP+DET	n=p
+au début du	au début de	ADP+DET	g=m|n=s
+au détriment d'	au détriment de	ADP	
+au détriment de	au détriment de	ADP	
+au détriment des	au détriment de	ADP+DET	n=p
+au détriment du	au détriment de	ADP+DET	g=m|n=s
+au fil d'	au fil de	ADP	
+au fil de	au fil de	ADP	
+au fil des	au fil de	ADP+DET	n=p
+au fil du	au fil de	ADP+DET	g=m|n=s
+au fond d'	au fond de	ADP	
+au fond de	au fond de	ADP	
+au fond des	au fond de	ADP+DET	n=p
+au fond du	au fond de	ADP+DET	g=m|n=s
+au fur et à mesure d'	au fur et à mesure de	ADP	
+au fur et à mesure de	au fur et à mesure de	ADP	
+au fur et à mesure des	au fur et à mesure de	ADP+DET	n=p
+au fur et à mesure du	au fur et à mesure de	ADP+DET	g=m|n=s
+au fur et à mesure qu'	au fur et à mesure que	SCONJ	
+au fur et à mesure que	au fur et à mesure que	SCONJ	
+au grand dam d'	au grand dam de	ADP	
+au grand dam de	au grand dam de	ADP	
+au grand dam des	au grand dam de	ADP+DET	n=p
+au grand dam du	au grand dam de	ADP+DET	g=m|n=s
+au gré d'	au gré de	ADP	
+au gré de	au gré de	ADP	
+au gré des	au gré de	ADP+DET	n=p
+au gré du	au gré de	ADP+DET	g=m|n=s
+au large d'	au large de	ADP	
+au large de	au large de	ADP	
+au large des	au large de	ADP+DET	n=p
+au large du	au large de	ADP+DET	g=m|n=s
+au lendemain d'	au lendemain de	ADP	
+au lendemain de	au lendemain de	ADP	
+au lendemain des	au lendemain de	ADP+DET	n=p
+au lendemain du	au lendemain de	ADP+DET	g=m|n=s
+au lieu d'	au lieu de	ADP	
+au lieu de	au lieu de	ADP	
+au lieu des	au lieu de	ADP+DET	n=p
+au lieu du	au lieu de	ADP+DET	g=m|n=s
+au long d'	au long de	ADP	
+au long de	au long de	ADP	
+au long des	au long de	ADP+DET	n=p
+au long du	au long de	ADP+DET	g=m|n=s
+au milieu d'	au milieu de	ADP	
+au milieu de	au milieu de	ADP	
+au milieu des	au milieu de	ADP+DET	n=p
+au milieu du	au milieu de	ADP+DET	g=m|n=s
+au moment d'	au moment de	ADP	
+au moment de	au moment de	ADP	
+au moment des	au moment de	ADP+DET	n=p
+au moment du	au moment de	ADP+DET	g=m|n=s
+au moment où	au moment où	SCONJ	
+au moyen d'	au moyen de	ADP	
+au moyen de	au moyen de	ADP	
+au moyen des	au moyen de	ADP+DET	n=p
+au moyen du	au moyen de	ADP+DET	g=m|n=s
+au même titre qu'	au même titre que	CCONJ	
+au même titre qu'	au même titre que	SCONJ	
+au même titre que	au même titre que	CCONJ	
+au même titre que	au même titre que	SCONJ	
+au niveau d'	au niveau de	ADP	
+au niveau de	au niveau de	ADP	
+au niveau des	au niveau de	ADP+DET	n=p
+au niveau du	au niveau de	ADP+DET	g=m|n=s
+au nom d'	au nom de	ADP	
+au nom de	au nom de	ADP	
+au nom des	au nom de	ADP+DET	n=p
+au nom du	au nom de	ADP+DET	g=m|n=s
+au plus fort d'	au plus fort de	ADP	
+au plus fort de	au plus fort de	ADP	
+au plus fort des	au plus fort de	ADP+DET	n=p
+au plus fort du	au plus fort de	ADP+DET	g=m|n=s
+au point d'	au point de	ADP	
+au point de	au point de	ADP	
+au point des	au point de	ADP+DET	n=p
+au point du	au point de	ADP+DET	g=m|n=s
+au point qu'	au point que	SCONJ	
+au point que	au point que	SCONJ	
+au prix d'	au prix de	ADP	
+au prix de	au prix de	ADP	
+au prix des	au prix de	ADP+DET	n=p
+au prix du	au prix de	ADP+DET	g=m|n=s
+au profit d'	au profit de	ADP	
+au profit de	au profit de	ADP	
+au profit des	au profit de	ADP+DET	n=p
+au profit du	au profit de	ADP+DET	g=m|n=s
+au prorata d'	au prorata de	ADP	
+au prorata de	au prorata de	ADP	
+au prorata des	au prorata de	ADP+DET	n=p
+au prorata du	au prorata de	ADP+DET	g=m|n=s
+au ras d'	au ras de	ADP	
+au ras de	au ras de	ADP	
+au ras des	au ras de	ADP+DET	n=p
+au ras du	au ras de	ADP+DET	g=m|n=s
+au regard d'	au regard de	ADP	
+au regard de	au regard de	ADP	
+au regard des	au regard de	ADP+DET	n=p
+au regard du	au regard de	ADP+DET	g=m|n=s
+au risque d'	au risque de	ADP	
+au risque de	au risque de	ADP	
+au risque des	au risque de	ADP+DET	n=p
+au risque du	au risque de	ADP+DET	g=m|n=s
+au sein d'	au sein de	ADP	
+au sein de	au sein de	ADP	
+au sein des	au sein de	ADP+DET	n=p
+au sein du	au sein de	ADP+DET	g=m|n=s
+au sens d'	au sens de	ADP	
+au sens de	au sens de	ADP	
+au sens des	au sens de	ADP+DET	n=p
+au sens du	au sens de	ADP+DET	g=m|n=s
+au service d'	au service de	ADP	
+au service de	au service de	ADP	
+au service des	au service de	ADP+DET	n=p
+au service du	au service de	ADP+DET	g=m|n=s
+au sommet d'	au sommet de	ADP	
+au sommet de	au sommet de	ADP	
+au sommet des	au sommet de	ADP+DET	n=p
+au sommet du	au sommet de	ADP+DET	g=m|n=s
+au sortir d'	au sortir de	ADP	
+au sortir de	au sortir de	ADP	
+au sortir des	au sortir de	ADP+DET	n=p
+au sortir du	au sortir de	ADP+DET	g=m|n=s
+au sujet d'	au sujet de	ADP	
+au sujet de	au sujet de	ADP	
+au sujet des	au sujet de	ADP+DET	n=p
+au sujet du	au sujet de	ADP+DET	g=m|n=s
+au terme d'	au terme de	ADP	
+au terme de	au terme de	ADP	
+au terme des	au terme de	ADP+DET	n=p
+au terme du	au terme de	ADP+DET	g=m|n=s
+au titre d'	au titre de	ADP	
+au titre de	au titre de	ADP	
+au titre des	au titre de	ADP+DET	n=p
+au titre du	au titre de	ADP+DET	g=m|n=s
+au travers d'	au travers de	ADP	
+au travers de	au travers de	ADP	
+au travers des	au travers de	ADP+DET	n=p
+au travers du	au travers de	ADP+DET	g=m|n=s
+au tréfonds d'	au tréfonds de	ADP	
+au tréfonds de	au tréfonds de	ADP	
+au tréfonds des	au tréfonds de	ADP+DET	n=p
+au tréfonds du	au tréfonds de	ADP+DET	g=m|n=s
+au vu d'	au vu de	ADP	
+au vu de	au vu de	ADP	
+au vu des	au vu de	ADP+DET	n=p
+au vu du	au vu de	ADP+DET	g=m|n=s
+au vu et au su d'	au vu et au su de	ADP	
+au vu et au su de	au vu et au su de	ADP	
+au vu et au su des	au vu et au su de	ADP+DET	n=p
+au vu et au su du	au vu et au su de	ADP+DET	g=m|n=s
+au-delà d'	au-delà de	ADP	
+au-delà de	au-delà de	ADP	
+au-delà des	au-delà de	ADP+DET	n=p
+au-delà du	au-delà de	ADP+DET	g=m|n=s
+au-dessous	au-dessous	ADP	
+au-dessous d'	au-dessous de	ADP	
+au-dessous de	au-dessous de	ADP	
+au-dessous des	au-dessous de	ADP+DET	n=p
+au-dessous du	au-dessous de	ADP+DET	g=m|n=s
+au-dessus	au-dessus	ADP	
+au-dessus d'	au-dessus de	ADP	
+au-dessus de	au-dessus de	ADP	
+au-dessus des	au-dessus de	ADP+DET	n=p
+au-dessus du	au-dessus de	ADP+DET	g=m|n=s
+au-devant d'	au-devant de	ADP	
+au-devant de	au-devant de	ADP	
+au-devant des	au-devant de	ADP+DET	n=p
+au-devant du	au-devant de	ADP+DET	g=m|n=s
+aucun	aucun	DET	g=m|n=s
+aucun	aucun	PRON	g=m|n=s
+aucune	aucun	PRON	g=f|n=s
+aucune	aucune	DET	g=f|n=s
+aujourd'	aujourd'	ADP	
+auprès	auprès	ADP	
+auprès d'	auprès de	ADP	
+auprès de	auprès de	ADP	
+auprès des	auprès de	ADP+DET	n=p
+auprès du	auprès de	ADP+DET	g=m|n=s
+auquel	auquel	ADP+PRON	g=m|n=s
+aura	avoir	AUX	n=s|p=3|t=F
+aurai	avoir	AUX	n=s|p=1|t=F
+auraient	avoir	AUX	n=p|p=3|t=C
+aurais	avoir	AUX	n=s|p=12|t=C
+aurait	avoir	AUX	n=s|p=3|t=C
+auras	avoir	AUX	n=s|p=2|t=F
+aurions	avoir	AUX	n=p|p=1|t=C
+aurons	avoir	AUX	n=p|p=1|t=F
+auront	avoir	AUX	n=p|p=3|t=F
+aussi	aussi	SCONJ	
+aussi	aussi	SCONJ	
+aussi bien qu'	aussi bien que	SCONJ	
+aussi bien que	aussi bien que	SCONJ	
+aussitôt qu'	aussitôt que	SCONJ	
+aussitôt que	aussitôt que	SCONJ	
+autant	autant	SCONJ	
+autant d'	autant de	DET	
+autant de	autant de	DET	
+autant dire qu'	autant dire que	SCONJ	
+autant dire que	autant dire que	SCONJ	
+autant qu'	autant que	SCONJ	
+autant que	autant que	SCONJ	
+autour	autour	ADP	
+autour d'	autour de	ADP	
+autour de	autour de	ADP	
+autour des	autour de	ADP+DET	n=p
+autour du	autour de	ADP+DET	g=m|n=s
+autre	autre	PRON	g=f|n=s
+autre	autre	PRON	g=m|n=s
+autre chose	autre chose	PRON	g=m|n=s
+autres	autres	PRON	g=f|n=p
+autres	autres	PRON	g=m|n=p
+autrui	autrui	PRON	g=f|n=s
+autrui	autrui	PRON	g=m|n=s
+aux	aux	ADP	
+aux	à	ADP+DET	n=p
+aux abords d'	aux abords de	ADP	
+aux abords de	aux abords de	ADP	
+aux abords des	aux abords de	ADP+DET	n=p
+aux abords du	aux abords de	ADP+DET	g=m|n=s
+aux alentours d'	aux alentours de	ADP	
+aux alentours de	aux alentours de	ADP	
+aux alentours des	aux alentours de	ADP+DET	n=p
+aux alentours du	aux alentours de	ADP+DET	g=m|n=s
+aux bons soins d'	aux bons soins de	ADP	
+aux bons soins de	aux bons soins de	ADP	
+aux bons soins des	aux bons soins de	ADP+DET	n=p
+aux bons soins du	aux bons soins de	ADP+DET	g=m|n=s
+aux confins d'	aux confins de	ADP	
+aux confins de	aux confins de	ADP	
+aux confins des	aux confins de	ADP+DET	n=p
+aux confins du	aux confins de	ADP+DET	g=m|n=s
+aux côtés d'	aux côtés de	ADP	
+aux côtés de	aux côtés de	ADP	
+aux côtés des	aux côtés de	ADP+DET	n=p
+aux côtés du	aux côtés de	ADP+DET	g=m|n=s
+aux dépens d'	aux dépens de	ADP	
+aux dépens de	aux dépens de	ADP	
+aux dépens des	aux dépens de	ADP+DET	n=p
+aux dépens du	aux dépens de	ADP+DET	g=m|n=s
+aux environs d'	aux environs de	ADP	
+aux environs de	aux environs de	ADP	
+aux environs des	aux environs de	ADP+DET	n=p
+aux environs du	aux environs de	ADP+DET	g=m|n=s
+aux yeux d'	aux yeux de	ADP	
+aux yeux de	aux yeux de	ADP	
+aux yeux des	aux yeux de	ADP+DET	n=p
+aux yeux du	aux yeux de	ADP+DET	g=m|n=s
+auxquelles	auquel	ADP+PRON	g=f|n=p
+auxquels	auquel	ADP+PRON	g=m|n=p
+av.	av.	ADP	
+av.	avant	ADP	
+avaient	avoir	AUX	n=p|p=3|t=I
+avais	avoir	AUX	n=s|p=12|t=I
+avait	avoir	AUX	n=s|p=3|t=I
+avant	avant	ADP	
+avant	avant	ADP	
+avant	avant	SCONJ	
+avant d'	avant de	ADP	
+avant de	avant de	ADP	
+avant des	avant de	ADP+DET	n=p
+avant du	avant de	ADP+DET	g=m|n=s
+avant même d'	avant même de	ADP	
+avant même de	avant même de	ADP	
+avant même des	avant même de	ADP+DET	n=p
+avant même du	avant même de	ADP+DET	g=m|n=s
+avant même qu'	avant même que	SCONJ	
+avant même que	avant même que	SCONJ	
+avant qu'	avant que	SCONJ	
+avant que	avant que	SCONJ	
+avant que d'	avant que de	ADP	
+avant que de	avant que de	ADP	
+avant que des	avant que de	ADP+DET	n=p
+avant que du	avant que de	ADP+DET	g=m|n=s
+avec	avec	ADP	
+avec	avec	ADP	
+avec	avec	SCONJ	
+avec l'aide d'	avec l'aide de	ADP	
+avec l'aide de	avec l'aide de	ADP	
+avec l'aide des	avec l'aide de	ADP+DET	n=p
+avec l'aide du	avec l'aide de	ADP+DET	g=m|n=s
+avez	avoir	AUX	n=p|p=2|t=P
+aviez	avoir	AUX	n=p|p=2|t=I
+avions	avoir	AUX	n=p|p=1|t=I
+avoir	avoir	AUX	t=W
+avons	avoir	AUX	n=p|p=1|t=P
+avt	avant	ADP	
+ayant	avoir	AUX	t=G
+ayez	avoir	AUX	n=p|p=2|t=Y
+ayons	avoir	AUX	n=p|p=1|t=Y
+bcp de	beaucoup de	DET	
+beaucoup	beaucoup	PRON	g=f|n=p
+beaucoup	beaucoup	PRON	g=m|n=p
+beaucoup d'	beaucoup de	DET	
+beaucoup de	beaucoup de	DET	
+because	because	SCONJ	
+bi	bi	PART	
+bicause	bicause	SCONJ	
+bien	bien	DET	
+bien	bien	PRON	
+bien	bien	SCONJ	
+bien	bien	SCONJ	
+bien d'	bien de	DET	
+bien d'autre	bien d'autre	PRON	g=f|n=s
+bien d'autre	bien d'autre	PRON	g=m|n=s
+bien d'autres	bien d'autre	PRON	g=f|n=p
+bien d'autres	bien d'autre	PRON	g=m|n=p
+bien de	bien de	DET	
+bien des	bien de	DET	n=p
+bien du	bien de	DET	g=m|n=s
+bien qu'	bien que	SCONJ	
+bien que	bien que	SCONJ	
+bon nombre d'	bon nombre de	DET	n=p
+bon nombre de	bon nombre de	DET	n=p
+bref	bref	CCONJ	
+bref	bref	SCONJ	
+c'	ce	PRON	n=s
+c'est pourquoi	c'est pourquoi	CCONJ	
+c'est pourquoi	c'est pourquoi	SCONJ	
+c'est à dire	c'est à dire	CCONJ	
+c'est à dire	c'est à dire	SCONJ	
+c'est à dire qu'	c'est à dire que	SCONJ	
+c'est à dire que	c'est à dire que	SCONJ	
+c'est-à-dire	c'est à dire	CCONJ	
+c'est-à-dire	c'est à dire	SCONJ	
+c'est-à-dire qu'	c'est à dire que	SCONJ	
+c'est-à-dire que	c'est à dire que	SCONJ	
+c-à-d	c'est à dire	CCONJ	
+c-à-d.	c-à-d.	CCONJ	
+c.-à.-d.	c'est à dire	CCONJ	
+c/	contre	ADP	
+ca	circa	ADP	
+ca	ça	PRON	n=s
+ca.	circa	ADP	
+car	car	CCONJ	
+car	car	CCONJ	
+car	car	SCONJ	
+cause d'	cause de	ADP	
+cause de	cause de	ADP	
+cause des	cause de	ADP+DET	n=p
+cause du	cause de	ADP+DET	g=m|n=s
+ce	ce	DET	g=m|n=s
+ce	ce	PRON	
+ce	ce	PRON	n=s
+ce	ce	SCONJ	
+ce qu'	ce que	SCONJ	
+ce que	ce que	SCONJ	
+ceci	ceci	PRON	g=m|n=s
+cela	cela	PRON	g=m|n=s
+celle	celle	PRON	g=f|n=s
+celle-ci	celle-ci	PRON	g=f|n=s
+celle-là	celle-là	PRON	g=f|n=s
+celles	celle	PRON	g=f|n=p
+celles-ci	celles-ci	PRON	g=f|n=p
+celles-là	celles-là	PRON	g=f|n=p
+celui	celui	PRON	g=m|n=s
+celui-ci	celui-ci	PRON	g=m|n=s
+celui-là	celui-là	PRON	g=m|n=s
+cependant qu'	cependant que	SCONJ	
+cependant que	cependant que	SCONJ	
+certain	certain	PRON	g=m|n=s
+certaine	certain	PRON	g=f|n=s
+certaines	certain	DET	g=f|n=p
+certaines	certain	PRON	g=f|n=p
+certains	certain	DET	g=m|n=p
+certains	certain	PRON	g=m|n=p
+ces	ces	DET	n=p
+cet	cet	DET	g=m|n=s
+cette	cette	DET	g=f|n=s
+ceux	ceux	PRON	g=m|n=p
+ceux-ci	ceux-ci	PRON	g=m|n=p
+ceux-là	ceux-là	PRON	g=m|n=p
+cf	cf.	ADP	
+cf.	cf.	ADP	
+cf.	cf.	ADP	
+ch'	je	PRON	p=1|n=s
+chacun	chacun	PRON	g=m|n=s
+chacune	chacun	PRON	g=f|n=s
+chaqu' fois qu'	chaqu' fois que	SCONJ	
+chaqu' fois que	chaqu' fois que	SCONJ	
+chaque	chaque	DET	n=s
+chaque fois qu'	chaque fois que	SCONJ	
+chaque fois que	chaque fois que	SCONJ	
+chez	chez	ADP	
+chez	chez	ADP	
+ci	ci	PART	
+ci-devant	ci-devant	ADP	
+circa	circa	ADP	
+cm²	cm²	SYM	
+cm³	cm³	SYM	
+combien	combien	ADV	
+combien	combien	PRON	g=f|n=p
+combien	combien	PRON	g=f|n=s
+combien	combien	PRON	g=m|n=p
+combien	combien	PRON	g=m|n=s
+combien	combien	SCONJ	
+combien	combien	SCONJ	
+combien d'	combien de	DET	
+combien de	combien de	DET	
+comme	comme	ADP	
+comme	comme	ADP	
+comme	comme	CCONJ	
+comme	comme	CCONJ	
+comme	comme	SCONJ	
+comme	comme	SCONJ	
+comme s'	comme s'	SCONJ	
+comme s'	comme si	SCONJ	
+comme si	comme si	SCONJ	
+comment	comment	ADV	
+comment	comment	SCONJ	
+comment	comment	SCONJ	
+compris	compris	SCONJ	
+compte	compte	ADP	
+compte tenu d'	compte tenu de	ADP	
+compte tenu de	compte tenu de	ADP	
+compte tenu des	compte tenu de	ADP+DET	n=p
+compte tenu du	compte tenu de	ADP+DET	g=m|n=s
+concernant	concernant	ADP	
+conf.	confer	ADP	
+confer	confer	ADP	
+conformément au	conformément à	ADP+DET	g=m|n=s
+conformément aux	conformément à	ADP+DET	n=p
+considérant qu'	considérant que	SCONJ	
+considérant que	considérant que	SCONJ	
+considéré qu'	considéré que	SCONJ	
+considéré que	considéré que	SCONJ	
+contraire au	contraire à	ADP+DET	g=m|n=s
+contraire aux	contraire à	ADP+DET	n=p
+contrairement	contrairement	ADP	
+contrairement au	contrairement à	ADP+DET	g=m|n=s
+contrairement aux	contrairement à	ADP+DET	n=p
+contre	contre	ADP	
+contre	contre	ADP	
+courant	courant	ADP	
+crainte de	crainte de	SCONJ	
+cum	cum	ADP	
+càd	c'est à dire	CCONJ	
+d	d	ADP	
+d'	d'	ADP	
+d'	d'	SCONJ	
+d'	de	ADP	
+d'	de	DET	n=p
+d'après	d'après	ADP	
+d'aucuns	d'aucuns	PRON	g=f|n=p
+d'aucuns	d'aucuns	PRON	g=m|n=p
+d'autant plus qu'	d'autant plus que	SCONJ	
+d'autant plus que	d'autant plus que	SCONJ	
+d'autant qu'	d'autant que	SCONJ	
+d'autant que	d'autant que	SCONJ	
+d'autres	d'autre	PRON	g=f|n=p
+d'autres	d'autre	PRON	g=m|n=p
+d'avis d'	d'avis de	ADP	
+d'avis de	d'avis de	ADP	
+d'avis des	d'avis de	ADP+DET	n=p
+d'avis du	d'avis de	ADP+DET	g=m|n=s
+d'entre	d'entre	ADP	
+d'ici	d'ici	ADP	
+d'ici au	d'ici à	ADP+DET	g=m|n=s
+d'ici aux	d'ici à	ADP+DET	n=p
+d'ici à	d'ici à	ADP	
+d'où	d'où	ADP	
+d'où	d'où	CCONJ	
+d'où	d'où	SCONJ	
+d'un bout à l'autre d'	d'un bout à l'autre de	ADP	
+d'un bout à l'autre de	d'un bout à l'autre de	ADP	
+d'un bout à l'autre des	d'un bout à l'autre de	ADP+DET	n=p
+d'un bout à l'autre du	d'un bout à l'autre de	ADP+DET	g=m|n=s
+da	da	ADP	
+dans	dans	ADP	
+dans	dans	ADP	
+dans	dans	SCONJ	
+dans l'attente d'	dans l'attente de	ADP	
+dans l'attente de	dans l'attente de	ADP	
+dans l'attente des	dans l'attente de	ADP+DET	n=p
+dans l'attente du	dans l'attente de	ADP+DET	g=m|n=s
+dans l'entourage d'	dans l'entourage de	ADP	
+dans l'entourage de	dans l'entourage de	ADP	
+dans l'entourage des	dans l'entourage de	ADP+DET	n=p
+dans l'entourage du	dans l'entourage de	ADP+DET	g=m|n=s
+dans l'espoir d'	dans l'espoir de	ADP	
+dans l'espoir de	dans l'espoir de	ADP	
+dans l'espoir des	dans l'espoir de	ADP+DET	n=p
+dans l'espoir du	dans l'espoir de	ADP+DET	g=m|n=s
+dans l'intérêt d'	dans l'intérêt de	ADP	
+dans l'intérêt de	dans l'intérêt de	ADP	
+dans l'intérêt des	dans l'intérêt de	ADP+DET	n=p
+dans l'intérêt du	dans l'intérêt de	ADP+DET	g=m|n=s
+dans la foulée d'	dans la foulée de	ADP	
+dans la foulée de	dans la foulée de	ADP	
+dans la foulée des	dans la foulée de	ADP+DET	n=p
+dans la foulée du	dans la foulée de	ADP+DET	g=m|n=s
+dans la limite d'	dans la limite de	ADP	
+dans la limite de	dans la limite de	ADP	
+dans la limite des	dans la limite de	ADP+DET	n=p
+dans la limite du	dans la limite de	ADP+DET	g=m|n=s
+dans la mesure où	dans la mesure où	SCONJ	
+dans la mouvance d'	dans la mouvance de	ADP	
+dans la mouvance de	dans la mouvance de	ADP	
+dans la mouvance des	dans la mouvance de	ADP+DET	n=p
+dans la mouvance du	dans la mouvance de	ADP+DET	g=m|n=s
+dans le but d'	dans le but de	ADP	
+dans le but de	dans le but de	ADP	
+dans le but des	dans le but de	ADP+DET	n=p
+dans le but du	dans le but de	ADP+DET	g=m|n=s
+dans le but qu'	dans le but que	SCONJ	
+dans le but que	dans le but que	SCONJ	
+dans le cadre d'	dans le cadre de	ADP	
+dans le cadre de	dans le cadre de	ADP	
+dans le cadre des	dans le cadre de	ADP+DET	n=p
+dans le cadre du	dans le cadre de	ADP+DET	g=m|n=s
+dans le cas d'	dans le cas de	ADP	
+dans le cas de	dans le cas de	ADP	
+dans le cas des	dans le cas de	ADP+DET	n=p
+dans le cas du	dans le cas de	ADP+DET	g=m|n=s
+dans le domaine d'	dans le domaine de	ADP	
+dans le domaine de	dans le domaine de	ADP	
+dans le domaine des	dans le domaine de	ADP+DET	n=p
+dans le domaine du	dans le domaine de	ADP+DET	g=m|n=s
+dans le giron d'	dans le giron de	ADP	
+dans le giron de	dans le giron de	ADP	
+dans le giron des	dans le giron de	ADP+DET	n=p
+dans le giron du	dans le giron de	ADP+DET	g=m|n=s
+dans le sens d'	dans le sens de	ADP	
+dans le sens de	dans le sens de	ADP	
+dans le sens des	dans le sens de	ADP+DET	n=p
+dans le sens du	dans le sens de	ADP+DET	g=m|n=s
+de	de	ADP	
+de	de	ADP	
+de	de	DET	n=p
+de	de	SCONJ	
+de	de	SCONJ	
+de ce qu'	de ce que	SCONJ	
+de ce que	de ce que	SCONJ	
+de chez	de chez	ADP	
+de derrière	de derrière	ADP	
+de drôle de	de drôle de	DET	n=p
+de l'autre côté d'	de l'autre côté de	ADP	
+de l'autre côté de	de l'autre côté de	ADP	
+de l'autre côté des	de l'autre côté de	ADP+DET	n=p
+de l'autre côté du	de l'autre côté de	ADP+DET	g=m|n=s
+de l'ordre d'	de l'ordre de	ADP	
+de l'ordre de	de l'ordre de	ADP	
+de l'ordre des	de l'ordre de	ADP+DET	n=p
+de l'ordre du	de l'ordre de	ADP+DET	g=m|n=s
+de la	de la	DET	g=f|n=s
+de la part d'	de la part de	ADP	
+de la part de	de la part de	ADP	
+de la part des	de la part de	ADP+DET	n=p
+de la part du	de la part de	ADP+DET	g=m|n=s
+de manière qu'	de manière que	SCONJ	
+de manière que	de manière que	SCONJ	
+de manière à	de manière à	ADP	
+de manière à ce qu'	de manière à ce que	SCONJ	
+de manière à ce que	de manière à ce que	SCONJ	
+de même qu'	de même que	SCONJ	
+de même que	de même que	SCONJ	
+de par	de par	ADP	
+de parce qu'	de parce que	SCONJ	
+de parce que	de parce que	SCONJ	
+de part et d'autre d'	de part et d'autre de	ADP	
+de part et d'autre de	de part et d'autre de	ADP	
+de part et d'autre des	de part et d'autre de	ADP+DET	n=p
+de part et d'autre du	de part et d'autre de	ADP+DET	g=m|n=s
+de plus en plus	de plus en plus	ADV	
+de plus en plus d'	de plus en plus de	DET	
+de plus en plus de	de plus en plus de	DET	
+de près	de près	ADP	
+de sorte qu'	de sorte que	SCONJ	
+de sorte que	de sorte que	SCONJ	
+de telle sorte qu'	de telle sorte que	SCONJ	
+de telle sorte que	de telle sorte que	SCONJ	
+de telles	de telles	DET	g=f|n=p
+de tels	de tels	DET	g=m|n=p
+dehors	dehors	ADP	
+dei	dei	ADP	
+del	del	ADP	
+della	della	ADP	
+delle	delle	ADP	
+delà	delà	ADP	
+depuis	depuis	ADP	
+depuis	depuis	ADP	
+depuis qu'	depuis que	SCONJ	
+depuis que	depuis que	SCONJ	
+derrière	derrière	ADP	
+derrière	derrière	ADP	
+derrières	derrières	ADP	
+des	de	ADP+DET	n=p
+des	des	ADP	
+des	des	DET	n=p
+des drôle de	des drôle de	DET	n=p
+des fois qu'	des fois que	SCONJ	
+des fois que	des fois que	SCONJ	
+des telles	des telles	DET	g=f|n=p
+des tels	des tels	DET	g=m|n=p
+desdites	dudit	ADP	g=f|n=p
+desdits	dudit	ADP	g=m|n=p
+desquelles	duquel	ADP+PRON	g=f|n=p
+desquels	duquel	ADP+PRON	g=m|n=p
+dessous	dessous	ADP	
+dessus	dessus	ADP	
+dessus	dessus	ADP	
+devaient	devoir	AUX	n=p|p=3|t=I
+devait	devoir	AUX	n=s|p=3|t=I
+devant	devant	ADP	
+devant	devant	ADP	
+devant	devoir	AUX	t=G
+devers	devers	ADP	
+devez	devoir	AUX	n=p|p=2|t=P
+devions	devoir	AUX	n=p|p=1|t=I
+devoir	devoir	AUX	t=W
+devons	devoir	AUX	n=p|p=1|t=P
+devra	devoir	AUX	n=s|p=3|t=F
+devraient	devoir	AUX	n=p|p=3|t=C
+devrait	devoir	AUX	n=s|p=3|t=C
+devras	devoir	AUX	n=s|p=2|t=F
+devrions	devoir	AUX	n=p|p=1|t=C
+devrons	devoir	AUX	n=p|p=1|t=F
+devront	devoir	AUX	n=p|p=3|t=F
+di	di	PART	
+différentes	différent	DET	g=f|n=p
+différents	différent	DET	g=m|n=p
+divers	divers	DET	g=m|n=p
+diverses	divers	DET	g=f|n=p
+dixit	dixit	ADP	
+dois	devoir	AUX	n=s|p=12|t=P
+doit	devoir	AUX	n=s|p=3|t=P
+doive	devoir	AUX	n=s|p=3|t=P
+doivent	devoir	AUX	n=p|p=3|t=P
+donc	donc	CCONJ	
+donc	donc	CCONJ	
+donc	donc	SCONJ	
+donné	donner	SCONJ	
+donné	donné	ADP	
+donné	donné	SCONJ	
+dont	dont	PRON	
+du	de	ADP+DET	g=m|n=s
+du	du	ADP	
+du	du	DET	g=m|n=s
+du côté d'	du côté de	ADP	
+du côté de	du côté de	ADP	
+du côté des	du côté de	ADP+DET	n=p
+du côté du	du côté de	ADP+DET	g=m|n=s
+du fait d'	du fait de	ADP	
+du fait de	du fait de	ADP	
+du fait des	du fait de	ADP+DET	n=p
+du fait du	du fait de	ADP+DET	g=m|n=s
+du fait qu'	du fait que	SCONJ	
+du fait que	du fait que	SCONJ	
+du moment qu'	du moment que	SCONJ	
+du moment que	du moment que	SCONJ	
+dudit	dudit	ADP	g=m|n=s
+duquel	duquel	ADP+PRON	g=m|n=s
+durant	durant	ADP	
+durant	durant	ADP	
+durent	devoir	AUX	n=p|p=3|t=T
+durint	durint	ADP	
+dut	devoir	AUX	n=s|p=3|t=T
+dès	dès	ADP	
+dès	dès	ADP	
+dès	dès	SCONJ	
+dès	dès	SCONJ	
+dès avant	dès avant	ADP	
+dès lors qu'	dès lors que	SCONJ	
+dès lors que	dès lors que	SCONJ	
+dès qu'	dès que	SCONJ	
+dès que	dès que	SCONJ	
+début	début	ADP	
+déca	déca	PART	
+désirait	désirer	AUX	n=s|p=3|t=C
+désirant	désirer	AUX	t=G
+dû	devoir	AUX	n=s|g=m|t=K
+e	e	CCONJ	
+ed	ed	CCONJ	
+elle	elle	PRON	g=f|p=3|n=s
+elle	elle	PRON	g=f|p=3|n=s
+elle-même	elle-même	PRON	g=f|p=3|n=s
+elles	elles	PRON	g=f|p=3|n=p
+elles	elles	PRON	g=f|p=3|n=p
+elles-même	elles-même	PRON	g=f|p=3|n=p
+elles-mêmes	elles-mêmes	PRON	g=f|p=3|n=p
+en	en	ADP	
+en	en	ADP	
+en	en	PRON	
+en	en	SCONJ	
+en	en	SCONJ	
+en absence d'	en absence de	ADP	
+en absence de	en absence de	ADP	
+en absence des	en absence de	ADP+DET	n=p
+en absence du	en absence de	ADP+DET	g=m|n=s
+en accord avec	en accord avec	ADP	
+en amont d'	en amont de	ADP	
+en amont de	en amont de	ADP	
+en amont des	en amont de	ADP+DET	n=p
+en amont du	en amont de	ADP+DET	g=m|n=s
+en arrière d'	en arrière de	ADP	
+en arrière de	en arrière de	ADP	
+en arrière des	en arrière de	ADP+DET	n=p
+en arrière du	en arrière de	ADP+DET	g=m|n=s
+en aval d'	en aval de	ADP	
+en aval de	en aval de	ADP	
+en aval des	en aval de	ADP+DET	n=p
+en aval du	en aval de	ADP+DET	g=m|n=s
+en avant d'	en avant de	ADP	
+en avant de	en avant de	ADP	
+en avant des	en avant de	ADP+DET	n=p
+en avant du	en avant de	ADP+DET	g=m|n=s
+en baisse d'	en baisse de	ADP	
+en baisse de	en baisse de	ADP	
+en baisse des	en baisse de	ADP+DET	n=p
+en baisse du	en baisse de	ADP+DET	g=m|n=s
+en butte au	en butte à	ADP+DET	g=m|n=s
+en butte aux	en butte à	ADP+DET	n=p
+en cas d'	en cas de	ADP	
+en cas de	en cas de	ADP	
+en cas des	en cas de	ADP+DET	n=p
+en cas du	en cas de	ADP+DET	g=m|n=s
+en ce qu'	en ce que	SCONJ	
+en ce que	en ce que	SCONJ	
+en ce sens qu'	en ce sens que	SCONJ	
+en ce sens que	en ce sens que	SCONJ	
+en charge d'	en charge de	ADP	
+en charge de	en charge de	ADP	
+en charge des	en charge de	ADP+DET	n=p
+en charge du	en charge de	ADP+DET	g=m|n=s
+en compagnie d'	en compagnie de	ADP	
+en compagnie de	en compagnie de	ADP	
+en compagnie des	en compagnie de	ADP+DET	n=p
+en compagnie du	en compagnie de	ADP+DET	g=m|n=s
+en contrebas d'	en contrebas de	ADP	
+en contrebas de	en contrebas de	ADP	
+en contrebas des	en contrebas de	ADP+DET	n=p
+en contrebas du	en contrebas de	ADP+DET	g=m|n=s
+en contrepartie d'	en contrepartie de	ADP	
+en contrepartie de	en contrepartie de	ADP	
+en contrepartie des	en contrepartie de	ADP+DET	n=p
+en contrepartie du	en contrepartie de	ADP+DET	g=m|n=s
+en cours d'	en cours de	ADP	
+en cours de	en cours de	ADP	
+en cours des	en cours de	ADP+DET	n=p
+en cours du	en cours de	ADP+DET	g=m|n=s
+en dedans d'	en dedans de	ADP	
+en dedans de	en dedans de	ADP	
+en dedans des	en dedans de	ADP+DET	n=p
+en dedans du	en dedans de	ADP+DET	g=m|n=s
+en dehors d'	en dehors de	ADP	
+en dehors de	en dehors de	ADP	
+en dehors des	en dehors de	ADP+DET	n=p
+en dehors du	en dehors de	ADP+DET	g=m|n=s
+en delà d'	en delà de	ADP	
+en delà de	en delà de	ADP	
+en delà des	en delà de	ADP+DET	n=p
+en delà du	en delà de	ADP+DET	g=m|n=s
+en dessous	en dessous	ADP	
+en dessous d'	en dessous de	ADP	
+en dessous de	en dessous de	ADP	
+en dessous des	en dessous de	ADP+DET	n=p
+en dessous du	en dessous de	ADP+DET	g=m|n=s
+en deçà d'	en deçà de	ADP	
+en deçà de	en deçà de	ADP	
+en deçà des	en deçà de	ADP+DET	n=p
+en deçà du	en deçà de	ADP+DET	g=m|n=s
+en direction d'	en direction de	ADP	
+en direction de	en direction de	ADP	
+en direction des	en direction de	ADP+DET	n=p
+en direction du	en direction de	ADP+DET	g=m|n=s
+en début d'	en début de	ADP	
+en début de	en début de	ADP	
+en début des	en début de	ADP+DET	n=p
+en début du	en début de	ADP+DET	g=m|n=s
+en dépit d'	en dépit de	ADP	
+en dépit de	en dépit de	ADP	
+en dépit des	en dépit de	ADP+DET	n=p
+en dépit du	en dépit de	ADP+DET	g=m|n=s
+en face d'	en face de	ADP	
+en face de	en face de	ADP	
+en face des	en face de	ADP+DET	n=p
+en face du	en face de	ADP+DET	g=m|n=s
+en fait d'	en fait de	ADP	
+en fait de	en fait de	ADP	
+en fait des	en fait de	ADP+DET	n=p
+en fait du	en fait de	ADP+DET	g=m|n=s
+en faveur d'	en faveur de	ADP	
+en faveur de	en faveur de	ADP	
+en faveur des	en faveur de	ADP+DET	n=p
+en faveur du	en faveur de	ADP+DET	g=m|n=s
+en fin d'	en fin de	ADP	
+en fin de	en fin de	ADP	
+en fin des	en fin de	ADP+DET	n=p
+en fin du	en fin de	ADP+DET	g=m|n=s
+en fonction d'	en fonction de	ADP	
+en fonction de	en fonction de	ADP	
+en fonction des	en fonction de	ADP+DET	n=p
+en fonction du	en fonction de	ADP+DET	g=m|n=s
+en forme d'	en forme de	ADP	
+en forme de	en forme de	ADP	
+en forme des	en forme de	ADP+DET	n=p
+en forme du	en forme de	ADP+DET	g=m|n=s
+en guise d'	en guise de	ADP	
+en guise de	en guise de	ADP	
+en guise des	en guise de	ADP+DET	n=p
+en guise du	en guise de	ADP+DET	g=m|n=s
+en haut d'	en haut de	ADP	
+en haut de	en haut de	ADP	
+en haut des	en haut de	ADP+DET	n=p
+en haut du	en haut de	ADP+DET	g=m|n=s
+en hommage au	en hommage à	ADP+DET	g=m|n=s
+en hommage aux	en hommage à	ADP+DET	n=p
+en hommage à	en hommage à	ADP	
+en instance d'	en instance de	ADP	
+en instance de	en instance de	ADP	
+en instance des	en instance de	ADP+DET	n=p
+en instance du	en instance de	ADP+DET	g=m|n=s
+en l'absence d'	en l'absence de	ADP	
+en l'absence de	en l'absence de	ADP	
+en l'absence des	en l'absence de	ADP+DET	n=p
+en l'absence du	en l'absence de	ADP+DET	g=m|n=s
+en l'espace d'	en l'espace de	ADP	
+en l'espace de	en l'espace de	ADP	
+en l'espace des	en l'espace de	ADP+DET	n=p
+en l'espace du	en l'espace de	ADP+DET	g=m|n=s
+en manière d'	en manière de	ADP	
+en manière de	en manière de	ADP	
+en manière des	en manière de	ADP+DET	n=p
+en manière du	en manière de	ADP+DET	g=m|n=s
+en manque d'	en manque de	ADP	
+en manque de	en manque de	ADP	
+en manque des	en manque de	ADP+DET	n=p
+en manque du	en manque de	ADP+DET	g=m|n=s
+en matière d'	en matière de	ADP	
+en matière de	en matière de	ADP	
+en matière des	en matière de	ADP+DET	n=p
+en matière du	en matière de	ADP+DET	g=m|n=s
+en mesure d'	en mesure de	ADP	
+en mesure de	en mesure de	ADP	
+en mesure des	en mesure de	ADP+DET	n=p
+en mesure du	en mesure de	ADP+DET	g=m|n=s
+en milieu d'	en milieu de	ADP	
+en milieu de	en milieu de	ADP	
+en milieu des	en milieu de	ADP+DET	n=p
+en milieu du	en milieu de	ADP+DET	g=m|n=s
+en même temps qu'	en même temps que	SCONJ	
+en même temps que	en même temps que	SCONJ	
+en outre d'	en outre de	ADP	
+en outre de	en outre de	ADP	
+en outre des	en outre de	ADP+DET	n=p
+en outre du	en outre de	ADP+DET	g=m|n=s
+en passe d'	en passe de	ADP	
+en passe de	en passe de	ADP	
+en passe des	en passe de	ADP+DET	n=p
+en passe du	en passe de	ADP+DET	g=m|n=s
+en perte d'	en perte de	ADP	
+en perte de	en perte de	ADP	
+en perte des	en perte de	ADP+DET	n=p
+en perte du	en perte de	ADP+DET	g=m|n=s
+en phase d'	en phase de	ADP	
+en phase de	en phase de	ADP	
+en phase des	en phase de	ADP+DET	n=p
+en phase du	en phase de	ADP+DET	g=m|n=s
+en plein	en plein	ADP	
+en plein centre d'	en plein centre de	ADP	
+en plein centre de	en plein centre de	ADP	
+en plein centre des	en plein centre de	ADP+DET	n=p
+en plein centre du	en plein centre de	ADP+DET	g=m|n=s
+en plein dans	en plein dans	ADP	
+en plein sur	en plein sur	ADP	
+en plus d'	en plus de	ADP	
+en plus de	en plus de	ADP	
+en plus des	en plus de	ADP+DET	n=p
+en plus du	en plus de	ADP+DET	g=m|n=s
+en proie au	en proie à	ADP+DET	g=m|n=s
+en proie aux	en proie à	ADP+DET	n=p
+en proie à	en proie à	ADP	
+en présence d'	en présence de	ADP	
+en présence de	en présence de	ADP	
+en présence des	en présence de	ADP+DET	n=p
+en présence du	en présence de	ADP+DET	g=m|n=s
+en qualité d'	en qualité de	ADP	
+en qualité de	en qualité de	ADP	
+en qualité des	en qualité de	ADP+DET	n=p
+en qualité du	en qualité de	ADP+DET	g=m|n=s
+en quête d'	en quête de	ADP	
+en quête de	en quête de	ADP	
+en quête des	en quête de	ADP+DET	n=p
+en quête du	en quête de	ADP+DET	g=m|n=s
+en raison d'	en raison de	ADP	
+en raison de	en raison de	ADP	
+en raison des	en raison de	ADP+DET	n=p
+en raison du	en raison de	ADP+DET	g=m|n=s
+en regard d'	en regard de	ADP	
+en regard de	en regard de	ADP	
+en regard des	en regard de	ADP+DET	n=p
+en regard du	en regard de	ADP+DET	g=m|n=s
+en relation avec	en relation avec	ADP	
+en règlement d'	en règlement de	ADP	
+en règlement de	en règlement de	ADP	
+en règlement des	en règlement de	ADP+DET	n=p
+en règlement du	en règlement de	ADP+DET	g=m|n=s
+en signe d'	en signe de	ADP	
+en signe de	en signe de	ADP	
+en signe des	en signe de	ADP+DET	n=p
+en signe du	en signe de	ADP+DET	g=m|n=s
+en sorte qu'	en sorte que	SCONJ	
+en sorte que	en sorte que	SCONJ	
+en tant qu'	en tant qu'	ADP	
+en tant qu'	en tant que	SCONJ	
+en tant que	en tant que	ADP	
+en tant que	en tant que	SCONJ	
+en terme d'	en terme de	ADP	
+en terme de	en terme de	ADP	
+en terme des	en terme de	ADP+DET	n=p
+en terme du	en terme de	ADP+DET	g=m|n=s
+en termes d'	en termes de	ADP	
+en termes de	en termes de	ADP	
+en termes des	en termes de	ADP+DET	n=p
+en termes du	en termes de	ADP+DET	g=m|n=s
+en train d'	en train de	ADP	
+en train de	en train de	ADP	
+en train des	en train de	ADP+DET	n=p
+en train du	en train de	ADP+DET	g=m|n=s
+en travers d'	en travers de	ADP	
+en travers de	en travers de	ADP	
+en travers des	en travers de	ADP+DET	n=p
+en travers du	en travers de	ADP+DET	g=m|n=s
+en tête d'	en tête de	ADP	
+en tête de	en tête de	ADP	
+en tête des	en tête de	ADP+DET	n=p
+en tête du	en tête de	ADP+DET	g=m|n=s
+en vertu d'	en vertu de	ADP	
+en vertu de	en vertu de	ADP	
+en vertu des	en vertu de	ADP+DET	n=p
+en vertu du	en vertu de	ADP+DET	g=m|n=s
+en voie d'	en voie de	ADP	
+en voie de	en voie de	ADP	
+en voie des	en voie de	ADP+DET	n=p
+en voie du	en voie de	ADP+DET	g=m|n=s
+en vue d'	en vue d'	SCONJ	
+en vue de	en vue de	SCONJ	
+en vue des	en vue de	ADP+DET	n=p
+en vue du	en vue de	ADP+DET	g=m|n=s
+en âge d'	en âge de	ADP	
+en âge de	en âge de	ADP	
+en âge des	en âge de	ADP+DET	n=p
+en âge du	en âge de	ADP+DET	g=m|n=s
+en échange d'	en échange de	ADP	
+en échange de	en échange de	ADP	
+en échange des	en échange de	ADP+DET	n=p
+en échange du	en échange de	ADP+DET	g=m|n=s
+en-dessous	en dessous	ADP	
+en-dessous	en-dessous	ADP	
+en-dessous d'	en dessous de	ADP	
+en-dessous de	en dessous de	ADP	
+en-deçà d'	en-deçà de	ADP	
+en-deçà de	en-deçà de	ADP	
+en-deçà des	en-deçà de	ADP+DET	n=p
+en-deçà du	en-deçà de	ADP+DET	g=m|n=s
+en_matière_d'	en_matière_d'	ADP	
+encontre	encontre	ADP	
+encore	encore	SCONJ	
+encore qu'	encore que	SCONJ	
+encore que	encore que	SCONJ	
+entend	entendre	AUX	n=s|p=3|t=P
+entendaient	entendre	AUX	n=p|p=3|t=I
+entendent	entendre	AUX	n=p|p=3|t=P
+entre	entre	ADP	
+entre	entre	ADP	
+entres	entres	ADP	
+envers	envers	ADP	
+envers	envers	ADP	
+environ	environ	ADP	
+ergo	ergo	CCONJ	
+es	être	AUX	n=s|p=2|t=P
+est	est	CCONJ	
+est	être	AUX	n=s|p=3|t=P
+et	et	CCONJ	
+et	et	CCONJ	
+et alors	et alors	CCONJ	
+et aussi	et aussi	CCONJ	
+et donc	et donc	CCONJ	
+et encore	et encore	CCONJ	
+et même	et même	CCONJ	
+et même	et même	SCONJ	
+et puis	et puis	CCONJ	
+et quelques	et quelque	PRON	g=f|n=p
+et quelques	et quelque	PRON	g=m|n=p
+et-ou	et-ou	CCONJ	
+et/ou	et/ou	CCONJ	
+etant	être	AUX	t=G
+etre	être	AUX	t=W
+eu égard au	eu égard à	ADP+DET	g=m|n=s
+eu égard aux	eu égard à	ADP+DET	n=p
+eu égard à	eu égard à	ADP	
+eurent	avoir	AUX	n=p|p=3|t=T
+eut	avoir	AUX	n=s|p=3|t=T
+eux	eux	PRON	g=m|p=3|n=p
+eux-même	eux-même	PRON	g=m|p=3|n=p
+eux-mêmes	eux-mêmes	PRON	g=m|p=3|n=p
+ex	ex	ADP	
+ex	ex	PART	
+exception faite d'	exception faite de	ADP	
+exception faite de	exception faite de	ADP	
+exception faite des	exception faite de	ADP+DET	n=p
+exception faite du	exception faite de	ADP+DET	g=m|n=s
+excepté	excepté	ADP	
+excepté	excepté	ADP	
+eût	avoir	AUX	n=s|p=3|t=T
+face	face	ADP	
+face au	face à	ADP+DET	g=m|n=s
+face aux	face à	ADP+DET	n=p
+face à	face à	ADP	
+faire	faire	AUX	t=W
+fais	faire	AUX	n=s|p=12|t=P
+faisaient	faire	AUX	n=p|p=3|t=I
+faisait	faire	AUX	n=s|p=3|t=I
+faisant	faire	AUX	t=G
+fait	faire	AUX	n=s|g=m|t=K
+fait	faire	AUX	n=s|p=3|t=IP
+faite	faire	AUX	n=s|g=f|t=K
+fasse	faire	AUX	n=s|p=13|t=S
+faute d'	faute de	ADP	
+faute de	faute de	ADP	
+faute des	faute de	ADP+DET	n=p
+faute du	faute de	ADP+DET	g=m|n=s
+fera	faire	AUX	n=s|p=3|t=F
+ferait	faire	AUX	n=s|p=3|t=C
+feras	faire	AUX	n=s|p=2|t=F
+feront	faire	AUX	n=p|p=3|t=F
+fin	fin	ADP	
+firent	faire	AUX	n=p|p=3|t=T
+fit	faire	AUX	n=s|p=3|t=T
+fois	fois	CCONJ	
+font	faire	AUX	n=p|p=3|t=P
+from	from	ADP	
+fue	être	AUX	n=s|p=3|t=T
+furent	être	AUX	n=p|p=3|t=T
+fut	être	AUX	n=s|p=3|t=T
+fût	être	AUX	n=s|p=3|t=T
+grace	grace	ADP	
+grand'chose	grand-chose	PRON	g=m|n=s
+grand-chose	grand-chose	PRON	g=m|n=s
+grâce	grâce	ADP	
+grâce au	grâce à	ADP+DET	g=m|n=s
+grâce aux	grâce à	ADP+DET	n=p
+grâce à	grâce à	ADP	
+hormis	hormis	ADP	
+hormis	hormis	ADP	
+hors	hors	ADP	
+hors	hors	ADP	
+hors d'	hors de	ADP	
+hors de	hors de	ADP	
+hors des	hors de	ADP+DET	n=p
+hors du	hors de	ADP+DET	g=m|n=s
+il	il	ADP	
+il	il	PRON	g=m|p=3|n=s
+il y a	il y a	ADP	
+ils	ils	PRON	g=m|p=3|n=p
+iront	aller	AUX	n=p|p=3|t=F
+j'	je	PRON	p=1|n=s
+je	je	PRON	p=1|n=s
+je ne sais quel	je ne sais quel	DET	g=m|n=p
+je ne sais quelle	je ne sais quel	DET	g=f|n=s
+je ne sais quelles	je ne sais quel	DET	g=m|n=s
+je ne sais quels	je ne sais quel	DET	g=f|n=p
+je ne sais qui	je ne sais qui	PRON	g=f|n=s
+je ne sais qui	je ne sais qui	PRON	g=m|n=s
+je ne sais quoi	je ne sais quoi	PRON	g=f|n=s
+je ne sais quoi	je ne sais quoi	PRON	g=m|n=s
+jusqu'	jusqu'	ADP	
+jusqu'	jusqu'	ADP	
+jusqu'	jusqu'	SCONJ	
+jusqu'	jusque	ADP	
+jusqu'au	jusqu'à	ADP	g=m|n=s
+jusqu'aux	jusqu'à	ADP	n=p
+jusqu'en	jusqu'en	ADP	
+jusqu'où	jusqu'où	ADP	
+jusqu'à	jusqu'à	ADP	
+jusqu'à ce qu'	jusqu'à ce que	SCONJ	
+jusqu'à ce que	jusqu'à ce que	SCONJ	
+jusque	jusque	ADP	
+jusque	jusque	ADP	
+l'	l'	ADP	
+l'	l'	DET	n=s
+l'	l'	PRON	p=3|n=s
+l'autre	l'autre	PRON	g=f|n=s
+l'autre	l'autre	PRON	g=m|n=s
+l'on	l'on	PRON	p=3|n=s
+l'un	l'un	PRON	g=m|n=s
+l'un et l'autre	l'un et l'autre	PRON	g=m|n=p
+l'un ou l'autre	l'un ou l'autre	PRON	g=m|n=p
+l'une	l'un	PRON	g=f|n=s
+l'une et l'autre	l'une et l'autre	PRON	g=f|n=p
+l'une ou l'autre	l'une ou l'autre	PRON	g=f|n=p
+la	la	DET	g=f|n=s
+la	la	PRON	g=f|p=3|n=s
+la leur	le leur	PRON	g=f|p=3|n=s
+la mienne	le  mien	PRON	g=f|p=1|n=s
+la nôtre	le nôtre	PRON	g=f|p=1|n=s
+la plupart	la plupart	PRON	g=m|n=p
+la plupart de la	la plupart de la	DET	g=m|n=p
+la plupart des	la plupart des	DET	n=p
+la plupart du	la plupart du	DET	g=m|n=s
+la sienne	le sien	PRON	g=f|p=3|n=s
+la tienne	le tien	PRON	g=f|p=2|n=s
+la vôtre	le vôtre	PRON	g=f|p=2|n=s
+ladite	ladite	DET	g=f|n=s
+laquelle	lequel	PRON	g=f|n=s
+laquelle	lequel	PRON	g=f|n=s
+laquelle	lequel	PRON	g=f|n=s
+le	le	ADP	
+le	le	DET	g=m|n=s
+le	le	PRON	g=m|p=3|n=s
+le leur	le leur	PRON	g=m|p=3|n=s
+le long d'	le long de	ADP	
+le long de	le long de	ADP	
+le long des	le long de	ADP+DET	n=p
+le long du	le long de	ADP+DET	g=m|n=s
+le mien	le  mien	PRON	g=m|p=1|n=s
+le moins d'	le moins de	DET	
+le moins de	le moins de	DET	
+le moins qu'	le moins que	SCONJ	
+le moins que	le moins que	SCONJ	
+le nôtre	le nôtre	PRON	g=m|p=1|n=s
+le plus d'	le plus de	DET	
+le plus de	le plus de	DET	
+le sien	le sien	PRON	g=m|p=3|n=s
+le temps d'	le temps de	ADP	
+le temps de	le temps de	ADP	
+le temps des	le temps de	ADP+DET	n=p
+le temps du	le temps de	ADP+DET	g=m|n=s
+le temps qu'	le temps que	SCONJ	
+le temps que	le temps que	SCONJ	
+le tien	le tien	PRON	g=m|p=2|n=s
+le vôtre	le vôtre	PRON	g=m|p=2|n=s
+ledit	ledit	DET	g=m|n=s
+lequel	lequel	PRON	g=m|n=s
+lequel	lequel	PRON	g=m|n=s
+lequel	lequel	PRON	g=m|n=s
+les	les	DET	n=p
+les	les	PRON	p=3|n=p
+les autres	l'autre	PRON	g=f|n=p
+les autres	l'autre	PRON	g=m|n=p
+les leurs	le leur	PRON	g=f|p=3|n=p
+les leurs	le leur	PRON	g=m|p=3|n=p
+les miennes	le mien	PRON	g=f|p=1|n=p
+les miens	le  mien	PRON	g=m|p=1|n=p
+les nôtres	le nôtre	PRON	g=f|p=1|n=p
+les nôtres	le nôtre	PRON	g=m|p=1|n=p
+les siennes	le sien	PRON	g=f|p=3|n=p
+les siens	le sien	PRON	g=m|p=3|n=p
+les tiennes	le tien	PRON	g=f|p=2|n=p
+les tiens	le tien	PRON	g=m|p=2|n=p
+les unes	les unes	PRON	g=f|n=p
+les uns	les uns	PRON	g=m|n=p
+les vôtres	le vôtre	PRON	g=f|p=2|n=p
+les vôtres	le vôtre	PRON	g=m|p=2|n=p
+lesdites	lesdites	DET	g=f|n=p
+lesdits	lesdits	DET	g=m|n=p
+lesquelles	lequel	PRON	g=f|n=p
+lesquelles	lequel	PRON	g=f|n=p
+lesquelles	lequel	PRON	g=f|n=p
+lesquels	lequel	PRON	g=f|n=p
+lesquels	lequel	PRON	g=m|n=p
+lesquels	lequel	PRON	g=m|n=p
+leur	leur	DET	p=3|poss=p|n=s
+leur	leur	PRON	p=3|n=p
+leurs	leurs	DET	p=3|poss=p|n=p
+loin	loin	ADP	
+loin d'	loin de	ADP	
+loin de	loin de	ADP	
+loin des	loin de	ADP+DET	n=p
+loin du	loin de	ADP+DET	g=m|n=s
+lors	lors	ADP	
+lors d'	lors de	ADP	
+lors de	lors de	ADP	
+lors des	lors de	ADP+DET	n=p
+lors du	lors de	ADP+DET	g=m|n=s
+lorsqu'	lorsqu'	SCONJ	
+lorsqu'	lorsqu'	SCONJ	
+lorsqu'	lorsque	SCONJ	
+lorsque	lorsque	SCONJ	
+lorsque	lorsque	SCONJ	
+lui	lui	PRON	g=m|p=3|n=s
+lui	lui	PRON	p=3|n=s
+lui-même	lui-même	PRON	g=m|p=3|n=s
+m	m	SYM	
+m'	me	PRON	p=1|n=s
+m'	me	PRON	p=1|n=s
+ma	ma	DET	g=f|p=1|poss=s|n=s
+maint	maint	DET	g=m|n=s
+mainte	maint	DET	g=f|n=s
+maintenant qu'	maintenant que	SCONJ	
+maintenant que	maintenant que	SCONJ	
+maintes	maint	DET	g=f|n=p
+maints	maint	DET	g=m|n=p
+mais	mais	CCONJ	
+mais	mais	CCONJ	
+mais alors	mais alors	CCONJ	
+mais aussi	mais aussi	CCONJ	
+mais encore	mais encore	CCONJ	
+malgré	malgré	ADP	
+malgré	malgré	ADP	
+malgré qu'	malgré que	SCONJ	
+malgré que	malgré que	SCONJ	
+me	me	PRON	p=1|n=s
+me	me	PRON	p=1|n=s
+mes	mes	DET	p=1|poss=s|n=p
+mieux	mieux	SCONJ	
+mieux	mieux	SCONJ	
+moi	moi	PRON	p=1|n=s
+moi-même	moi-même	PRON	p=1|n=s
+moins	moins	ADP	
+moins	moins	CCONJ	
+moins d'	moins de	ADV	
+moins d'	moins de	DET	
+moins de	moins de	ADV	
+moins de	moins de	DET	
+mon	mon	DET	g=m|p=1|poss=s|n=s
+moult	moult	DET	g=m|n=s
+moulte	moult	DET	g=f|n=s
+moultes	moult	DET	g=f|n=p
+moults	moult	DET	g=m|n=p
+moyennant	moyennant	ADP	
+moyennant	moyennant	ADP	
+m²	m²	SYM	
+m³	m³	SYM	
+méga	méga	PART	
+même	même	CCONJ	
+même	même	CCONJ	
+même	même	SCONJ	
+même	même	SCONJ	
+même s'	même si	SCONJ	
+même si	même si	SCONJ	
+n'	ne	ADV	
+n'	ne	PART	
+n'importe laquelle	n'importe lequel	PRON	g=f|n=s
+n'importe lequel	n'importe lequel	PRON	g=m|n=s
+n'importe lesquelles	n'importe lequel	PRON	g=f|n=p
+n'importe lesquels	n'importe lequel	PRON	g=m|n=p
+n'importe nawak	n'importe nawak	PRON	g=m|n=s
+n'importe où	n'importe où	PRON	n=s
+n'importe quel	n'importe quel	DET	g=m|n=s
+n'importe quelle	n'importe quelle	DET	g=f|n=s
+n'importe quelles	n'importe quelles	DET	g=f|n=p
+n'importe quels	n'importe quels	DET	g=m|n=p
+n'importe qui	n'importe qui	PRON	g=f|n=s
+n'importe qui	n'importe qui	PRON	g=m|n=s
+n'importe quoi	n'importe quoi	PRON	g=f|n=s
+n'importe quoi	n'importe quoi	PRON	g=m|n=s
+ne	ne	ADV	
+ne	ne	PART	
+ni	ni	CCONJ	
+ni	ni	CCONJ	
+ni l'un ni l'autre	ni l'un ni l'autre	PRON	g=m|n=p
+ni l'une ni l'autre	ni l'une ni l'autre	PRON	g=f|n=p
+nombre d'	nombre de	DET	n=p
+nombre de	nombre de	DET	n=p
+non plus qu'	non plus que	SCONJ	
+non plus que	non plus que	SCONJ	
+non qu'	non que	SCONJ	
+non que	non que	SCONJ	
+non sans	non sans	ADP	
+nonobstant	nonobstant	ADP	
+nonobstant	nonobstant	ADP	
+nos	nos	DET	p=1|poss=p|n=p
+notre	notre	DET	p=1|poss=p|n=s
+nous	nous	PRON	g=f|p=1|n=p
+nous	nous	PRON	g=m|p=1|n=p
+nous	nous	PRON	p=1|n=p
+nous	nous	PRON	p=1|n=p
+nous	nous	PRON	p=1|n=p
+nous-même	nous-même	PRON	g=f|p=1|n=p
+nous-mêmes	nous-mêmes	PRON	g=f|p=1|n=p
+nul	nul	DET	g=m|n=s
+nul	nul	PRON	g=m|n=s
+nulle	nul	DET	g=f|n=s
+nulle	nul	PRON	g=f|n=s
+nulles	nul	PRON	g=f|n=p
+nuls	nuls	PRON	g=m|n=p
+n°	n°	SYM	
+on	avoir	AUX	n=p|p=3|t=P
+on	on	PRON	p=3|n=s
+on ne sais quel	on ne sais quel	DET	g=m|n=s
+on ne sais quelle	on ne sais quel	DET	g=f|n=s
+on ne sais quelles	on ne sais quel	DET	g=f|n=p
+on ne sais quels	on ne sais quel	DET	g=m|n=p
+on ne sais qui	on ne sais qui	PRON	g=f|n=s
+on ne sais qui	on ne sais qui	PRON	g=m|n=s
+on ne sais quoi	on ne sais quoi	PRON	g=f|n=s
+on ne sais quoi	on ne sais quoi	PRON	g=m|n=s
+ont	avoir	AUX	n=p|p=3|t=P
+or	or	CCONJ	
+or	or	CCONJ	
+osa	oser	AUX	n=s|p=3|t=T
+ose	oser	AUX	n=s|p=3|t=P
+osé	oser	AUX	n=s|g=m|t=K
+ou	ou	CCONJ	
+ou	ou	CCONJ	
+ou alors	ou alors	CCONJ	
+ou bien	ou bien	CCONJ	
+ou bien encore	ou bien encore	CCONJ	
+ou encore	ou encore	CCONJ	
+ou/et	ou/et	CCONJ	
+outre	outre	ADP	
+outre	outre	ADP	
+outre qu'	outre que	SCONJ	
+outre que	outre que	SCONJ	
+où	où	ADP	
+où	où	ADV	
+où	où	PRON	
+pac'qu'	pac'qu'	SCONJ	
+pac'que	pac'que	SCONJ	
+par	par	ADP	
+par	par	ADP	
+par delà	par delà	ADP	
+par devers	par devers	ADP	
+par l'entremise d'	par l'entremise de	ADP	
+par l'entremise de	par l'entremise de	ADP	
+par l'entremise des	par l'entremise de	ADP+DET	n=p
+par l'entremise du	par l'entremise de	ADP+DET	g=m|n=s
+par l'intermédiaire d'	par l'intermédiaire de	ADP	
+par l'intermédiaire de	par l'intermédiaire de	ADP	
+par l'intermédiaire des	par l'intermédiaire de	ADP+DET	n=p
+par l'intermédiaire du	par l'intermédiaire de	ADP+DET	g=m|n=s
+par le biais d'	par le biais de	ADP	
+par le biais de	par le biais de	ADP	
+par le biais des	par le biais de	ADP+DET	n=p
+par le biais du	par le biais de	ADP+DET	g=m|n=s
+par le fait qu'	par le fait que	SCONJ	
+par le fait que	par le fait que	SCONJ	
+par le truchement d'	par le truchement de	ADP	
+par le truchement de	par le truchement de	ADP	
+par le truchement des	par le truchement de	ADP+DET	n=p
+par le truchement du	par le truchement de	ADP+DET	g=m|n=s
+par peur d'	par peur de	ADP	
+par peur de	par peur de	ADP	
+par peur des	par peur de	ADP+DET	n=p
+par peur du	par peur de	ADP+DET	g=m|n=s
+par rapport au	par rapport à	ADP+DET	g=m|n=s
+par rapport aux	par rapport à	ADP+DET	n=p
+par rapport à	par rapport à	ADP	
+par référence au	par référence à	ADP+DET	g=m|n=s
+par référence aux	par référence à	ADP+DET	n=p
+par suite d'	par suite de	ADP	
+par suite de	par suite de	ADP	
+par suite des	par suite de	ADP+DET	n=p
+par suite du	par suite de	ADP+DET	g=m|n=s
+par égard au	par égard à	ADP+DET	g=m|n=s
+par égard aux	par égard à	ADP+DET	n=p
+par égard pour	par égard pour	ADP	
+par égard à	par égard à	ADP	
+par-delà	par-delà	ADP	
+par-dessous	par-dessous	ADP	
+par-dessus	par-dessus	ADP	
+par-devant	par-devant	ADP	
+parc'	parce	SCONJ	
+parc'qu'	parce que	SCONJ	
+parc'que	parce que	SCONJ	
+parce	parce	SCONJ	
+parce	parce	SCONJ	
+parce qu'	parce que	SCONJ	
+parce que	parce que	SCONJ	
+parmi	parmi	ADP	
+parmi	parmi	ADP	
+partant	partant	SCONJ	
+pas	pas	ADP	
+pas d'	pas de	DET	
+pas de	pas de	DET	
+pas grand-chose	pas grand-chose	PRON	g=f|n=s
+pas mal d'	pas mal de	DET	
+pas mal de	pas mal de	DET	
+pas un	pas un	PRON	g=m|n=s
+pas une	pas un	PRON	g=f|n=s
+pask'	parce que	SCONJ	
+paske	parce que	SCONJ	
+passé	passé	ADP	
+pcq	parce que	SCONJ	
+pdt	pendant	ADP	
+pdt que	pendant que	SCONJ	
+pendant	pendant	ADP	
+pendant	pendant	ADP	
+pendant	pendant	SCONJ	
+pendant	pendant	SCONJ	
+pendant qu'	pendant que	SCONJ	
+pendant que	pendant que	SCONJ	
+pensent	penser	AUX	n=p|p=3|t=P
+penta	penta	PART	
+per	per	ADP	
+personne	personne	PRON	n=s
+peu d'	peu de	ADP	
+peu de	peu de	ADP	
+peu de chose	peu de chose	PRON	g=f|n=s
+peu des	peu de	ADP+DET	n=p
+peu du	peu de	ADP+DET	g=m|n=s
+peut	pouvoir	AUX	n=s|p=3|t=P
+peuvent	pouvoir	AUX	n=p|p=3|t=P
+peux	pouvoir	AUX	n=s|p=12|t=P
+pkoi	pourquoi	ADV	
+plein	plein	ADP	
+plein d'	plein de	ADP	
+plein d'	plein de	DET	
+plein de	plein de	ADP	
+plein de	plein de	DET	
+plus	plus	ADP	
+plus	plus	CCONJ	
+plus	plus	SCONJ	
+plus d'	plus de	ADV	
+plus d'	plus de	DET	
+plus d'un	plus d'un	PRON	g=m|n=s
+plus d'une	plus d'un	PRON	g=f|n=s
+plus de	plus de	ADV	
+plus de	plus de	DET	
+plus qu'	plus que	SCONJ	
+plus que	plus que	SCONJ	
+plusieurs	plusieurs	DET	n=p
+plusieurs	plusieurs	PRON	g=f|n=p
+plusieurs	plusieurs	PRON	g=m|n=p
+plutôt qu'	plutôt que	SCONJ	
+plutôt que	plutôt que	SCONJ	
+plutôt que d'	plutôt que de	ADP	
+plutôt que de	plutôt que de	ADP	
+plutôt que des	plutôt que de	ADP+DET	n=p
+plutôt que du	plutôt que de	ADP+DET	g=m|n=s
+post	post	PART	
+poudre	poudre	ADP	
+pour	pour	ADP	
+pour	pour	ADP	
+pour	pour	SCONJ	
+pour autant qu'	pour autant que	SCONJ	
+pour autant que	pour autant que	SCONJ	
+pour cause d'	pour cause de	ADP	
+pour cause de	pour cause de	ADP	
+pour cause des	pour cause de	ADP+DET	n=p
+pour cause du	pour cause de	ADP+DET	g=m|n=s
+pour ce qui est d'	pour ce qui est de	ADP	
+pour ce qui est de	pour ce qui est de	ADP	
+pour ce qui est des	pour ce qui est de	ADP+DET	n=p
+pour ce qui est du	pour ce qui est de	ADP+DET	g=m|n=s
+pour cette raison qu'	pour cette raison que	SCONJ	
+pour cette raison que	pour cette raison que	SCONJ	
+pour comble d'	pour comble de	ADP	
+pour comble de	pour comble de	ADP	
+pour comble des	pour comble de	ADP+DET	n=p
+pour comble du	pour comble de	ADP+DET	g=m|n=s
+pour peu qu'	pour peu que	SCONJ	
+pour peu que	pour peu que	SCONJ	
+pour qu'	pour que	SCONJ	
+pour que	pour que	SCONJ	
+pour une fois qu'	pour une fois que	SCONJ	
+pour une fois que	pour une fois que	SCONJ	
+pourquoi	pourqoui	SCONJ	
+pourquoi	pourquoi	ADV	
+pourquoi	pourquoi	SCONJ	
+pourra	pouvoir	AUX	n=s|p=3|t=F
+pourraient	pouvoir	AUX	n=p|p=3|t=C
+pourrait	pouvoir	AUX	n=s|p=3|t=C
+pourras	pouvoir	AUX	n=s|p=2|t=F
+pourrez	pouvoir	AUX	n=p|p=2|t=F
+pourrions	pouvoir	AUX	n=p|p=1|t=C
+pourrons	pouvoir	AUX	n=p|p=1|t=F
+pourront	pouvoir	AUX	n=p|p=3|t=F
+pourvu qu'	pourvu que	SCONJ	
+pourvu que	pourvu que	SCONJ	
+pouvaient	pouvoir	AUX	n=p|p=3|t=I
+pouvait	pouvoir	AUX	n=s|p=3|t=I
+pouvant	pouvoir	AUX	t=G
+pouvez	pouvoir	AUX	n=p|p=2|t=P
+pouviez	pouvoir	AUX	n=p|p=2|t=I
+pouvions	pouvoir	AUX	n=p|p=1|t=I
+pouvoir	pouvoir	AUX	t=W
+pouvons	pouvoir	AUX	n=p|p=1|t=P
+pr	pour	ADP	
+proche d'	proche de	ADP	
+proche de	proche de	ADP	
+proche des	proche de	ADP+DET	n=p
+proche du	proche de	ADP+DET	g=m|n=s
+près	près	ADP	
+près d'	près de	ADP	
+près d'	près de	ADV	
+près de	près de	ADP	
+près de	près de	ADV	
+près des	près de	ADP+DET	n=p
+près du	près de	ADP+DET	g=m|n=s
+pré	pré	PART	
+préfère	préférer	AUX	n=s|p=3|t=P
+préfèrent	préférer	AUX	n=p|p=3|t=P
+préférait	préférer	AUX	n=s|p=3|t=C
+préférant	préférer	AUX	t=G
+préféré	préférer	AUX	n=s|g=m|t=K
+pu	pouvoir	AUX	n=s|g=m|t=K
+puis	pouvoir	AUX	n=s|p=12|t=S
+puis	puis	CCONJ	
+puis	puis	CCONJ	
+puis	puis	SCONJ	
+puis	puis	SCONJ	
+puisqu'	puisqu'	SCONJ	
+puisqu'	puisqu'	SCONJ	
+puisqu'	puisque	SCONJ	
+puisque	puisque	SCONJ	
+puisque	puisque	SCONJ	
+puisse	pouvoir	AUX	n=s|p=13|t=S
+puissent	pouvoir	AUX	n=p|p=3|t=S
+puissions	pouvoir	AUX	n=p|p=1|t=S
+put	pouvoir	AUX	n=s|p=3|t=T
+qd	quand	SCONJ	
+qq	quelque	DET	
+qqc	quelque chose	PRON	g=m|n=s
+qqch	quelque chose	PRON	g=m|n=s
+qqchose	quelque chose	PRON	g=m|n=s
+qqes	quelque	DET	n=p
+qqn	quelqu'un	PRON	g=m|n=s
+qqs	quelques	DET	n=p
+qu	qu	SCONJ	
+qu'	qu'	ADP	
+qu'	qu'	SCONJ	
+qu'	que	PRON	
+qu'	que	PRON	
+qu'	que	SCONJ	
+quand	quand	ADV	
+quand	quand	SCONJ	
+quand	quand	SCONJ	
+quand bien même	quand bien même	SCONJ	
+quant	quant	ADP	
+quant au	quant à	ADP+DET	g=m|n=s
+quant aux	quant à	ADP+DET	n=p
+quant à	quant à	SCONJ	
+quantité d'	quantité de	DET	n=p
+quantité de	quantité de	DET	n=p
+que	que	ADP	
+que	que	PRON	
+que	que	PRON	
+que	que	SCONJ	
+que	que	SCONJ	
+que dalle	que dalle	PRON	g=m|n=s
+que pouic	que pouic	PRON	g=m|n=s
+que'	que'	ADP	
+quel	quel	DET	g=m|n=s
+quel	quel	SCONJ	
+quelle	quel	DET	g=f|n=s
+quelles	quel	DET	g=f|n=p
+quelqu'	quelque	DET	n=s
+quelqu'un	quelqu'un	PRON	g=m|n=s
+quelqu'une	quelqu'un	PRON	g=f|n=s
+quelqu'une	quelqu'une	PRON	g=f|n=s
+quelque	quelque	DET	n=s
+quelque chose	quelque chose	PRON	g=m|n=s
+quelques	quelques	DET	n=p
+quelques-unes	quelqu'un	PRON	g=f|n=p
+quelques-unes	quelques-unes	PRON	g=f|n=p
+quelques-uns	quelqu'un	PRON	g=m|n=p
+quelques-uns	quelques-uns	PRON	g=f|n=p
+quels	quel	DET	g=m|n=p
+question	question	ADP	
+qui	qui	PRON	n=s
+qui	qui	PRON	n=s
+qui de droit	qui de droit	PRON	g=m|n=s
+qui que ce soit	qui que ce soit	PRON	g=f|n=s
+qui que ce soit	qui que ce soit	PRON	g=m|n=s
+quiconque	quiconque	PRON	g=f|n=s
+quiconque	quiconque	PRON	g=m|n=s
+quitte	quitte	ADP	
+quoi	quoi	PRON	
+quoi	quoi	PRON	
+quoi qu'	quoi que	SCONJ	
+quoi que	quoi que	SCONJ	
+quoiqu'	quoiqu'	SCONJ	
+quoiqu'	quoiqu'	SCONJ	
+quoiqu'	quoique	SCONJ	
+quoique	quoique	SCONJ	
+quoique	quoique	SCONJ	
+reste à savoir si	reste à savoir si	SCONJ	
+rien	rien	PRON	g=m|n=s
+s'	s'	SCONJ	
+s'	se	PRON	p=3
+s'	si	SCONJ	
+s/s	sous	ADP	
+sa	sa	DET	g=f|p=3|poss=s|n=s
+sache	savoir	AUX	n=s|p=13|t=S
+sache	savoir	AUX	n=s|p=2|t=Y
+sachions	savoir	AUX	n=p|p=1|t=S
+sait	savoir	AUX	n=s|p=3|t=P
+sans	sans	ADP	
+sans	sans	ADP	
+sans	sans	SCONJ	
+sans	sans	SCONJ	
+sans parler d'	sans parler de	ADP	
+sans parler de	sans parler de	ADP	
+sans parler des	sans parler de	ADP+DET	n=p
+sans parler du	sans parler de	ADP+DET	g=m|n=s
+sans qu'	sans que	SCONJ	
+sans que	sans que	SCONJ	
+sauf	sauf	ADP	
+sauf	sauf	ADP	
+sauf au	sauf à	ADP+DET	g=m|n=s
+sauf aux	sauf à	ADP+DET	n=p
+sauf qu'	sauf que	SCONJ	
+sauf que	sauf que	SCONJ	
+sauf à	sauf à	ADP	
+saura	savoir	AUX	n=s|p=3|t=F
+sauraient	savoir	AUX	n=p|p=3|t=C
+saurait	savoir	AUX	n=s|p=3|t=C
+sauras	savoir	AUX	n=s|p=2|t=F
+savait	savoir	AUX	n=s|p=3|t=I
+savent	savoir	AUX	n=p|p=3|t=P
+savoir	savoir	AUX	t=W
+savoir	savoir	SCONJ	
+savons	savoir	AUX	n=p|p=1|t=P
+se	se	PRON	p=3|n=p
+se	se	PRON	p=3|n=s
+selon	selon	ADP	
+selon	selon	ADP	
+selon qu'	selon que	SCONJ	
+selon que	selon que	SCONJ	
+sera	être	AUX	n=s|p=3|t=F
+serai	être	AUX	n=s|p=1|t=F
+seraient	être	AUX	n=p|p=3|t=C
+serais	être	AUX	n=s|p=12|t=C
+serait	être	AUX	n=s|p=3|t=C
+seras	être	AUX	n=s|p=2|t=F
+serez	être	AUX	n=p|p=2|t=F
+seriez	être	AUX	n=p|p=2|t=C
+serions	être	AUX	n=p|p=1|t=C
+seront	être	AUX	n=p|p=3|t=F
+ses	ses	DET	p=3|poss=s|n=p
+si	si	ADP	
+si	si	SCONJ	
+si	si	SCONJ	
+si bien qu'	si bien que	SCONJ	
+si bien que	si bien que	SCONJ	
+si jamais	si jamais	SCONJ	
+si peu qu'	si peu que	SCONJ	
+si peu que	si peu que	SCONJ	
+si près d'	si près de	ADP	
+si près de	si près de	ADP	
+si près des	si près de	ADP+DET	n=p
+si près du	si près de	ADP+DET	g=m|n=s
+sinon	sinon	CCONJ	
+sinon	sinon	CCONJ	
+sinon	sinon	SCONJ	
+sinon	sinon	SCONJ	
+sinon qu'	sinon que	SCONJ	
+sinon que	sinon que	SCONJ	
+sitôt qu'	sitôt que	SCONJ	
+sitôt que	sitôt que	SCONJ	
+sive	sive	CCONJ	
+soi	soi	PRON	p=3|n=s
+soi-même	soi-même	PRON	p=3|n=s
+soient	être	AUX	n=p|p=3|t=S
+sois	être	AUX	n=s|p=12|t=S
+soit	soit	CCONJ	
+soit	soit	CCONJ	
+soit	soit	SCONJ	
+soit	soit	SCONJ	
+soit	être	AUX	n=s|p=3|t=S
+sommes	être	AUX	n=p|p=1|t=P
+son	son	DET	g=m|p=3|poss=s|n=s
+son	être	AUX	n=p|p=3|t=P
+sont	être	AUX	n=p|p=3|t=P
+souhaitaient	souhaiter	AUX	n=p|p=3|t=I
+souhaitait	souhaiter	AUX	n=s|p=3|t=I
+souhaitant	souhaiter	AUX	t=G
+souhaite	souhaiter	AUX	n=s|p=3|t=P
+souhaitent	souhaiter	AUX	n=p|p=3|t=P
+souhaiteraient	souhaiter	AUX	n=p|p=3|t=C
+souhaiterait	souhaiter	AUX	n=s|p=3|t=C
+souhaité	souhaiter	AUX	n=s|g=m|t=K
+sous	sous	ADP	
+sous	sous	ADP	
+sous couvert d'	sous couvert de	ADP	
+sous couvert de	sous couvert de	ADP	
+sous couvert des	sous couvert de	ADP+DET	n=p
+sous couvert du	sous couvert de	ADP+DET	g=m|n=s
+sous forme d'	sous forme de	ADP	
+sous forme de	sous forme de	ADP	
+sous forme des	sous forme de	ADP+DET	n=p
+sous forme du	sous forme de	ADP+DET	g=m|n=s
+sous l'effet d'	sous l'effet de	ADP	
+sous l'effet de	sous l'effet de	ADP	
+sous l'effet des	sous l'effet de	ADP+DET	n=p
+sous l'effet du	sous l'effet de	ADP+DET	g=m|n=s
+sous l'impulsion d'	sous l'impulsion de	ADP	
+sous l'impulsion de	sous l'impulsion de	ADP	
+sous l'impulsion des	sous l'impulsion de	ADP+DET	n=p
+sous l'impulsion du	sous l'impulsion de	ADP+DET	g=m|n=s
+sous l'égide d'	sous l'égide de	ADP	
+sous l'égide de	sous l'égide de	ADP	
+sous l'égide des	sous l'égide de	ADP+DET	n=p
+sous l'égide du	sous l'égide de	ADP+DET	g=m|n=s
+sous la direction d'	sous la direction de	ADP	
+sous la direction de	sous la direction de	ADP	
+sous la direction des	sous la direction de	ADP+DET	n=p
+sous la direction du	sous la direction de	ADP+DET	g=m|n=s
+sous la forme d'	sous la forme de	ADP	
+sous la forme de	sous la forme de	ADP	
+sous la forme des	sous la forme de	ADP+DET	n=p
+sous la forme du	sous la forme de	ADP+DET	g=m|n=s
+sous la houlette d'	sous la houlette de	ADP	
+sous la houlette de	sous la houlette de	ADP	
+sous la houlette des	sous la houlette de	ADP+DET	n=p
+sous la houlette du	sous la houlette de	ADP+DET	g=m|n=s
+sous la pression d'	sous la pression de	ADP	
+sous la pression de	sous la pression de	ADP	
+sous la pression des	sous la pression de	ADP+DET	n=p
+sous la pression du	sous la pression de	ADP+DET	g=m|n=s
+sous le coup d'	sous le coup de	ADP	
+sous le coup de	sous le coup de	ADP	
+sous le coup des	sous le coup de	ADP+DET	n=p
+sous le coup du	sous le coup de	ADP+DET	g=m|n=s
+sous le nom d'	sous le nom de	ADP	
+sous le nom de	sous le nom de	ADP	
+sous le nom des	sous le nom de	ADP+DET	n=p
+sous le nom du	sous le nom de	ADP+DET	g=m|n=s
+sous le signe d'	sous le signe de	ADP	
+sous le signe de	sous le signe de	ADP	
+sous le signe des	sous le signe de	ADP+DET	n=p
+sous le signe du	sous le signe de	ADP+DET	g=m|n=s
+sous peine d'	sous peine de	ADP	
+sous peine de	sous peine de	ADP	
+sous peine des	sous peine de	ADP+DET	n=p
+sous peine du	sous peine de	ADP+DET	g=m|n=s
+sous prétexte d'	sous prétexte de	ADP	
+sous prétexte de	sous prétexte de	ADP	
+sous prétexte des	sous prétexte de	ADP+DET	n=p
+sous prétexte du	sous prétexte de	ADP+DET	g=m|n=s
+sous prétexte qu'	sous prétexte que	SCONJ	
+sous prétexte que	sous prétexte que	SCONJ	
+sous réserve d'	sous réserve de	ADP	
+sous réserve de	sous réserve de	ADP	
+sous réserve des	sous réserve de	ADP+DET	n=p
+sous réserve du	sous réserve de	ADP+DET	g=m|n=s
+sous réserve qu'	sous réserve que	SCONJ	
+sous réserve que	sous réserve que	SCONJ	
+soyez	être	AUX	n=p|p=2|t=P
+soyons	être	AUX	n=p|p=1|t=P
+su	savoir	AUX	n=s|g=m|t=K
+suis	être	AUX	n=s|p=1|t=P
+suite	suite	ADP	
+suite au	suite à	ADP+DET	g=m|n=s
+suite aux	suite à	ADP+DET	n=p
+suite à	suite à	ADP	
+suivant	suivant	ADP	
+suivant	suivant	ADP	
+suivant qu'	suivant que	SCONJ	
+suivant que	suivant que	SCONJ	
+sul	sul	ADP	
+sur	sur	ADP	
+sur	sur	ADP	
+sur fond d'	sur fond de	ADP	
+sur fond de	sur fond de	ADP	
+sur fond des	sur fond de	ADP+DET	n=p
+sur fond du	sur fond de	ADP+DET	g=m|n=s
+sur la place d'	sur la place de	ADP	
+sur la place de	sur la place de	ADP	
+sur la place des	sur la place de	ADP+DET	n=p
+sur la place du	sur la place de	ADP+DET	g=m|n=s
+sur la voie d'	sur la voie de	ADP	
+sur la voie de	sur la voie de	ADP	
+sur la voie des	sur la voie de	ADP+DET	n=p
+sur la voie du	sur la voie de	ADP+DET	g=m|n=s
+sur le point d'	sur le point de	ADP	
+sur le point de	sur le point de	ADP	
+sur le point des	sur le point de	ADP+DET	n=p
+sur le point du	sur le point de	ADP+DET	g=m|n=s
+sut	savoir	AUX	n=s|p=3|t=T
+t'	te	PRON	p=2|n=s
+t'	te	PRON	p=2|n=s
+t'	tu	PRON	p=2|n=s
+ta	ta	DET	g=f|p=2|poss=s|n=s
+tandis	tandis	ADP	
+tandis	tandis	ADP	
+tandis	tandis	SCONJ	
+tandis	tandis	SCONJ	
+tandis qu'	tandis que	SCONJ	
+tandis que	tandis que	SCONJ	
+tant	tant	SCONJ	
+tant	tant	SCONJ	
+tant d'	tant de	DET	
+tant de	tant de	DET	
+tant et si bien qu'	tant et si bien que	SCONJ	
+tant et si bien que	tant et si bien que	SCONJ	
+tant qu'	tant que	SCONJ	
+tant que	tant que	SCONJ	
+tantôt	tantôt	CCONJ	
+te	te	PRON	p=2|n=s
+te	te	PRON	p=2|n=s
+tel	tel	DET	g=m|n=s
+tel	tel	PRON	g=m|n=s
+tel et tel	tel et tel	DET	g=m|n=s
+tel et tel	tel et tel	PRON	g=m|n=s
+tel ou tel	tel ou tel	DET	g=m|n=s
+tel ou tel	tel ou tel	PRON	g=m|n=s
+tel qu'	tel que	SCONJ	
+tel que	tel que	SCONJ	
+telle	tel	PRON	g=f|n=s
+telle	telle	DET	g=f|n=s
+telle et telle	telle et telle	DET	g=f|n=s
+telle et telle	telle et telle	PRON	g=f|n=s
+telle ou telle	telle ou telle	DET	g=f|n=s
+telle ou telle	telle ou telle	PRON	g=f|n=s
+telle qu'	telle que	SCONJ	
+telle que	telle que	SCONJ	
+telles	telles	ADP	
+telles	telles	DET	g=f|n=p
+telles	telles	PRON	g=f|n=p
+telles et telles	telles et telles	DET	g=f|n=p
+telles et telles	telles et telles	PRON	g=f|n=p
+telles ou telles	telles ou telles	DET	g=f|n=p
+telles ou telles	telles ou telles	PRON	g=f|n=p
+telles qu'	telles que	SCONJ	
+telles que	telles que	SCONJ	
+tels	tels	ADP	
+tels	tels	DET	g=m|n=p
+tels	tels	PRON	g=m|n=p
+tels et tels	tels et tels	DET	g=m|n=p
+tels et tels	tels et tels	PRON	g=m|n=p
+tels ou tels	tels ou tels	DET	g=m|n=p
+tels ou tels	tels ou tels	PRON	g=m|n=p
+tels qu'	tels que	SCONJ	
+tels que	tels que	SCONJ	
+tes	tes	DET	p=2|poss=s|n=p
+toi	toi	PRON	p=2|n=s
+toi-même	toi-même	PRON	p=2|n=s
+ton	ton	DET	g=m|p=2|poss=s|n=s
+tous	tous	DET	g=m|n=p
+tous	tout	PRON	g=m|n=p
+tout	tout	ADP	
+tout	tout	DET	g=m|n=s
+tout	tout	PRON	g=m|n=s
+tout au bout d'	tout au bout de	ADP	
+tout au bout de	tout au bout de	ADP	
+tout au bout des	tout au bout de	ADP+DET	n=p
+tout au bout du	tout au bout de	ADP+DET	g=m|n=s
+tout au long d'	tout au long de	ADP	
+tout au long de	tout au long de	ADP	
+tout au long des	tout au long de	ADP+DET	n=p
+tout au long du	tout au long de	ADP+DET	g=m|n=s
+tout comme	tout comme	CCONJ	
+tout en haut d'	tout en haut de	ADP	
+tout en haut de	tout en haut de	ADP	
+tout en haut des	tout en haut de	ADP+DET	n=p
+tout en haut du	tout en haut de	ADP+DET	g=m|n=s
+tout le monde	tout le monde	PRON	g=m|n=s
+tout plein d'	tout plein de	ADP	
+tout plein de	tout plein de	ADP	
+tout plein des	tout plein de	ADP+DET	n=p
+tout plein du	tout plein de	ADP+DET	g=m|n=s
+tout près d'	tout près de	ADP	
+tout près de	tout près de	ADP	
+tout près des	tout près de	ADP+DET	n=p
+tout près du	tout près de	ADP+DET	g=m|n=s
+tout un chacun	tout un chacun	PRON	g=m|n=s
+toute	tout	PRON	g=f|n=s
+toute	toute	DET	g=f|n=s
+toutes	tout	PRON	g=f|n=p
+toutes	toutes	DET	g=f|n=p
+travers	travers	ADP	
+tri	tri	PART	
+tte	toute	DET	g=f|n=s
+tu	tu	PRON	p=2|n=s
+un	un	DET	g=m|n=s
+un	un	PRON	g=m|n=s
+un autre	un autre	PRON	g=m|n=s
+un peu d'	un peu de	DET	
+un peu de	un peu de	DET	
+un tel	un tel	DET	g=m|n=s
+un tel	untel	PRON	g=m|n=s
+une	un	PRON	g=f|n=s
+une	une	DET	g=f|n=s
+une	une	PRON	g=f|n=s
+une	une	SCONJ	
+une	une	SCONJ	g=f|n=s
+une autre	un autre	PRON	g=f|n=s
+une bonne	un bon	PRON	g=f|n=s
+une fois qu'	une fois que	SCONJ	
+une fois que	une fois que	SCONJ	
+une telle	une telle	DET	g=f|n=s
+une telle	untel	PRON	g=f|n=s
+unes	unes	PRON	g=f|n=p
+unetelle	untel	PRON	g=f|n=s
+uns	uns	PRON	g=m|n=p
+untel	untel	PRON	g=m|n=s
+va	aller	AUX	n=s|p=2|t=Y
+va	aller	AUX	n=s|p=3|t=P
+vais	aller	AUX	n=s|p=1|t=P
+venaient	venir	AUX	n=p|p=3|t=I
+venait	venir	AUX	n=s|p=3|t=I
+venant	venir	AUX	t=G
+venir	venir	AUX	t=W
+venu	venir	AUX	n=s|g=m|t=K
+venue	venir	AUX	n=s|g=f|t=K
+venues	venir	AUX	n=p|g=f|t=K
+venus	venir	AUX	n=p|g=m|t=K
+vers	vers	ADP	
+vers	vers	ADP	
+versus	versus	ADP	
+versus	versus	ADP	
+veuille	vouloir	AUX	n=s|p=2|t=Y
+veuille	vouloir	AUX	n=s|p=3|t=S
+veuillez	vouloir	AUX	n=p|p=2|t=Y
+veulent	vouloir	AUX	n=p|p=3|t=P
+veut	vouloir	AUX	n=s|p=3|t=P
+veux	vouloir	AUX	n=s|p=12|t=P
+via	via	ADP	
+via	via	ADP	
+viendrait	venir	AUX	n=s|p=3|t=C
+viendront	venir	AUX	n=p|p=3|t=F
+viennent	venir	AUX	n=p|p=3|t=P
+vient	venir	AUX	n=s|p=3|t=P
+vis	vis	ADP	
+vis à vis d'	vis-à-vis de	ADP	
+vis à vis de	vis-à-vis de	ADP	
+vis-à-vis	vis-à-vis	ADP	
+vis-à-vis	vis-à-vis	ADP	
+vis-à-vis d'	vis-à-vis de	ADP	
+vis-à-vis de	vis-à-vis de	ADP	
+vis-à-vis des	vis-à-vis de	ADP+DET	n=p
+vis-à-vis du	vis-à-vis de	ADP+DET	g=m|n=s
+voici	voici	ADP	
+voici	voici	ADP	
+voilà	voilà	ADP	
+voilà	voilà	ADP	
+voir	voir	SCONJ	
+voire	voire	CCONJ	
+voire	voire	CCONJ	
+voire	voire	SCONJ	
+voire	voire	SCONJ	
+voire même	voire même	CCONJ	
+vont	aller	AUX	n=p|p=3|t=P
+vos	vos	DET	p=2|poss=p|n=p
+vot'	votre	DET	p=2|poss=p|n=s
+votre	votre	DET	p=2|poss=p|n=s
+voudra	vouloir	AUX	n=s|p=3|t=F
+voudraient	vouloir	AUX	n=p|p=3|t=C
+voudrais	vouloir	AUX	n=s|p=12|t=C
+voudrait	vouloir	AUX	n=s|p=3|t=C
+voudras	vouloir	AUX	n=s|p=2|t=F
+voudrions	vouloir	AUX	n=p|p=1|t=C
+voulaient	vouloir	AUX	n=p|p=3|t=I
+voulait	vouloir	AUX	n=s|p=3|t=I
+voulant	vouloir	AUX	t=G
+voulez	vouloir	AUX	n=p|p=2|t=P
+voulions	vouloir	AUX	n=p|p=1|t=I
+vouloir	vouloir	AUX	t=W
+voulons	vouloir	AUX	n=p|p=1|t=P
+voulu	vouloir	AUX	n=p|g=m|t=K
+vous	vous	PRON	g=f|p=2|n=p
+vous	vous	PRON	g=m|p=2|n=p
+vous	vous	PRON	p=2|n=p
+vous	vous	PRON	p=2|n=p
+vous	vous	PRON	p=2|n=p
+vous-même	vous-même	PRON	g=m|p=2|n=p
+vous-mêmes	vous-mêmes	PRON	g=m|p=2|n=p
+vs	versus	ADP	
+vs.	versus	ADP	
+vu	vu	ADP	
+vu	vu	ADP	
+x	x	ADP	
+x	x	PUNCT	
+x	x	SYM	
+y	y	ADP	
+y	y	PRON	
+y compris	y compris	ADP	
+{	{	PUNCT	
+{	{	PUNCT	
+|	|	PUNCT	
+|	|	PUNCT	
+}	}	PUNCT	
+}	}	PUNCT	
+¡	¡	PUNCT	
+¢	¢	SYM	
+£	£	SYM	
+¥	¥	SYM	
+¥	¥	SYM	
+§	§	PUNCT	
+«	«	PUNCT	
+­	­	PUNCT	
+°	°	NOUN	g=m
+°	°	SYM	
+±	±	ADP	
+±	±	ADP	
+±	±	SYM	
+¶	¶	PUNCT	
+·	·	PUNCT	
+·	·	PUNCT	
+º	º	SYM	
+»	»	PUNCT	
+¿	¿	PUNCT	
+×	×	SYM	
+à	avoir	AUX	n=s|p=3|t=P
+à	à	ADP	
+à	à	ADP	
+à	à	CCONJ	
+à	à	SCONJ	
+à bord d'	à bord de	ADP	
+à bord de	à bord de	ADP	
+à bord des	à bord de	ADP+DET	n=p
+à bord du	à bord de	ADP+DET	g=m|n=s
+à bout d'	à bout de	ADP	
+à bout de	à bout de	ADP	
+à bout des	à bout de	ADP+DET	n=p
+à bout du	à bout de	ADP+DET	g=m|n=s
+à cause d'	à cause de	ADP	
+à cause de	à cause de	ADP	
+à cause des	à cause de	ADP+DET	n=p
+à cause du	à cause de	ADP+DET	g=m|n=s
+à ce stade d'	à ce stade de	ADP	
+à ce stade de	à ce stade de	ADP	
+à ce stade des	à ce stade de	ADP+DET	n=p
+à ce stade du	à ce stade de	ADP+DET	g=m|n=s
+à chaque fois qu'	à chaque fois que	SCONJ	
+à chaque fois que	à chaque fois que	SCONJ	
+à compter d'	à compter de	ADP	
+à compter de	à compter de	ADP	
+à compter des	à compter de	ADP+DET	n=p
+à compter du	à compter de	ADP+DET	g=m|n=s
+à concurrence d'	à concurrence de	ADP	
+à concurrence de	à concurrence de	ADP	
+à concurrence des	à concurrence de	ADP+DET	n=p
+à concurrence du	à concurrence de	ADP+DET	g=m|n=s
+à condition d'	à condition de	ADP	
+à condition de	à condition de	ADP	
+à condition des	à condition de	ADP+DET	n=p
+à condition du	à condition de	ADP+DET	g=m|n=s
+à condition qu'	à condition que	SCONJ	
+à condition que	à condition que	SCONJ	
+à coups d'	à coups de	ADP	
+à coups de	à coups de	ADP	
+à coups des	à coups de	ADP+DET	n=p
+à coups du	à coups de	ADP+DET	g=m|n=s
+à court d'	à court de	ADP	
+à court de	à court de	ADP	
+à court des	à court de	ADP+DET	n=p
+à court du	à court de	ADP+DET	g=m|n=s
+à côté d'	à côté de	ADP	
+à côté de	à côté de	ADP	
+à côté des	à côté de	ADP+DET	n=p
+à côté du	à côté de	ADP+DET	g=m|n=s
+à destination d'	à destination de	ADP	
+à destination de	à destination de	ADP	
+à destination des	à destination de	ADP+DET	n=p
+à destination du	à destination de	ADP+DET	g=m|n=s
+à défaut d'	à défaut de	ADP	
+à défaut de	à défaut de	ADP	
+à défaut des	à défaut de	ADP+DET	n=p
+à défaut du	à défaut de	ADP+DET	g=m|n=s
+à force d'	à force de	ADP	
+à force de	à force de	ADP	
+à force des	à force de	ADP+DET	n=p
+à force du	à force de	ADP+DET	g=m|n=s
+à hauteur d'	à hauteur de	ADP	
+à hauteur de	à hauteur de	ADP	
+à hauteur des	à hauteur de	ADP+DET	n=p
+à hauteur du	à hauteur de	ADP+DET	g=m|n=s
+à l'abri d'	à l'abri de	ADP	
+à l'abri de	à l'abri de	ADP	
+à l'abri des	à l'abri de	ADP+DET	n=p
+à l'abri du	à l'abri de	ADP+DET	g=m|n=s
+à l'aide d'	à l'aide de	ADP	
+à l'aide de	à l'aide de	ADP	
+à l'aide des	à l'aide de	ADP+DET	n=p
+à l'aide du	à l'aide de	ADP+DET	g=m|n=s
+à l'appel d'	à l'appel de	ADP	
+à l'appel de	à l'appel de	ADP	
+à l'appel des	à l'appel de	ADP+DET	n=p
+à l'appel du	à l'appel de	ADP+DET	g=m|n=s
+à l'aune d'	à l'aune de	ADP	
+à l'aune de	à l'aune de	ADP	
+à l'aune des	à l'aune de	ADP+DET	n=p
+à l'aune du	à l'aune de	ADP+DET	g=m|n=s
+à l'encontre d'	à l'encontre de	ADP	
+à l'encontre de	à l'encontre de	ADP	
+à l'encontre des	à l'encontre de	ADP+DET	n=p
+à l'encontre du	à l'encontre de	ADP+DET	g=m|n=s
+à l'entrée d'	à l'entrée de	ADP	
+à l'entrée de	à l'entrée de	ADP	
+à l'entrée des	à l'entrée de	ADP+DET	n=p
+à l'entrée du	à l'entrée de	ADP+DET	g=m|n=s
+à l'exception d'	à l'exception de	ADP	
+à l'exception de	à l'exception de	ADP	
+à l'exception des	à l'exception de	ADP+DET	n=p
+à l'exception du	à l'exception de	ADP+DET	g=m|n=s
+à l'exclusion d'	à l'exclusion de	ADP	
+à l'exclusion de	à l'exclusion de	ADP	
+à l'exclusion des	à l'exclusion de	ADP+DET	n=p
+à l'exclusion du	à l'exclusion de	ADP+DET	g=m|n=s
+à l'heure d'	à l'heure de	ADP	
+à l'heure de	à l'heure de	ADP	
+à l'heure des	à l'heure de	ADP+DET	n=p
+à l'heure du	à l'heure de	ADP+DET	g=m|n=s
+à l'heure où	à l'heure où	SCONJ	
+à l'image d'	à l'image de	ADP	
+à l'image de	à l'image de	ADP	
+à l'image des	à l'image de	ADP+DET	n=p
+à l'image du	à l'image de	ADP+DET	g=m|n=s
+à l'initiative d'	à l'initiative de	ADP	
+à l'initiative de	à l'initiative de	ADP	
+à l'initiative des	à l'initiative de	ADP+DET	n=p
+à l'initiative du	à l'initiative de	ADP+DET	g=m|n=s
+à l'instar d'	à l'instar de	ADP	
+à l'instar de	à l'instar de	ADP	
+à l'instar des	à l'instar de	ADP+DET	n=p
+à l'instar du	à l'instar de	ADP+DET	g=m|n=s
+à l'insu d'	à l'insu de	ADP	
+à l'insu de	à l'insu de	ADP	
+à l'insu des	à l'insu de	ADP+DET	n=p
+à l'insu du	à l'insu de	ADP+DET	g=m|n=s
+à l'intention d'	à l'intention de	ADP	
+à l'intention de	à l'intention de	ADP	
+à l'intention des	à l'intention de	ADP+DET	n=p
+à l'intention du	à l'intention de	ADP+DET	g=m|n=s
+à l'intérieur d'	à l'intérieur de	ADP	
+à l'intérieur de	à l'intérieur de	ADP	
+à l'intérieur des	à l'intérieur de	ADP+DET	n=p
+à l'intérieur du	à l'intérieur de	ADP+DET	g=m|n=s
+à l'inverse d'	à l'inverse de	ADP	
+à l'inverse de	à l'inverse de	ADP	
+à l'inverse des	à l'inverse de	ADP+DET	n=p
+à l'inverse du	à l'inverse de	ADP+DET	g=m|n=s
+à l'issue d'	à l'issue de	ADP	
+à l'issue de	à l'issue de	ADP	
+à l'issue des	à l'issue de	ADP+DET	n=p
+à l'issue du	à l'issue de	ADP+DET	g=m|n=s
+à l'occasion d'	à l'occasion de	ADP	
+à l'occasion de	à l'occasion de	ADP	
+à l'occasion des	à l'occasion de	ADP+DET	n=p
+à l'occasion du	à l'occasion de	ADP+DET	g=m|n=s
+à l'origine d'	à l'origine de	ADP	
+à l'origine de	à l'origine de	ADP	
+à l'origine des	à l'origine de	ADP+DET	n=p
+à l'origine du	à l'origine de	ADP+DET	g=m|n=s
+à l'égard d'	à l'égard de	ADP	
+à l'égard de	à l'égard de	ADP	
+à l'égard des	à l'égard de	ADP+DET	n=p
+à l'égard du	à l'égard de	ADP+DET	g=m|n=s
+à la base d'	à la base de	ADP	
+à la base de	à la base de	ADP	
+à la base des	à la base de	ADP+DET	n=p
+à la base du	à la base de	ADP+DET	g=m|n=s
+à la charge d'	à la charge de	ADP	
+à la charge de	à la charge de	ADP	
+à la charge des	à la charge de	ADP+DET	n=p
+à la charge du	à la charge de	ADP+DET	g=m|n=s
+à la demande d'	à la demande de	ADP	
+à la demande de	à la demande de	ADP	
+à la demande des	à la demande de	ADP+DET	n=p
+à la demande du	à la demande de	ADP+DET	g=m|n=s
+à la différence d'	à la différence de	ADP	
+à la différence de	à la différence de	ADP	
+à la différence des	à la différence de	ADP+DET	n=p
+à la différence du	à la différence de	ADP+DET	g=m|n=s
+à la disposition d'	à la disposition de	ADP	
+à la disposition de	à la disposition de	ADP	
+à la disposition des	à la disposition de	ADP+DET	n=p
+à la disposition du	à la disposition de	ADP+DET	g=m|n=s
+à la faveur d'	à la faveur de	ADP	
+à la faveur de	à la faveur de	ADP	
+à la faveur des	à la faveur de	ADP+DET	n=p
+à la faveur du	à la faveur de	ADP+DET	g=m|n=s
+à la fin d'	à la fin de	ADP	
+à la fin de	à la fin de	ADP	
+à la fin des	à la fin de	ADP+DET	n=p
+à la fin du	à la fin de	ADP+DET	g=m|n=s
+à la hauteur d'	à la hauteur de	ADP	
+à la hauteur de	à la hauteur de	ADP	
+à la hauteur des	à la hauteur de	ADP+DET	n=p
+à la hauteur du	à la hauteur de	ADP+DET	g=m|n=s
+à la limite d'	à la limite de	ADP	
+à la limite de	à la limite de	ADP	
+à la limite des	à la limite de	ADP+DET	n=p
+à la limite du	à la limite de	ADP+DET	g=m|n=s
+à la manière d'	à la manière de	ADP	
+à la manière de	à la manière de	ADP	
+à la manière des	à la manière de	ADP+DET	n=p
+à la manière du	à la manière de	ADP+DET	g=m|n=s
+à la place d'	à la place de	ADP	
+à la place de	à la place de	ADP	
+à la place des	à la place de	ADP+DET	n=p
+à la place du	à la place de	ADP+DET	g=m|n=s
+à la recherche d'	à la recherche de	ADP	
+à la recherche de	à la recherche de	ADP	
+à la recherche des	à la recherche de	ADP+DET	n=p
+à la recherche du	à la recherche de	ADP+DET	g=m|n=s
+à la suite d'	à la suite de	ADP	
+à la suite de	à la suite de	ADP	
+à la suite des	à la suite de	ADP+DET	n=p
+à la suite du	à la suite de	ADP+DET	g=m|n=s
+à la tête d'	à la tête de	ADP	
+à la tête de	à la tête de	ADP	
+à la tête des	à la tête de	ADP+DET	n=p
+à la tête du	à la tête de	ADP+DET	g=m|n=s
+à la veille d'	à la veille de	ADP	
+à la veille de	à la veille de	ADP	
+à la veille des	à la veille de	ADP+DET	n=p
+à la veille du	à la veille de	ADP+DET	g=m|n=s
+à mesure qu'	à mesure que	SCONJ	
+à mesure que	à mesure que	SCONJ	
+à moins d'	à moins de	ADP	
+à moins de	à moins de	ADP	
+à moins des	à moins de	ADP+DET	n=p
+à moins du	à moins de	ADP+DET	g=m|n=s
+à moins qu'	à moins que	SCONJ	
+à moins que	à moins que	SCONJ	
+à même	à même	ADP	
+à même d'	à même de	ADP	
+à même de	à même de	ADP	
+à même des	à même de	ADP+DET	n=p
+à même du	à même de	ADP+DET	g=m|n=s
+à partir d'	à partir de	ADP	
+à partir de	à partir de	ADP	
+à partir des	à partir de	ADP+DET	n=p
+à partir du	à partir de	ADP+DET	g=m|n=s
+à partir du moment où	à partir du moment où	SCONJ	
+à proportion d'	à proportion de	ADP	
+à proportion de	à proportion de	ADP	
+à proportion des	à proportion de	ADP+DET	n=p
+à proportion du	à proportion de	ADP+DET	g=m|n=s
+à propos d'	à propos de	ADP	
+à propos de	à propos de	ADP	
+à propos des	à propos de	ADP+DET	n=p
+à propos du	à propos de	ADP+DET	g=m|n=s
+à proximité d'	à proximité de	ADP	
+à proximité de	à proximité de	ADP	
+à proximité des	à proximité de	ADP+DET	n=p
+à proximité du	à proximité de	ADP+DET	g=m|n=s
+à présent qu'	à présent que	SCONJ	
+à présent que	à présent que	SCONJ	
+à raison d'	à raison de	ADP	
+à raison de	à raison de	ADP	
+à raison des	à raison de	ADP+DET	n=p
+à raison du	à raison de	ADP+DET	g=m|n=s
+à savoir	à savoir	ADP	
+à savoir	à savoir	CCONJ	
+à supposer qu'	à supposer que	SCONJ	
+à supposer que	à supposer que	SCONJ	
+à tel point qu'	à tel point que	SCONJ	
+à tel point que	à tel point que	SCONJ	
+à telle enseigne qu'	à telle enseigne que	SCONJ	
+à telle enseigne que	à telle enseigne que	SCONJ	
+à titre d'	à titre de	ADP	
+à titre de	à titre de	ADP	
+à titre des	à titre de	ADP+DET	n=p
+à titre du	à titre de	ADP+DET	g=m|n=s
+à travers	à travers	ADP	
+á	á	ADP	
+ç'	ça	PRON	n=s
+ça	ça	PRON	n=s
+ès	ès	ADP	
+étaient	être	AUX	n=p|p=3|t=I
+étais	être	AUX	n=s|p=12|t=I
+était	être	AUX	n=s|p=3|t=I
+étant	étant	SCONJ	
+étant	être	AUX	t=G
+étant	être	SCONJ	
+étant donné qu'	étant donné que	SCONJ	
+étant donné que	étant donné que	SCONJ	
+étions	être	AUX	n=p|p=1|t=I
+été	être	AUX	n=p|g=m|t=K
+êtes	être	AUX	n=p|p=2|t=P
+être	être	AUX	t=W
+؋	؋	SYM	
+،	,	PUNCT	
+฿	฿	SYM	
+‐	-	PUNCT	
+‒	-	PUNCT	
+–	-	PUNCT	
+—	-	PUNCT	
+—	—	PUNCT	
+―	-	PUNCT	
+‘	"	PUNCT	
+’	"	PUNCT	
+’	'	PUNCT	
+“	"	PUNCT	
+”	"	PUNCT	
+†	†	PUNCT	
+†	†	SYM	
+‡	‡	PUNCT	
+•	•	PUNCT	
+…	...	PUNCT	
+‰	‰	NOUN	g=m
+″	"	PUNCT	
+⁄	/	PUNCT	
+₡	₡	SYM	
+₨	₨	SYM	
+₪	₪	SYM	
+₫	₫	SYM	
+€	€	SYM	
+₱	₱	SYM	
+₴	₴	SYM	
+₼	₼	SYM	
+₽	₽	SYM	
+№	№	NOUN	g=m|n=s
+№	№	SYM	
+﷼	﷼	SYM	
+#### Nombres (mieux gérés par des expressions régulières) ####
+123	999	NUM	n=p|s=card
+1999	1999	NUM	n=p|s=card
+1999	1999	NUM	n=s|s=card
+1999-2000	1999-2000	NUM	n=p|s=card
+999	999	NUM	n=p|s=card
+cent	cent	ADJ	n=p|s=card
+cent	cent	DET	n=p|s=card
+cent	cent	NUM	n=p|s=card
+cent	cent	PRON	n=p|s=card
+cinq	cinq	ADJ	n=p|s=card
+cinq	cinq	DET	n=p|s=card
+cinq	cinq	NUM	n=p|s=card
+cinq	cinq	PRON	n=p|s=card
+cinquante	cinquante	ADJ	n=p|s=card
+cinquante	cinquante	DET	n=p|s=card
+cinquante	cinquante	NUM	n=p|s=card
+cinquante	cinquante	PRON	n=p|s=card
+deux	deux	ADJ	n=p|s=card
+deux	deux	DET	n=p|s=card
+deux	deux	NUM	n=p|s=card
+deux	deux	PRON	n=p|s=card
+dix	dix	ADJ	n=p|s=card
+dix	dix	DET	n=p|s=card
+dix	dix	NUM	n=p|s=card
+dix	dix	PRON	n=p|s=card
+dix-huit	dix-huit	ADJ	n=p|s=card
+dix-huit	dix-huit	DET	n=p|s=card
+dix-huit	dix-huit	NUM	n=p|s=card
+dix-huit	dix-huit	PRON	n=p|s=card
+dix-neuf	dix-neuf	ADJ	n=p|s=card
+dix-neuf	dix-neuf	DET	n=p|s=card
+dix-neuf	dix-neuf	NUM	n=p|s=card
+dix-neuf	dix-neuf	PRON	n=p|s=card
+dix-sept	dix-sept	ADJ	n=p|s=card
+dix-sept	dix-sept	DET	n=p|s=card
+dix-sept	dix-sept	NUM	n=p|s=card
+dix-sept	dix-sept	PRON	n=p|s=card
+douze	douze	ADJ	n=p|s=card
+douze	douze	DET	n=p|s=card
+douze	douze	NUM	n=p|s=card
+douze	douze	PRON	n=p|s=card
+huit	huit	ADJ	n=p|s=card
+huit	huit	DET	n=p|s=card
+huit	huit	NUM	n=p|s=card
+huit	huit	PRON	n=p|s=card
+huitante	huitante	ADJ	n=p|s=card
+huitante	huitante	DET	n=p|s=card
+huitante	huitante	NUM	n=p|s=card
+huitante	huitante	PRON	n=p|s=card
+mille	mille	ADJ	n=p|s=card
+mille	mille	DET	n=p|s=card
+mille	mille	NUM	n=p|s=card
+mille	mille	PRON	n=p|s=card
+neuf	neuf	ADJ	n=p|s=card
+neuf	neuf	DET	n=p|s=card
+neuf	neuf	NUM	n=p|s=card
+neuf	neuf	PRON	n=p|s=card
+nonante	nonante	ADJ	n=p|s=card
+nonante	nonante	DET	n=p|s=card
+nonante	nonante	NUM	n=p|s=card
+nonante	nonante	PRON	n=p|s=card
+octante	octante	ADJ	n=p|s=card
+octante	octante	DET	n=p|s=card
+octante	octante	NUM	n=p|s=card
+octante	octante	PRON	n=p|s=card
+onze	onze	ADJ	n=p|s=card
+onze	onze	DET	n=p|s=card
+onze	onze	NUM	n=p|s=card
+onze	onze	PRON	n=p|s=card
+quarante	quarante	ADJ	n=p|s=card
+quarante	quarante	DET	n=p|s=card
+quarante	quarante	NUM	n=p|s=card
+quarante	quarante	PRON	n=p|s=card
+quatorze	quatorze	ADJ	n=p|s=card
+quatorze	quatorze	DET	n=p|s=card
+quatorze	quatorze	NUM	n=p|s=card
+quatorze	quatorze	PRON	n=p|s=card
+quatre	quatre	ADJ	n=p|s=card
+quatre	quatre	DET	n=p|s=card
+quatre	quatre	NUM	n=p|s=card
+quatre	quatre	PRON	n=p|s=card
+quatre-vingt	quatre-vingt	ADJ	n=p|s=card
+quatre-vingt	quatre-vingt	DET	n=p|s=card
+quatre-vingt	quatre-vingt	NUM	n=p|s=card
+quatre-vingt	quatre-vingt	PRON	n=p|s=card
+quatre-vingt-dix	quatre-vingt-dix	ADJ	n=p|s=card
+quatre-vingt-dix	quatre-vingt-dix	DET	n=p|s=card
+quatre-vingt-dix	quatre-vingt-dix	NUM	n=p|s=card
+quatre-vingt-dix	quatre-vingt-dix	PRON	n=p|s=card
+quinze	quinze	ADJ	n=p|s=card
+quinze	quinze	DET	n=p|s=card
+quinze	quinze	NUM	n=p|s=card
+quinze	quinze	PRON	n=p|s=card
+seize	seize	ADJ	n=p|s=card
+seize	seize	DET	n=p|s=card
+seize	seize	NUM	n=p|s=card
+seize	seize	PRON	n=p|s=card
+sept	sept	ADJ	n=p|s=card
+sept	sept	DET	n=p|s=card
+sept	sept	NUM	n=p|s=card
+sept	sept	PRON	n=p|s=card
+septante	septante	ADJ	n=p|s=card
+septante	septante	DET	n=p|s=card
+septante	septante	NUM	n=p|s=card
+septante	septante	PRON	n=p|s=card
+six	six	ADJ	n=p|s=card
+six	six	DET	n=p|s=card
+six	six	NUM	n=p|s=card
+six	six	PRON	n=p|s=card
+soixante	soixante	ADJ	n=p|s=card
+soixante	soixante	DET	n=p|s=card
+soixante	soixante	NUM	n=p|s=card
+soixante	soixante	PRON	n=p|s=card
+soixante-dix	soixante-dix	ADJ	n=p|s=card
+soixante-dix	soixante-dix	DET	n=p|s=card
+soixante-dix	soixante-dix	NUM	n=p|s=card
+soixante-dix	soixante-dix	PRON	n=p|s=card
+treize	treize	ADJ	n=p|s=card
+treize	treize	DET	n=p|s=card
+treize	treize	NUM	n=p|s=card
+treize	treize	PRON	n=p|s=card
+trente	trente	ADJ	n=p|s=card
+trente	trente	DET	n=p|s=card
+trente	trente	NUM	n=p|s=card
+trente	trente	PRON	n=p|s=card
+trois	trois	ADJ	n=p|s=card
+trois	trois	DET	n=p|s=card
+trois	trois	NUM	n=p|s=card
+trois	trois	PRON	n=p|s=card
+vingt	vingt	ADJ	n=p|s=card
+vingt	vingt	DET	n=p|s=card
+vingt	vingt	NUM	n=p|s=card
+vingt	vingt	PRON	n=p|s=card
