@@ -29,7 +29,7 @@ RegexTokenAnnotator	\b(-lui)(?!\-)\b	replacement=lui	group=1
 RegexTokenAnnotator	\b(-moi)(?!\-)\b	replacement=moi	group=1
 RegexTokenAnnotator	\b(-nous)(?!\-)\b	replacement=nous	group=1
 RegexTokenAnnotator	\b(-toi)(?!\-)\b	replacement=toi	group=1
-RegexTokenAnnotator	\b(-tu)(?!\-)\b	replacement=tu	group=1	posTag=CLS
+RegexTokenAnnotator	\b(-tu)(?!\-)\b	replacement=tu	group=1	posTag=PRON
 RegexTokenAnnotator	\b(-y)(?!\-)\b	replacement=y	group=1
 RegexTokenAnnotator	\b(-elle)(?!\-)\b	replacement=elle	group=1
 RegexTokenAnnotator	\b(-elles)(?!\-)\b	replacement=elles	group=1
@@ -39,8 +39,8 @@ RegexTokenAnnotator	\b(-on)(?!\-)\b	replacement=on	group=1
 RegexTokenAnnotator	\b(?!rendez)\w+(-vous)(?!\-)\b	replacement=vous	group=1
 RegexTokenAnnotator	\b(-m['’])(?!\-)\b	replacement=moi	group=1
 RegexTokenAnnotator	\b(-t['’])(?!\-)\b	replacement=toi	group=1
-RegexTokenAnnotator \b\w+(-\w+)*-(?!(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y|elle|elles|il|ils|on|vous|m|t))\w+\b
-RegexTokenAnnotator \b(\w+(-\w+)*)-(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y|elle|elles|il|ils|on|vous|m|t)\b	group=1
+RegexTokenAnnotator	\b\w+(-\w+)*-(?!(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y|elle|elles|il|ils|on|vous|m|t))\w+\b
+RegexTokenAnnotator	\b(\w+(-\w+)*)-(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y|elle|elles|il|ils|on|vous|m|t)\b	group=1
 
 
 ###################
