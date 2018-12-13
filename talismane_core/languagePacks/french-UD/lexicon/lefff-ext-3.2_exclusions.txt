@@ -1,0 +1,2691 @@
+Word	Lemma	Category
+&	et	coo
+&amp;	et	coo
+&gt;	suivre	v
+&gt;	suivre	v
+&lt;	précéder	v
+&lt;	précéder	v
+/	ou	coo
+@	à	prep
+@+	à plus	pres
+~	environ	adv
+++	à plus	pres
+<	précéder	v
+<<	précéder	v
+>	suivre	v
+>>	suivre	v
+±	plus ou moins	adv
+°	degré	nc
+°C	degré	nc
+°F	degré	nc
+½	demi	nc
+à-tout-va	à tout va	adv
+à +	à plus	pres
+à cause d'	à cause de	prep
+à cause d'__prep	à cause de	prep
+à cause de__prep	à cause de	prep
+à côté d'	à côté de	prep
+à côté d'__prep	à côté de	prep
+à côté de__prep	à côté de	prep
+à défaut d'	à défaut de	prep
+à défaut d'__prep	à défaut de	prep
+à défaut de__prep	à défaut de	prep
+à force d'	à force de	prep
+à force d'__prep	à force de	prep
+à force de__prep	à force de	prep
+à hauteur d'	à hauteur de	prep
+à hauteur d'__prep	à hauteur de	prep
+à hauteur de__prep	à hauteur de	prep
+à l'aune d'	à l'aune de	prep
+à l'aune d'__prep	à l'aune de	prep
+à l'aune de__prep	à l'aune de	prep
+à l'égard d'	à l'égard de	prep
+à l'égard d'__prep	à l'égard de	prep
+à l'égard de__prep	à l'égard de	prep
+à l'encontre d'	à l'encontre de	prep
+à l'encontre d'__prep	à l'encontre de	prep
+à l'encontre de__prep	à l'encontre de	prep
+à l'instar d'	à l'instar de	prep
+à l'instar d'__prep	à l'instar de	prep
+à l'instar de__prep	à l'instar de	prep
+à l'insu d'	à l'insu de	prep
+à l'insu d'__prep	à l'insu de	prep
+à l'insu de__prep	à l'insu de	prep
+à moins d'	à moins de	prep
+à moins d'__prep	à moins de	prep
+à moins de__prep	à moins de	prep
+à partir d'	à partir de	prep
+à partir d'__prep	à partir de	prep
+à partir de__prep	à partir de	prep
+à plouche	à plus	pres
+à proportion d'	à proportion de	prep
+à proportion d'__prep	à proportion de	prep
+à proportion de__prep	à proportion de	prep
+à propos d'	à propos de	prep
+à propos d'__prep	à propos de	prep
+à propos de__prep	à propos de	prep
+à raison d'	à raison de	prep
+à raison d'__prep	à raison de	prep
+à raison de__prep	à raison de	prep
+à tout-va	à tout va	adv
+a+	à plus	pres
+abats	abats	nc
+abdos	abdominaux	nc
+abois	abois	nc
+accrû	accroître	v
+accrûe	accroître	v
+accrûes	accroître	v
+accrûs	accroître	v
+achards	achards	nc
+active	actif	nc
+actives	actif	nc
+admirent	admettre	v
+ados	ados	nc
+affiliez	affiler	v
+affilions	affiler	v
+affine	affin	adj
+affines	affin	adj
+afin d'	afin de	prep
+afin d'__prep	afin de	prep
+afin de__prep	afin de	prep
+aïeuls	aïeul	nc
+aille	ailler	v
+aillent	ailler	v
+ailles	ailler	v
+ainsi qu'	ainsi que	coo
+alentours	alentour	nc
+aléseuse	aléseur	nc
+aléseuses	aléseur	nc
+algo	algorithme	nc
+algos	algorithme	nc
+allegri	allegro	nc
+allemande	allemand	nc
+allemandes	allemand	nc
+aller-retour	aller-retour	nc
+alliez	allier	v
+allions	allier	v
+allume-cigares	allume-cigare	nc
+allumeuse	allumeur	nc
+allumeuses	allumeur	nc
+alu	aluminium	nc
+américaine	américain	nc
+américaines	américain	nc
+amie	ami	nc
+amies	ami	nc
+amortie	amorti	nc
+amorties	amorti	nc
+ancienne	ancien	nc
+anciennes	ancien	nc
+ânesse	âne	nc
+ânesses	âne	nc
+anglaise	anglais	nc
+anglaises	anglais	nc
+anis	ani	nc
+anniv	anniversaire	nc
+anniv'	anniversaire	nc
+anticasseurs	anticasseurs	adj
+apprêteuse	apprêteur	nc
+apprêteuses	apprêteur	nc
+apprêts	apprêts	nc
+apr.	après	prep
+aprèm	après-midi	nc
+après-m	après-midi	nc
+après-ski	après-ski	nc
+arbalétrière	arbalétrier	nc
+arbalétrières	arbalétrier	nc
+archère	archer	nc
+archères	archer	nc
+archiduchesse	archiduc	nc
+archiduchesses	archiduc	nc
+ardennais	ardennais	nc
+ardennaiss	ardennais	nc
+argentine	argentin	nc
+argentines	argentin	nc
+arpenteuse	arpenteur	nc
+arpenteuses	arpenteur	nc
+arracheuse	arracheur	nc
+arracheuses	arracheur	nc
+arrivée	arrivé	nc
+arrivées	arrivé	nc
+arroseuse	arroseur	nc
+arroseuses	arroseur	nc
+asap	dès que possible	adv
+assembleuse	assembleur	nc
+assembleuses	assembleur	nc
+assène	asséner	v
+assènent	asséner	v
+assènes	asséner	v
+assises	assises	nc
+assoie	asseoir	v
+assoient	asseoir	v
+assoies	asseoir	v
+assoira	asseoir	v
+assoirai	asseoir	v
+assoiraient	asseoir	v
+assoirais	asseoir	v
+assoirait	asseoir	v
+assoiras	asseoir	v
+assoirez	asseoir	v
+assoiriez	asseoir	v
+assoirions	asseoir	v
+assoiront	asseoir	v
+assois	asseoir	v
+assoit	asseoir	v
+assoyaient	asseoir	v
+assoyais	asseoir	v
+assoyait	asseoir	v
+assoyant	asseoir	v
+assoyez	asseoir	v
+assoyiez	asseoir	v
+assoyions	asseoir	v
+assoyons	asseoir	v
+athlé	athlétisme	nc
+atours	atours	nc
+attrape-mouche	attrape-mouche	nc
+attrape-nigaud	attrape-nigaud	nc
+au-delà d'	au-delà de	prep
+au-dessous d'	au-dessous de	prep
+au-dessous d'__prep	au-dessous de	prep
+au-dessous de__prep	au-dessous de	prep
+au-dessus d'	au-dessus de	prep
+au-dessus d'__prep	au-dessus de	prep
+au-dessus de__prep	au-dessus de	prep
+au-devant d'	au-devant de	prep
+au-devant d'__prep	au-devant de	prep
+au-devant de__prep	au-devant de	prep
+au beau milieu d'	au beau milieu de	prep
+au beau milieu d'__prep	au beau milieu de	prep
+au beau milieu de__prep	au beau milieu de	prep
+au bord d'	au bord de	prep
+au bord d'__prep	au bord de	prep
+au bord de__prep	au bord de	prep
+au bout d'	au bout de	prep
+au bout d'__prep	au bout de	prep
+au bout de__prep	au bout de	prep
+au centre d'	au centre de	prep
+au centre d'__prep	au centre de	prep
+au centre de__prep	au centre de	prep
+au comble d'	au comble de	prep
+au comble d'__prep	au comble de	prep
+au comble de__prep	au comble de	prep
+au côté d'	au côté de	prep
+au côté d'__prep	au côté de	prep
+au côté de__prep	au côté de	prep
+au cours d'	au cours de	prep
+au cours d'__prep	au cours de	prep
+au cours de__prep	au cours de	prep
+au dehors d'	au dehors de	prep
+au dehors d'__prep	au dehors de	prep
+au dehors de__prep	au dehors de	prep
+au delà	au-delà	adv
+au delà d'__prep	au delà de	prep
+au delà de	au-delà de	prep
+au delà de__prep	au delà de	prep
+au dessous d'	au dessous de	prep
+au dessous d'__prep	au dessous de	prep
+au dessous de__prep	au dessous de	prep
+au devant d'	au devant de	prep
+au devant d'__prep	au devant de	prep
+au devant de__prep	au devant de	prep
+au fond d'	au fond de	prep
+au fond d'__prep	au fond de	prep
+au fond de__prep	au fond de	prep
+au fur et à mesure d'	au fur et à mesure de	prep
+au fur et à mesure d'__prep	au fur et à mesure de	prep
+au fur et à mesure de__prep	au fur et à mesure de	prep
+au grand dam d'	au grand dam de	prep
+au grand dam d'__prep	au grand dam de	prep
+au grand dam de__prep	au grand dam de	prep
+au gré d'	au gré de	prep
+au gré d'__prep	au gré de	prep
+au gré de__prep	au gré de	prep
+au large d'	au large de	prep
+au large d'__prep	au large de	prep
+au large de__prep	au large de	prep
+au lieu d'	au lieu de	prep
+au lieu d'__prep	au lieu de	prep
+au lieu de__prep	au lieu de	prep
+au long d'	au long de	prep
+au long d'__prep	au long de	prep
+au long de__prep	au long de	prep
+au même titre qu'	au même titre que	coo
+au milieu d'	au milieu de	prep
+au milieu d'__prep	au milieu de	prep
+au milieu de__prep	au milieu de	prep
+au moment d'	au moment de	prep
+au moment d'__prep	au moment de	prep
+au moment de__prep	au moment de	prep
+au moyen d'	au moyen de	prep
+au moyen d'__prep	au moyen de	prep
+au moyen de__prep	au moyen de	prep
+au nom d'	au nom de	prep
+au nom d'__prep	au nom de	prep
+au nom de__prep	au nom de	prep
+au point d'	au point de	prep
+au point d'__prep	au point de	prep
+au point de__prep	au point de	prep
+au prorata d'	au prorata de	prep
+au prorata d'__prep	au prorata de	prep
+au prorata de__prep	au prorata de	prep
+au ras d'	au ras de	prep
+au ras d'__prep	au ras de	prep
+au ras de__prep	au ras de	prep
+au sein d'	au sein de	prep
+au sein d'__prep	au sein de	prep
+au sein de__prep	au sein de	prep
+au sortir d'	au sortir de	prep
+au sortir d'__prep	au sortir de	prep
+au sortir de__prep	au sortir de	prep
+au sujet d'	au sujet de	prep
+au sujet d'__prep	au sujet de	prep
+au sujet de__prep	au sujet de	prep
+au terme d'	au terme de	prep
+au terme d'__prep	au terme de	prep
+au terme de__prep	au terme de	prep
+au travers d'	au travers de	prep
+au travers d'__prep	au travers de	prep
+au travers de__prep	au travers de	prep
+au tréfonds d'	au tréfonds de	prep
+au tréfonds d'__prep	au tréfonds de	prep
+au tréfonds de__prep	au tréfonds de	prep
+au vu d'	au vu de	prep
+au vu d'__prep	au vu de	prep
+au vu de__prep	au vu de	prep
+au vu et au su d'	au vu et au su de	prep
+au vu et au su d'__prep	au vu et au su de	prep
+au vu et au su de__prep	au vu et au su de	prep
+auprès d'	auprès de	prep
+auprès d'__prep	auprès de	prep
+auprès de__prep	auprès de	prep
+autour d'	autour de	prep
+autour d'__prep	autour de	prep
+autour de__prep	autour de	prep
+aux bons soins d'	aux bons soins de	prep
+aux bons soins d'__prep	aux bons soins de	prep
+aux bons soins de__prep	aux bons soins de	prep
+aux confins d'	aux confins de	prep
+aux confins d'__prep	aux confins de	prep
+aux confins de__prep	aux confins de	prep
+aux dépens d'	aux dépens de	prep
+aux dépens d'__prep	aux dépens de	prep
+aux dépens de__prep	aux dépens de	prep
+av.	avant	prep
+avant d'	avant de	prep
+avant d'__prep	avant de	prep
+avant de__prep	avant de	prep
+avant même d'	avant même de	prep
+avant même d'__prep	avant même de	prep
+avant même de__prep	avant même de	prep
+avant que d'	avant que de	prep
+avant que d'__prep	avant que de	prep
+avant que de__prep	avant que de	prep
+avt	avant	prep
+babillarde	babillard	nc
+babillardes	babillard	nc
+baie	bayer	v
+baient	bayer	v
+baiera	bayer	v
+baierai	bayer	v
+baieraient	bayer	v
+baierais	bayer	v
+baierait	bayer	v
+baieras	bayer	v
+baierez	bayer	v
+baieriez	bayer	v
+baierions	bayer	v
+baierons	bayer	v
+baieront	bayer	v
+baies	bayer	v
+baigneuse	baigneur	nc
+baigneuses	baigneur	nc
+bailleresse	bailleur	nc
+bailleuresses	bailleur	nc
+balaie	balayer	v
+balaient	balayer	v
+balaiera	balayer	v
+balaierai	balayer	v
+balaieraient	balayer	v
+balaierais	balayer	v
+balaierait	balayer	v
+balaieras	balayer	v
+balaierez	balayer	v
+balaieriez	balayer	v
+balaierions	balayer	v
+balaierons	balayer	v
+balaieront	balayer	v
+balaies	balayer	v
+balayeuse	balayeur	nc
+balayeuses	balayeur	nc
+banals	banal	adj
+banco	banco	nc
+bande-dessinée	B.D.	nc
+bande dessinée	B.D.	nc
+bandes-dessinées	B.D.	nc
+bandes dessinées	B.D.	nc
+bans	bans	nc
+barboteuse	barboteur	nc
+barboteuses	barboteur	nc
+barbue	barbu	nc
+barbues	barbu	nc
+barmen	barman	nc
+baronne	baron	nc
+baronnes	baron	nc
+bâtarde	bâtard	nc
+bâtardes	bâtard	nc
+batteuse	batteur	nc
+batteuses	batteur	nc
+battue	battu	nc
+battues	battu	nc
+baux	bau	nc
+bavaroise	bavarois	nc
+bavaroises	bavarois	nc
+baveuse	baveur	adj
+baveuses	baveur	adj
+bcp	beaucoup	adv
+bd	boulevard	nc
+BD	B.D.	nc
+bédé	B.D.	nc
+bédés	B.D.	nc
+bégaie	bégayer	v
+bégaient	bégayer	v
+bégaiera	bégayer	v
+bégaierai	bégayer	v
+bégaieraient	bégayer	v
+bégaierais	bégayer	v
+bégaierait	bégayer	v
+bégaieras	bégayer	v
+bégaierez	bégayer	v
+bégaieriez	bégayer	v
+bégaierions	bégayer	v
+bégaierons	bégayer	v
+bégaieront	bégayer	v
+bégaies	bégayer	v
+bègue	bégu	adj
+bègues	bégu	adj
+bel	beau	adj
+bénédictine	bénédictin	nc
+bénédictines	bénédictin	nc
+bergère	berger	nc
+bergères	berger	nc
+beurettes	beur	nc
+bibli	bibliothèque	nc
+bineuse	bineur	nc
+bineuses	bineur	nc
+biquette	biquet	nc
+biquettes	biquet	nc
+biz	bise	nc
+blonde	blond	nc
+blondes	blond	nc
+blue-jeans	blue-jeans	nc
+bluff	bluff	nc
+bobineuse	bobineur	nc
+bobineuses	bobineur	nc
+bof-bof	bof	adj
+bof-bof	bof	pres
+bon app'	bon appétit	pres
+bonne	bon	nc
+bonnes	bon	nc
+bonnetière	bonnetier	nc
+bonnetières	bonnetier	nc
+boots	boots	nc
+bordelaise	bordelais	nc
+bordelaises	bordelais	nc
+botteleuse	botteleur	nc
+botteleuses	botteleur	nc
+boudeuse	boudeur	nc
+boudeuses	boudeur	nc
+boueuse	boueux	nc
+boueuses	boueux	nc
+bouillons	bouillons	nc
+boul.	boulevard	nc
+bourgeoise	bourgeois	nc
+bourgeoises	bourgeois	nc
+boutonnière	boutonnier	nc
+boutonnières	boutonnier	nc
+bouts-rimés	bouts-rimés	nc
+bouveteuse	bouveteur	nc
+bouveteuses	bouveteur	nc
+bouvière	bouvier	nc
+bouvières	bouvier	nc
+boxes	boxe	nc
+braconnière	braconnier	nc
+braconnières	braconnier	nc
+branchée	branché	nc
+branchées	branché	nc
+bravi	bravo	nc
+brins	brins	nc
+briseuse	briseur	nc
+briseuses	briseur	nc
+brocheuse	brocheur	nc
+brocheuses	brocheur	nc
+brodeuse	brodeur	nc
+brodeuses	brodeur	nc
+brouillasse	brouillasser	v
+broyeuse	broyeur	nc
+broyeuses	broyeur	nc
+brune	brun	nc
+brunes	brun	nc
+c-à-d	c'est-à-dire	coo
+c.-à.-d.	c'est-à-dire	coo
+càd	c'est-à-dire	coo
+caddies	caddie	nc
+cadette	cadet	nc
+cadettes	cadet	nc
+cafardeuse	cafardeur	adj
+cafardeuses	cafardeur	adj
+cafetière	cafetier	nc
+cafetières	cafetier	nc
+cafouilleuse	cafouilleur	adj
+cafouilleuses	cafouilleur	adj
+cagote	cagot	nc
+cahin caha	cahin-caha	adv
+calculatrice	calculateur	nc
+calculatrices	calculateur	nc
+cale-pied	cale-pied	nc
+camarde	camard	nc
+camardes	camard	nc
+camée	camé	nc
+camées	camé	nc
+Canal+	Canal Plus	np
+canon	canon	adj
+canonnière	canonnier	nc
+canonnières	canonnier	nc
+car	car	coo
+cardeuse	cardeur	nc
+cardeuses	cardeur	nc
+cardio	cardiologie	nc
+carotteuse	carotteur	nc
+carotteuses	carotteur	nc
+cartaie	cartayer	v
+cartaient	cartayer	v
+cartaiera	cartayer	v
+cartaierai	cartayer	v
+cartaieraient	cartayer	v
+cartaierais	cartayer	v
+cartaierait	cartayer	v
+cartaieras	cartayer	v
+cartaierez	cartayer	v
+cartaieriez	cartayer	v
+cartaierions	cartayer	v
+cartaierons	cartayer	v
+cartaieront	cartayer	v
+cartaies	cartayer	v
+casseaux	casseaux	nc
+casseuse	casseur	nc
+casseuses	casseur	nc
+cata	catastrophe	nc
+cauris	cauris	nc
+causals	causal	adj
+cause d'	cause de	prep
+cause d'__prep	cause de	prep
+cause de__prep	cause de	prep
+cent	cent	nc
+ceps	ceps	nc
+cerceaux	cerceaux	nc
+cf.	cf	prep
+ch'ti	petit	adj
+ch.	chapitre	nc
+chais	chais	nc
+chamelle	chameau	nc
+chamelles	chameau	nc
+champ	champagne	nc
+champenoise	champenois	nc
+champenoises	champenois	nc
+champis	champis	nc
+champs	champs	nc
+chanoinesse	chanoine	nc
+chanoinesses	chanoine	nc
+chap.	chapitre	nc
+charbonnière	charbonnier	nc
+charbonnières	charbonnier	nc
+chartreuse	chartreux	nc
+chartreuses	chartreux	nc
+châtelaine	châtelain	nc
+châtelaines	châtelain	nc
+chatte	chat	nc
+chattes	chat	nc
+chauffe-plats	chauffe-plat	nc
+chauffeuse	chauffeur	nc
+chauffeuses	chauffeur	nc
+chevaux	chevau	nc
+chevaux	chevaux	nc
+cheveux	cheveux	nc
+chevrette	chevreter	v
+chevrettent	chevreter	v
+chevrettera	chevreter	v
+chevretterai	chevreter	v
+chevretteraient	chevreter	v
+chevretterais	chevreter	v
+chevretterait	chevreter	v
+chevretteras	chevreter	v
+chevretterez	chevreter	v
+chevretteriez	chevreter	v
+chevretterions	chevreter	v
+chevretterons	chevreter	v
+chevretteront	chevreter	v
+chevrettes	chevreter	v
+chienne	chien	nc
+chiennes	chien	nc
+chiens	chiens	nc
+chiffonnière	chiffonnier	nc
+chiffonnières	chiffonnier	nc
+chocolatière	chocolatier	nc
+chocolatières	chocolatier	nc
+choie	choir	v
+choient	choir	v
+choies	choir	v
+chorals	choral	adj
+choux	choux	nc
+choyant	choir	v
+choyez	choir	v
+choyiez	choir	v
+choyions	choir	v
+choyons	choir	v
+chtou	tout	adv
+chtoute	tout	adv
+Cie	compagnie	nc
+ciels	ciel	nc
+cieux	cieux	nc
+cigarière	cigarier	nc
+cigarières	cigarier	nc
+cireuse	cireur	nc
+cireuses	cireur	nc
+cirière	cirier	nc
+cirières	cirier	nc
+ciseaux	ciseaux	nc
+clairs	clairs	nc
+clignos	clignotant	nc
+coachs	coach	nc
+cochonne	cochon	nc
+cochonnes	cochon	nc
+codes	codes	nc
+coffres	coffres	nc
+coiffeuse	coiffeur	nc
+coiffeuses	coiffeur	nc
+coll.	collection	nc
+collatérale	collatéral	nc
+collatérales	collatéral	nc
+collatéraux	collatéraux	nc
+collec.	collection	nc
+colleuse	colleur	nc
+colleuses	colleur	nc
+coloc	colocataire	nc
+colocs	colocataire	nc
+coloriez	colorer	v
+colorions	colorer	v
+combis	combinaison	nc
+comices	comices	nc
+commerciale	commercial	nc
+commerciales	commercial	nc
+Commission	commission	nc
+communs	communs	nc
+compact disk	CD	nc
+comparais	comparaître	v
+composeuse	composeur	nc
+composeuses	composeur	nc
+comptes	comptes	nc
+comtesse	comte	nc
+comtesses	comte	nc
+comtoise	comtois	nc
+comtoises	comtois	nc
+conditionneuse	conditionneur	nc
+conditionneuses	conditionneur	nc
+conf.	cf	prep
+confédérés	confédérés	nc
+confer	cf	prep
+configs	configuration	nc
+congélo	congélateur	nc
+congélos	congélateur	nc
+conjoints	conjoints	nc
+conne	con	nc
+connes	con	nc
+Conseil	conseil	nc
+Conseil d'Administration	CA	nc
+converse	convers	adj
+converses	convers	adj
+convient	convier	v
+coquette	coquet	nc
+coquettes	coquet	nc
+coraux	coraux	nc
+courbatu	courbaturer	v
+courbatue	courbaturer	v
+courbatues	courbaturer	v
+courbatus	courbaturer	v
+cours	cours	nc
+cpdt	cependant	adv
+crevasse	crevasser	v
+crevassent	crevasser	v
+crevasses	crevasser	v
+crevassiez	crevasser	v
+crevassions	crevasser	v
+criminelle	criminel	nc
+criminelles	criminel	nc
+crocs	crocs	nc
+croisée	croisé	nc
+croisées	croisé	nc
+croisés	croisés	nc
+crûmes	croître	v
+crût	croître	v
+crûtes	croître	v
+cuirs	cuirs	nc
+cuisinière	cuisinier	nc
+cuisinières	cuisinier	nc
+cuite	cuiter	v
+cuites	cuiter	v
+cuivres	cuivres	nc
+cure-dents	cure-dent	nc
+curedent	cure-dent	nc
+curedents	cure-dent	nc
+CV	curriculum vitae	nc
+d'	de	prep
+d'__prep	de	prep
+d'avis d'	d'avis de	prep
+d'avis d'__prep	d'avis de	prep
+d'avis de__prep	d'avis de	prep
+dalaï-lama	dalaï-lama	nc
+damasse	damer	v
+damassent	damer	v
+damasses	damer	v
+damassiez	damer	v
+damassions	damer	v
+dare-dare	dare dare	adv
+de l'ordre d'	de l'ordre de	prep
+de l'ordre d'__prep	de l'ordre de	prep
+de l'ordre de__prep	de l'ordre de	prep
+de part et d'autre d'	de part et d'autre de	prep
+de part et d'autre d'__prep	de part et d'autre de	prep
+de part et d'autre de__prep	de part et d'autre de	prep
+de__prep	de	prep
+débarrasse	débarrer	v
+débarrassent	débarrer	v
+débarrasses	débarrer	v
+débarrassiez	débarrer	v
+débarrassions	débarrer	v
+déblaie	déblayer	v
+déblaient	déblayer	v
+déblaiera	déblayer	v
+déblaierai	déblayer	v
+déblaieraient	déblayer	v
+déblaierais	déblayer	v
+déblaierait	déblayer	v
+déblaieras	déblayer	v
+déblaierez	déblayer	v
+déblaieriez	déblayer	v
+déblaierions	déblayer	v
+déblaierons	déblayer	v
+déblaieront	déblayer	v
+déblaies	déblayer	v
+déblais	déblais	nc
+débraie	débrayer	v
+débraient	débrayer	v
+débraiera	débrayer	v
+débraierai	débrayer	v
+débraieraient	débrayer	v
+débraierais	débrayer	v
+débraierait	débrayer	v
+débraieras	débrayer	v
+débraierez	débrayer	v
+débraieriez	débrayer	v
+débraierions	débrayer	v
+débraierons	débrayer	v
+débraieront	débrayer	v
+débraies	débrayer	v
+débutante	débutant	nc
+débutantes	débutant	nc
+débuts	débuts	nc
+décapeuse	décapeur	nc
+décapeuses	décapeur	nc
+déclassés	déclassés	nc
+décolleteuse	décolleteur	nc
+décolleteuses	décolleteur	nc
+décrû	décroître	v
+décrue	décruer	v
+décrûe	décroître	v
+décrues	décruer	v
+décrûes	décroître	v
+décrûs	décroître	v
+défends	défends	nc
+défileuse	défileur	nc
+défileuses	défileur	nc
+défraie	défrayer	v
+défraient	défrayer	v
+défraiera	défrayer	v
+défraierai	défrayer	v
+défraieraient	défrayer	v
+défraierais	défrayer	v
+défraierait	défrayer	v
+défraieras	défrayer	v
+défraierez	défrayer	v
+défraieriez	défrayer	v
+défraierions	défrayer	v
+défraierons	défrayer	v
+défraieront	défrayer	v
+défraies	défrayer	v
+dégueulasse	dégueuler	v
+dégueulassent	dégueuler	v
+dégueulasses	dégueuler	v
+dégueulassiez	dégueuler	v
+dégueulassions	dégueuler	v
+délaie	délayer	v
+délaient	délayer	v
+délaiera	délayer	v
+délaierai	délayer	v
+délaieraient	délayer	v
+délaierais	délayer	v
+délaierait	délayer	v
+délaieras	délayer	v
+délaierez	délayer	v
+délaieriez	délayer	v
+délaierions	délayer	v
+délaierons	délayer	v
+délaieront	délayer	v
+délaies	délayer	v
+delta	delta	nc
+dép.	département	nc
+dépanneuse	dépanneur	nc
+dépanneuses	dépanneur	nc
+dépariez	déparer	v
+déparions	déparer	v
+dépeignaient	dépeigner	v
+dépeignais	dépeigner	v
+dépeignait	dépeigner	v
+dépeignant	dépeigner	v
+dépeigne	dépeigner	v
+dépeignent	dépeigner	v
+dépeignes	dépeigner	v
+dépeignez	dépeigner	v
+dépeigniez	dépeigner	v
+dépeignions	dépeigner	v
+dépeignons	dépeigner	v
+déprise	déprendre	v
+déprises	déprendre	v
+dept.	département	nc
+déraie	dérayer	v
+déraient	dérayer	v
+déraiera	dérayer	v
+déraierai	dérayer	v
+déraieraient	dérayer	v
+déraierais	dérayer	v
+déraierait	dérayer	v
+déraieras	dérayer	v
+déraierez	dérayer	v
+déraieriez	dérayer	v
+déraierions	dérayer	v
+déraierons	dérayer	v
+déraieront	dérayer	v
+déraies	dérayer	v
+derby	derby	nc
+dés	dés	nc
+dessous	dessou	nc
+détectrice	détecteur	nc
+détectrices	détecteur	nc
+dévêtis	dévêtir	v
+dévêtit	dévêtir	v
+dévots	dévots	nc
+diablesse	diable	nc
+diablesses	diable	nc
+dieux	dieux	nc
+digital versatile disk	DVD	nc
+directrice	directeur	nc
+directrices	directeur	nc
+dires	dires	nc
+disserts	dissertation	nc
+distanciez	distancer	v
+distancions	distancer	v
+douanes	douanes	nc
+douteuse	douteur	adj
+douteuses	douteur	adj
+dragueuse	dragueur	nc
+dragueuses	dragueur	nc
+dresseuse	dresseur	nc
+dresseuses	dresseur	nc
+droits	droits	nc
+drôlesse	drôle	nc
+drôlesses	drôle	nc
+du côté d'	du côté de	prep
+du côté d'__prep	du côté de	prep
+du côté de__prep	du côté de	prep
+duchesse	duc	nc
+duchesses	duc	nc
+dure	dur	nc
+durent	durer	v
+dures	dur	nc
+DVD+R	DVD-R	nc
+DVD+RW	DVD-RW	nc
+ébarbeuse	ébarbeur	nc
+ébarbeuses	ébarbeur	nc
+échappée	échappé	nc
+échappées	échappé	nc
+écharneuse	écharneur	nc
+écharneuses	écharneur	nc
+échos	échos	nc
+éclôt	éclore	v
+écossaise	écossais	nc
+écossaises	écossais	nc
+écus	écus	nc
+éditos	éditorial	nc
+effilocheuse	effilocheur	nc
+effilocheuses	effilocheur	nc
+effraie	effrayer	v
+effraient	effrayer	v
+effraiera	effrayer	v
+effraierai	effrayer	v
+effraieraient	effrayer	v
+effraierais	effrayer	v
+effraierait	effrayer	v
+effraieras	effrayer	v
+effraierez	effrayer	v
+effraieriez	effrayer	v
+effraierions	effrayer	v
+effraierons	effrayer	v
+effraieront	effrayer	v
+effraies	effrayer	v
+égaie	égayer	v
+égaient	égayer	v
+égaiera	égayer	v
+égaierai	égayer	v
+égaieraient	égayer	v
+égaierais	égayer	v
+égaierait	égayer	v
+égaieras	égayer	v
+égaierez	égayer	v
+égaieriez	égayer	v
+égaierions	égayer	v
+égaierons	égayer	v
+égaieront	égayer	v
+égaies	égayer	v
+égyptienne	égyptien	nc
+égyptiennes	égyptien	nc
+éleveuse	éleveur	nc
+éleveuses	éleveur	nc
+élus	élus	nc
+émaux	émaux	nc
+embarras	embarra	nc
+embarrasse	embarrer	v
+embarrassent	embarrer	v
+embarrasses	embarrer	v
+embarrassiez	embarrer	v
+embarrassions	embarrer	v
+embraie	embrayer	v
+embraient	embrayer	v
+embraiera	embrayer	v
+embraierai	embrayer	v
+embraieraient	embrayer	v
+embraierais	embrayer	v
+embraierait	embrayer	v
+embraieras	embrayer	v
+embraierez	embrayer	v
+embraieriez	embrayer	v
+embraierions	embrayer	v
+embraierons	embrayer	v
+embraieront	embrayer	v
+embraies	embrayer	v
+en-deçà d'	en-deçà de	prep
+en absence d'	en absence de	prep
+en absence d'__prep	en absence de	prep
+en absence de__prep	en absence de	prep
+en âge d'	en âge de	prep
+en âge d'__prep	en âge de	prep
+en âge de__prep	en âge de	prep
+en amont d'	en amont de	prep
+en amont d'__prep	en amont de	prep
+en amont de__prep	en amont de	prep
+en arrière d'	en arrière de	prep
+en arrière d'__prep	en arrière de	prep
+en arrière de__prep	en arrière de	prep
+en aval d'	en aval de	prep
+en aval d'__prep	en aval de	prep
+en aval de__prep	en aval de	prep
+en avant d'	en avant de	prep
+en avant d'__prep	en avant de	prep
+en avant de__prep	en avant de	prep
+en cas d'	en cas de	prep
+en cas d'__prep	en cas de	prep
+en cas de__prep	en cas de	prep
+en contrebas d'	en contrebas de	prep
+en contrebas d'__prep	en contrebas de	prep
+en contrebas de__prep	en contrebas de	prep
+en début d'	en début de	prep
+en début d'__prep	en début de	prep
+en début de__prep	en début de	prep
+en deçà	en-deçà	adv
+en deçà d'	en-deçà de	prep
+en deçà de	en-deçà de	prep
+en dedans d'	en dedans de	prep
+en dedans d'__prep	en dedans de	prep
+en dedans de__prep	en dedans de	prep
+en dehors d'	en dehors de	prep
+en dehors d'__prep	en dehors de	prep
+en dehors de__prep	en dehors de	prep
+en delà d'	en delà de	prep
+en delà d'__prep	en delà de	prep
+en delà de__prep	en delà de	prep
+en dépit d'	en dépit de	prep
+en dépit d'__prep	en dépit de	prep
+en dépit de__prep	en dépit de	prep
+en dessous d'	en dessous de	prep
+en dessous d'__prep	en dessous de	prep
+en dessous de__prep	en dessous de	prep
+en face d'	en face de	prep
+en face d'__prep	en face de	prep
+en face de__prep	en face de	prep
+en fait d'	en fait de	prep
+en fait d'__prep	en fait de	prep
+en fait de__prep	en fait de	prep
+en faveur d'	en faveur de	prep
+en faveur d'__prep	en faveur de	prep
+en faveur de__prep	en faveur de	prep
+en fin d'	en fin de	prep
+en fin d'__prep	en fin de	prep
+en fin de__prep	en fin de	prep
+en guise d'	en guise de	prep
+en guise d'__prep	en guise de	prep
+en guise de__prep	en guise de	prep
+en haut d'	en haut de	prep
+en haut d'__prep	en haut de	prep
+en haut de__prep	en haut de	prep
+en instance d'	en instance de	prep
+en instance d'__prep	en instance de	prep
+en instance de__prep	en instance de	prep
+en manière d'	en manière de	prep
+en manière d'__prep	en manière de	prep
+en manière de__prep	en manière de	prep
+en manque d'	en manque de	prep
+en manque d'__prep	en manque de	prep
+en manque de__prep	en manque de	prep
+en milieu d'	en milieu de	prep
+en milieu d'__prep	en milieu de	prep
+en milieu de__prep	en milieu de	prep
+en outre d'	en outre de	prep
+en outre d'__prep	en outre de	prep
+en outre de__prep	en outre de	prep
+en perte d'	en perte de	prep
+en perte d'__prep	en perte de	prep
+en perte de__prep	en perte de	prep
+en plein centre d'	en plein centre de	prep
+en plein centre d'__prep	en plein centre de	prep
+en plein centre de__prep	en plein centre de	prep
+en plus d'	en plus de	prep
+en plus d'__prep	en plus de	prep
+en plus de__prep	en plus de	prep
+en quête d'	en quête de	prep
+en quête d'__prep	en quête de	prep
+en quête de__prep	en quête de	prep
+en raison d'	en raison de	prep
+en raison d'__prep	en raison de	prep
+en raison de__prep	en raison de	prep
+en regard d'	en regard de	prep
+en regard d'__prep	en regard de	prep
+en regard de__prep	en regard de	prep
+en règlement d'	en règlement de	prep
+en règlement d'__prep	en règlement de	prep
+en règlement de__prep	en règlement de	prep
+en signe d'	en signe de	prep
+en signe d'__prep	en signe de	prep
+en signe de__prep	en signe de	prep
+en tant qu'	en tant que	prep
+en terme d'	en terme de	prep
+en terme d'__prep	en terme de	prep
+en terme de__prep	en terme de	prep
+en termes d'	en termes de	prep
+en termes d'__prep	en termes de	prep
+en termes de__prep	en termes de	prep
+en train d'	en train de	prep
+en train d'__prep	en train de	prep
+en train de__prep	en train de	prep
+en vertu d'	en vertu de	prep
+en vertu d'__prep	en vertu de	prep
+en vertu de__prep	en vertu de	prep
+en voie d'	en voie de	prep
+en voie d'__prep	en voie de	prep
+en voie de__prep	en voie de	prep
+enclôt	enclore	v
+encolleuse	encolleur	nc
+encolleuses	encolleur	nc
+encrasse	encrer	v
+encrassent	encrer	v
+encrasses	encrer	v
+encrassiez	encrer	v
+encrassions	encrer	v
+enliasse	enliasser	v
+enliassent	enliasser	v
+enliasses	enliasser	v
+enliassiez	enliasser	v
+enliassions	enliasser	v
+enragés	enragés	nc
+enraie	enrayer	v
+enraient	enrayer	v
+enraiera	enrayer	v
+enraierai	enrayer	v
+enraieraient	enrayer	v
+enraierais	enrayer	v
+enraierait	enrayer	v
+enraieras	enrayer	v
+enraierez	enrayer	v
+enraieriez	enrayer	v
+enraierions	enrayer	v
+enraierons	enrayer	v
+enraieront	enrayer	v
+enraies	enrayer	v
+ensacheuse	ensacheur	nc
+ensacheuses	ensacheur	nc
+entasse	enter	v
+entassent	enter	v
+entasses	enter	v
+entassiez	enter	v
+entassions	enter	v
+éolienne	éolien	nc
+éoliennes	éolien	nc
+éplucheuse	éplucheur	nc
+éplucheuses	éplucheur	nc
+épouse	époux	nc
+épouses	époux	nc
+esprits	esprits	nc
+essaie	essayer	v
+essaient	essayer	v
+essaiera	essayer	v
+essaierai	essayer	v
+essaieraient	essayer	v
+essaierais	essayer	v
+essaierait	essayer	v
+essaieras	essayer	v
+essaierez	essayer	v
+essaieriez	essayer	v
+essaierions	essayer	v
+essaierons	essayer	v
+essaieront	essayer	v
+essaies	essayer	v
+et alii	et alii	adv
+et/ou	et-ou	coo
+et|ou	et-ou	coo
+étaie	étayer	v
+étaient	étayer	v
+étaiera	étayer	v
+étaierai	étayer	v
+étaieraient	étayer	v
+étaierais	étayer	v
+étaierait	étayer	v
+étaieras	étayer	v
+étaierez	étayer	v
+étaieriez	étayer	v
+étaierions	étayer	v
+étaierons	étayer	v
+étaieront	étayer	v
+étaies	étayer	v
+étals	étal	nc
+états	états	nc
+étaux	étau	nc
+étiqueteuse	étiqueteur	nc
+étiqueteuses	étiqueteur	nc
+étireuse	étireur	nc
+étireuses	étireur	nc
+Euro	euro	nc
+Euros	euro	nc
+ex-voto	ex-voto	nc
+exams	examen	nc
+excitatrice	excitateur	nc
+excitatrices	excitateur	nc
+exempli gratia	exempli gratia	adv
+exploratrice	explorateur	nc
+exploratrices	explorateur	nc
+expos	exposition	nc
+extrêmes	extrêmes	nc
+fac-similé	fac-similé	nc
+facials	facial	adj
+faille	falloir	v
+faisane	faisan	nc
+faisanes	faisan	nc
+fauchée	fauché	nc
+fauchées	fauché	nc
+fauconnière	fauconnier	nc
+fauconnières	fauconnier	nc
+faunesse	faune	nc
+faut	faillir	v
+faute d'	faute de	prep
+faute d'__prep	faute de	prep
+faute de__prep	faute de	prep
+fauves	fauves	nc
+favoris	favoris	nc
+favorite	favori	nc
+favorites	favori	nc
+fédéraux	fédéraux	nc
+feinte	feinter	v
+feintes	feinter	v
+ferronnière	ferronnier	nc
+ferronnières	ferronnier	nc
+fers	fers	nc
+feux	feux	nc
+fiancée	fiancé	nc
+fiancées	fiancé	nc
+ficha	fiche	v
+fichai	fiche	v
+fichaient	fiche	v
+fichais	fiche	v
+fichait	fiche	v
+fichâmes	fiche	v
+fichant	fiche	v
+fichas	fiche	v
+fichasse	fiche	v
+fichassent	fiche	v
+fichasses	fiche	v
+fichassiez	fiche	v
+fichassions	fiche	v
+fichât	fiche	v
+fichâtes	fiche	v
+fiche	fiche	v
+fiché	fiche	v
+fichée	fiche	v
+fichées	fiche	v
+fichent	fiche	v
+fichera	fiche	v
+ficherai	fiche	v
+ficheraient	fiche	v
+ficherais	fiche	v
+ficherait	fiche	v
+ficheras	fiche	v
+fichèrent	fiche	v
+ficherez	fiche	v
+ficheriez	fiche	v
+ficherions	fiche	v
+ficherons	fiche	v
+ficheront	fiche	v
+fiches	fiche	v
+fichés	fiche	v
+fichez	fiche	v
+fichiez	fiche	v
+fichions	fiche	v
+fichons	fiche	v
+fils	fil	nc
+finals	final	adj
+financière	financier	nc
+financières	financier	nc
+flashs	flash	nc
+florentine	florentin	nc
+florentines	florentin	nc
+fois	foi	nc
+folle	fou	nc
+folles	fou	nc
+fondaient	fonder	v
+fondais	fonder	v
+fondait	fonder	v
+fondant	fonder	v
+fondatrice	fondateur	nc
+fondatrices	fondateur	nc
+fonde	fonder	v
+fondent	fonder	v
+fondes	fonder	v
+fondeuse	fondeur	nc
+fondeuses	fondeur	nc
+fondez	fonder	v
+fondiez	fonder	v
+fondions	fonder	v
+fondons	fonder	v
+fonds	fond	nc
+foreuse	foreur	nc
+foreuses	foreur	nc
+forte	fort	nc
+fôte	faute	nc
+fôtes	faute	nc
+fouilleuse	fouilleur	nc
+fouilleuses	fouilleur	nc
+fouleuse	fouleur	nc
+fouleuses	fouleur	nc
+fraie	frayer	v
+fraient	frayer	v
+fraiera	frayer	v
+fraierai	frayer	v
+fraieraient	frayer	v
+fraierais	frayer	v
+fraierait	frayer	v
+fraieras	frayer	v
+fraierez	frayer	v
+fraieriez	frayer	v
+fraierions	frayer	v
+fraierons	frayer	v
+fraieront	frayer	v
+fraies	frayer	v
+frais	frai	nc
+fraiseuse	fraiseur	nc
+fraiseuses	fraiseur	nc
+franque	franc	adj
+franques	franc	adj
+frisaient	frire	v
+frisais	frire	v
+frisait	frire	v
+frisant	frire	v
+frise	frire	v
+frisée	frisé	nc
+frisées	frisé	nc
+frisent	frire	v
+frises	frire	v
+frisez	frire	v
+frisiez	frire	v
+frisions	frire	v
+frisons	frire	v
+froids	froids	nc
+fruitière	fruitier	nc
+fruitières	fruitier	nc
+fumeuse	fumeur	nc
+fumeuse	fumeux	adj
+fumeuses	fumeur	nc
+fumeuses	fumeux	adj
+fuseaux	fuseaux	nc
+futée	futé	nc
+futées	futé	nc
+gages	gages	nc
+gagneuse	gagneur	nc
+gagneuses	gagneur	nc
+gains	gains	nc
+galèrent	galer	v
+gangrène	gangréner	v
+gangrènent	gangréner	v
+gangrènes	gangréner	v
+gantière	gantier	nc
+gantières	gantier	nc
+gants	gants	nc
+garde-boeufs	garde-boeuf	nc
+garde-boue	garde-boue	nc
+garde-chasse	garde-chasse	nc
+garde-côtes	garde-côte	nc
+garde-malades	garde-malade	nc
+garde-voies	garde-voie	nc
+garde-vue	garde-vue	nc
+gardes	gardes	nc
+garnisseuse	garnisseur	nc
+garnisseuses	garnisseur	nc
+gaufreuse	gaufreur	nc
+gaufreuses	gaufreur	nc
+gauloise	gaulois	nc
+gauloises	gaulois	nc
+gaveuse	gaveur	nc
+gaveuses	gaveur	nc
+gay	gay	adj
+gazons	gazons	nc
+générale	général	nc
+générales	général	nc
+génoise	génois	nc
+génoises	génois	nc
+gentrys	gentry	nc
+gerbeuse	gerbeur	nc
+gerbeuses	gerbeur	nc
+giga	giga-octet	nc
+gigas	giga-octet	nc
+giletière	giletier	nc
+giletières	giletier	nc
+gisaient	gésir	v
+gisent	gésir	v
+gisez	gésir	v
+gisiez	gésir	v
+gisions	gésir	v
+gisons	gésir	v
+gitane	gitan	nc
+gitanes	gitan	nc
+glaceuse	glaceur	adj
+glaceuse	glaceur	nc
+glaceuses	glaceur	adj
+glaceuses	glaceur	nc
+glacials	glacial	adj
+glacière	glacier	nc
+glacières	glacier	nc
+gobe-mouches	gobe-mouche	nc
+gogues	gogues	nc
+gommeuse	gommeur	nc
+gommeuses	gommeur	nc
+gonds	gonds	nc
+gonzesse	gonze	nc
+gonzesses	gonze	nc
+goudronneuse	goudronneur	nc
+goudronneuses	goudronneur	nc
+goudrons	goudrons	nc
+gourde	gourde	adj
+gourdes	gourde	adj
+goûts	goûts	nc
+gouvernante	gouvernant	nc
+gouvernantes	gouvernant	nc
+graffiti	graffiti	nc
+grains	grains	nc
+graisseuse	graisseur	adj
+graisseuses	graisseur	adj
+grands-mères	grand-mère	nc
+grands-messes	grand-messe	nc
+grands-papas	grand-papa	nc
+grands-pères	grand-père	nc
+grands-tantes	grand-tante	nc
+gratis pro deo	gratis	adv
+gratte-cul	gratte-cul	nc
+gratte-papier	gratte-papier	nc
+gravats	gravats	nc
+grecque	grec	nc
+grecques	grec	nc
+grenadière	grenadier	nc
+grenadières	grenadier	nc
+grenadine	grenadin	nc
+grenadines	grenadin	nc
+grignoteuse	grignoteur	nc
+grignoteuses	grignoteur	nc
+griotte	griot	nc
+griottes	griot	nc
+grippe-sou	grippe-sou	nc
+gris	gri	nc
+gris-gris	gris-gris	nc
+grosse	gros	nc
+grosses	gros	nc
+grosso merdo	grosso modo	adv
+grotesques	grotesques	nc
+guais	guais	adj
+gueules	gueules	nc
+gueuse	gueux	nc
+gueuses	gueux	nc
+habits	habits	nc
+harpes	harpes	nc
+haussière	haussier	nc
+haussières	haussier	nc
+haut-de-chausses	haut-de-chausse	nc
+hauts	hauts	nc
+havanaise	havanais	nc
+havanaises	havanais	nc
+haveuse	haveur	nc
+haveuses	haveur	nc
+hebdo	hebdomadaire	nc
+hebdos	hebdomadaire	nc
+hébraïque	hébreu	adj
+hébraïques	hébreu	adj
+héroïne	héros	nc
+héroïnes	héros	nc
+hoplites	hoplites	nc
+hors d'	hors de	prep
+hors d'__prep	hors de	prep
+hors de__prep	hors de	prep
+hôtesse	hôte	nc
+hôtesses	hôte	nc
+houblonnière	houblonnier	nc
+houblonnières	houblonnier	nc
+huîtrière	huîtrier	nc
+huîtrières	huîtrier	nc
+ibidem	ibidem	adv
+id est	id est	adv
+idéals	idéal	adj
+impatiente	impatient	nc
+impatientes	impatient	nc
+impecc	impeccable	adj
+imposée	imposé	nc
+imposées	imposé	nc
+impresarii	impresario	nc
+in-folio	in-folio	nc
+in-octavo	in-octavo	nc
+in-quarto	in-quarto	nc
+ingénue	ingénu	nc
+ingénues	ingénu	nc
+internationale	international	nc
+internationales	international	nc
+internationaux	internationaux	nc
+J-C	Jésus-Christ	np
+J.-C	Jésus-Christ	np
+J.-C.	Jésus-Christ	np
+jardinière	jardinier	nc
+jardinières	jardinier	nc
+jars	jar	nc
+javeleuse	javeleur	nc
+javeleuses	javeleur	nc
+jeans	jeans	nc
+jiu-jitsu	jiu-jitsu	nc
+jours	jours	nc
+jumelle	jumeau	nc
+jumelles	jumeau	nc
+jusqu'	jusque	prep
+kdo	cadeau	nc
+kdos	cadeau	nc
+kibboutzim	kibboutz	nc
+kilo	kilo-octet	nc
+kilos	kilo-octet	nc
+knickers	knickers	nc
+lacèrent	lacer	v
+lacs	lacs	nc
+laie	layer	v
+laient	layer	v
+laiera	layer	v
+laierai	layer	v
+laieraient	layer	v
+laierais	layer	v
+laierait	layer	v
+laieras	layer	v
+laierez	layer	v
+laieriez	layer	v
+laierions	layer	v
+laierons	layer	v
+laieront	layer	v
+laies	layer	v
+laineuse	laineur	nc
+laineuses	laineur	nc
+lais	lais	nc
+lamineuse	lamineur	nc
+lamineuses	lamineur	nc
+lands	lands	nc
+latifundia	latifundium	nc
+lave-vaisselle	lave-vaisselle	nc
+laveuse	laveur	nc
+laveuses	laveur	nc
+le long d'	le long de	prep
+le long d'__prep	le long de	prep
+le long de__prep	le long de	prep
+leitmotive	leitmotiv	nc
+lémuries	lémuries	nc
+lendemains	lendemains	nc
+levronne	levron	nc
+levronnes	levron	nc
+lez	lès	prep
+lieds	lied	nc
+lieus	lieu	nc
+lieuse	lieur	nc
+lieuses	lieur	nc
+lieux	lieux	nc
+limes	limes	nc
+limeuse	limeur	nc
+limeuses	limeur	nc
+lis	li	nc
+lisère	lisérer	v
+lisèrent	lisérer	v
+lisères	lisérer	v
+liseuse	liseur	nc
+liseuses	liseur	nc
+lisseuse	lisseur	nc
+lisseuses	lisseur	nc
+livreuse	livreur	nc
+livreuses	livreur	nc
+locaux	locaux	nc
+locomotrice	locomoteur	nc
+locomotrices	locomoteur	nc
+lods	lods	nc
+logos	logos	nc
+loris	lori	nc
+lors d'	lors de	prep
+lors d'__prep	lors de	prep
+lors de__prep	lors de	prep
+lunchs	lunch	nc
+lunetière	lunetier	nc
+lunetières	lunetier	nc
+M	Monsieur	nc
+M.	Monsieur	nc
+macaroni	macaroni	nc
+madame	Monsieur	nc
+mademoiselle	Monsieur	nc
+Mademoiselle	Monsieur	nc
+maffiosos	maffioso	nc
+mafiosos	mafioso	nc
+magicienne	magicien	nc
+magiciennes	magicien	nc
+maigres	maigres	nc
+mail-coachs	mail-coach	nc
+maîtresse	maître	nc
+maîtresses	maître	nc
+majeure	majeur	nc
+majeures	majeur	nc
+malaise	malais	nc
+malaises	malais	nc
+maltaise	maltais	nc
+maltaises	maltais	nc
+mam'selle	mademoiselle	nc
+mam'selles	mademoiselle	nc
+mam'zelle	mademoiselle	nc
+mam'zelles	mademoiselle	nc
+mama	mamma	nc
+mamas	mamma	nc
+manièrent	maniérer	v
+manifesti	manifesto	nc
+manifs	manifestation	nc
+manips	manipulation	nc
+manuelle	manuel	nc
+manuelles	manuel	nc
+maquerelle	maquereau	nc
+maquerelles	maquereau	nc
+maquis	maqui	nc
+maraude	maraud	nc
+maraudes	maraud	nc
+marbrière	marbrier	nc
+marbrières	marbrier	nc
+marcheuse	marcheur	nc
+marcheuses	marcheur	nc
+maréchale	maréchal	nc
+maréchales	maréchal	nc
+mariole	mariol	nc
+marquise	marquis	nc
+marquises	marquis	nc
+mars	mar	nc
+martyre	martyr	nc
+martyres	martyr	nc
+matchs	match	nc
+matériaux	matériaux	nc
+maths	maths	nc
+matines	matin	nc
+mauresque	maure	nc
+mauresques	maure	nc
+maxima	maximum	nc
+mayo	mayonnaise	nc
+médiatrice	médiateur	nc
+médiatrices	médiateur	nc
+médite	médire	v
+médites	médire	v
+médoc	médicament	nc
+médocs	médicament	nc
+méga	méga-octet	nc
+mégas	méga-octet	nc
+mégissaient	mégisser	v
+mégissais	mégisser	v
+mégissait	mégisser	v
+mégissant	mégisser	v
+mégisse	mégisser	v
+mégissent	mégisser	v
+mégisses	mégisser	v
+mégissez	mégisser	v
+mégissiez	mégisser	v
+mégissions	mégisser	v
+mégissons	mégisser	v
+melting-pot	melting-pot	nc
+mémoires	mémoires	nc
+méprise	méprendre	v
+méprises	méprendre	v
+mercuriales	mercuriales	nc
+merlus	merlus	nc
+mesdames	Monsieur	nc
+mesdemoiselles	Monsieur	nc
+Mesdemoiselles	Monsieur	nc
+messéant	messeoir	v
+messieurs	Monsieur	nc
+métreuse	métreur	nc
+métreuses	métreur	nc
+meulière	meulier	nc
+meulières	meulier	nc
+meunière	meunier	nc
+meunières	meunier	nc
+meurtrière	meurtrier	nc
+meurtrières	meurtrier	nc
+Mgr	Monseigneur	nc
+Mgrs	Monseigneur	nc
+mignonne	mignon	nc
+mignonnes	mignon	nc
+mille	mille	nc
+min	min	nc
+min	minute	nc
+minette	minet	nc
+minettes	minet	nc
+mineure	mineur	nc
+mineures	mineur	nc
+minima	minimum	nc
+mirent	mirer	v
+mireuse	mireur	nc
+mireuses	mireur	nc
+mise	miser	v
+mises	miser	v
+Mlle	Monsieur	nc
+Mlles	Monsieur	nc
+MM.	Monsieur	nc
+Mme	Monsieur	nc
+Mmes	Monsieur	nc
+modif	modification	nc
+modifs	modification	nc
+modulation de fréquence	modulation de fréquence	nc
+mois	moi	nc
+moissonneuse	moissonneur	nc
+moissonneuses	moissonneur	nc
+mol	mou	adj
+mondaine	mondain	nc
+mondaines	mondain	nc
+mongol	mongol	nc
+mongols	mongol	nc
+monnaie	monnayer	v
+monnaient	monnayer	v
+monnaiera	monnayer	v
+monnaierai	monnayer	v
+monnaieraient	monnayer	v
+monnaierais	monnayer	v
+monnaierait	monnayer	v
+monnaieras	monnayer	v
+monnaierez	monnayer	v
+monnaieriez	monnayer	v
+monnaierions	monnayer	v
+monnaierons	monnayer	v
+monnaieront	monnayer	v
+monnaies	monnayer	v
+monsieur	Monsieur	nc
+moresque	more	nc
+mortaiseuse	mortaiseur	nc
+mortaiseuses	mortaiseur	nc
+mot-clef	mot-clé	nc
+mots	mots	nc
+mots-clefs	mot-clé	nc
+moulaient	mouler	v
+moulais	mouler	v
+moulait	mouler	v
+moulant	mouler	v
+moule	mouler	v
+moulent	mouler	v
+moules	mouler	v
+moulez	mouler	v
+mouliez	mouler	v
+moulions	mouler	v
+moulons	mouler	v
+moulurent	moulurer	v
+moutons	moutons	nc
+moyens	moyens	nc
+MP	message	nc
+Mr	Monsieur	nc
+Mr.	Monsieur	nc
+msg	message	nc
+msge	message	nc
+muette	muet	nc
+muettes	muet	nc
+murent	murer	v
+murs	murs	nc
+muscat	muscat	nc
+musse	mouvoir	v
+mussent	mouvoir	v
+musses	mouvoir	v
+mussiez	mouvoir	v
+mussions	mouvoir	v
+N.-D.	Notre-Dame	np
+nan	non	adv
+napolitaine	napolitain	nc
+napolitaines	napolitain	nc
+natals	natal	adj
+navals	naval	adj
+négresses	nègre	nc
+neuf	neuf	nc
+nipponne	nippon	nc
+nipponnes	nippon	nc
+niveleuse	niveleur	nc
+niveleuses	niveleur	nc
+noire	noir	nc
+noires	noir	nc
+normande	normand	nc
+normandes	normand	nc
+norvégienne	norvégien	nc
+norvégiennes	norvégien	nc
+nougats	nougats	nc
+nouvel	nouveau	adj
+nouvelle	nouveau	nc
+nouvelles	nouveau	nc
+novae	nova	nc
+nu	nu	nc
+nulle	nul	nc
+nulles	nul	nc
+nurseries	nursery	nc
+obvient	obvenir	v
+occase	occasion	nc
+oeils	oeil	nc
+oeuvres	oeuvres	nc
+offices	offices	nc
+officiez	officer	v
+officions	officer	v
+oirai	ouïr	v
+oirais	ouïr	v
+oiselle	oiseau	nc
+oiselles	oiseau	nc
+OK	ok	adj
+okay	OK	pres
+oki	OK	pres
+okidoki	OK	pres
+one-step	one-step	nc
+optima	optimum	nc
+opus citatum	opus citatum	adv
+organes	organes	nc
+orgues	orgues	nc
+oripeaux	oripeaux	nc
+orrai	ouïr	v
+orrais	ouïr	v
+ottomane	ottoman	nc
+ottomanes	ottoman	nc
+ou/et	et-ou	coo
+oups	oops	pres
+ourse	ours	nc
+ourses	ours	nc
+ouvraient	ouvrer	v
+ouvrais	ouvrer	v
+ouvrait	ouvrer	v
+ouvrant	ouvrer	v
+ouvre	ouvrer	v
+ouvre-boîtes	ouvre-boîte	nc
+ouvre-bouteilles	ouvre-bouteille	nc
+ouvre-gants	ouvre-gant	nc
+ouvrent	ouvrer	v
+ouvres	ouvrer	v
+ouvreuse	ouvreur	nc
+ouvreuses	ouvreur	nc
+ouvrez	ouvrer	v
+ouvrière	ouvrier	nc
+ouvrières	ouvrier	nc
+ouvriez	ouvrer	v
+ouvrions	ouvrer	v
+ouvrons	ouvrer	v
+p'tit	petit	adj
+p'tit'	petit	adj
+p'tite	petit	adj
+p'tites	petit	adj
+p'tits	petit	adj
+p-ê	peut-être	adv
+pagaie	pagayer	v
+pagaient	pagayer	v
+pagaiera	pagayer	v
+pagaierai	pagayer	v
+pagaieraient	pagayer	v
+pagaierais	pagayer	v
+pagaierait	pagayer	v
+pagaieras	pagayer	v
+pagaierez	pagayer	v
+pagaieriez	pagayer	v
+pagaierions	pagayer	v
+pagaierons	pagayer	v
+pagaieront	pagayer	v
+pagaies	pagayer	v
+paie	payer	v
+paient	payer	v
+paiera	payer	v
+paierai	payer	v
+paieraient	payer	v
+paierais	payer	v
+paierait	payer	v
+paieras	payer	v
+paierez	payer	v
+paieriez	payer	v
+paierions	payer	v
+paierons	payer	v
+paieront	payer	v
+paies	payer	v
+pairs	pairs	nc
+palatine	palatin	nc
+palatines	palatin	nc
+palmes	palmes	nc
+panem quotidianum	panem nostrum quotidianum	nc
+panetière	panetier	nc
+panetières	panetier	nc
+panné	panné	nc
+papas	papas	nc
+papesse	pape	nc
+papesses	pape	nc
+papiers	papiers	nc
+papillons	papillons	nc
+pâques	pâque	nc
+par delà	par-delà	prep
+parais	parer	v
+pareille	pareil	nc
+pareilles	pareil	nc
+pareuse	pareur	nc
+pareuses	pareur	nc
+pariez	parer	v
+parions	parer	v
+parqueteuse	parqueteur	nc
+parqueteuses	parqueteur	nc
+parties	party	nc
+pastourelle	pastoureau	nc
+pastourelles	pastoureau	nc
+pater	pater	nc
+pâtissaient	pâtisser	v
+pâtissais	pâtisser	v
+pâtissait	pâtisser	v
+pâtissant	pâtisser	v
+pâtisse	pâtisser	v
+pâtissent	pâtisser	v
+pâtisses	pâtisser	v
+pâtissez	pâtisser	v
+pâtissiez	pâtisser	v
+pâtissions	pâtisser	v
+pâtissons	pâtisser	v
+patronne	patron	nc
+patronnes	patron	nc
+paysane	paysan	nc
+paysanes	paysan	nc
+pbs	problème	nc
+pdt	pendant	prep
+peignaient	peigner	v
+peignais	peigner	v
+peignait	peigner	v
+peignant	peigner	v
+peigne	peigner	v
+peignent	peigner	v
+peignes	peigner	v
+peigneuse	peigneur	nc
+peigneuses	peigneur	nc
+peignez	peigner	v
+peigniez	peigner	v
+peignions	peigner	v
+peignons	peigner	v
+pèlerine	pèlerin	nc
+pèlerines	pèlerin	nc
+pelleteuse	pelleteur	nc
+pelleteuses	pelleteur	nc
+pelletière	pelletier	nc
+pelletières	pelletier	nc
+penaltys	penalty	nc
+pence	penny	nc
+pensum	pensum	nc
+perforatrice	perforateur	nc
+perforatrices	perforateur	nc
+péripatéticienne	péripatéticien	nc
+péripatéticiennes	péripatéticien	nc
+permanente	permanent	nc
+permanentes	permanent	nc
+pèse-acide	pèse-acide	nc
+pèse-alcool	pèse-alcool	nc
+pèse-bébé	pèse-bébé	nc
+pèse-lait	pèse-lait	nc
+pèse-lettres	pèse-lettre	nc
+pèse-liqueur	pèse-liqueur	nc
+pèse-moût	pèse-moût	nc
+pèse-personne	pèse-personne	nc
+pèse-sel	pèse-sel	nc
+pèse-sirop	pèse-sirop	nc
+péteuse	péteur	nc
+péteuse	péteux	nc
+péteuses	péteur	nc
+péteuses	péteux	nc
+petiot	petiot	nc
+petit à petit	petit-à-petit	adv
+pétroleuse	pétroleur	nc
+pétroleuses	pétroleur	nc
+peu d'	peu de	prep
+peu d'__prep	peu de	prep
+peu de__prep	peu de	prep
+philippine	philippin	nc
+philippines	philippin	nc
+photocomposeuse	photocomposeur	nc
+photocomposeuses	photocomposeur	nc
+pick-up	pick-up	nc
+piocheuse	piocheur	nc
+piocheuses	piocheur	nc
+pipeaux	pipeaux	nc
+pique-assiette	pique-assiette	nc
+piquée	piqué	nc
+piquées	piqué	nc
+pisseuse	pisseur	nc
+pisseuses	pisseur	nc
+pizzicati	pizzicato	nc
+plans	plans	nc
+planteuse	planteur	nc
+planteuses	planteur	nc
+plâtrière	plâtrier	nc
+plâtrières	plâtrier	nc
+plein d'	plein de	prep
+plein d'__prep	plein de	prep
+plein de__prep	plein de	prep
+pleureuse	pleureur	nc
+pleureuses	pleureur	nc
+plieuse	plieur	nc
+plieuses	plieur	nc
+plisseuse	plisseur	nc
+plisseuses	plisseur	nc
+plombière	plombier	nc
+plombières	plombier	nc
+plu	pleuvoir	v
+plumeuse	plumeur	nc
+plumeuses	plumeur	nc
+plut	pleuvoir	v
+plût	pleuvoir	v
+plutôt que d'	plutôt que de	prep
+plutôt que d'__prep	plutôt que de	prep
+plutôt que de__prep	plutôt que de	prep
+poétesse	poète	nc
+poétesses	poète	nc
+poinçonneuse	poinçonneur	nc
+poinçonneuses	poinçonneur	nc
+pointe	poindre	v
+pointes	poindre	v
+poissonnière	poissonnier	nc
+poissonnières	poissonnier	nc
+polisseuse	polisseur	nc
+polisseuses	polisseur	nc
+polonaise	polonais	nc
+polonaises	polonais	nc
+pompes	pompes	nc
+ponceuse	ponceur	nc
+ponceuses	ponceur	nc
+pondeuse	pondeur	nc
+pondeuses	pondeur	nc
+porte-aiguille	porte-aiguille	nc
+porte-bébé	porte-bébé	nc
+porteuse	porteur	nc
+porteuses	porteur	nc
+portière	portier	nc
+portières	portier	nc
+pour cause d'	pour cause de	prep
+pour cause d'__prep	pour cause de	prep
+pour cause de__prep	pour cause de	prep
+pour comble d'	pour comble de	prep
+pour comble d'__prep	pour comble de	prep
+pour comble de__prep	pour comble de	prep
+pôvre	pauvre	adj
+pôvres	pauvre	adj
+pr	pour	prep
+précieuse	précieux	nc
+précieuses	précieux	nc
+précipitations	précipitations	nc
+première	premier	nc
+premières	premier	nc
+prépaie	prépayer	v
+prépaient	prépayer	v
+prépaiera	prépayer	v
+prépaierai	prépayer	v
+prépaieraient	prépayer	v
+prépaierais	prépayer	v
+prépaierait	prépayer	v
+prépaieras	prépayer	v
+prépaierez	prépayer	v
+prépaieriez	prépayer	v
+prépaierions	prépayer	v
+prépaierons	prépayer	v
+prépaieront	prépayer	v
+prépaies	prépayer	v
+près d'	près de	prep
+près d'__prep	près de	prep
+près de__prep	près de	prep
+présente	présent	nc
+présentes	présent	nc
+Président Directeur Général	PDG	nc
+presqu'	presque	adv
+pressent	pressentir	v
+prêtresse	prêtre	nc
+prêtresses	prêtre	nc
+princesse	prince	nc
+princesses	prince	nc
+principale	principal	nc
+principales	principal	nc
+prise	priser	v
+prises	priser	v
+prod	production	nc
+prod'	production	nc
+promeneuse	promeneur	nc
+promeneuses	promeneur	nc
+ptit	petit	adj
+ptite	petit	adj
+ptites	petit	adj
+ptits	petit	adj
+pupazzi	pupazzo	nc
+qed	quod erat demonstrandum	adv
+QG	quartier général	nc
+qqpart	quelque part	adv
+quanta	quantum	nc
+Quartier Général	quartier général	nc
+Quartiers Généraux	quartier général	nc
+quelqu'	quelque	adj
+raboteuse	raboteur	nc
+raboteuses	raboteur	nc
+raccommodeuse	raccommodeur	nc
+raccommodeuses	raccommodeur	nc
+radiez	rader	v
+radions	rader	v
+raffineuse	raffineur	nc
+raffineuses	raffineur	nc
+raie	rayer	v
+raient	rayer	v
+raiera	rayer	v
+raierai	rayer	v
+raieraient	rayer	v
+raierais	rayer	v
+raierait	rayer	v
+raieras	rayer	v
+raierez	rayer	v
+raieriez	rayer	v
+raierions	rayer	v
+raierons	rayer	v
+raieront	rayer	v
+raies	rayer	v
+raille	raller	v
+raillent	raller	v
+railles	raller	v
+rais	rais	nc
+rajah	rajah	nc
+ralliez	raller	v
+rallions	raller	v
+ramasse	ramer	v
+ramassent	ramer	v
+ramasses	ramer	v
+ramasseuse	ramasseur	nc
+ramasseuses	ramasseur	nc
+ramassiez	ramer	v
+ramassions	ramer	v
+rameuse	rameur	nc
+rameuses	rameur	nc
+ranches	ranche	nc
+ranchs	ranch	nc
+randos	randonnée	nc
+raseuse	raseur	nc
+raseuses	raseur	nc
+rassis	rassir	v
+rassise	rassir	v
+rassises	rassir	v
+rassoie	rasseoir	v
+rassoient	rasseoir	v
+rassoies	rasseoir	v
+rassoira	rasseoir	v
+rassoirai	rasseoir	v
+rassoiraient	rasseoir	v
+rassoirais	rasseoir	v
+rassoirait	rasseoir	v
+rassoiras	rasseoir	v
+rassoirez	rasseoir	v
+rassoiriez	rasseoir	v
+rassoirions	rasseoir	v
+rassoiront	rasseoir	v
+rassois	rasseoir	v
+rassoit	rasseoir	v
+rassoyaient	rasseoir	v
+rassoyais	rasseoir	v
+rassoyait	rasseoir	v
+rassoyant	rasseoir	v
+rassoyez	rasseoir	v
+rassoyiez	rasseoir	v
+rassoyions	rasseoir	v
+rassoyons	rasseoir	v
+râteleuse	râteleur	nc
+râteleuses	râteleur	nc
+rayons	rayons	nc
+rdv	rendez-vous	nc
+ré	ré	nc
+recèpe	recéper	v
+recèpent	recéper	v
+recèpes	recéper	v
+recordmen	recordman	nc
+recordwomen	recordwoman	nc
+recouvraient	recouvrer	v
+recouvrais	recouvrer	v
+recouvrait	recouvrer	v
+recouvrant	recouvrer	v
+recouvre	recouvrer	v
+recouvrent	recouvrer	v
+recouvres	recouvrer	v
+recouvrez	recouvrer	v
+recouvriez	recouvrer	v
+recouvrions	recouvrer	v
+recouvrons	recouvrer	v
+recrû	recroître	v
+recrûe	recroître	v
+recrûes	recroître	v
+recrûs	recroître	v
+rectifieuse	rectifieur	nc
+rectifieuses	rectifieur	nc
+rectrice	recteur	nc
+rectrices	recteur	nc
+réessaie	réessayer	v
+réessaient	réessayer	v
+réessaiera	réessayer	v
+réessaierai	réessayer	v
+réessaieraient	réessayer	v
+réessaierais	réessayer	v
+réessaierait	réessayer	v
+réessaieras	réessayer	v
+réessaierez	réessayer	v
+réessaieriez	réessayer	v
+réessaierions	réessayer	v
+réessaierons	réessayer	v
+réessaieront	réessayer	v
+réessaies	réessayer	v
+refondaient	refonder	v
+refondais	refonder	v
+refondait	refonder	v
+refondant	refonder	v
+refonde	refonder	v
+refondent	refonder	v
+refondes	refonder	v
+refondez	refonder	v
+refondiez	refonder	v
+refondions	refonder	v
+refondons	refonder	v
+régleuse	régleur	nc
+régleuses	régleur	nc
+régulatrice	régulateur	nc
+régulatrices	régulateur	nc
+reine	roi	nc
+reines	roi	nc
+reins	reins	nc
+relaie	relayer	v
+relaient	relayer	v
+relaiera	relayer	v
+relaierai	relayer	v
+relaieraient	relayer	v
+relaierais	relayer	v
+relaierait	relayer	v
+relaieras	relayer	v
+relaierez	relayer	v
+relaieriez	relayer	v
+relaierions	relayer	v
+relaierons	relayer	v
+relaieront	relayer	v
+relaies	relayer	v
+relative	relative	adj
+relatives	relative	adj
+remblaie	remblayer	v
+remblaient	remblayer	v
+remblaiera	remblayer	v
+remblaierai	remblayer	v
+remblaieraient	remblayer	v
+remblaierais	remblayer	v
+remblaierait	remblayer	v
+remblaieras	remblayer	v
+remblaierez	remblayer	v
+remblaieriez	remblayer	v
+remblaierions	remblayer	v
+remblaierons	remblayer	v
+remblaieront	remblayer	v
+remblaies	remblayer	v
+remise	remiser	v
+remises	remiser	v
+remmailleuse	remmailleur	nc
+remmailleuses	remmailleur	nc
+rengrène	rengréner	v
+rengrènent	rengréner	v
+rengrènes	rengréner	v
+rentrais	rentraire	v
+repaie	repayer	v
+repaient	repayer	v
+repaiera	repayer	v
+repaierai	repayer	v
+repaieraient	repayer	v
+repaierais	repayer	v
+repaierait	repayer	v
+repaieras	repayer	v
+repaierez	repayer	v
+repaieriez	repayer	v
+repaierions	repayer	v
+repaierons	repayer	v
+repaieront	repayer	v
+repaies	repayer	v
+réparations	réparations	nc
+repasseuse	repasseur	nc
+repasseuses	repasseur	nc
+reprise	repriser	v
+reprises	repriser	v
+résoute	résoudre	v
+résoutes	résoudre	v
+ressaie	ressayer	v
+ressaient	ressayer	v
+ressaiera	ressayer	v
+ressaierai	ressayer	v
+ressaieraient	ressayer	v
+ressaierais	ressayer	v
+ressaierait	ressayer	v
+ressaieras	ressayer	v
+ressaierez	ressayer	v
+ressaieriez	ressayer	v
+ressaierions	ressayer	v
+ressaierons	ressayer	v
+ressaieront	ressayer	v
+ressaies	ressayer	v
+restaus	restaurant	nc
+resto	restaurant	nc
+restos	restaurant	nc
+réu	réunion	nc
+rev'là	revoilà	v
+rêvasse	rêver	v
+rêvassent	rêver	v
+rêvasses	rêver	v
+rêvassiez	rêver	v
+rêvassions	rêver	v
+revêtis	revêtir	v
+revêtit	revêtir	v
+revirent	revirer	v
+revis	revivre	v
+revit	revivre	v
+rieuse	rieur	nc
+rieuses	rieur	nc
+rince-bouche	rince-bouche	nc
+rinceuse	rinceur	nc
+rinceuses	rinceur	nc
+rira	raller	v
+rirai	raller	v
+riraient	raller	v
+rirais	raller	v
+rirait	raller	v
+riras	raller	v
+rirez	raller	v
+ririez	raller	v
+ririons	raller	v
+rirons	raller	v
+riront	raller	v
+riveuse	riveur	nc
+riveuses	riveur	nc
+RLs	ressource	nc
+rock	rock'n'roll	nc
+rock'n'roll	rock'n'roll	adj
+rock and roll	rock'n'roll	adj
+rock and roll	rock'n'roll	nc
+rogneuse	rogneur	nc
+rogneuses	rogneur	nc
+romaine	romain	nc
+romaines	romain	nc
+rosière	rosier	nc
+rosières	rosier	nc
+roulante	roulant	nc
+roulantes	roulant	nc
+rouleuse	rouleur	nc
+rouleuses	rouleur	nc
+rousse	roux	nc
+rousses	roux	nc
+routière	routier	nc
+routières	routier	nc
+rushes	rushes	nc
+rushs	rush	nc
+s.f	science-fiction	nc
+sabine	sabin	nc
+sables	sables	nc
+sableuse	sableur	nc
+sableuses	sableur	nc
+sabotière	sabotier	nc
+sabotières	sabotier	nc
+sabreuse	sabreur	nc
+sabreuses	sabreur	nc
+saharienne	saharien	nc
+sahariennes	saharien	nc
+saisie	saisi	nc
+saisies	saisi	nc
+salami	salami	nc
+saleuse	saleur	nc
+saleuses	saleur	nc
+salonnière	salonnier	nc
+salonnières	salonnier	nc
+san-benito	san-benito	nc
+sanatoria	sanatorium	nc
+sandwichs	sandwich	nc
+sanguine	sanguin	nc
+sanguines	sanguin	nc
+sardinière	sardinier	nc
+sardinières	sardinier	nc
+saucière	saucier	nc
+saucières	saucier	nc
+saunière	saunier	nc
+saunières	saunier	nc
+saura	saurer	v
+saurai	saurer	v
+sauraient	saurer	v
+saurais	saurer	v
+saurait	saurer	v
+sauras	saurer	v
+saurez	saurer	v
+sauriez	saurer	v
+saurions	saurer	v
+saurons	saurer	v
+sauteuse	sauteur	nc
+sauteuses	sauteur	nc
+sauts	sauts	nc
+sauvagesse	sauvage	nc
+savonnière	savonnier	nc
+savonnières	savonnier	nc
+scieuse	scieur	nc
+scieuses	scieur	nc
+scratchs	scratch	nc
+séant	seoir	v
+seconde	second	nc
+secondes	second	nc
+seins	seins	nc
+selles	selles	nc
+sels	sels	nc
+sensitive	sensitif	nc
+sensitives	sensitif	nc
+seps	seps	nc
+sequiturque	sequiturque	adj
+sequunturque	sequiturque	adj
+serine	serin	nc
+serines	serin	nc
+sertisseuse	sertisseur	nc
+sertisseuses	sertisseur	nc
+servante	servant	nc
+servante	serviteur	nc
+servantes	servant	nc
+servantes	serviteur	nc
+serveuse	serveur	nc
+serveuses	serveur	nc
+si près d'	si près de	prep
+si près d'__prep	si près de	prep
+si près de__prep	si près de	prep
+sicilienne	sicilien	nc
+siciliennes	sicilien	nc
+siens	siens	nc
+silésienne	silésien	nc
+silésiennes	silésien	nc
+site internet	site internet	nc
+site Internet	site internet	nc
+site Web	site internet	nc
+sites internet	site internet	nc
+sites Internet	site internet	nc
+sites Web	site internet	nc
+sketchs	sketch	nc
+skin-head	skinhead	nc
+skin-heads	skinhead	nc
+smashs	smash	nc
+socials	social	adj
+sol	sol	nc
+soli	solo	nc
+somali	somali	nc
+somalis	somali	nc
+sommes	sommer	v
+sondeuse	sondeur	nc
+sondeuses	sondeur	nc
+soprani	soprano	nc
+sorcière	sorcier	nc
+sorcières	sorcier	nc
+soudeuse	soudeur	nc
+soudeuses	soudeur	nc
+souffleuse	souffleur	nc
+souffleuses	souffleur	nc
+soufreuse	soufreur	nc
+soufreuses	soufreur	nc
+sourde	sourd	nc
+sourdes	sourd	nc
+sous l'effet d'	sous l'effet de	prep
+sous l'effet d'__prep	sous l'effet de	prep
+sous l'effet de__prep	sous l'effet de	prep
+sous le coup d'	sous le coup de	prep
+sous le coup d'__prep	sous le coup de	prep
+sous le coup de__prep	sous le coup de	prep
+spaghetti	spaghetti	nc
+spéléo	spéléologue	nc
+sprinters	sprinter	nc
+sprinteur	sprinter	nc
+squatter	squatteur	nc
+squatters	squatteur	nc
+stemm	stem	nc
+stemms	stem	nc
+stp	s'il te plaît	adv
+suceuse	suceur	nc
+suceuses	suceur	nc
+sue	suer	v
+sues	suer	v
+suis	suivre	v
+suissesse	suisse	nc
+suissesses	suisse	nc
+sulfateuse	sulfateur	nc
+sulfateuses	sulfateur	nc
+summum	summum	nc
+supernovae	supernova	nc
+supporters	supporter	nc
+supporteur	supporter	nc
+surfais	surfaire	v
+surfait	surfaire	v
+surfasse	surfaire	v
+surfassent	surfaire	v
+surfasses	surfaire	v
+surfassiez	surfaire	v
+surfassions	surfaire	v
+surfera	surfaire	v
+surferai	surfaire	v
+surferaient	surfaire	v
+surferais	surfaire	v
+surferait	surfaire	v
+surferas	surfaire	v
+surferez	surfaire	v
+surferiez	surfaire	v
+surferions	surfaire	v
+surferons	surfaire	v
+surferont	surfaire	v
+surpaie	surpayer	v
+surpaient	surpayer	v
+surpaiera	surpayer	v
+surpaierai	surpayer	v
+surpaieraient	surpayer	v
+surpaierais	surpayer	v
+surpaierait	surpayer	v
+surpaieras	surpayer	v
+surpaierez	surpayer	v
+surpaieriez	surpayer	v
+surpaierions	surpayer	v
+surpaierons	surpayer	v
+surpaieront	surpayer	v
+surpaies	surpayer	v
+svp	s'il vous plaît	adv
+svt	souvent	adv
+syncro	synchronisation	nc
+systèmes-experts	système-expert	nc
+taf	travail	nc
+talonnière	talonnier	nc
+talonnières	talonnier	nc
+tamiseuse	tamiseur	nc
+tamiseuses	tamiseur	nc
+tape-cul	tape-cul	nc
+tapes	tapes	nc
+tapissaient	tapir	v
+tapissais	tapir	v
+tapissait	tapir	v
+tapissant	tapir	v
+tapisse	tapir	v
+tapissent	tapir	v
+tapisses	tapir	v
+tapissez	tapir	v
+tapissière	tapissier	nc
+tapissières	tapissier	nc
+tapissiez	tapir	v
+tapissions	tapir	v
+tapissons	tapir	v
+taraudeuse	taraudeur	nc
+taraudeuses	taraudeur	nc
+tarifiez	tarifier	v
+tarifions	tarifier	v
+taupière	taupier	nc
+taupières	taupier	nc
+taxis	taxis	nc
+tchô	ciao	pres
+teilleuse	teilleur	nc
+teilleuses	teilleur	nc
+teinte	teinter	v
+teintes	teinter	v
+teneur	teneur	nc
+teneurs	teneur	nc
+téra	téra-octet	nc
+téras	téra-octet	nc
+terrasse	terrer	v
+terrassent	terrer	v
+terrasses	terrer	v
+terrassiez	terrer	v
+terrassions	terrer	v
+territorials	territorial	adj
+thaïs	thaïs	nc
+tigresse	tigre	nc
+tigresses	tigre	nc
+tireuse	tireur	nc
+tireuses	tireur	nc
+tjrs	toujours	adv
+tjs	toujours	adv
+tondeuse	tondeur	nc
+tondeuses	tondeur	nc
+totals	total	nc
+toupilleuse	toupilleur	nc
+toupilleuses	toupilleur	nc
+tourbière	tourbier	nc
+tourbières	tourbier	nc
+tourtereaux	tourtereaux	nc
+tous-petits	tout-petit	adj
+tout au bout d'	tout au bout de	prep
+tout au bout d'__prep	tout au bout de	prep
+tout au bout de__prep	tout au bout de	prep
+tout au long d'	tout au long de	prep
+tout au long d'__prep	tout au long de	prep
+tout au long de__prep	tout au long de	prep
+tout en haut d'	tout en haut de	prep
+tout en haut d'__prep	tout en haut de	prep
+tout en haut de__prep	tout en haut de	prep
+tout plein d'	tout plein de	prep
+tout plein d'__prep	tout plein de	prep
+tout plein de__prep	tout plein de	prep
+tout près d'	tout près de	prep
+tout près d'__prep	tout près de	prep
+tout près de__prep	tout près de	prep
+traductrice	traducteur	nc
+traductrices	traducteur	nc
+traînasse	traîner	v
+traînassent	traîner	v
+traînasses	traîner	v
+traînassiez	traîner	v
+traînassions	traîner	v
+traite	traire	v
+traites	traire	v
+traits	traits	nc
+trameuse	trameur	nc
+trameuses	trameur	nc
+trancheuse	trancheur	nc
+trancheuses	trancheur	nc
+transmissions	transmissions	nc
+transports	transports	nc
+travailleuse	travailleur	nc
+travailleuses	travailleur	nc
+travaux	travaux	nc
+trayeuse	trayeur	nc
+trayeuses	trayeur	nc
+tréfileuse	tréfileur	nc
+tréfileuses	tréfileur	nc
+trembleuse	trembleur	nc
+trembleuses	trembleur	nc
+tricoteuse	tricoteur	nc
+tricoteuses	tricoteur	nc
+trijumeaux	trijumeaux	nc
+trotteuse	trotteur	nc
+trotteuses	trotteur	nc
+troubles	troubles	nc
+trousses	trousses	nc
+trulli	trullo	nc
+ts	tout	adj
+tt	tout	adj
+tte	tout	adj
+ttes	tout	adj
+tue	taire	v
+tues	taire	v
+tupi	tupi	nc
+turneps	turneps	nc
+tyrolienne	tyrolien	nc
+tyroliennes	tyrolien	nc
+usages	usages	nc
+v'là	voilà	v
+vals	val	nc
+valseuse	valseur	nc
+valseuses	valseur	nc
+vaux	vau	nc
+végétations	végétations	nc
+veilleuse	veilleur	nc
+veilleuses	veilleur	nc
+vendangeuse	vendangeur	nc
+vendangeuses	vendangeur	nc
+venderesse	vendeur	nc
+Venezuela	Vénézuela	np
+vénitienne	vénitien	nc
+vénitiennes	vénitien	nc
+vents	vents	nc
+venue	venu	nc
+venues	venu	nc
+vermoulaient	vermoudre	v
+vermoulais	vermoudre	v
+vermoulait	vermoudre	v
+vermoulant	vermoudre	v
+vermoule	vermoudre	v
+vermoulent	vermoudre	v
+vermoules	vermoudre	v
+vermoulez	vermoudre	v
+vermouliez	vermoudre	v
+vermoulions	vermoudre	v
+vermoulons	vermoudre	v
+vernis	verni	nc
+vernissaient	vernisser	v
+vernissais	vernisser	v
+vernissait	vernisser	v
+vernissant	vernisser	v
+vernisse	vernisser	v
+vernissent	vernisser	v
+vernisses	vernisser	v
+vernissez	vernisser	v
+vernissiez	vernisser	v
+vernissions	vernisser	v
+vernissons	vernisser	v
+verres	verres	nc
+vers	vers	nc
+versus	vs	prep
+vêtis	vêtir	v
+vêtit	vêtir	v
+veuve	veuf	nc
+veuves	veuf	nc
+veux	se vouloir	v
+vi	oui	adv
+vichy	vichy	nc
+vieil	vieux	adj
+vieil	vieux	nc
+vieille	vieux	nc
+vieilles	vieux	nc
+vielleuse	vielleur	nc
+vielleuses	vielleur	nc
+Viêt-Nam	Viêt-Nam	np
+virent	virer	v
+vis	voir	v
+vis-à-vis d'	vis-à-vis de	prep
+vis-à-vis d'__prep	vis-à-vis de	prep
+vis-à-vis de__prep	vis-à-vis de	prep
+visiteuse	visiteur	nc
+visiteuses	visiteur	nc
+visse	voir	v
+vissent	voir	v
+visses	voir	v
+vissiez	voir	v
+vissions	voir	v
+vit	voir	v
+vitrière	vitrier	nc
+vitrières	vitrier	nc
+vivants	vivants	nc
+vivi	oui	adv
+voili	voilà	pres
+voilou	voilà	pres
+voisins	voisins	nc
+volée	volé	nc
+volées	volé	nc
+voui	oui	adv
+voulez	vouloir	v
+vs.	vs	prep
+walk-over	walk-over	nc
+water-closets	water-closets	nc
+wattmen	wattman	nc
+white-spirit	white-spirit	nc
+yachtmen	yachtman	nc
+yachtsmen	yachtsman	nc
+yachtswomen	yachtswoman	nc
+yachtwomen	yachtwoman	nc
+yeah	oui	adv
+yeux	yeux	nc
+zézaie	zézayer	v
+zézaient	zézayer	v
+zézaiera	zézayer	v
+zézaierai	zézayer	v
+zézaieraient	zézayer	v
+zézaierais	zézayer	v
+zézaierait	zézayer	v
+zézaieras	zézayer	v
+zézaierez	zézayer	v
+zézaieriez	zézayer	v
+zézaierions	zézayer	v
+zézaierons	zézayer	v
+zézaieront	zézayer	v
+zézaies	zézayer	v
+zingara	zingaro	nc
+deux	deux	nc
+trois	trois	nc
+quatre	quatre	nc
+cinq	cinq	nc
+six	six	nc
+sept	sept	nc
+huit	huit	nc
+neuf	neuf	nc
+dix	dix	nc
+onze	onze	nc
+douze	douze	nc
+treize	treize	nc
+quatorze	quatorze	nc
+quinze	quinze	nc
+seize	seize	nc
+dix-sept	dix-sept	nc
+dix-huit	dix-huit	nc
+dix-neuf	dix-neuf	nc
+vingt	vingt	nc
+trente	trente	nc
+quarante	quarante	nc
+cinquante	cinquante	nc
+soixante	soixante	nc
+soixante-dix	soixante-dix	nc
+septante	septante	nc
+quatre-vingt	quatre-vingt	nc
+octante	octante	nc
+huitante	huitante	nc
+nonante	nonante	nc
+quatre-vingt-dix	quatre-vingt-dix	nc
+nonante	nonante	nc
+cent	cent	nc
+mille	mille	nc

@@ -9,9 +9,13 @@ target/
 dist/
 build/
 logs/
+data/
 examples/french/output/
 talismane_core/languagePacks/english/languagePack/*.zip
 talismane_core/languagePacks/french/languagePack/*.zip
+talismane_core/languagePacks/french-UD/languagePack/*.zip
+talismane_core/languagePacks/french-UD/lexicon/*.zip
+.
 .settings
 .project
 logback.xml
