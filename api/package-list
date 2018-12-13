@@ -15,9 +15,13 @@ com.joliciel.talismane.machineLearning.maxent.custom
 com.joliciel.talismane.machineLearning.perceptron
 com.joliciel.talismane.output
 com.joliciel.talismane.parser
+com.joliciel.talismane.parser.evaluate
 com.joliciel.talismane.parser.features
+com.joliciel.talismane.parser.output
 com.joliciel.talismane.posTagger
+com.joliciel.talismane.posTagger.evaluate
 com.joliciel.talismane.posTagger.features
+com.joliciel.talismane.posTagger.output
 com.joliciel.talismane.rawText
 com.joliciel.talismane.resources
 com.joliciel.talismane.sentenceAnnotators
@@ -25,7 +29,10 @@ com.joliciel.talismane.sentenceDetector
 com.joliciel.talismane.sentenceDetector.features
 com.joliciel.talismane.stats
 com.joliciel.talismane.tokeniser
+com.joliciel.talismane.tokeniser.evaluate
 com.joliciel.talismane.tokeniser.features
+com.joliciel.talismane.tokeniser.filters
+com.joliciel.talismane.tokeniser.output
 com.joliciel.talismane.tokeniser.patterns
 com.joliciel.talismane.utils
 com.joliciel.talismane.utils.compiler
