@@ -230,6 +230,10 @@ public class ParseOutputRewriter implements ParseConfigurationProcessor {
           corpusLine.setElement(CorpusElement.PRECEDING_RAW_OUTPUT, posTaggedToken.getToken().getPrecedingRawOutput());
         if (posTaggedToken.getToken().getTrailingRawOutput() != null)
           corpusLine.setElement(CorpusElement.TRAILING_RAW_OUTPUT, posTaggedToken.getToken().getTrailingRawOutput());
+        corpusLine.setTokenProbability(posTaggedToken.getToken().getProbability());
+        corpusLine.setPosTagProbability(posTaggedToken.getProbability());
+        if (arc != null)
+          corpusLine.setParseProbability(arc.getProbability());
         corpusLines.add(corpusLine);
       }
     }

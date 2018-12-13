@@ -123,7 +123,19 @@ public class CorpusLine {
     /**
      * Output that follows this token.
      */
-    TRAILING_RAW_OUTPUT("(.*?)");
+    TRAILING_RAW_OUTPUT("(.*?)"),
+    /**
+     * The probability for this tokenisation decision.
+     */
+    TOKEN_PROB("(.*?)"),
+    /**
+     * The probability for this pos-tagging decision.
+     */
+    POSTAG_PROB("(.*?)"),
+    /**
+     * The probability for this parsing decision.
+     */
+    PARSE_PROB("(.*?)");
 
     private final String replacement;
 
@@ -297,6 +309,39 @@ public class CorpusLine {
 
   public String getTrailingRawOutput() {
     return this.getElement(CorpusElement.TRAILING_RAW_OUTPUT);
+  }
+
+  public void setTokenProbability(double tokenProb) {
+    this.setElement(CorpusElement.TOKEN_PROB, String.format("%.2f", tokenProb));
+  }
+
+  public double getTokenProbability() {
+    if (this.hasElement(CorpusElement.TOKEN_PROB)) {
+      return Double.parseDouble(this.getElement(CorpusElement.TOKEN_PROB));
+    }
+    return -1;
+  }
+
+  public void setPosTagProbability(double posTagProb) {
+    this.setElement(CorpusElement.POSTAG_PROB, String.format("%.2f", posTagProb));
+  }
+
+  public double getPosTagProbability() {
+    if (this.hasElement(CorpusElement.POSTAG_PROB)) {
+      return Double.parseDouble(this.getElement(CorpusElement.POSTAG_PROB));
+    }
+    return -1;
+  }
+
+  public void setParseProbability(double parseProb) {
+    this.setElement(CorpusElement.PARSE_PROB, String.format("%.2f", parseProb));
+  }
+
+  public double getParseProbability() {
+    if (this.hasElement(CorpusElement.PARSE_PROB)) {
+      return Double.parseDouble(this.getElement(CorpusElement.PARSE_PROB));
+    }
+    return -1;
   }
 
   public CorpusLine cloneCorpusLine() {
