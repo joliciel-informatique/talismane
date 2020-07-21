@@ -40,7 +40,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-public final class LexiconPosTagsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>implements StringCollectionFeature<TokenWrapper> {
+public final class LexiconPosTagsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
   @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagsFeature.class);
 

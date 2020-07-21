@@ -60,18 +60,18 @@ public class TokenFScoreCalculator implements TokenEvaluationObserver {
 
   private final File fScoreFile;
 
-  public TokenFScoreCalculator(File outDir, TalismaneSession session) throws IOException {
-    File errorFile = new File(outDir, session.getBaseName() + ".errorList.txt");
+  public TokenFScoreCalculator(File outDir, String sessionId) throws IOException {
+    File errorFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + ".errorList.txt");
     errorFile.delete();
     errorFile.createNewFile();
     errorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false), "UTF8"));
 
-    File csvErrorFile = new File(outDir, session.getBaseName() + ".errors.csv");
+    File csvErrorFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + ".errors.csv");
     csvErrorFile.delete();
     csvErrorFile.createNewFile();
-    csvErrorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false), session.getCsvCharset()));
+    csvErrorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false), TalismaneSession.get(sessionId).getCsvCharset()));
 
-    fScoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
+    fScoreFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + ".fscores.csv");
   }
 
   @Override

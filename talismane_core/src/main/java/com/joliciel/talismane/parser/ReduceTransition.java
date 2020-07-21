@@ -30,6 +30,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class ReduceTransition extends AbstractTransition implements Transition {
+  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(ReduceTransition.class);
   private static String name = "Reduce";
 

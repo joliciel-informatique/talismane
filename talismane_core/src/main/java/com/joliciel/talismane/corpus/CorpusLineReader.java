@@ -58,7 +58,7 @@ public class CorpusLineReader {
   private static final Logger LOG = LoggerFactory.getLogger(CorpusLineReader.class);
   private final String regex;
   private final Pattern pattern;
-  private final TalismaneSession session;
+  private final String sessionId;
   private final LexicalEntryReader lexicalEntryReader;
   private final CompactLexicalEntrySupport lexicalEntrySupport = new CompactLexicalEntrySupport("");
 
@@ -75,14 +75,12 @@ public class CorpusLineReader {
    * @param lexicalEntryReader
    *          an optional lexical entry reader, for constructing a lexical entry
    *          out of each line
-   * @param session
-   *          the Talismane session
    * @throws TalismaneException
    *           if the regex is missing a required placeholder
    */
   public CorpusLineReader(String regex, CorpusElement[] requiredElements, List<CorpusRule> corpusRules, LexicalEntryReader lexicalEntryReader,
-      TalismaneSession session) throws TalismaneException {
-    this.session = session;
+      String sessionId) throws TalismaneException {
+    this.sessionId = sessionId;
     this.regex = regex;
     this.corpusRules = corpusRules;
     this.lexicalEntryReader = lexicalEntryReader;
@@ -144,7 +142,7 @@ public class CorpusLineReader {
         switch (elementType) {
         case TOKEN:
         case LEMMA:
-          value = session.getCoNLLFormatter().fromCoNLL(value);
+          value = TalismaneSession.get(sessionId).getCoNLLFormatter().fromCoNLL(value);
           break;
         default:
           if ("_".equals(value))

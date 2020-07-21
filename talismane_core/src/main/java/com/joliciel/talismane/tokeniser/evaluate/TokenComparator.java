@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,15 +63,15 @@ public class TokenComparator {
   private final TokeniserAnnotatedCorpusReader referenceCorpusReader;
   private final TokeniserAnnotatedCorpusReader evaluationCorpusReader;
   private final TokeniserPatternManager tokeniserPatternManager;
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public TokenComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
+  public TokenComparator(Reader referenceReader, Reader evalReader, File outDir, String sessionId)
       throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
-    this.session = session;
-    Config config = session.getConfig();
-    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
+    this.sessionId = sessionId;
+    Config config = ConfigFactory.load();
+    Config tokeniserConfig = config.getConfig("talismane.core." + sessionId + ".tokeniser");
 
-    Tokeniser tokeniser = Tokeniser.getInstance(session);
+    Tokeniser tokeniser = Tokeniser.getInstance(sessionId);
 
     if (tokeniser instanceof PatternTokeniser) {
       PatternTokeniser patternTokeniser = (PatternTokeniser) tokeniser;
@@ -78,19 +79,19 @@ public class TokenComparator {
     } else {
       this.tokeniserPatternManager = null;
     }
-    this.referenceCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(referenceReader, tokeniserConfig.getConfig("input"), session);
+    this.referenceCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(referenceReader, tokeniserConfig.getConfig("input"), sessionId);
 
-    this.evaluationCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("evaluate"), session);
+    this.evaluationCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("evaluate"), sessionId);
 
-    List<TokenEvaluationObserver> observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
+    List<TokenEvaluationObserver> observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, sessionId);
     for (TokenEvaluationObserver observer : observers)
       this.addObserver(observer);
 
   }
 
   public TokenComparator(TokeniserAnnotatedCorpusReader referenceCorpusReader, TokeniserAnnotatedCorpusReader evaluationCorpusReader,
-      TokeniserPatternManager tokeniserPatternManager, TalismaneSession talismaneSession) {
-    this.session = talismaneSession;
+      TokeniserPatternManager tokeniserPatternManager, String sessionId) {
+    this.sessionId = sessionId;
     this.referenceCorpusReader = referenceCorpusReader;
     this.evaluationCorpusReader = evaluationCorpusReader;
     this.tokeniserPatternManager = tokeniserPatternManager;
@@ -117,9 +118,9 @@ public class TokenComparator {
 
       // Initially, separate the sentence into tokens using the separators
       // provided
-      TokenSequence realAtomicSequence = new TokenSequence(sentence, session);
+      TokenSequence realAtomicSequence = new TokenSequence(sentence, sessionId);
       realAtomicSequence.findDefaultTokens();
-      TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), session);
+      TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), sessionId);
       guessedAtomicSequence.findDefaultTokens();
 
       List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
@@ -149,7 +150,7 @@ public class TokenComparator {
         }
       }
 
-      TokenisedAtomicTokenSequence guess = new TokenisedAtomicTokenSequence(realSequence.getSentence(), 0, session);
+      TokenisedAtomicTokenSequence guess = new TokenisedAtomicTokenSequence(realSequence.getSentence(), 0, sessionId);
 
       int i = 0;
       int mismatches = 0;

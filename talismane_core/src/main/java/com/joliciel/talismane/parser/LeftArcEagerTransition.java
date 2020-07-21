@@ -33,6 +33,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class LeftArcEagerTransition extends AbstractTransition implements Transition {
+  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(LeftArcEagerTransition.class);
   private String label;
   private String name;

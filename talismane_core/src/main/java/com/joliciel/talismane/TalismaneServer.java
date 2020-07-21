@@ -37,11 +37,11 @@ public class TalismaneServer {
   private static final Logger LOG = LoggerFactory.getLogger(TalismaneServer.class);
   private final int port;
   private boolean listening = true;
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public TalismaneServer(TalismaneSession session) throws IOException, ReflectiveOperationException {
-    this.session = session;
-    this.port = session.getPort();
+  public TalismaneServer(String sessionId) throws IOException, ReflectiveOperationException {
+    this.sessionId = sessionId;
+    this.port = TalismaneSession.get(sessionId).getPort();
   }
 
   public void analyse() throws IOException, ReflectiveOperationException, TalismaneException {
@@ -54,12 +54,12 @@ public class TalismaneServer {
       // load Talismane to load any required resources
       StringWriter out = new StringWriter();
       @SuppressWarnings("unused")
-      Talismane talismane = new Talismane(out, null, session);
+      Talismane talismane = new Talismane(out, null, sessionId);
 
       serverSocket = new ServerSocket(port);
       LOG.info("Server started. Waiting for clients...");
       while (listening) {
-        TalismaneServerThread thread = new TalismaneServerThread(session, serverSocket.accept());
+        TalismaneServerThread thread = new TalismaneServerThread(serverSocket.accept(), sessionId);
         thread.start();
       }
     } finally {

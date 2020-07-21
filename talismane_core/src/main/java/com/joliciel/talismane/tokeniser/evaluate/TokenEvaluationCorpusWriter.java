@@ -28,8 +28,8 @@ public class TokenEvaluationCorpusWriter implements TokenEvaluationObserver {
   private static final Logger LOG = LoggerFactory.getLogger(TokenEvaluationCorpusWriter.class);
   private final Writer corpusWriter;
 
-  public TokenEvaluationCorpusWriter(File outDir, TalismaneSession session) throws IOException {
-    File corpusFile = new File(outDir, session.getBaseName() + ".corpus.txt");
+  public TokenEvaluationCorpusWriter(File outDir, String sessionId) throws IOException {
+    File corpusFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + ".corpus.txt");
     corpusFile.delete();
     corpusFile.createNewFile();
     corpusWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(corpusFile, false), "UTF8"));

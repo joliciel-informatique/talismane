@@ -38,6 +38,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
   private final Set<ParseConfigurationFeature<?>> parseFeatures;
   private final int beamWidth;
   private final boolean propagatePosTaggerBeam;
-  private final TalismaneSession session;
+  private final String sessionId;
 
   private final ParseComparisonStrategy parseComparisonStrategy;
 
@@ -96,11 +97,11 @@ public class TransitionBasedParser implements NonDeterministicParser {
   private List<ParserRule> parserPositiveRules;
   private List<ParserRule> parserNegativeRules;
 
-  public TransitionBasedParser(TalismaneSession session) throws IOException, ClassNotFoundException, TalismaneException {
-    Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+  public TransitionBasedParser(String sessionId) throws IOException, ClassNotFoundException, TalismaneException {
+    Config config = ConfigFactory.load();
+    Config parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
 
-    String configPath = "talismane.core." + session.getId() + ".parser.model";
+    String configPath = "talismane.core." + sessionId + ".parser.model";
     String modelFilePath = config.getString(configPath);
     LOG.debug("Getting parser model from " + modelFilePath);
     ClassificationModel model = modelMap.get(modelFilePath);
@@ -120,7 +121,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
     int maxAnalysisTimePerSentence = parserConfig.getInt("max-analysis-time");
     int minFreeMemory = parserConfig.getInt("min-free-memory");
 
-    this.session = session;
+    this.sessionId = sessionId;
     this.beamWidth = beamWidth;
     this.propagatePosTaggerBeam = propagatePosTaggerBeam;
     this.parseComparisonStrategy = parseComparisonStrategy;
@@ -129,7 +130,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
     this.transitionSystem = TransitionSystem.getTransitionSystem(model);
     this.decisionMaker = model.getDecisionMaker();
 
-    ParserFeatureParser parserFeatureParser = new ParserFeatureParser(session);
+    ParserFeatureParser parserFeatureParser = new ParserFeatureParser(sessionId);
     Collection<ExternalResource<?>> externalResources = model.getExternalResources();
     if (externalResources != null) {
       for (ExternalResource<?> externalResource : externalResources) {
@@ -144,7 +145,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
     boolean includeDetails = parserConfig.getBoolean("output.include-details");
     if (includeDetails) {
-      String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
+      String detailsFilePath = TalismaneSession.get(sessionId).getBaseName() + "_posTagger_details.txt";
       File detailsFile = new File(detailsFilePath);
       detailsFile.delete();
       ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
@@ -152,14 +153,14 @@ public class TransitionBasedParser implements NonDeterministicParser {
     }
 
     List<ParserRule> parserRules = new ArrayList<>();
-    ParserFeatureParser featureParser = new ParserFeatureParser(session);
+    ParserFeatureParser featureParser = new ParserFeatureParser(sessionId);
 
-    configPath = "talismane.core." + session.getId() + ".parser.rules";
+    configPath = "talismane.core." + sessionId + ".parser.rules";
     List<String> textFilterPaths = config.getStringList(configPath);
     for (String path : textFilterPaths) {
       LOG.debug("From: " + path);
       InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
-      try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
+      try (Scanner scanner = new Scanner(textFilterFile, TalismaneSession.get(sessionId).getInputCharset().name())) {
         List<String> ruleDescriptors = new ArrayListNoNulls<>();
         while (scanner.hasNextLine()) {
           String ruleDescriptor = scanner.nextLine();
@@ -177,7 +178,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
   TransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth,
       boolean propagatePosTaggerBeam, ParseComparisonStrategy parseComparisonStrategy, int maxAnalysisTimePerSentence, int minFreeMemory,
-      TalismaneSession session) {
+      String sessionId) {
     this.decisionMaker = decisionMaker;
     this.transitionSystem = transitionSystem;
     this.parseFeatures = parseFeatures;
@@ -186,7 +187,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
     this.parseComparisonStrategy = parseComparisonStrategy;
     this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
     this.minFreeMemory = minFreeMemory;
-    this.session = session;
+    this.sessionId = sessionId;
     this.observers = new ArrayList<>();
   }
 
@@ -196,7 +197,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
     this.parseFeatures = new HashSet<>(parser.parseFeatures);
     this.beamWidth = parser.beamWidth;
     this.propagatePosTaggerBeam = parser.propagatePosTaggerBeam;
-    this.session = parser.session;
+    this.sessionId = parser.sessionId;
     this.observers = new ArrayList<>(parser.observers);
     this.parserRules = new ArrayList<>(parser.parserRules);
     this.parserPositiveRules = new ArrayList<>(parser.parserPositiveRules);
@@ -405,7 +406,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
         } // has a positive rule been applied?
 
         boolean transitionApplied = false;
-        TransitionSystem transitionSystem = this.session.getTransitionSystem();
+        TransitionSystem transitionSystem = TalismaneSession.get(sessionId).getTransitionSystem();
 
         // add new configuration to the heap, one for each valid
         // transition

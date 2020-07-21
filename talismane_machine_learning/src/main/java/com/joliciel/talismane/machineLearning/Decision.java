@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,9 @@ import java.util.List;
  * @author Assaf Urieli
  *
  */
-public class Decision implements Comparable<Decision> {
+public class Decision implements Comparable<Decision>, Serializable {
+  private static final long serialVersionUID = 1L;
+  
   private static final DecimalFormat df = new DecimalFormat("0.0000");
   private final String outcome;
   private final double score;

@@ -48,7 +48,7 @@ import com.joliciel.talismane.TalismaneSession;
  */
 public class RawText extends RawTextProcessor {
   private final CharSequence text;
-  private final TalismaneSession session;
+  private final String sessionId;
 
   /**
    * Constructor
@@ -59,12 +59,11 @@ public class RawText extends RawTextProcessor {
    *          whether the text should be analysed from the start, or should wait
    *          for a filter to indicate that analysis starts (e.g. when
    *          processing XML)
-   * @param session
    */
-  public RawText(CharSequence text, boolean processByDefault, TalismaneSession session) {
-    super(text, processByDefault, session);
+  public RawText(CharSequence text, boolean processByDefault, String sessionId) {
+    super(text, processByDefault, sessionId);
     this.text = text;
-    this.session = session;
+    this.sessionId = sessionId;
   }
 
   @Override
@@ -79,7 +78,7 @@ public class RawText extends RawTextProcessor {
 
   @Override
   protected SentenceHolder getPreviousSentenceHolder() {
-    return new SentenceHolder(session, 0, false);
+    return new SentenceHolder(0, false, sessionId);
   }
 
   @Override
@@ -89,6 +88,6 @@ public class RawText extends RawTextProcessor {
 
   @Override
   protected SentenceHolder getNextSentenceHolder() {
-    return new SentenceHolder(session, text.length(), true);
+    return new SentenceHolder(text.length(), true, sessionId);
   }
 }

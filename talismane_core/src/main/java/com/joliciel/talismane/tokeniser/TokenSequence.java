@@ -60,11 +60,11 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
   private PosTaggerLexicon lexicon;
 
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public TokenSequence(Sentence sentence, TalismaneSession session) {
+  public TokenSequence(Sentence sentence, String sessionId) {
     this.sentence = sentence;
-    this.session = session;
+    this.sessionId = sessionId;
     this.placeholderMap = new HashMap<>();
     this.listWithWhiteSpace = new ArrayList<>();
 
@@ -104,7 +104,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
   }
 
   TokenSequence(TokenSequence sequenceToClone) {
-    this.session = sequenceToClone.session;
+    this.sessionId = sequenceToClone.sessionId;
     this.sentence = sequenceToClone.sentence;
     this.listWithWhiteSpace = new ArrayList<>(sequenceToClone.listWithWhiteSpace);
     this.score = sequenceToClone.score;
@@ -121,20 +121,20 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
     }
   }
 
-  public TokenSequence(Sentence sentence, TokenisedAtomicTokenSequence tokenisedAtomicTokenSequence, TalismaneSession session) {
-    this(sentence, session);
+  public TokenSequence(Sentence sentence, TokenisedAtomicTokenSequence tokenisedAtomicTokenSequence, String sessionId) {
+    this(sentence, sessionId);
     this.underlyingAtomicTokenSequence = tokenisedAtomicTokenSequence;
   }
 
   /**
    * Add tokens from the underlying sentence, pre-separated into tokens matching
-   * {@link Tokeniser#getTokenSeparators(TalismaneSession)}, except wherever
+   * {@link Tokeniser#getTokenSeparators(String)}, except wherever
    * {@link TokenPlaceholder} annotations have been added.
    */
   public void findDefaultTokens() {
     if (!defaultTokensFound) {
       CharSequence text = sentence.getText();
-      Pattern separatorPattern = Tokeniser.getTokenSeparators(session);
+      Pattern separatorPattern = Tokeniser.getTokenSeparators(sessionId);
       Matcher matcher = separatorPattern.matcher(text);
       Set<Integer> separatorMatches = new HashSet<Integer>();
       while (matcher.find())
@@ -334,7 +334,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
       this.remove(tokenToRemove);
     }
 
-    Token token = new Token(string, this, this.size(), start, end, this.getLexicon(), session);
+    Token token = new Token(string, this, this.size(), start, end, this.getLexicon(), this.sessionId);
     token.setIndexWithWhiteSpace(prevTokenIndex + 1);
 
     this.listWithWhiteSpace.add(prevTokenIndex + 1, token);
@@ -472,13 +472,13 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
   public PosTaggerLexicon getLexicon() {
     if (this.lexicon == null) {
-      this.lexicon = this.getTalismaneSession().getMergedLexicon();
+      this.lexicon = TalismaneSession.get(sessionId).getMergedLexicon();
     }
     return lexicon;
   }
 
-  public TalismaneSession getTalismaneSession() {
-    return session;
+  public String getSessionId() {
+    return sessionId;
   }
 
   /**

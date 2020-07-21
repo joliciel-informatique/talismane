@@ -53,19 +53,19 @@ public class RegexTokenAnnotator extends AbstractRegexAnnotator {
    * Assigns default groupIndex=0, caseSensitive=true, diacricticSensitive=true,
    * autoWordBoundaries=false.
    */
-  public RegexTokenAnnotator(String regex, String replacement, String analysisText, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
-    this(regex, replacement, analysisText, 0, true, true, false, talismaneSession);
+  public RegexTokenAnnotator(String regex, String replacement, String analysisText, String sessionId) throws SentenceAnnotatorLoadException {
+    this(regex, replacement, analysisText, 0, true, true, false, sessionId);
   }
 
   public RegexTokenAnnotator(String regex, String replacement, String analysisText, int groupIndex, boolean caseSensitive, boolean diacricticSensitive,
-      boolean autoWordBoundaries, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
-    super(regex, groupIndex, caseSensitive, diacricticSensitive, autoWordBoundaries, true, talismaneSession);
+      boolean autoWordBoundaries, String sessionId) throws SentenceAnnotatorLoadException {
+    super(regex, groupIndex, caseSensitive, diacricticSensitive, autoWordBoundaries, true, sessionId);
     this.replacement = replacement;
     this.analysisText = analysisText;
   }
 
-  public RegexTokenAnnotator(String descriptor, Map<String, String> defaultParams, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
-    super(descriptor, defaultParams, handledParameters, true, talismaneSession);
+  public RegexTokenAnnotator(String descriptor, Map<String, String> defaultParams, String sessionId) throws SentenceAnnotatorLoadException {
+    super(descriptor, defaultParams, handledParameters, true, sessionId);
     Map<String, String> parameters = this.getParameters();
 
     String replacement = null;

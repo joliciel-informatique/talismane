@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractStringCollectionFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -38,13 +38,13 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-public final class PosTagSetFeature extends AbstractStringCollectionFeature<TokenWrapper>implements NeedsTalismaneSession {
+public final class PosTagSetFeature extends AbstractStringCollectionFeature<TokenWrapper> implements NeedsSessionId {
 
-  TalismaneSession talismaneSession;
+  String sessionId;
 
   @Override
   public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper context, RuntimeEnvironment env) {
-    PosTagSet posTagSet = talismaneSession.getPosTagSet();
+    PosTagSet posTagSet = TalismaneSession.get(sessionId).getPosTagSet();
     Set<PosTag> posTags = posTagSet.getTags();
     List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
     for (PosTag posTag : posTags) {
@@ -54,12 +54,7 @@ public final class PosTagSetFeature extends AbstractStringCollectionFeature<Toke
   }
 
   @Override
-  public TalismaneSession getTalismaneSession() {
-    return talismaneSession;
-  }
-
-  @Override
-  public void setTalismaneSession(TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  public void setSessionId(String sessionId) {
+    this.sessionId = sessionId;
   }
 }

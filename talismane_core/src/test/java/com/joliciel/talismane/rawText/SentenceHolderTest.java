@@ -18,24 +18,17 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.rawText;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.joliciel.talismane.TalismaneTest;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
-import com.joliciel.talismane.TalismaneSession;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
-public class SentenceHolderTest {
-  @Before
-  public void setup() {
-  }
+public class SentenceHolderTest extends TalismaneTest {
 
   @Test
   public void testGetDetectedSentences() throws Exception {
@@ -43,8 +36,8 @@ public class SentenceHolderTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
-    SentenceHolder holder = new SentenceHolder(talismaneSession, 0, false);
+    final String sessionId = "test";
+    SentenceHolder holder = new SentenceHolder(0, false, sessionId);
 
     String originalText = "Hello  <b>World</b>. <o>Output this</o>How are you?  Fine<o>Output</o>,  ";
     holder.setProcessedText("Hello  World. How are you?  Fine,  ");
@@ -95,7 +88,7 @@ public class SentenceHolderTest {
     }
     assertEquals("<o>Output</o>", leftover.getOriginalTextSegments().get(4));
 
-    SentenceHolder holder2 = new SentenceHolder(talismaneSession, 0, false);
+    SentenceHolder holder2 = new SentenceHolder(0, false, sessionId);
 
     String originalText2 = "thanks, and you";
     holder2.setProcessedText("thanks, and you");
@@ -114,7 +107,7 @@ public class SentenceHolderTest {
     assertEquals("<o>Output</o>", leftover.getOriginalTextSegments().get(4));
     assertFalse(leftover.isComplete());
 
-    SentenceHolder holder3 = new SentenceHolder(talismaneSession, 0, false);
+    SentenceHolder holder3 = new SentenceHolder(0, false, sessionId);
 
     String originalText3 = "? Grand.";
     holder3.setProcessedText(originalText3);
@@ -149,8 +142,8 @@ public class SentenceHolderTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
-    SentenceHolder holder = new SentenceHolder(talismaneSession, 0, false);
+    final String sessionId = "test";
+    SentenceHolder holder = new SentenceHolder(0, false, sessionId);
 
     holder.setProcessedText("Hello World.");
 
@@ -176,8 +169,8 @@ public class SentenceHolderTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
-    SentenceHolder holder = new SentenceHolder(talismaneSession, 0, false);
+    final String sessionId = "test";
+    SentenceHolder holder = new SentenceHolder(0, false, sessionId);
 
     holder.setProcessedText("Hello World. How are you? Fine thanks.");
 

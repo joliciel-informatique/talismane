@@ -69,11 +69,11 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 
   /**
    * Reads the values described in
-   * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
+   * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, String)}
    */
-  public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session)
+  public PosTagRegexBasedCorpusReader(Reader reader, Config config, String sessionId)
       throws IOException, TalismaneException, ReflectiveOperationException {
-    super(reader, config, session);
+    super(reader, config, sessionId);
   }
 
   @Override
@@ -117,7 +117,7 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
   @Override
   public Map<String, String> getCharacteristics() {
     Map<String, String> attributes = super.getCharacteristics();
-    attributes.put("tagset", session.getPosTagSet().getName());
+    attributes.put("tagset", TalismaneSession.get(sessionId).getPosTagSet().getName());
     return attributes;
   }
 
@@ -125,7 +125,7 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
       throws TalismaneException {
     Token token = posTagSequence.getTokenSequence().get(index);
 
-    PosTagSet posTagSet = session.getPosTagSet();
+    PosTagSet posTagSet = TalismaneSession.get(sessionId).getPosTagSet();
     PosTag posTag = null;
     try {
       posTag = posTagSet.getPosTag(corpusLine.getElement(CorpusElement.POSTAG));
@@ -138,7 +138,7 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
           "Unknown posTag, " + fileName + ", on line " + corpusLine.getLineNumber() + ": " + corpusLine.getElement(CorpusElement.POSTAG));
     }
     Decision posTagDecision = new Decision(posTag.getCode());
-    PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, session);
+    PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, sessionId);
     if (LOG.isTraceEnabled()) {
       LOG.trace(posTaggedToken.toString());
     }

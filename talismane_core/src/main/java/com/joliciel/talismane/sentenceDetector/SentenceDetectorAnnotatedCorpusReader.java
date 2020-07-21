@@ -63,15 +63,15 @@ public interface SentenceDetectorAnnotatedCorpusReader extends AnnotatedCorpusRe
    * @throws ReflectiveOperationException
    *           if the corpus-reader class could not be instantiated
    */
-  public static SentenceDetectorAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+  public static SentenceDetectorAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, String sessionId)
       throws IOException, ReflectiveOperationException {
     String className = config.getString("corpus-reader");
 
     @SuppressWarnings("unchecked")
     Class<? extends SentenceDetectorAnnotatedCorpusReader> clazz = (Class<? extends SentenceDetectorAnnotatedCorpusReader>) Class.forName(className);
-    Constructor<? extends SentenceDetectorAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+    Constructor<? extends SentenceDetectorAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, String.class);
 
-    SentenceDetectorAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+    SentenceDetectorAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, sessionId);
     if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
       ((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
     }

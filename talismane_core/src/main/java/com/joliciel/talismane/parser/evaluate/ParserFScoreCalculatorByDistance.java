@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,13 +61,13 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
   private final Writer writer;
   private final String skipLabel;
 
-  public ParserFScoreCalculatorByDistance(File outDir, TalismaneSession session) throws FileNotFoundException {
-    Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+  public ParserFScoreCalculatorByDistance(File outDir, String sessionId) throws FileNotFoundException {
+    Config config = ConfigFactory.load();
+    Config parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
 
-    File csvFile = new File(outDir, session.getBaseName() + "_distances.csv");
-    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
+    File csvFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_distances.csv");
+    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), TalismaneSession.get(sessionId).getCsvCharset()));
 
     this.labeledEvaluation = evalConfig.getBoolean("labeled-evaluation");
 

@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,14 +61,15 @@ public class ParseOutputRewriter implements ParseConfigurationProcessor {
 
   }
 
-  public ParseOutputRewriter(File outDir, TalismaneSession session) throws IOException, TalismaneException {
+  public ParseOutputRewriter(File outDir, String sessionId) throws IOException, TalismaneException {
     this(new BufferedWriter(
-        new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + "_dep.txt"), false), session.getOutputCharset())), session);
+        new OutputStreamWriter(new FileOutputStream(new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_dep.txt"), false),
+          TalismaneSession.get(sessionId).getOutputCharset())), sessionId);
   }
 
-  public ParseOutputRewriter(Writer writer, TalismaneSession session) throws IOException, TalismaneException {
-    Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+  public ParseOutputRewriter(Writer writer, String sessionId) throws IOException, TalismaneException {
+    Config config = ConfigFactory.load();
+    Config parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
     List<? extends Config> ruleConfigs = parserConfig.getConfigList("output.rewrite-rules");
     rewriteRules = new ArrayList<>();
     for (Config rewriteConfig : ruleConfigs) {
@@ -92,7 +94,7 @@ public class ParseOutputRewriter implements ParseConfigurationProcessor {
     this.writer = writer;
 
     Reader templateReader = null;
-    String configPath = "talismane.core." + session.getId() + ".parser.output.template";
+    String configPath = "talismane.core." + sessionId + ".parser.output.template";
     if (config.hasPath(configPath)) {
       templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
     } else {

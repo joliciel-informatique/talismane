@@ -51,6 +51,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.joliciel.talismane</groupId>
+			<artifactId>talismane-utils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.joliciel.talismane</groupId>
 			<artifactId>talismane-machine-learning</artifactId>
 		</dependency>
 		<dependency>
@@ -70,9 +74,8 @@
 			<artifactId>jopt-simple</artifactId>
 		</dependency>
 		<dependency>
-			<!-- Must be before junit! -->
-			<groupId>com.googlecode.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

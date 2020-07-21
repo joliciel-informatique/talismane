@@ -62,18 +62,18 @@ public class PatternEventStream implements ClassificationEventStream {
 
   private final TokeniserPatternManager tokeniserPatternManager;
 
-  private final TalismaneSession session;
+  private final String sessionId;
 
   private List<TokeniserOutcome> currentOutcomes;
   private List<TokenPatternMatch> currentPatternMatches;
   private int currentIndex;
 
   public PatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures,
-      TokeniserPatternManager tokeniserPatternManager, TalismaneSession session) {
+      TokeniserPatternManager tokeniserPatternManager, String sessionId) {
     this.corpusReader = corpusReader;
     this.tokenPatternMatchFeatures = tokenPatternMatchFeatures;
     this.tokeniserPatternManager = tokeniserPatternManager;
-    this.session = session;
+    this.sessionId = sessionId;
   }
 
   @Override
@@ -94,9 +94,9 @@ public class PatternEventStream implements ClassificationEventStream {
         List<Integer> tokenSplits = realSequence.getTokenSplits();
         String text = realSequence.getSentence().getText().toString();
         LOG.debug("Sentence: " + text);
-        Sentence sentence = new Sentence(text, session);
+        Sentence sentence = new Sentence(text, sessionId);
 
-        TokenSequence tokenSequence = new TokenSequence(sentence, session);
+        TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
         tokenSequence.findDefaultTokens();
 
         List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);

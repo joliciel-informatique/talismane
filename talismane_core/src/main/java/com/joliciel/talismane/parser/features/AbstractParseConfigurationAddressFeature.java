@@ -25,7 +25,8 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
-abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractFeature<ParseConfigurationWrapper, T>implements ParseConfigurationAddressFeature<T> {
+abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractFeature<ParseConfigurationWrapper, T>
+    implements ParseConfigurationAddressFeature<T> {
   PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 
   public AbstractParseConfigurationAddressFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {

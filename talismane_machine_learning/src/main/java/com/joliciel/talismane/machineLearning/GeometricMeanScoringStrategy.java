@@ -21,6 +21,8 @@ package com.joliciel.talismane.machineLearning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 /**
  * Takes the geometric mean of the individual decision scores, and multiplies it
  * by the scores of underlying solutions.
@@ -28,7 +30,8 @@ import org.slf4j.LoggerFactory;
  * @author Assaf Urieli
  *
  */
-public class GeometricMeanScoringStrategy implements ScoringStrategy<ClassificationSolution> {
+public class GeometricMeanScoringStrategy implements ScoringStrategy<ClassificationSolution>, Serializable {
+  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(GeometricMeanScoringStrategy.class);
 
   @Override

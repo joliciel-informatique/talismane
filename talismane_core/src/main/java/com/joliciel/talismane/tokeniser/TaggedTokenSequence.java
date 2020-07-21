@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.joliciel.talismane.machineLearning.Decision;
@@ -28,7 +29,7 @@ import com.joliciel.talismane.machineLearning.Decision;
  * @author Assaf Urieli
  *
  */
-public class TaggedTokenSequence<T extends TokenTag> extends ArrayList<TaggedToken<T>> {
+public class TaggedTokenSequence<T extends TokenTag> extends ArrayList<TaggedToken<T>> implements Serializable {
   private static final long serialVersionUID = 1L;
   private String string = null;
 

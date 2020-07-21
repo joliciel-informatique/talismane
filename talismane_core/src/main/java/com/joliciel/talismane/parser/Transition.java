@@ -20,13 +20,15 @@ package com.joliciel.talismane.parser;
 
 import com.joliciel.talismane.machineLearning.Decision;
 
+import java.io.Serializable;
+
 /**
  * A single transition in a transition-based parsing system.
  * 
  * @author Assaf Urieli
  *
  */
-public interface Transition extends Comparable<Transition> {
+public interface Transition extends Comparable<Transition>, Serializable {
   /**
    * Check whether this transition is valid for the configuration provided.
    */

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,18 +63,18 @@ public class TokenRegexBasedCorpusReader extends TokenPerLineCorpusReader implem
    * @throws ReflectiveOperationException
    *           if a TokenFilter cannot be built
    */
-  public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session)
+  public TokenRegexBasedCorpusReader(Reader reader, Config config, String sessionId)
       throws IOException, TalismaneException, ReflectiveOperationException {
-    super(reader, config, session);
+    super(reader, config, sessionId);
 
-    Config topLevelConfig = session.getConfig();
+    Config topLevelConfig = ConfigFactory.load();
 
     this.filters = new ArrayList<>();
 
-    String configPath = "talismane.core." + session.getId() + ".tokeniser.filters";
+    String configPath = "talismane.core." + sessionId + ".tokeniser.filters";
     List<String> filterDescriptors = topLevelConfig.getStringList(configPath);
     for (String descriptor : filterDescriptors) {
-      TokenFilter filter = TokenFilter.loadFilter(descriptor, session);
+      TokenFilter filter = TokenFilter.loadFilter(descriptor, sessionId);
       this.filters.add(filter);
     }
   }
@@ -87,7 +88,7 @@ public class TokenRegexBasedCorpusReader extends TokenPerLineCorpusReader implem
   protected void processSentence(Sentence sentence, List<CorpusLine> corpusLines) throws TalismaneException, IOException {
     try {
       super.processSentence(sentence, corpusLines);
-      tokenSequence = new PretokenisedSequence(sentence, session);
+      tokenSequence = new PretokenisedSequence(sentence, sessionId);
       for (CorpusLine corpusLine : corpusLines) {
         this.convertToToken(tokenSequence, corpusLine);
       }

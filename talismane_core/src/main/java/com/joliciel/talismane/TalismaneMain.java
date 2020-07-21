@@ -104,21 +104,18 @@ public class TalismaneMain {
   private static final Logger LOG = LoggerFactory.getLogger(TalismaneMain.class);
 
   public static void main(String[] args) throws Exception {
-    Config config = ConfigFactory.load();
     TalismaneMain talismaneMain = new TalismaneMain();
-    talismaneMain.execute(config, args);
+    talismaneMain.execute(args);
   }
 
   /**
    * Execute by processing command line options with a given default config.
-   * 
-   * @param config
-   *          the default configuration (overridden by the CLI)
+   *
    * @param args
    *          the command-line options
    */
-  public void execute(Config config, String[] args)
-      throws SentenceAnnotatorLoadException, IOException, ReflectiveOperationException, TalismaneException, JoranException {
+  public void execute(String[] args)
+      throws IOException, ReflectiveOperationException, TalismaneException, JoranException {
     if (args.length > 0) {
       Set<String> argSet = new HashSet<>(Arrays.asList(args));
       if (argSet.contains("--serializeLexicon")) {
@@ -610,15 +607,16 @@ public class TalismaneMain {
     if (options.has(keepDirStructureOption))
       keepDirectoryStructure = options.valueOf(keepDirStructureOption);
 
-    Config commandLineConfig = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
-    this.execute(commandLineConfig, sessionId, inFile, outFile, outDir, evalFile, keepDirectoryStructure);
+    // System properties override configuration file keys when ConfigFactory.load() is called.
+    values.forEach((k, v) -> System.setProperty(k, v.toString()));
+    ConfigFactory.invalidateCaches();
+    
+    this.execute(sessionId, inFile, outFile, outDir, evalFile, keepDirectoryStructure);
   }
 
   /**
    * Execute Talismane based on the configuration provided.
-   * 
-   * @param config
-   *          The configuration used for this execution
+   *
    * @param sessionId
    *          The current session's id
    * @param inFile
@@ -639,32 +637,32 @@ public class TalismaneMain {
    *           if attempt is made to start and end on two unsupported modules.
    * @throws SentenceAnnotatorLoadException
    */
-  public void execute(Config config, String sessionId, File inFile, File outFile, File outDir, File evalFile, boolean keepDirectoryStructure)
+  public void execute(String sessionId, File inFile, File outFile, File outDir, File evalFile, boolean keepDirectoryStructure)
       throws IOException, ReflectiveOperationException, TalismaneException, SentenceAnnotatorLoadException {
-    if (LOG.isTraceEnabled())
-      LOG.trace(config.root().render());
     long startTime = System.currentTimeMillis();
-    TalismaneSession session = new TalismaneSession(config, sessionId);
+    TalismaneSession session = TalismaneSession.get(sessionId);
     session.setFileForBasename(inFile);
 
+    Config config = ConfigFactory.load();
+    
     try {
       switch (session.getCommand()) {
       case analyse: {
         Module startModule = Module.valueOf(config.getString("talismane.core." + sessionId + ".analysis.start-module"));
         Module endModule = Module.valueOf(config.getString("talismane.core." + sessionId + ".analysis.end-module"));
-        Reader reader = getReader(inFile, true, session);
-        Writer writer = getWriter(outFile, inFile, keepDirectoryStructure, reader, session);
+        Reader reader = getReader(inFile, true, sessionId);
+        Writer writer = getWriter(outFile, inFile, keepDirectoryStructure, reader, sessionId);
 
         if (startModule == Module.languageDetector) {
           if (endModule != Module.languageDetector)
             throw new TalismaneException(
                 "Talismane does not currently support analysis starting with " + startModule.name() + " and ending with another module.");
 
-          LanguageDetector languageDetector = LanguageDetector.getInstance(session);
-          LanguageDetectorProcessor processor = LanguageDetectorProcessor.getProcessor(writer, session);
+          LanguageDetector languageDetector = LanguageDetector.getInstance(sessionId);
+          LanguageDetectorProcessor processor = LanguageDetectorProcessor.getProcessor(writer, sessionId);
 
           SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(reader,
-              config.getConfig("talismane.core." + sessionId + ".language-detector.input"), session);
+              config.getConfig("talismane.core." + sessionId + ".language-detector.input"), sessionId);
           while (corpusReader.hasNextSentence()) {
             String sentence = corpusReader.nextSentence().getText().toString();
 
@@ -675,11 +673,11 @@ public class TalismaneMain {
           Mode mode = Mode.valueOf(config.getString("talismane.core." + sessionId + ".mode"));
           switch (mode) {
           case normal:
-            Talismane talismane = new Talismane(writer, outDir, session);
+            Talismane talismane = new Talismane(writer, outDir, sessionId);
             talismane.analyse(reader);
             break;
           case server:
-            TalismaneServer talismaneServer = new TalismaneServer(session);
+            TalismaneServer talismaneServer = new TalismaneServer(sessionId);
             talismaneServer.analyse();
             break;
           }
@@ -688,30 +686,30 @@ public class TalismaneMain {
         break;
       }
       case train: {
-        Reader reader = getReader(inFile, false, session);
+        Reader reader = getReader(inFile, false, sessionId);
         switch (session.getModule()) {
         case languageDetector: {
-          LanguageDetectorTrainer trainer = new LanguageDetectorTrainer(session);
+          LanguageDetectorTrainer trainer = new LanguageDetectorTrainer(sessionId);
           trainer.train();
           break;
         }
         case sentenceDetector: {
-          SentenceDetectorTrainer trainer = new SentenceDetectorTrainer(reader, session);
+          SentenceDetectorTrainer trainer = new SentenceDetectorTrainer(reader, sessionId);
           trainer.train();
           break;
         }
         case tokeniser: {
-          PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(reader, session);
+          PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(reader, sessionId);
           trainer.train();
           break;
         }
         case posTagger: {
-          PosTaggerTrainer trainer = new PosTaggerTrainer(reader, session);
+          PosTaggerTrainer trainer = new PosTaggerTrainer(reader, sessionId);
           trainer.train();
           break;
         }
         case parser: {
-          ParserTrainer trainer = new ParserTrainer(reader, session);
+          ParserTrainer trainer = new ParserTrainer(reader, sessionId);
           trainer.train();
           break;
         }
@@ -719,26 +717,26 @@ public class TalismaneMain {
         break;
       }
       case evaluate: {
-        Reader reader = getReader(inFile, false, session);
+        Reader reader = getReader(inFile, false, sessionId);
 
         switch (session.getModule()) {
         case sentenceDetector: {
-          SentenceDetectorEvaluator evaluator = new SentenceDetectorEvaluator(reader, outDir, session);
+          SentenceDetectorEvaluator evaluator = new SentenceDetectorEvaluator(reader, outDir, sessionId);
           evaluator.evaluate();
           break;
         }
         case tokeniser: {
-          TokeniserEvaluator evaluator = new TokeniserEvaluator(reader, outDir, session);
+          TokeniserEvaluator evaluator = new TokeniserEvaluator(reader, outDir, sessionId);
           evaluator.evaluate();
           break;
         }
         case posTagger: {
-          PosTaggerEvaluator evaluator = new PosTaggerEvaluator(reader, outDir, session);
+          PosTaggerEvaluator evaluator = new PosTaggerEvaluator(reader, outDir, sessionId);
           evaluator.evaluate();
           break;
         }
         case parser: {
-          ParserEvaluator evaluator = new ParserEvaluator(reader, outDir, session);
+          ParserEvaluator evaluator = new ParserEvaluator(reader, outDir, sessionId);
           evaluator.evaluate();
           break;
         }
@@ -748,21 +746,21 @@ public class TalismaneMain {
         break;
       }
       case compare: {
-        Reader reader = getReader(inFile, false, session);
-        Reader evalReader = getReader(evalFile, false, session);
+        Reader reader = getReader(inFile, false, sessionId);
+        Reader evalReader = getReader(evalFile, false, sessionId);
         switch (session.getModule()) {
         case tokeniser: {
-          TokenComparator comparator = new TokenComparator(reader, evalReader, outDir, session);
+          TokenComparator comparator = new TokenComparator(reader, evalReader, outDir, sessionId);
           comparator.compare();
           break;
         }
         case posTagger: {
-          PosTagComparator comparator = new PosTagComparator(reader, evalReader, outDir, session);
+          PosTagComparator comparator = new PosTagComparator(reader, evalReader, outDir, sessionId);
           comparator.evaluate();
           break;
         }
         case parser: {
-          ParseComparator comparator = new ParseComparator(reader, evalReader, outDir, session);
+          ParseComparator comparator = new ParseComparator(reader, evalReader, outDir, sessionId);
           comparator.evaluate();
           break;
         }
@@ -772,17 +770,17 @@ public class TalismaneMain {
         break;
       }
       case process: {
-        Reader reader = getReader(inFile, false, session);
-        Writer writer = getWriter(outFile, inFile, keepDirectoryStructure, reader, session);
+        Reader reader = getReader(inFile, false, sessionId);
+        Writer writer = getWriter(outFile, inFile, keepDirectoryStructure, reader, sessionId);
         File currentFile = null;
         IOException ioException = null;
         switch (session.getModule()) {
         case sentenceDetector: {
-          List<SentenceProcessor> processors = SentenceProcessor.getProcessors(writer, outDir, session);
+          List<SentenceProcessor> processors = SentenceProcessor.getProcessors(writer, outDir, sessionId);
 
           try {
             SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(reader,
-                config.getConfig("talismane.core." + sessionId + ".sentence-detector.input"), session);
+                config.getConfig("talismane.core." + sessionId + ".sentence-detector.input"), sessionId);
             while (corpusReader.hasNextSentence()) {
               Sentence sentence = corpusReader.nextSentence();
               if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
@@ -809,10 +807,10 @@ public class TalismaneMain {
           break;
         }
         case tokeniser: {
-          List<TokenSequenceProcessor> processors = TokenSequenceProcessor.getProcessors(writer, outDir, session);
+          List<TokenSequenceProcessor> processors = TokenSequenceProcessor.getProcessors(writer, outDir, sessionId);
           try {
             TokeniserAnnotatedCorpusReader corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader,
-                config.getConfig("talismane.core." + sessionId + ".tokeniser.input"), session);
+                config.getConfig("talismane.core." + sessionId + ".tokeniser.input"), sessionId);
             while (corpusReader.hasNextSentence()) {
               TokenSequence tokenSequence = corpusReader.nextTokenSequence();
               Sentence sentence = tokenSequence.getSentence();
@@ -840,11 +838,11 @@ public class TalismaneMain {
           break;
         }
         case posTagger: {
-          List<PosTagSequenceProcessor> processors = PosTagSequenceProcessor.getProcessors(writer, outDir, session);
+          List<PosTagSequenceProcessor> processors = PosTagSequenceProcessor.getProcessors(writer, outDir, sessionId);
 
           try {
             PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
-                config.getConfig("talismane.core." + sessionId + ".pos-tagger.input"), session);
+                config.getConfig("talismane.core." + sessionId + ".pos-tagger.input"), sessionId);
             while (corpusReader.hasNextSentence()) {
               PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
               Sentence sentence = posTagSequence.getTokenSequence().getSentence();
@@ -873,11 +871,11 @@ public class TalismaneMain {
           break;
         }
         case parser: {
-          List<ParseConfigurationProcessor> processors = ParseConfigurationProcessor.getProcessors(writer, outDir, session);
+          List<ParseConfigurationProcessor> processors = ParseConfigurationProcessor.getProcessors(writer, outDir, sessionId);
 
           try {
             ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader,
-                config.getConfig("talismane.core." + sessionId + ".parser.input"), session);
+                config.getConfig("talismane.core." + sessionId + ".parser.input"), sessionId);
             while (corpusReader.hasNextSentence()) {
               ParseConfiguration configuration = corpusReader.nextConfiguration();
               Sentence sentence = configuration.getSentence();
@@ -940,31 +938,31 @@ public class TalismaneMain {
     }
   }
 
-  private static Reader getReader(File file, boolean forAnalysis, TalismaneSession session) throws IOException {
+  private static Reader getReader(File file, boolean forAnalysis, String sessionId) throws IOException {
     if (file == null)
-      return new BufferedReader(new InputStreamReader(System.in, session.getInputCharset()));
+      return new BufferedReader(new InputStreamReader(System.in, TalismaneSession.get(sessionId).getInputCharset()));
 
     if (!file.exists())
       throw new FileNotFoundException("File does not exist: " + file.getPath());
 
     if (file.isDirectory()) {
-      DirectoryReader directoryReader = new DirectoryReader(file, session.getInputCharset());
+      DirectoryReader directoryReader = new DirectoryReader(file, TalismaneSession.get(sessionId).getInputCharset());
       if (forAnalysis)
-        directoryReader.setEndOfFileString("\n" + session.getEndBlockCharacter());
+        directoryReader.setEndOfFileString("\n" + TalismaneSession.get(sessionId).getEndBlockCharacter());
       return directoryReader;
     }
 
     InputStream inFile = new FileInputStream(file);
-    return new BufferedReader(new InputStreamReader(inFile, session.getInputCharset()));
+    return new BufferedReader(new InputStreamReader(inFile, TalismaneSession.get(sessionId).getInputCharset()));
   }
 
-  private static Writer getWriter(File outFile, File inFile, boolean keepDirectoryStructure, Reader reader, TalismaneSession session) throws IOException {
+  private static Writer getWriter(File outFile, File inFile, boolean keepDirectoryStructure, Reader reader, String sessionId) throws IOException {
     if (outFile == null)
-      return new BufferedWriter(new OutputStreamWriter(System.out, session.getOutputCharset()));
+      return new BufferedWriter(new OutputStreamWriter(System.out, TalismaneSession.get(sessionId).getOutputCharset()));
 
     if (inFile.isDirectory() && keepDirectoryStructure) {
       outFile.mkdirs();
-      DirectoryWriter directoryWriter = new DirectoryWriter(inFile, outFile, session.getSuffix(), session.getOutputCharset());
+      DirectoryWriter directoryWriter = new DirectoryWriter(inFile, outFile, TalismaneSession.get(sessionId).getSuffix(), TalismaneSession.get(sessionId).getOutputCharset());
 
       return directoryWriter;
     } else {
@@ -974,7 +972,7 @@ public class TalismaneMain {
       outFile.delete();
       outFile.createNewFile();
 
-      return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), session.getOutputCharset()));
+      return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), TalismaneSession.get(sessionId).getOutputCharset()));
     }
 
   }

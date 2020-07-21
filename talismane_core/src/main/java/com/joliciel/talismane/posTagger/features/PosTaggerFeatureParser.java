@@ -59,11 +59,11 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
   private static final Logger LOG = LoggerFactory.getLogger(PosTaggerFeatureParser.class);
 
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
 
-  public PosTaggerFeatureParser(TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
-    this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+  public PosTaggerFeatureParser(String sessionId) {
+    this.sessionId = sessionId;
+    this.setExternalResourceFinder(TalismaneSession.get(sessionId).getExternalResourceFinder());
   }
 
   public Set<PosTaggerFeature<?>> getFeatureSet(List<String> featureDescriptors) {
@@ -119,7 +119,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
             negative = true;
             posTagCode = posTagCode.substring(1);
           }
-          posTag = talismaneSession.getPosTagSet().getPosTag(posTagCode);
+          posTag = TalismaneSession.get(sessionId).getPosTagSet().getPosTag(posTagCode);
         }
 
         FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
@@ -312,7 +312,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 
   @Override
   public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
-    TokenFeatureParser.injectDependencies(feature, talismaneSession);
+    TokenFeatureParser.injectDependencies(feature, sessionId);
   }
 
   @Override

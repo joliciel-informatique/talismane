@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,8 +56,9 @@ import com.joliciel.talismane.rawText.Sentence;
  * 
  * @author Assaf Urieli
  */
-public final class ParseConfiguration implements Comparable<ParseConfiguration>, ClassificationSolution, ParseConfigurationWrapper, HasFeatureCache {
-
+public final class ParseConfiguration implements Comparable<ParseConfiguration>, ClassificationSolution, ParseConfigurationWrapper, HasFeatureCache, Serializable {
+  private static final long serialVersionUID = 1L;
+  
   private static final Logger LOG = LoggerFactory.getLogger(ParseConfiguration.class);
 
   private PosTagSequence posTagSequence;
@@ -89,7 +91,7 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   @SuppressWarnings("rawtypes")
   private ScoringStrategy scoringStrategy;
 
-  private Map<String, FeatureResult<?>> featureCache = new HashMap<String, FeatureResult<?>>();
+  private transient Map<String, FeatureResult<?>> featureCache = new HashMap<String, FeatureResult<?>>();
 
   private long createDate = System.currentTimeMillis();
 

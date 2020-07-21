@@ -1,8 +1,9 @@
 package com.joliciel.talismane.machineLearning;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface Solution {
+public interface Solution extends Serializable {
   /**
    * This solution's total score.
    */

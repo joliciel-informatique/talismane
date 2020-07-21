@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,16 +18,17 @@ import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class ParseOutputRewriterTest {
+public class ParseOutputRewriterTest extends TalismaneTest {
   private static final Logger LOG = LoggerFactory.getLogger(ParseOutputRewriterTest.class);
 
   @Test
   public void testGetCorpusLines() throws Exception {
+    TalismaneSession.clearSessions();
     System.setProperty("config.file", "src/test/resources/testWithOutputRules.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String input = "";
     input += "1\tAu\tau\tADP+DET\t0\troot\n";
@@ -41,11 +43,11 @@ public class ParseOutputRewriterTest {
     input += "10\tDupont\tDupont\tPROPN\t9\tflat:name\n";
 
     StringReader stringReader = new StringReader(input);
-    ParserRegexBasedCorpusReader reader = new ParserRegexBasedCorpusReader(stringReader, config.getConfig("talismane.core.test.parser.input"), session);
+    ParserRegexBasedCorpusReader reader = new ParserRegexBasedCorpusReader(stringReader, config.getConfig("talismane.core.test.parser.input"), sessionId);
 
     ParseConfiguration parseConfiguration = reader.nextConfiguration();
     final StringWriter writer = new StringWriter();
-    try (ParseOutputRewriter rewriter = new ParseOutputRewriter(writer, session)) {
+    try (ParseOutputRewriter rewriter = new ParseOutputRewriter(writer, sessionId)) {
       List<CorpusLine> corpusLines = rewriter.getCorpusLines(parseConfiguration);
       int i = 1;
       for (CorpusLine corpusLine : corpusLines) {

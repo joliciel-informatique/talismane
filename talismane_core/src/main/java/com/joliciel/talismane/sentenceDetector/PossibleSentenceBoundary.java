@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.joliciel.talismane.TalismaneSession;
@@ -26,7 +27,8 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.utils.StringUtils;
 
-public class PossibleSentenceBoundary {
+public class PossibleSentenceBoundary implements Serializable {
+  private static final long serialVersionUID = 1L;
   private static final int NUM_CHARS = 30;
   private final CharSequence text;
   private final int index;
@@ -50,10 +52,10 @@ public class PossibleSentenceBoundary {
    * Build a possible sentence boundary for a given text, which means token
    * sequences will be re-generated for each possible sentence boundary.
    */
-  public PossibleSentenceBoundary(CharSequence text, int index, TalismaneSession session) {
+  public PossibleSentenceBoundary(CharSequence text, int index, String sessionId) {
     this.text = text;
-    Sentence sentence = new Sentence(text.toString(), session);
-    this.tokenSequence = new TokenSequence(sentence, session);
+    Sentence sentence = new Sentence(text.toString(), sessionId);
+    this.tokenSequence = new TokenSequence(sentence, sessionId);
     this.tokenSequence.findDefaultTokens();
     this.index = index;
   }

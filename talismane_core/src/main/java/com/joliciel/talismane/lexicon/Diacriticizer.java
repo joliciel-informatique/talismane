@@ -108,7 +108,7 @@ public class Diacriticizer implements Serializable {
       config = ConfigFactory.load();
     }
 
-    TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
+    TalismaneSession talismaneSession = TalismaneSession.get(sessionId);
 
     File diacriticizerFile = options.valueOf(diacriticizerOption);
     if (options.has("serializeDiacriticizer")) {

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,13 +62,13 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
   private final boolean hasTokeniser;
   private final boolean hasPosTagger;
 
-  public ParseEvaluationSentenceWriter(File outDir, TalismaneSession session) throws FileNotFoundException {
-    Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+  public ParseEvaluationSentenceWriter(File outDir, String sessionId) throws FileNotFoundException {
+    Config config = ConfigFactory.load();
+    Config parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
 
-    File csvFile = new File(outDir, session.getBaseName() + "_sentences.csv");
-    this.csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
+    File csvFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_sentences.csv");
+    this.csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), TalismaneSession.get(sessionId).getCsvCharset()));
     this.guessCount = evalConfig.getInt("output-guess-count");
 
     Module startModule = Module.valueOf(evalConfig.getString("start-module"));

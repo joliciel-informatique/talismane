@@ -38,6 +38,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,15 +87,15 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
   private final int beamWidth;
   private final boolean propagateTokeniserBeam;
 
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public ForwardStatisticalPosTagger(TalismaneSession session) throws IOException, ClassNotFoundException, TalismaneException {
-    Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
+  public ForwardStatisticalPosTagger(String sessionId) throws IOException, ClassNotFoundException, TalismaneException {
+    Config config = ConfigFactory.load();
+    Config posTaggerConfig = config.getConfig("talismane.core." + sessionId + ".pos-tagger");
     int beamWidth = posTaggerConfig.getInt("beam-width");
     boolean propagateTokeniserBeam = posTaggerConfig.getBoolean("propagate-tokeniser-beam");
 
-    String configPath = "talismane.core." + session.getId() + ".pos-tagger.model";
+    String configPath = "talismane.core." + sessionId + ".pos-tagger.model";
     String modelFilePath = config.getString(configPath);
     LOG.debug("Getting pos-tagger model from " + modelFilePath);
     ClassificationModel model = modelMap.get(modelFilePath);
@@ -105,7 +106,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
       modelMap.put(modelFilePath, model);
     }
 
-    PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
+    PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(sessionId);
     Collection<ExternalResource<?>> externalResources = model.getExternalResources();
     if (externalResources != null) {
       for (ExternalResource<?> externalResource : externalResources) {
@@ -118,12 +119,12 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
     this.beamWidth = beamWidth;
     this.propagateTokeniserBeam = propagateTokeniserBeam;
     this.decisionMaker = model.getDecisionMaker();
-    this.session = session;
+    this.sessionId = sessionId;
     this.observers = new ArrayList<>();
 
     boolean includeDetails = posTaggerConfig.getBoolean("output.include-details");
     if (includeDetails) {
-      String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
+      String detailsFilePath = TalismaneSession.get(sessionId).getBaseName() + "_posTagger_details.txt";
       File detailsFile = new File(detailsFilePath);
       detailsFile.delete();
       ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
@@ -132,12 +133,12 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 
     List<PosTaggerRule> posTaggerRules = new ArrayList<>();
 
-    configPath = "talismane.core." + session.getId() + ".pos-tagger.rules";
+    configPath = "talismane.core." + sessionId + ".pos-tagger.rules";
     List<String> textFilterPaths = config.getStringList(configPath);
     for (String path : textFilterPaths) {
       LOG.debug("From: " + path);
       InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
-      try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
+      try (Scanner scanner = new Scanner(textFilterFile, TalismaneSession.get(sessionId).getInputCharset().name())) {
         List<String> ruleDescriptors = new ArrayListNoNulls<String>();
         while (scanner.hasNextLine()) {
           String ruleDescriptor = scanner.nextLine();
@@ -158,7 +159,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
     this.beamWidth = posTagger.beamWidth;
     this.propagateTokeniserBeam = posTagger.propagateTokeniserBeam;
     this.decisionMaker = posTagger.decisionMaker;
-    this.session = posTagger.session;
+    this.sessionId = posTagger.sessionId;
     this.observers = posTagger.observers;
     this.posTaggerRules = new ArrayList<>(posTagger.posTaggerRules);
     this.posTaggerPositiveRules = new ArrayList<>(posTagger.posTaggerPositiveRules);
@@ -347,7 +348,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
           if (LOG.isTraceEnabled())
             LOG.trace("Outcome: " + decision.getOutcome() + ", " + decision.getProbability());
 
-          PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, this.session);
+          PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, this.sessionId);
           PosTagSequence sequence = new PosTagSequence(history);
           sequence.addPosTaggedToken(posTaggedToken);
           if (decision.isStatistical())

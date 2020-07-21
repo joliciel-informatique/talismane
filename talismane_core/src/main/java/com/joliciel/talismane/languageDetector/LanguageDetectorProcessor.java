@@ -41,7 +41,7 @@ public interface LanguageDetectorProcessor extends Closeable {
    */
   public void onNextText(String text, List<WeightedOutcome<Locale>> results) throws IOException;
 
-  public static LanguageDetectorProcessor getProcessor(Writer writer, TalismaneSession session) throws IOException {
+  public static LanguageDetectorProcessor getProcessor(Writer writer, String sessionId) throws IOException {
     return new DefaultLanguageDetectorProcessor(writer);
   }
 }

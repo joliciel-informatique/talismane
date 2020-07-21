@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,15 +51,15 @@ public class TokeniserEvaluator {
 
   private final List<TokenEvaluationObserver> observers;
 
-  public TokeniserEvaluator(Reader evalReader, File outDir, TalismaneSession session)
-      throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
-    Config config = session.getConfig();
-    this.tokeniser = Tokeniser.getInstance(session);
-    this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
+  public TokeniserEvaluator(Reader evalReader, File outDir, String sessionId)
+      throws IOException, ReflectiveOperationException, TalismaneException {
+    Config config = ConfigFactory.load();
+    this.tokeniser = Tokeniser.getInstance(sessionId);
+    this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, sessionId);
 
-    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
+    Config tokeniserConfig = config.getConfig("talismane.core." + sessionId + ".tokeniser");
 
-    this.corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("input"), session);
+    this.corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("input"), sessionId);
   }
 
   /**

@@ -19,3 +19,5 @@ talismane_core/languagePacks/french-UD/lexicon/*.zip
 .settings
 .project
 logback.xml
+.idea
+*.iml

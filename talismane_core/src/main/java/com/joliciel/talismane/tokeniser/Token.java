@@ -56,7 +56,9 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
  * @author Assaf Urieli
  *
  */
-public class Token implements TokenWrapper {
+public class Token implements TokenWrapper, Serializable {
+  private static final long serialVersionUID = 1L;
+  
   /**
    * An imaginary word that can be placed at the start of the sentence to
    * simplify algorithms.
@@ -100,10 +102,10 @@ public class Token implements TokenWrapper {
   private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
 
   private final PosTaggerLexicon lexicon;
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
 
   Token(Token tokenToClone) {
-    this.talismaneSession = tokenToClone.talismaneSession;
+    this.sessionId = tokenToClone.sessionId;
     this.analysisText = tokenToClone.analysisText;
     this.text = tokenToClone.text;
     this.originalText = tokenToClone.originalText;
@@ -127,8 +129,8 @@ public class Token implements TokenWrapper {
     this.lexicon = tokenToClone.lexicon;
   }
 
-  public Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon, TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  public Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon, String sessionId) {
+    this.sessionId = sessionId;
     this.analysisText = null;
     this.text = null;
     this.originalText = text;
@@ -574,7 +576,7 @@ public class Token implements TokenWrapper {
 
   public String getTextForCoNLL() {
     if (conllText == null) {
-      conllText = talismaneSession.getCoNLLFormatter().toCoNLL(originalText);
+      conllText = TalismaneSession.get(sessionId).getCoNLLFormatter().toCoNLL(originalText);
     }
     return conllText;
   }
@@ -628,7 +630,7 @@ public class Token implements TokenWrapper {
    * Like {@link #getOriginalLemma()} but formatted for CoNLL
    */
   public String getOriginalLemmaForCoNLL() {
-    return talismaneSession.getCoNLLFormatter().toCoNLL(originalLemma);
+    return TalismaneSession.get(sessionId).getCoNLLFormatter().toCoNLL(originalLemma);
   }
 
   public void setOriginalLemma(String originalLemma) {

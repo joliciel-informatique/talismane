@@ -31,6 +31,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,19 +68,21 @@ public class FreemarkerTokenWriter implements TokenSequenceProcessor {
   private final Writer writer;
   private int sentenceNumber = 0;
 
-  public FreemarkerTokenWriter(File outDir, TalismaneSession session) throws IOException, TalismaneException {
+  public FreemarkerTokenWriter(File outDir, String sessionId) throws IOException, TalismaneException {
     this(new BufferedWriter(
-        new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + "_tok.txt"), false), session.getOutputCharset())), session);
+        new OutputStreamWriter(new FileOutputStream(new File(outDir, 
+          TalismaneSession.get(sessionId).getBaseName() + "_tok.txt"), false),
+          TalismaneSession.get(sessionId).getOutputCharset())), sessionId);
   }
 
-  public FreemarkerTokenWriter(Writer writer, TalismaneSession session) throws IOException, TalismaneException {
+  public FreemarkerTokenWriter(Writer writer, String sessionId) throws IOException, TalismaneException {
     this.writer = writer;
 
-    Config config = session.getConfig();
-    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
+    Config config = ConfigFactory.load();
+    Config tokeniserConfig = config.getConfig("talismane.core." + sessionId + ".tokeniser");
 
     Reader templateReader = null;
-    String configPath = "talismane.core." + session.getId() + ".tokeniser.output.template";
+    String configPath = "talismane.core." + sessionId + ".tokeniser.output.template";
     if (config.hasPath(configPath)) {
       templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
     } else {
@@ -109,7 +112,7 @@ public class FreemarkerTokenWriter implements TokenSequenceProcessor {
     this.template = this.getTemplate(templateReader);
   }
 
-  public FreemarkerTokenWriter(Reader templateReader, Writer writer, TalismaneSession session) throws IOException, TalismaneException {
+  public FreemarkerTokenWriter(Reader templateReader, Writer writer, String sessionId) throws IOException, TalismaneException {
     this.writer = writer;
     this.template = this.getTemplate(templateReader);
   }

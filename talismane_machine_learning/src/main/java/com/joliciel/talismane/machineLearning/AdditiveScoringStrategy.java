@@ -21,6 +21,8 @@ package com.joliciel.talismane.machineLearning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 /**
  * For perceptrons and other additive score methods. Simply adds all of the
  * scores for individual decisions, and divides by the number of decisions.
@@ -28,7 +30,8 @@ import org.slf4j.LoggerFactory;
  * @author Assaf Urieli
  *
  */
-public class AdditiveScoringStrategy implements ScoringStrategy<ClassificationSolution> {
+public class AdditiveScoringStrategy implements ScoringStrategy<ClassificationSolution>, Serializable {
+  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(AdditiveScoringStrategy.class);
 
   @Override

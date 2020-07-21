@@ -30,9 +30,8 @@
       <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
     <dependency>
-      <!-- Must be before junit! -->
-      <groupId>com.googlecode.jmockit</groupId>
-      <artifactId>jmockit</artifactId>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

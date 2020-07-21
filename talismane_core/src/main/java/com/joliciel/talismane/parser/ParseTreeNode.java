@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableSet;
@@ -39,7 +40,9 @@ import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
  * @author Assaf Urieli
  *
  */
-public class ParseTreeNode implements Comparable<ParseTreeNode> {
+public class ParseTreeNode implements Comparable<ParseTreeNode>, Serializable {
+  private static final long serialVersionUID = 1L;
+
   @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(ParseTreeNode.class);
   private final ParseTree parseTree;

@@ -68,10 +68,10 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
   private List<List<StandoffToken>> sentences = new ArrayList<>();
   private final String punctuationDepLabel;
 
-  public StandoffReader(Reader reader, Config config, TalismaneSession session) throws TalismaneException {
-    super(config, session);
-    PosTagSet posTagSet = session.getPosTagSet();
-    punctuationDepLabel = session.getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
+  public StandoffReader(Reader reader, Config config, String sessionId) throws TalismaneException {
+    super(config, sessionId);
+    PosTagSet posTagSet = TalismaneSession.get(sessionId).getPosTagSet();
+    punctuationDepLabel = TalismaneSession.get(sessionId).getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
 
     Map<Integer, StandoffToken> sortedTokens = new TreeMap<>();
     try (Scanner scanner = new Scanner(reader)) {
@@ -160,7 +160,7 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 
         List<StandoffToken> tokens = sentences.get(sentenceIndex++);
 
-        LinguisticRules rules = session.getLinguisticRules();
+        LinguisticRules rules = TalismaneSession.get(sessionId).getLinguisticRules();
         if (rules == null)
           throw new RuntimeException("Linguistic rules have not been set.");
 
@@ -174,20 +174,20 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
             text += " ";
           text += word;
         }
-        Sentence sentence = new Sentence(text, session);
+        Sentence sentence = new Sentence(text, sessionId);
 
-        for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
+        for (SentenceAnnotator annotator : TalismaneSession.get(sessionId).getSentenceAnnotators()) {
           annotator.annotate(sentence);
         }
 
-        PretokenisedSequence tokenSequence = new PretokenisedSequence(sentence, session);
+        PretokenisedSequence tokenSequence = new PretokenisedSequence(sentence, sessionId);
         PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
         Map<String, PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
 
         for (StandoffToken standoffToken : tokens) {
           Token token = tokenSequence.addToken(standoffToken.text);
           Decision posTagDecision = new Decision(standoffToken.posTag.getCode());
-          PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, session);
+          PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, sessionId);
 
           if (LOG.isTraceEnabled()) {
             LOG.trace(posTaggedToken.toString());

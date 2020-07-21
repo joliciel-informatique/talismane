@@ -30,6 +30,7 @@ import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * Transforms a non-projective corpus to a projective corpus by attaching
@@ -83,10 +84,10 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
   private final String nonProjectiveArcSuffix;
   private final ProjectivationStrategy strategy;
 
-  public CorpusProjectifier(TalismaneSession session) throws IOException {
-    Config config = session.getConfig();
-    nonProjectiveArcSuffix = config.getString("talismane.extensions." + session.getId() + ".projectifier.non-projective-arc-suffix");
-    strategy = ProjectivationStrategy.valueOf(config.getString("talismane.extensions." + session.getId() + ".projectifier.strategy"));
+  public CorpusProjectifier(String sessionId) throws IOException {
+    Config config = ConfigFactory.load();
+    nonProjectiveArcSuffix = config.getString("talismane.extensions." + sessionId + ".projectifier.non-projective-arc-suffix");
+    strategy = ProjectivationStrategy.valueOf(config.getString("talismane.extensions." + sessionId + ".projectifier.strategy"));
   }
 
   @Override

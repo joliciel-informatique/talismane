@@ -37,11 +37,9 @@ public class SentencePerLineCorpusReader extends AbstractAnnotatedCorpusReader i
   private final Scanner scanner;
   private int sentenceCount = 0;
   String sentence = null;
-  private final TalismaneSession session;
 
-  public SentencePerLineCorpusReader(Reader reader, Config config, TalismaneSession session) {
-    super(config, session);
-    this.session = session;
+  public SentencePerLineCorpusReader(Reader reader, Config config, String sessionId) {
+    super(config, sessionId);
     this.scanner = new Scanner(reader);
   }
 
@@ -97,7 +95,7 @@ public class SentencePerLineCorpusReader extends AbstractAnnotatedCorpusReader i
   public Sentence nextSentence() {
     String currentSentence = sentence;
     sentence = null;
-    return new Sentence(currentSentence, session);
+    return new Sentence(currentSentence, sessionId);
   }
 
   @Override

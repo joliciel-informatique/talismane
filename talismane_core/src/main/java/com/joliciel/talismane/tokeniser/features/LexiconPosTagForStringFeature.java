@@ -23,7 +23,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
@@ -40,13 +40,13 @@ import com.joliciel.talismane.posTagger.PosTag;
  * @author Assaf Urieli
  *
  */
-public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper>, NeedsTalismaneSession {
+public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper>, NeedsSessionId {
   @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagForStringFeature.class);
   private StringFeature<TokenWrapper> posTagFeature;
   private StringFeature<TokenWrapper> wordToCheckFeature;
 
-  TalismaneSession talismaneSession;
+  String sessionId;
 
   /**
    * 
@@ -76,9 +76,9 @@ public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Bo
     if (wordToCheckResult != null) {
       FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
       if (posTagResult != null) {
-        PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
+        PosTag posTag = TalismaneSession.get(sessionId).getPosTagSet().getPosTag(posTagResult.getOutcome());
         String wordToCheck = wordToCheckResult.getOutcome();
-        PosTaggerLexicon lexicon = talismaneSession.getMergedLexicon();
+        PosTaggerLexicon lexicon = TalismaneSession.get(sessionId).getMergedLexicon();
         Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
         boolean hasPosTag = (posTags.contains(posTag));
         result = this.generateResult(hasPosTag);
@@ -89,12 +89,7 @@ public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Bo
   }
 
   @Override
-  public TalismaneSession getTalismaneSession() {
-    return talismaneSession;
-  }
-
-  @Override
-  public void setTalismaneSession(TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  public void setSessionId(String sessionId) {
+    this.sessionId = sessionId;
   }
 }

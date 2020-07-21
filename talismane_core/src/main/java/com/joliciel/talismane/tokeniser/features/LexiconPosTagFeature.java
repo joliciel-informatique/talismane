@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
@@ -35,10 +35,10 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper>, NeedsTalismaneSession {
+public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper>, NeedsSessionId {
   StringFeature<TokenWrapper>[] posTagFeatures;
 
-  TalismaneSession talismaneSession;
+  String sessionId;
 
   @SafeVarargs
   public LexiconPosTagFeature(StringFeature<TokenWrapper>... posTagFeatures) {
@@ -73,7 +73,7 @@ public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean>imp
     for (StringFeature<TokenWrapper> posTagFeature : posTagFeatures) {
       FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
       if (posTagResult != null) {
-        PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
+        PosTag posTag = TalismaneSession.get(sessionId).getPosTagSet().getPosTag(posTagResult.getOutcome());
         boolean hasPosTag = (token.getPossiblePosTags().contains(posTag));
         if (hasPosTag) {
           matches = true;
@@ -86,14 +86,9 @@ public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean>imp
 
     return result;
   }
-
+  
   @Override
-  public TalismaneSession getTalismaneSession() {
-    return talismaneSession;
-  }
-
-  @Override
-  public void setTalismaneSession(TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  public void setSessionId(String sessionId) {
+    this.sessionId = sessionId;
   }
 }

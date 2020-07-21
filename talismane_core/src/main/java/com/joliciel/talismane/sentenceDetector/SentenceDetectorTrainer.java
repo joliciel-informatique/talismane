@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,21 +56,21 @@ import com.typesafe.config.Config;
 public class SentenceDetectorTrainer {
   private static final Logger LOG = LoggerFactory.getLogger(SentenceDetectorTrainer.class);
 
-  private final TalismaneSession session;
+  private final String sessionId;
   private final Config sentenceConfig;
   private final File modelFile;
   private final ClassificationEventStream eventStream;
   private final Map<String, List<String>> descriptors;
 
-  public SentenceDetectorTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
-    Config config = session.getConfig();
-    this.sentenceConfig = config.getConfig("talismane.core." + session.getId() + ".sentence-detector");
-    this.session = session;
+  public SentenceDetectorTrainer(Reader reader, String sessionId) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+    Config config = ConfigFactory.load();
+    this.sentenceConfig = config.getConfig("talismane.core." + sessionId + ".sentence-detector");
+    this.sessionId = sessionId;
     this.modelFile = new File(sentenceConfig.getString("model"));
 
     this.descriptors = new HashMap<>();
 
-    String configPath = "talismane.core." + session.getId() + ".sentence-detector.train.features";
+    String configPath = "talismane.core." + sessionId + ".sentence-detector.train.features";
     InputStream featureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(featureFile, "UTF-8")))) {
@@ -82,11 +83,11 @@ public class SentenceDetectorTrainer {
     }
     descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
     SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(reader, sentenceConfig.getConfig("train"),
-        session);
+        sessionId);
 
-    SentenceDetectorFeatureParser featureParser = new SentenceDetectorFeatureParser(session);
+    SentenceDetectorFeatureParser featureParser = new SentenceDetectorFeatureParser(sessionId);
     Set<SentenceDetectorFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
-    eventStream = new SentenceDetectorEventStream(corpusReader, features, this.session);
+    eventStream = new SentenceDetectorEventStream(corpusReader, features, sessionId);
   }
 
   public ClassificationModel train() throws TalismaneException, IOException {
@@ -94,7 +95,7 @@ public class SentenceDetectorTrainer {
     ClassificationModelTrainer trainer = factory.constructTrainer(sentenceConfig.getConfig("train.machine-learning"));
 
     ClassificationModel model = trainer.trainModel(eventStream, descriptors);
-    model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
+    model.setExternalResources(TalismaneSession.get(sessionId).getExternalResourceFinder().getExternalResources());
 
     File modelDir = modelFile.getParentFile();
     if (modelDir != null)

@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +38,9 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class ParseTree {
+public class ParseTree implements Serializable {
+  private static final long serialVersionUID = 1L;
+  
   private final List<PosTaggedToken> posTaggedTokens;
   private final Map<PosTaggedToken, ParseTreeNode> parseTreeMap;
   private final Map<PosTaggedToken, List<PosTaggedToken>> dependentMap;

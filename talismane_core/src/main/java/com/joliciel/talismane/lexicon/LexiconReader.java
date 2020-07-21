@@ -48,7 +48,7 @@ import java.util.zip.ZipOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
@@ -107,9 +107,9 @@ import joptsimple.OptionSpec;
 public class LexiconReader {
   private static final Logger LOG = LoggerFactory.getLogger(LexiconReader.class);
 
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public static void main(String[] args) throws IOException, SentenceAnnotatorLoadException, TalismaneException, ReflectiveOperationException {
+  public static void main(String[] args) throws IOException, TalismaneException {
     OptionParser parser = new OptionParser();
     parser.accepts("serializeLexicon", "serialize lexicon");
     parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("serializeLexicon").forHelp();
@@ -132,15 +132,14 @@ public class LexiconReader {
 
     Config config = ConfigFactory.load();
     String sessionId = options.valueOf(sessionIdOption);
-    TalismaneSession session = new TalismaneSession(config, sessionId);
 
-    LexiconReader lexiconSerializer = new LexiconReader(session);
+    LexiconReader lexiconSerializer = new LexiconReader(sessionId);
     List<PosTaggerLexicon> lexicons = lexiconSerializer.readLexicons(lexiconPropsFile);
     lexiconSerializer.serializeLexicons(lexicons, outFile);
   }
 
-  public LexiconReader(TalismaneSession session) {
-    this.session = session;
+  public LexiconReader(String sessionId) {
+    this.sessionId = sessionId;
   }
 
   /**
@@ -270,7 +269,7 @@ public class LexiconReader {
 
       LOG.debug("Serializing: " + lexiconFilePath);
 
-      LexiconFile lexiconFile = new LexiconFile(lexiconName, lexiconScanner, lexicalEntryReader, session);
+      LexiconFile lexiconFile = new LexiconFile(lexiconName, lexiconScanner, lexicalEntryReader, sessionId);
       if (categories != null)
         lexiconFile.setCategories(categories);
       if (exclusionAttributes != null)
@@ -355,8 +354,8 @@ public class LexiconReader {
 
     for (String lexiconName : lexiconNames) {
       PosTaggerLexicon lexicon = lexiconMap.get(lexiconName);
-      if (lexicon instanceof NeedsTalismaneSession)
-        ((NeedsTalismaneSession) lexicon).setTalismaneSession(session);
+      if (lexicon instanceof NeedsSessionId)
+        ((NeedsSessionId) lexicon).setSessionId(sessionId);
       lexicons.add(lexicon);
     }
 

@@ -54,17 +54,17 @@ public class Sentence extends AnnotatedText {
   private int startLineNumber = -1;
   private String leftoverOriginalText = "";
 
-  protected final TalismaneSession session;
+  protected final String sessionId;
 
   public Sentence(CharSequence text, TreeMap<Integer, String> originalTextSegments, List<Integer> originalIndexes, boolean complete,
-      TreeMap<Integer, Integer> newlines, File file, TalismaneSession session) {
+      TreeMap<Integer, Integer> newlines, File file, String sessionId) {
     super(text);
     this.originalTextSegments = originalTextSegments;
     this.originalIndexes = originalIndexes;
     this.complete = complete;
     this.newlines = newlines;
     this.file = file;
-    this.session = session;
+    this.sessionId = sessionId;
 
     if (LOG.isTraceEnabled()) {
       LOG.trace("Constructed sentence: |" + text + "|");
@@ -72,12 +72,12 @@ public class Sentence extends AnnotatedText {
     }
   }
 
-  public Sentence(CharSequence text, File file, TalismaneSession session) {
-    this(text, new TreeMap<>(), new ArrayList<>(), true, new TreeMap<>(), file, session);
+  public Sentence(CharSequence text, File file, String sessionId) {
+    this(text, new TreeMap<>(), new ArrayList<>(), true, new TreeMap<>(), file, sessionId);
   }
 
-  public Sentence(CharSequence text, TalismaneSession session) {
-    this(text, null, session);
+  public Sentence(CharSequence text, String sessionId) {
+    this(text, null, sessionId);
   }
 
   /**
@@ -197,7 +197,7 @@ public class Sentence extends AnnotatedText {
       boolean firstSegment = true;
       for (String segment : containedSegments.values()) {
         if (!firstSegment)
-          sb.append(session.getOutputDivider());
+          sb.append(TalismaneSession.get(sessionId).getOutputDivider());
         sb.append(segment);
         firstSegment = false;
       }
