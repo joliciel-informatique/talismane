@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A single probabilised decision used to construct a particular solution.
@@ -152,4 +153,17 @@ public class Decision implements Comparable<Decision>, Serializable {
     return "Decision [" + outcome + "," + df.format(probability) + "]";
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Decision decision = (Decision) o;
+    return Double.compare(decision.probability, probability) == 0 &&
+      outcome.equals(decision.outcome);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(outcome, probability);
+  }
 }

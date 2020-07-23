@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
+import java.util.Objects;
+
 /**
  * Create a dependency where Buffer[0] depends on Stack[0], remove Buffer[0],
  * and put Stack[0] in its place.
@@ -74,5 +76,19 @@ public class RightArcTransition extends AbstractTransition implements Transition
   @Override
   public boolean doesReduce() {
     return true;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    RightArcTransition that = (RightArcTransition) o;
+    return label.equals(that.label);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), label);
   }
 }

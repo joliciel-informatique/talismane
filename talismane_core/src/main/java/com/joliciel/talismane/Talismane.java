@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -321,6 +322,7 @@ public class Talismane {
 
       int endBlockCharacterCount = 0;
 
+      URI currentURI = null;
       File currentFile = null;
 
       while (!finished) {
@@ -457,7 +459,8 @@ public class Talismane {
             for (SentenceAnnotator annotator : TalismaneSession.get(sessionId).getSentenceAnnotators())
               annotator.annotate(sentence);
 
-            if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
+            if (sentence.getFileURI() != null && !sentence.getFileURI().equals(currentURI)) {
+              currentURI = sentence.getFileURI();
               currentFile = sentence.getFile();
               LOG.debug("Setting current file to " + currentFile.getPath());
               if (writer instanceof CurrentFileObserver)

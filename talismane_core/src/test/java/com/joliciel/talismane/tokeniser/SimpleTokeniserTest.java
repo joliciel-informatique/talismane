@@ -1,19 +1,17 @@
 package com.joliciel.talismane.tokeniser;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import com.joliciel.talismane.TalismaneTest;
-import org.junit.Test;
-
 import com.joliciel.talismane.Annotation;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneTest;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class SimpleTokeniserTest extends TalismaneTest {
 

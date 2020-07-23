@@ -19,11 +19,7 @@
 package com.joliciel.talismane.parser;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NavigableSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -382,5 +378,20 @@ public class ParseTreeNode implements Comparable<ParseTreeNode>, Serializable {
       edgeDegree = new ImmutablePair<ParseTreeNode, Integer>(this, maxEdgeCount);
     }
     return edgeDegree;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ParseTreeNode that = (ParseTreeNode) o;
+    return token.equals(that.token) &&
+      label.equals(that.label) &&
+      children.equals(that.children);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(token, label, children);
   }
 }

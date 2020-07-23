@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
+import java.util.Objects;
+
 /**
  * Create a dependency where Buffer[0] depends on Stack[0], and push Buffer[0]
  * to the top of the stack. Example: in "eat apple", create a "object"
@@ -87,5 +89,19 @@ public class RightArcEagerTransition extends AbstractTransition implements Trans
   @Override
   public boolean doesReduce() {
     return false;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    RightArcEagerTransition that = (RightArcEagerTransition) o;
+    return label.equals(that.label);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), label);
   }
 }

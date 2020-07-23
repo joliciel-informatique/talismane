@@ -19,12 +19,10 @@
 package com.joliciel.talismane.rawText;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +39,9 @@ import com.joliciel.talismane.TalismaneSession;
  * @author Assaf Urieli
  *
  */
-public class Sentence extends AnnotatedText {
+public class Sentence extends AnnotatedText implements Serializable {
+  private static final long serialVersionUID = 1L;
+  
   public static final String WHITE_SPACE = "\\s\ufeff";
 
   private static final Logger LOG = LoggerFactory.getLogger(Sentence.class);
@@ -50,7 +50,9 @@ public class Sentence extends AnnotatedText {
   private final List<Integer> originalIndexes;
   private final boolean complete;
   private final TreeMap<Integer, Integer> newlines;
-  private final File file;
+  private final URI fileURI;
+  private final String filePath;
+  private transient File file;
   private int startLineNumber = -1;
   private String leftoverOriginalText = "";
 
@@ -64,6 +66,8 @@ public class Sentence extends AnnotatedText {
     this.complete = complete;
     this.newlines = newlines;
     this.file = file;
+    this.fileURI = file==null ? null: file.toURI();
+    this.filePath = file==null ? "": file.getPath();
     this.sessionId = sessionId;
 
     if (LOG.isTraceEnabled()) {
@@ -173,7 +177,7 @@ public class Sentence extends AnnotatedText {
    */
 
   public String getFileName() {
-    return (file == null ? "" : file.getPath());
+    return filePath;
   }
 
   /**
@@ -224,11 +228,20 @@ public class Sentence extends AnnotatedText {
   }
 
   /**
-   * The file containing this sentence.
+   * The file containing this sentence, or null if none was indicated.
    */
 
   public File getFile() {
+    if (fileURI==null)
+      return null;
+    if (file==null)
+      file = new File(this.fileURI);
     return file;
+  }
+
+  /** The URI of the file containing this sentence, or null if none was indicated. */
+  public URI getFileURI() {
+    return fileURI;
   }
 
   /**
@@ -247,5 +260,26 @@ public class Sentence extends AnnotatedText {
     if (LOG.isTraceEnabled())
       LOG.trace("setLeftoverOriginalText: " + leftoverOriginalText);
     this.leftoverOriginalText = leftoverOriginalText;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Sentence sentence = (Sentence) o;
+    return complete == sentence.complete &&
+      startLineNumber == sentence.startLineNumber &&
+      originalTextSegments.equals(sentence.originalTextSegments) &&
+      originalIndexes.equals(sentence.originalIndexes) &&
+      newlines.equals(sentence.newlines) &&
+      Objects.equals(fileURI, sentence.fileURI) &&
+      filePath.equals(sentence.filePath) &&
+      Objects.equals(leftoverOriginalText, sentence.leftoverOriginalText) &&
+      sessionId.equals(sentence.sessionId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(originalTextSegments, originalIndexes, complete, newlines, fileURI, filePath, startLineNumber, leftoverOriginalText, sessionId);
   }
 }

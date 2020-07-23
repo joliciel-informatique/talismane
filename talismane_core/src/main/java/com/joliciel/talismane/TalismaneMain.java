@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -773,6 +774,7 @@ public class TalismaneMain {
         Reader reader = getReader(inFile, false, sessionId);
         Writer writer = getWriter(outFile, inFile, keepDirectoryStructure, reader, sessionId);
         File currentFile = null;
+        URI currentURI = null;
         IOException ioException = null;
         switch (session.getModule()) {
         case sentenceDetector: {
@@ -783,7 +785,8 @@ public class TalismaneMain {
                 config.getConfig("talismane.core." + sessionId + ".sentence-detector.input"), sessionId);
             while (corpusReader.hasNextSentence()) {
               Sentence sentence = corpusReader.nextSentence();
-              if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
+              if (sentence.getFileURI() != null && !sentence.getFileURI().equals(currentURI)) {
+                currentURI = sentence.getFileURI();
                 currentFile = sentence.getFile();
                 if (writer instanceof CurrentFileObserver)
                   ((CurrentFileObserver) writer).onNextFile(currentFile);
@@ -814,7 +817,7 @@ public class TalismaneMain {
             while (corpusReader.hasNextSentence()) {
               TokenSequence tokenSequence = corpusReader.nextTokenSequence();
               Sentence sentence = tokenSequence.getSentence();
-              if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
+              if (sentence.getFileURI() != null && !sentence.getFileURI().equals(currentFile)) {
                 currentFile = sentence.getFile();
                 if (writer instanceof CurrentFileObserver)
                   ((CurrentFileObserver) writer).onNextFile(currentFile);

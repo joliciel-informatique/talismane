@@ -3,6 +3,7 @@ package com.joliciel.talismane.posTagger;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -233,4 +234,19 @@ public class PosTagSequence extends ArrayList<PosTaggedToken> implements Compara
     return clone;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    PosTagSequence that = (PosTagSequence) o;
+    return decisions.equals(that.decisions) &&
+      tokenSequence.equals(that.tokenSequence) &&
+      sessionId.equals(that.sessionId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), decisions, tokenSequence, sessionId);
+  }
 }

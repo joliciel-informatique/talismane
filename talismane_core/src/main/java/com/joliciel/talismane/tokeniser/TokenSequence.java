@@ -1,16 +1,7 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,8 +48,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
   @SuppressWarnings("rawtypes")
   private final Map<String, NavigableSet<Annotation<TokenAttribute>>> attributeOrderingMap;
-
-  private PosTaggerLexicon lexicon;
 
   private final String sessionId;
 
@@ -334,7 +323,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
       this.remove(tokenToRemove);
     }
 
-    Token token = new Token(string, this, this.size(), start, end, this.getLexicon(), this.sessionId);
+    Token token = new Token(string, this, this.size(), start, end, this.sessionId);
     token.setIndexWithWhiteSpace(prevTokenIndex + 1);
 
     this.listWithWhiteSpace.add(prevTokenIndex + 1, token);
@@ -470,13 +459,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
     return sb.toString();
   }
 
-  public PosTaggerLexicon getLexicon() {
-    if (this.lexicon == null) {
-      this.lexicon = TalismaneSession.get(sessionId).getMergedLexicon();
-    }
-    return lexicon;
-  }
-
   public String getSessionId() {
     return sessionId;
   }
@@ -487,5 +469,21 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
   public TokenSequence cloneTokenSequence() {
     TokenSequence tokenSequence = new TokenSequence(this);
     return tokenSequence;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    TokenSequence tokens = (TokenSequence) o;
+    return sentence.equals(tokens.sentence) &&
+      listWithWhiteSpace.equals(tokens.listWithWhiteSpace) &&
+      sessionId.equals(tokens.sessionId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), sentence, listWithWhiteSpace, sessionId);
   }
 }

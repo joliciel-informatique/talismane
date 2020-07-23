@@ -75,9 +75,9 @@ public class Token implements TokenWrapper, Serializable {
   private int index;
   private int indexWithWhiteSpace;
   private TokenSequence tokenSequence;
-  private Set<PosTag> possiblePosTags;
-  private Map<PosTag, Integer> frequencies;
-  private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
+  private transient Set<PosTag> possiblePosTags;
+  private transient Map<PosTag, Integer> frequencies;
+  private transient Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
   private boolean separator;
   private final boolean whiteSpace;
   private List<TokenPatternMatch> matches = null;
@@ -101,7 +101,6 @@ public class Token implements TokenWrapper, Serializable {
   private double probability = -1;
   private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
 
-  private final PosTaggerLexicon lexicon;
   private final String sessionId;
 
   Token(Token tokenToClone) {
@@ -125,11 +124,9 @@ public class Token implements TokenWrapper, Serializable {
     this.lineNumber = tokenToClone.lineNumber;
     this.columnNumber = tokenToClone.columnNumber;
     this.attributes = tokenToClone.attributes;
-
-    this.lexicon = tokenToClone.lexicon;
   }
 
-  public Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon, String sessionId) {
+  public Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, String sessionId) {
     this.sessionId = sessionId;
     this.analysisText = null;
     this.text = null;
@@ -149,8 +146,6 @@ public class Token implements TokenWrapper, Serializable {
       this.whiteSpace = true;
     else
       this.whiteSpace = false;
-
-    this.lexicon = lexicon;
   }
 
   /**
@@ -250,7 +245,7 @@ public class Token implements TokenWrapper, Serializable {
    */
   public Set<PosTag> getPossiblePosTags() throws TalismaneException {
     if (possiblePosTags == null) {
-      possiblePosTags = lexicon.findPossiblePosTags(this.getAnalyisText());
+      possiblePosTags = TalismaneSession.get(sessionId).getMergedLexicon().findPossiblePosTags(this.getAnalyisText());
     }
 
     return possiblePosTags;
@@ -592,7 +587,7 @@ public class Token implements TokenWrapper, Serializable {
     }
     List<LexicalEntry> lexicalEntries = this.lexicalEntryMap.get(posTag);
     if (lexicalEntries == null) {
-      lexicalEntries = lexicon.findLexicalEntries(this.getText(), posTag);
+      lexicalEntries = TalismaneSession.get(sessionId).getMergedLexicon().findLexicalEntries(this.getText(), posTag);
       this.lexicalEntryMap.put(posTag, lexicalEntries);
     }
     LexicalEntry bestEntry = null;

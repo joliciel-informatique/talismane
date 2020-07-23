@@ -37,7 +37,7 @@ public class LexicalAttributeFeatureTest extends TalismaneTest {
 
     Sentence sentence = new Sentence("une dame", sessionId);
     TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
-    Token token = new Token("dame", tokenSequence, 1, "une ".length(), "une dame".length(), TalismaneSession.get(sessionId).getMergedLexicon(), sessionId);
+    Token token = new Token("dame", tokenSequence, 1, "une ".length(), "une dame".length(), sessionId);
     Decision decision = new Decision("NC", 1.0);
     final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, sessionId);
 
@@ -73,7 +73,7 @@ public class LexicalAttributeFeatureTest extends TalismaneTest {
 
     Sentence sentence = new Sentence("je demande", sessionId);
     TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
-    Token token = new Token("demande", tokenSequence, 1, "je ".length(), "je demande".length(), TalismaneSession.get(sessionId).getMergedLexicon(), sessionId);
+    Token token = new Token("demande", tokenSequence, 1, "je ".length(), "je demande".length(), sessionId);
     Decision decision = new Decision("V", 1.0);
     final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, sessionId);
 
@@ -111,7 +111,7 @@ public class LexicalAttributeFeatureTest extends TalismaneTest {
 
     Sentence sentence = new Sentence("blah", sessionId);
     TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
-    Token token = new Token("blah", tokenSequence, 1, "".length(), "blah".length(), TalismaneSession.get(sessionId).getMergedLexicon(), sessionId);
+    Token token = new Token("blah", tokenSequence, 1, "".length(), "blah".length(), sessionId);
     Decision decision = new Decision("V", 1.0);
     final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, sessionId);
 

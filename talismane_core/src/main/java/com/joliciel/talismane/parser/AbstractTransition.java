@@ -84,5 +84,4 @@ public abstract class AbstractTransition implements Transition {
       return false;
     return true;
   }
-
 }
