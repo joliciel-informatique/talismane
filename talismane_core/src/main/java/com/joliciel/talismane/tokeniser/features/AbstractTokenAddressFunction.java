@@ -21,7 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 import com.joliciel.talismane.machineLearning.features.Feature;
 
-public abstract class AbstractTokenAddressFunction extends AbstractTokenFeature<TokenWrapper>implements TokenAddressFunction<TokenWrapper> {
+public abstract class AbstractTokenAddressFunction extends AbstractTokenFeature<TokenWrapper> implements TokenAddressFunction<TokenWrapper> {
 
   @SuppressWarnings("rawtypes")
   @Override

@@ -1,20 +1,19 @@
 package com.joliciel.talismane.tokeniser;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-
 import com.joliciel.talismane.Annotation;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneTest;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.junit.Test;
 
-public class SimpleTokeniserTest {
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class SimpleTokeniserTest extends TalismaneTest {
 
   @Test
   public void testTokenise() throws Exception {
@@ -22,18 +21,18 @@ public class SimpleTokeniserTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
-    final Sentence sentence = new Sentence("Click http://www.blah-di-blah.com now", session);
+    final Sentence sentence = new Sentence("Click http://www.blah-di-blah.com now", sessionId);
     List<Annotation<TokenPlaceholder>> annotations = new ArrayList<>();
     Annotation<TokenPlaceholder> annotation = new Annotation<TokenPlaceholder>("Click ".length(), "Click http://www.blah-di-blah.com".length(),
         new TokenPlaceholder("URL", ""), labels);
     annotations.add(annotation);
     sentence.addAnnotations(annotations);
 
-    SimpleTokeniser simpleTokeniser = new SimpleTokeniser(session);
+    SimpleTokeniser simpleTokeniser = new SimpleTokeniser(sessionId);
     TokenSequence tokenSequence = simpleTokeniser.tokeniseSentence(sentence);
     System.out.println(tokenSequence.toString());
 

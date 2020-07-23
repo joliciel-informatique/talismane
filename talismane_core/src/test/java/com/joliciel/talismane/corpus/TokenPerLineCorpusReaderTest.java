@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.StringReader;
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import com.joliciel.talismane.corpus.CorpusLine.CorpusElement;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class TokenPerLineCorpusReaderTest {
+public class TokenPerLineCorpusReaderTest extends TalismaneTest {
   private static final Logger LOG = LoggerFactory.getLogger(TokenPerLineCorpusReaderTest.class);
 
   @Test
@@ -23,7 +24,7 @@ public class TokenPerLineCorpusReaderTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String input = "# Skip me\n";
     input += "1-2\tAu\t_\t_\t_\t_\n";
@@ -46,7 +47,7 @@ public class TokenPerLineCorpusReaderTest {
 
     StringReader reader = new StringReader(input);
     Config readerConfig = config.getConfig("talismane.core.test.input");
-    TokenPerLineCorpusReader corpusReader = new TokenPerLineCorpusReader(reader, readerConfig, session);
+    TokenPerLineCorpusReader corpusReader = new TokenPerLineCorpusReader(reader, readerConfig, sessionId);
     List<CorpusLine> corpusLines = corpusReader.nextCorpusLineList();
     int i = 0;
     for (CorpusLine corpusLine : corpusLines) {

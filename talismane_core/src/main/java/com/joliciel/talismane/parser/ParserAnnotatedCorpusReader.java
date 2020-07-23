@@ -57,15 +57,15 @@ public interface ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusReader
    * @throws ReflectiveOperationException
    *           if the corpus-reader class could not be instantiated
    */
-  public static ParserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+  public static ParserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, String sessionId)
       throws IOException, ReflectiveOperationException {
     String className = config.getString("corpus-reader");
 
     @SuppressWarnings("unchecked")
     Class<? extends ParserAnnotatedCorpusReader> clazz = (Class<? extends ParserAnnotatedCorpusReader>) Class.forName(className);
-    Constructor<? extends ParserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+    Constructor<? extends ParserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, String.class);
 
-    ParserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+    ParserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, sessionId);
     if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
       ((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
     }

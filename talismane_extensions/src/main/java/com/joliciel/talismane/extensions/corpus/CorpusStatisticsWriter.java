@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.typesafe.config.ConfigFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,7 @@ public class CorpusStatisticsWriter implements ParseConfigurationProcessor {
   private final Writer writer;
   private final File serializationFile;
 
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
   private final CorpusStatistics stats = new CorpusStatistics();
   private final CorpusStatistics referenceStats;
 
@@ -70,17 +71,18 @@ public class CorpusStatisticsWriter implements ParseConfigurationProcessor {
    * 
    * @throws ClassNotFoundException
    */
-  public CorpusStatisticsWriter(File outDir, TalismaneSession session) throws IOException, ClassNotFoundException {
+  public CorpusStatisticsWriter(File outDir, String sessionId) throws IOException, ClassNotFoundException {
     this.writer = new BufferedWriter(
-        new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + "_stats.csv"), false), session.getOutputCharset()));
+        new OutputStreamWriter(new FileOutputStream(new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_stats.csv"), false),
+          TalismaneSession.get(sessionId).getOutputCharset()));
 
-    this.talismaneSession = session;
-    this.serializationFile = new File(outDir, session.getBaseName() + "_stats.zip");
+    this.sessionId = sessionId;
+    this.serializationFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_stats.zip");
     serializationFile.delete();
 
-    Config config = session.getConfig();
-    if (config.hasPath("talismane.extensions." + session.getId() + ".corpus-statistics.reference-stats")) {
-      String referenceStatsPath = config.getString("talismane.extensions." + session.getId() + ".corpus-statistics.reference-stats");
+    Config config = ConfigFactory.load();
+    if (config.hasPath("talismane.extensions." + sessionId + ".corpus-statistics.reference-stats")) {
+      String referenceStatsPath = config.getString("talismane.extensions." + sessionId + ".corpus-statistics.reference-stats");
       File referenceStatsFile = new File(referenceStatsPath);
       this.referenceStats = CorpusStatistics.loadFromFile(referenceStatsFile);
     } else {
@@ -107,7 +109,7 @@ public class CorpusStatisticsWriter implements ParseConfigurationProcessor {
           stats.unknownTokenCount++;
       }
       if (alphanumeric.matcher(token.getOriginalText()).find()) {
-        String lowercase = word.toLowerCase(talismaneSession.getLocale());
+        String lowercase = word.toLowerCase(TalismaneSession.get(sessionId).getLocale());
         stats.lowerCaseWords.add(lowercase);
         stats.alphanumericCount++;
         if (referenceStats != null) {

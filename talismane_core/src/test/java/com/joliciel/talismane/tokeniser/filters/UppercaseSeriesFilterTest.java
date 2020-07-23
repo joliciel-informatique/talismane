@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneSession;
@@ -15,38 +16,32 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import mockit.NonStrict;
-import mockit.NonStrictExpectations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class UppercaseSeriesFilterTest {
+public class UppercaseSeriesFilterTest extends TalismaneTest {
 
   @Test
-  public void testReplace(@NonStrict final Diacriticizer diacriticizer) throws Exception {
-    new NonStrictExpectations() {
-      {
-        diacriticizer.diacriticize("VEUX");
-        returns(new HashSet<>(Arrays.asList("veux")));
-        diacriticizer.diacriticize("SAVOIR");
-        returns(new HashSet<>(Arrays.asList("savoir")));
-        diacriticizer.diacriticize("L'");
-        returns(new HashSet<>(Arrays.asList("l'")));
-        diacriticizer.diacriticize("AMERIQUE");
-        returns(new HashSet<>(Arrays.asList("Amérique")));
-      }
-    };
+  public void testReplace() throws Exception {
+    
+    Diacriticizer diacriticizer = mock(Diacriticizer.class);
+    when(diacriticizer.diacriticize("VEUX")).thenReturn(new HashSet<>(Arrays.asList("veux")));
+    when(diacriticizer.diacriticize("SAVOIR")).thenReturn(new HashSet<>(Arrays.asList("savoir")));
+    when(diacriticizer.diacriticize("L'")).thenReturn(new HashSet<>(Arrays.asList("l'")));
+    when(diacriticizer.diacriticize("AMERIQUE")).thenReturn(new HashSet<>(Arrays.asList("Amérique")));
 
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
-    session.setDiacriticizer(diacriticizer);
+    final String sessionId = "test";
+    TalismaneSession.get(sessionId).setDiacriticizer(diacriticizer);
 
-    UppercaseSeriesFilter filter = new UppercaseSeriesFilter(session);
+    UppercaseSeriesFilter filter = new UppercaseSeriesFilter(sessionId);
 
     String text = "Je VEUX SAVOIR la VERITE, je VEUX SAVOIR LA VERITE sur L'AMERIQUE!";
-    Sentence sentence = new Sentence(text, session);
-    TokenSequence tokenSequence = new TokenSequence(sentence, session);
+    Sentence sentence = new Sentence(text, sessionId);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.addToken("".length(), "Je".length());
     tokenSequence.addToken("Je ".length(), "Je VEUX".length());
     tokenSequence.addToken("Je VEUX ".length(), "Je VEUX SAVOIR".length());

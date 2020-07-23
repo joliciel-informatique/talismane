@@ -32,10 +32,10 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  *
  */
 public class LowercaseKnownWordFilter implements TokenFilter {
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public LowercaseKnownWordFilter(TalismaneSession session) {
-    this.session = session;
+  public LowercaseKnownWordFilter(String sessionId) {
+    this.sessionId = sessionId;
   }
 
   @Override
@@ -43,7 +43,7 @@ public class LowercaseKnownWordFilter implements TokenFilter {
     for (Token token : tokenSequence) {
       String word = token.getText();
       if (word.length() > 0 && Character.isUpperCase(word.charAt(0))) {
-        Set<String> possibleWords = session.getDiacriticizer().diacriticize(word);
+        Set<String> possibleWords = TalismaneSession.get(sessionId).getDiacriticizer().diacriticize(word);
         if (possibleWords.size() > 0)
           token.setText(possibleWords.iterator().next());
       }

@@ -32,7 +32,7 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  * @author Assaf Urieli
  *
  */
-public final class PreviousLettersFeature extends AbstractSentenceDetectorFeature<String>implements StringFeature<PossibleSentenceBoundary> {
+public final class PreviousLettersFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
   IntegerFeature<PossibleSentenceBoundary> nFeature;
 
   public PreviousLettersFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {

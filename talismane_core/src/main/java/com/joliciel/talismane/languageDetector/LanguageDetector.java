@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,14 +61,12 @@ public class LanguageDetector {
   private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
   private static final Map<String, LanguageDetector> languageDetectorMap = new HashMap<>();
 
-  public static LanguageDetector getInstance(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
-    LanguageDetector languageDetector = null;
-    if (session.getId() != null)
-      languageDetector = languageDetectorMap.get(session.getId());
+  public static LanguageDetector getInstance(String sessionId) throws IOException, TalismaneException, ClassNotFoundException {
+    LanguageDetector languageDetector = languageDetectorMap.get(sessionId);
     if (languageDetector == null) {
-      Config config = session.getConfig();
+      Config config = ConfigFactory.load();
 
-      String configPath = "talismane.core." + session.getId() + ".language-detector.model";
+      String configPath = "talismane.core." + sessionId + ".language-detector.model";
       String modelFilePath = config.getString(configPath);
       ClassificationModel model = modelMap.get(modelFilePath);
       if (model == null) {
@@ -79,8 +78,7 @@ public class LanguageDetector {
 
       languageDetector = new LanguageDetector(model);
 
-      if (session.getId() != null)
-        languageDetectorMap.put(session.getId(), languageDetector);
+      languageDetectorMap.put(sessionId, languageDetector);
     }
     return languageDetector;
   }

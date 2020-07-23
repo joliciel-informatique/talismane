@@ -29,6 +29,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.output.PosTagSequenceProcessor;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * An interface that observes a pos-tagger evaluation while its occurring.
@@ -53,32 +54,30 @@ public interface PosTagEvaluationObserver {
    * <br/>
    * Each processor must implement this interface and must have a constructor
    * matching one of the following signatures:<br/>
-   * - ( {@link File} outputDir, {@link TalismaneSession} session)<br/>
-   * - ( {@link TalismaneSession} session)<br/>
+   * - ( {@link File} outputDir, {@link String} sessionId)<br/>
+   * - ( {@link String} sessionId)<br/>
    * <br/>
    * 
    * @param outDir
    *          directory in which to write the various outputs
-   * @param session
-   *          to read the configuration
    * @return
    * @throws IOException
    * @throws TalismaneException
    *           if an observer does not implement this interface, or if no
    *           constructor is found with the correct signature
    */
-  public static List<PosTagEvaluationObserver> getObservers(File outDir, TalismaneSession session)
+  public static List<PosTagEvaluationObserver> getObservers(File outDir, String sessionId)
       throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
     if (outDir != null)
       outDir.mkdirs();
 
-    Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
+    Config config = ConfigFactory.load();
+    Config posTaggerConfig = config.getConfig("talismane.core." + sessionId + ".pos-tagger");
     Config evalConfig = posTaggerConfig.getConfig("evaluate");
 
     List<PosTagEvaluationObserver> observers = new ArrayList<>();
 
-    List<PosTagSequenceProcessor> processors = PosTagSequenceProcessor.getProcessors(null, outDir, session);
+    List<PosTagSequenceProcessor> processors = PosTagSequenceProcessor.getProcessors(null, outDir, sessionId);
     for (PosTagSequenceProcessor processor : processors) {
       PosTagSequenceProcessorWrapper wrapper = new PosTagSequenceProcessorWrapper(processor);
       observers.add(wrapper);
@@ -102,22 +101,22 @@ public interface PosTagEvaluationObserver {
 
       if (cons == null) {
         try {
-          cons = clazz.getConstructor(File.class, TalismaneSession.class);
+          cons = clazz.getConstructor(File.class, String.class);
         } catch (NoSuchMethodException e) {
           // do nothing
         }
         if (cons != null) {
-          observer = cons.newInstance(outDir, session);
+          observer = cons.newInstance(outDir, sessionId);
         }
       }
       if (cons == null) {
         try {
-          cons = clazz.getConstructor(TalismaneSession.class);
+          cons = clazz.getConstructor(String.class);
         } catch (NoSuchMethodException e) {
           // do nothing
         }
         if (cons != null) {
-          observer = cons.newInstance(session);
+          observer = cons.newInstance(sessionId);
         } else {
           throw new TalismaneException("No constructor found with correct signature for: " + className);
         }

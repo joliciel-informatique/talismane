@@ -52,7 +52,7 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
 
   private final SentenceDetectorAnnotatedCorpusReader corpusReader;
   private final Set<SentenceDetectorFeature<?>> features;
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
 
   private String currentSentence;
   private String previousSentence = ". ";
@@ -63,10 +63,10 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
   int minCharactersAfterBoundary = 50;
 
   public SentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader, Set<SentenceDetectorFeature<?>> features,
-      TalismaneSession talismaneSession) {
+      String sessionId) {
     this.corpusReader = corpusReader;
     this.features = features;
-    this.talismaneSession = talismaneSession;
+    this.sessionId = sessionId;
   }
 
   @Override
@@ -96,7 +96,7 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
       }
       String text = previousSentence + currentSentence + moreText;
 
-      PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(text, possibleBoundary, talismaneSession);
+      PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(text, possibleBoundary, sessionId);
       LOG.debug("next event, boundary: " + boundary);
 
       List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();

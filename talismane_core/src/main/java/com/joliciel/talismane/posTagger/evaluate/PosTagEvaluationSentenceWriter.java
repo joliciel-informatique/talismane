@@ -27,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +52,13 @@ public class PosTagEvaluationSentenceWriter implements PosTagEvaluationObserver 
   private final Writer writer;
   private final int guessCount;
 
-  public PosTagEvaluationSentenceWriter(File outDir, TalismaneSession session) throws FileNotFoundException {
-    Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
+  public PosTagEvaluationSentenceWriter(File outDir, String sessionId) throws FileNotFoundException {
+    Config config = ConfigFactory.load();
+    Config posTaggerConfig = config.getConfig("talismane.core." + sessionId + ".pos-tagger");
     Config evalConfig = posTaggerConfig.getConfig("evaluate");
 
-    File csvFile = new File(outDir, session.getBaseName() + "_sentences.csv");
-    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
+    File csvFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_sentences.csv");
+    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), TalismaneSession.get(sessionId).getCsvCharset()));
     this.guessCount = evalConfig.getInt("output-guess-count");
   }
 

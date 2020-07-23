@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class PosTaggerStatisticsWriter implements PosTagSequenceProcessor {
   private final Writer writer;
   private final File serializationFile;
 
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
   private final PosTaggerStatistics stats = new PosTaggerStatistics();
   private final PosTaggerStatistics referenceStats;
 
@@ -70,17 +71,18 @@ public class PosTaggerStatisticsWriter implements PosTagSequenceProcessor {
    * 
    * @throws ClassNotFoundException
    */
-  public PosTaggerStatisticsWriter(File outDir, TalismaneSession session) throws IOException, ClassNotFoundException {
+  public PosTaggerStatisticsWriter(File outDir, String sessionId) throws IOException, ClassNotFoundException {
     this.writer = new BufferedWriter(
-        new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + "_stats.csv"), false), session.getOutputCharset()));
+        new OutputStreamWriter(new FileOutputStream(new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_stats.csv"), false),
+          TalismaneSession.get(sessionId).getOutputCharset()));
 
-    this.talismaneSession = session;
-    this.serializationFile = new File(outDir, session.getBaseName() + "_stats.zip");
+    this.sessionId = sessionId;
+    this.serializationFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_stats.zip");
     serializationFile.delete();
 
-    Config config = session.getConfig();
-    if (config.hasPath("talismane.extensions." + session.getId() + ".pos-tagger-statistics.reference-stats")) {
-      String referenceStatsPath = config.getString("talismane.extensions." + session.getId() + ".pos-tagger-statistics.reference-stats");
+    Config config = ConfigFactory.load();
+    if (config.hasPath("talismane.extensions." + sessionId + ".pos-tagger-statistics.reference-stats")) {
+      String referenceStatsPath = config.getString("talismane.extensions." + sessionId + ".pos-tagger-statistics.reference-stats");
       File referenceStatsFile = new File(referenceStatsPath);
       this.referenceStats = PosTaggerStatistics.loadFromFile(referenceStatsFile);
     } else {
@@ -133,7 +135,7 @@ public class PosTaggerStatisticsWriter implements PosTagSequenceProcessor {
         stats.unknownTokenCount++;
 
       if (alphanumeric.matcher(token.getOriginalText()).find()) {
-        String lowercase = word.toLowerCase(talismaneSession.getLocale());
+        String lowercase = word.toLowerCase(TalismaneSession.get(sessionId).getLocale());
         stats.lowerCaseWords.add(lowercase);
         stats.alphanumericCount++;
         if (!knownInRefCorpus)
@@ -156,7 +158,7 @@ public class PosTaggerStatisticsWriter implements PosTagSequenceProcessor {
   @Override
   public void onCompleteAnalysis() throws IOException {
     if (writer != null) {
-      PosTagSet posTagSet = talismaneSession.getPosTagSet();
+      PosTagSet posTagSet = TalismaneSession.get(sessionId).getPosTagSet();
       for (PosTag posTag : posTagSet.getTags()) {
         if (!stats.posTagCounts.containsKey(posTag.getCode())) {
           stats.posTagCounts.put(posTag.getCode(), 0);

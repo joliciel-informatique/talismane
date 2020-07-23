@@ -26,7 +26,7 @@ import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.Token;
 
-public final class PreviousTokensFeature extends AbstractSentenceDetectorFeature<String>implements StringFeature<PossibleSentenceBoundary> {
+public final class PreviousTokensFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
   IntegerFeature<PossibleSentenceBoundary> nFeature;
 
   public PreviousTokensFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {

@@ -36,21 +36,20 @@ public class RegexAttributeAnnotator extends AbstractRegexAnnotator {
    * autoWordBoundaries=false.
    * 
    * @param regex
-   * @param talismaneSession
    * @throws SentenceAnnotatorLoadException
    */
-  public RegexAttributeAnnotator(String regex, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
-    this(regex, 0, true, true, false, talismaneSession);
+  public RegexAttributeAnnotator(String regex, String sessionId) throws SentenceAnnotatorLoadException {
+    this(regex, 0, true, true, false, sessionId);
   }
 
   public RegexAttributeAnnotator(String regex, int groupIndex, boolean caseSensitive, boolean diacricticSensitive, boolean autoWordBoundaries,
-      TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
-    super(regex, groupIndex, caseSensitive, diacricticSensitive, autoWordBoundaries, false, talismaneSession);
+                                 String sessionId) throws SentenceAnnotatorLoadException {
+    super(regex, groupIndex, caseSensitive, diacricticSensitive, autoWordBoundaries, false, sessionId);
   }
 
-  public RegexAttributeAnnotator(String descriptor, Map<String, String> defaultParams, TalismaneSession talismaneSession)
+  public RegexAttributeAnnotator(String descriptor, Map<String, String> defaultParams, String sessionId)
       throws SentenceAnnotatorLoadException {
-    super(descriptor, defaultParams, Collections.emptySet(), false, talismaneSession);
+    super(descriptor, defaultParams, Collections.emptySet(), false, sessionId);
   }
 
 }

@@ -18,11 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -37,7 +34,9 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class ParseTree {
+public class ParseTree implements Serializable {
+  private static final long serialVersionUID = 1L;
+  
   private final List<PosTaggedToken> posTaggedTokens;
   private final Map<PosTaggedToken, ParseTreeNode> parseTreeMap;
   private final Map<PosTaggedToken, List<PosTaggedToken>> dependentMap;
@@ -251,5 +250,18 @@ public class ParseTree {
   @Override
   public String toString() {
     return this.root.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ParseTree parseTree = (ParseTree) o;
+    return root.equals(parseTree.root);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(root);
   }
 }

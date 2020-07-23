@@ -45,11 +45,11 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
  *
  */
 public class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternMatch> {
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
 
-  public TokenPatternMatchFeatureParser(TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
-    this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+  public TokenPatternMatchFeatureParser(String sessionId) {
+    this.sessionId = sessionId;
+    this.setExternalResourceFinder(TalismaneSession.get(sessionId).getExternalResourceFinder());
   }
 
   public Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatureSet(List<String> featureDescriptors) {
@@ -116,7 +116,7 @@ public class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenP
   @SuppressWarnings({ "rawtypes" })
   @Override
   public void injectDependencies(Feature feature) {
-    TokenFeatureParser.injectDependencies(feature, talismaneSession);
+    TokenFeatureParser.injectDependencies(feature, sessionId);
   }
 
   private static class TokenPatternMatchFeatureWrapper<T> extends AbstractFeature<TokenPatternMatch, T>

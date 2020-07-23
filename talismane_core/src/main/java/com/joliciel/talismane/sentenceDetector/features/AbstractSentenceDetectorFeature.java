@@ -21,6 +21,6 @@ package com.joliciel.talismane.sentenceDetector.features;
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 
-abstract class AbstractSentenceDetectorFeature<Y> extends AbstractCachableFeature<PossibleSentenceBoundary, Y>implements SentenceDetectorFeature<Y> {
+abstract class AbstractSentenceDetectorFeature<Y> extends AbstractCachableFeature<PossibleSentenceBoundary, Y> implements SentenceDetectorFeature<Y> {
 
 }

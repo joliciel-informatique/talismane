@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 
 import com.joliciel.talismane.machineLearning.Decision;
@@ -34,14 +35,16 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  * @param <T>
  *          the TokenTag used to tag this token.
  */
-public class TaggedToken<T extends TokenTag> implements Comparable<TaggedToken<T>>, TokenWrapper {
-  private static final DecimalFormat df = new DecimalFormat("0.0000");
-  private Token token = null;
-  private T tag = null;
-  private Decision decision = null;
+public class TaggedToken<T extends TokenTag> implements Comparable<TaggedToken<T>>, TokenWrapper, Serializable {
+  private static final long serialVersionUID = 1L;
 
-  protected TaggedToken(TaggedToken<T> taggedTokenToClone) {
-    this.token = taggedTokenToClone.token;
+  private static final DecimalFormat df = new DecimalFormat("0.0000");
+  private final Token token;
+  private final T tag;
+  private final Decision decision;
+
+  protected TaggedToken(TaggedToken<T> taggedTokenToClone, Token token) {
+    this.token = token;
     this.tag = taggedTokenToClone.tag;
     this.decision = taggedTokenToClone.decision;
   }
@@ -60,19 +63,11 @@ public class TaggedToken<T extends TokenTag> implements Comparable<TaggedToken<T
     return token;
   }
 
-  public void setToken(Token token) {
-    this.token = token;
-  }
-
   /**
    * The Tag for this token.
    */
   public T getTag() {
     return tag;
-  }
-
-  public void setTag(T tag) {
-    this.tag = tag;
   }
 
   @Override

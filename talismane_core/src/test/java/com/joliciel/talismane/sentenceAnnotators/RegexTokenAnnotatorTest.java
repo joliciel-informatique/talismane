@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class RegexTokenAnnotatorTest {
+public class RegexTokenAnnotatorTest extends TalismaneTest {
   private static final Logger LOG = LoggerFactory.getLogger(RegexTokenAnnotatorTest.class);
 
   @Test
@@ -27,13 +28,13 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String regex = "\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b";
     String replacement = "Email";
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
-    Sentence text = new Sentence("My address is joe.schmoe@test.com.", session);
+    Sentence text = new Sentence("My address is joe.schmoe@test.com.", sessionId);
     filter.annotate(text);
     LOG.debug(text.getAnnotations().toString());
     List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
@@ -49,13 +50,13 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String regex = "\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b";
     String replacement = "\\$Email$2:$1";
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
-    Sentence text = new Sentence("My address is joe.schmoe@test.com.", session);
+    Sentence text = new Sentence("My address is joe.schmoe@test.com.", sessionId);
     filter.annotate(text);
     List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
 
@@ -73,13 +74,13 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String regex = "\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b";
     String replacement = "\\$Email$2$1";
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
-    Sentence text = new Sentence("My address is joe.schmoe@test.com.", session);
+    Sentence text = new Sentence("My address is joe.schmoe@test.com.", sessionId);
     filter.annotate(text);
     List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
 
@@ -96,13 +97,13 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String regex = "\\b(\\d)(\\d)?\\b";
     String replacement = "Number$1$2";
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
-    Sentence text = new Sentence("Two-digit number: 42. One-digit number: 7.", session);
+    Sentence text = new Sentence("Two-digit number: 42. One-digit number: 7.", sessionId);
     filter.annotate(text);
     List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
     LOG.debug(placeholders.toString());
@@ -123,7 +124,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     final List<String> wordList = new ArrayList<String>();
     wordList.add("Chloé");
@@ -132,11 +133,11 @@ public class RegexTokenAnnotatorTest {
     wordList.add("Édouard");
 
     WordList nameList = new WordList("FirstNames", wordList);
-    session.getWordListFinder().addWordList(nameList);
+    TalismaneSession.get(sessionId).getWordListFinder().addWordList(nameList);
 
     String regex = "\\b(\\p{WordList(FirstNames)}) [A-Z]\\w+\\b";
     String replacement = null;
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
     Pattern pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -149,7 +150,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     final List<String> wordList = new ArrayList<String>();
     wordList.add("Chloé");
@@ -158,11 +159,11 @@ public class RegexTokenAnnotatorTest {
     wordList.add("Édouard");
 
     WordList nameList = new WordList("FirstNames", wordList);
-    session.getWordListFinder().addWordList(nameList);
+    TalismaneSession.get(sessionId).getWordListFinder().addWordList(nameList);
 
     String regex = "\\b(\\p{WordList(FirstNames,diacriticsOptional)}) [A-Z]\\w+\\b";
     String replacement = null;
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
     Pattern pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -175,7 +176,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     final List<String> wordList = new ArrayList<String>();
     wordList.add("Chloé");
@@ -184,11 +185,11 @@ public class RegexTokenAnnotatorTest {
     wordList.add("Édouard");
 
     WordList nameList = new WordList("FirstNames", wordList);
-    session.getWordListFinder().addWordList(nameList);
+    TalismaneSession.get(sessionId).getWordListFinder().addWordList(nameList);
 
     String regex = "\\b(\\p{WordList(FirstNames,uppercaseOptional)}) [A-Z]\\w+\\b";
     String replacement = null;
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
     Pattern pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -201,7 +202,7 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     final List<String> wordList = new ArrayList<String>();
     wordList.add("Chloé");
@@ -210,11 +211,11 @@ public class RegexTokenAnnotatorTest {
     wordList.add("Édouard");
 
     WordList nameList = new WordList("FirstNames", wordList);
-    session.getWordListFinder().addWordList(nameList);
+    TalismaneSession.get(sessionId).getWordListFinder().addWordList(nameList);
 
     String regex = "\\b(\\p{WordList(FirstNames,diacriticsOptional,uppercaseOptional)}) [A-Z]\\w+\\b";
     String replacement = null;
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
     Pattern pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -227,11 +228,11 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String regex = "hello 123";
     String replacement = null;
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     Pattern pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -239,7 +240,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\bhello 123\\b", pattern.pattern());
 
     regex = "\\sabc";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -247,7 +248,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\sabc\\b", pattern.pattern());
 
     regex = "\\bblah di blah\\b";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -255,7 +256,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\bblah di blah\\b", pattern.pattern());
 
     regex = "helloe?";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -263,7 +264,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\bhelloe?\\b", pattern.pattern());
 
     regex = "liste?s?";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -271,7 +272,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\bliste?s?\\b", pattern.pattern());
 
     regex = "lis#e?s?";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -279,7 +280,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\blis#e?s?", pattern.pattern());
 
     regex = "liste?\\d?";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -287,7 +288,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\bliste?\\d?\\b", pattern.pattern());
 
     regex = "liste?\\s?";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -295,7 +296,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\bliste?\\s?", pattern.pattern());
 
     regex = "a\\\\b";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -303,7 +304,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\ba\\\\b\\b", pattern.pattern());
 
     regex = "\\d+ \\D+";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -311,7 +312,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\b\\d+ \\D+", pattern.pattern());
 
     regex = "abc [A-Z]\\w+";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -319,7 +320,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\babc [A-Z]\\w+\\b", pattern.pattern());
 
     regex = "(MLLE\\.|Mlle\\.)";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -331,10 +332,10 @@ public class RegexTokenAnnotatorTest {
     wordList.add("Marcel");
 
     WordList nameList = new WordList("FirstNames", wordList);
-    session.getWordListFinder().addWordList(nameList);
+    TalismaneSession.get(sessionId).getWordListFinder().addWordList(nameList);
 
     regex = "(\\p{WordList(FirstNames)})";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -342,7 +343,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("\\b(Chloé|Marcel)\\b", pattern.pattern());
 
     regex = "(\\p{WordList(FirstNames,diacriticsOptional)}) +([A-Z]'\\p{Alpha}+)";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -356,11 +357,11 @@ public class RegexTokenAnnotatorTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String regex = "hé";
     String replacement = null;
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, 0, false, true, false, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, 0, false, true, false, sessionId);
 
     Pattern pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -368,7 +369,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("[Hh][EÉé]", pattern.pattern());
 
     regex = "hé";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, false, false, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, false, false, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -376,7 +377,7 @@ public class RegexTokenAnnotatorTest {
     assertEquals("h[eé]", pattern.pattern());
 
     regex = "hé";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, false, false, false, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, false, false, false, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -387,10 +388,10 @@ public class RegexTokenAnnotatorTest {
     wordList.add("apples");
     wordList.add("oranges");
     WordList fruitList = new WordList("Fruit", wordList);
-    session.getWordListFinder().addWordList(fruitList);
+    TalismaneSession.get(sessionId).getWordListFinder().addWordList(fruitList);
 
     regex = "(\\p{WordList(Fruit)})hé\\w+\\b";
-    filter = new RegexTokenAnnotator(regex, replacement, null, 0, false, false, false, session);
+    filter = new RegexTokenAnnotator(regex, replacement, null, 0, false, false, false, sessionId);
 
     pattern = filter.getPattern();
     LOG.debug(pattern.pattern());
@@ -403,14 +404,14 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String regex = "^Résumé\\.";
     String replacement = null;
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
     filter.addAttribute("TAG", new StringAttribute("TAG", "skip"));
-    Sentence text = new Sentence("Résumé. Résumé des attaques", session);
+    Sentence text = new Sentence("Résumé. Résumé des attaques", sessionId);
     filter.annotate(text);
     @SuppressWarnings("rawtypes")
     List<Annotation<TokenAttribute>> annotations = text.getAnnotations(TokenAttribute.class);
@@ -428,14 +429,14 @@ public class RegexTokenAnnotatorTest {
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String regex = "[\\p{IsPunctuation}&&[^%$#@§¶‰‱]]+";
     String replacement = null;
-    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+    RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, sessionId);
 
     filter.addAttribute("featureType", new StringAttribute("featureType", "punctuation"));
-    Sentence text = new Sentence("Bonjour. Comment ça va?", session);
+    Sentence text = new Sentence("Bonjour. Comment ça va?", sessionId);
     filter.annotate(text);
     @SuppressWarnings("rawtypes")
     List<Annotation<TokenAttribute>> annotations = text.getAnnotations(TokenAttribute.class);

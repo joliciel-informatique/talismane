@@ -30,6 +30,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.rawText.Sentence;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * Any class that can process sentences found by a sentence detector.
@@ -51,11 +52,11 @@ public interface SentenceProcessor extends Closeable {
    * <br/>
    * Each processor must implement this interface and must have a constructor
    * matching one of the following signatures:<br/>
-   * - ( {@link File} outputDir, {@link TalismaneSession} session)<br/>
-   * - ( {@link TalismaneSession} session)<br/>
+   * - ( {@link File} outputDir, {@link String} sessionId)<br/>
+   * - ( {@link String} sessionId)<br/>
    * <br/>
    * Optionally, it can have a constructor with the following signature:<br/>
-   * - ( {@link Writer} writer, {@link TalismaneSession} session)<br/>
+   * - ( {@link Writer} writer, {@link String} sessionId)<br/>
    * If a writer is provided here, then the first processor with the above
    * constructor will be given the writer.
    * 
@@ -64,18 +65,16 @@ public interface SentenceProcessor extends Closeable {
    *          with a writer in the constructor
    * @param outDir
    *          directory in which to write the various outputs
-   * @param session
-   *          to read the configuration
    * @return
    * @throws IOException
    * @throws TalismaneException
    *           if a processor does not implement this interface, or if no
    *           constructor is found with the correct signature
    */
-  public static List<SentenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session)
+  public static List<SentenceProcessor> getProcessors(Writer writer, File outDir, String sessionId)
       throws IOException, ReflectiveOperationException, ClassNotFoundException, TalismaneException {
-    Config config = session.getConfig();
-    Config myConfig = config.getConfig("talismane.core." + session.getId() + ".sentence-detector");
+    Config config = ConfigFactory.load();
+    Config myConfig = config.getConfig("talismane.core." + sessionId + ".sentence-detector");
 
     List<SentenceProcessor> processors = new ArrayList<>();
     List<String> classes = myConfig.getStringList("output.processors");
@@ -96,33 +95,33 @@ public interface SentenceProcessor extends Closeable {
       SentenceProcessor processor = null;
       if (firstProcessorWriter != null) {
         try {
-          cons = clazz.getConstructor(Writer.class, TalismaneSession.class);
+          cons = clazz.getConstructor(Writer.class, String.class);
         } catch (NoSuchMethodException e) {
           // do nothing
         }
         if (cons != null) {
-          processor = cons.newInstance(firstProcessorWriter, session);
+          processor = cons.newInstance(firstProcessorWriter, sessionId);
           firstProcessorWriter = null;
         }
       }
       if (cons == null) {
         try {
-          cons = clazz.getConstructor(File.class, TalismaneSession.class);
+          cons = clazz.getConstructor(File.class, String.class);
         } catch (NoSuchMethodException e) {
           // do nothing
         }
         if (cons != null) {
-          processor = cons.newInstance(outDir, session);
+          processor = cons.newInstance(outDir, sessionId);
         }
       }
       if (cons == null) {
         try {
-          cons = clazz.getConstructor(TalismaneSession.class);
+          cons = clazz.getConstructor(String.class);
         } catch (NoSuchMethodException e) {
           // do nothing
         }
         if (cons != null) {
-          processor = cons.newInstance(session);
+          processor = cons.newInstance(sessionId);
         } else {
           throw new TalismaneException("No constructor found with correct signature for: " + className);
         }

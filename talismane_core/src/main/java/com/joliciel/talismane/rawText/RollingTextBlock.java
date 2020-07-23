@@ -120,23 +120,23 @@ public class RollingTextBlock extends RawTextProcessor {
   private final SentenceHolder sentenceHolder2;
   private SentenceHolder sentenceHolder3 = null;
 
-  private final TalismaneSession session;
+  private final String sessionId;
 
   /**
    * Creates a new RollingTextBlock with prev, current and next all set to empty
    * strings.
    */
-  public RollingTextBlock(boolean processByDefault, TalismaneSession session, CurrentFileProvider currentFileProvider) {
-    super("", processByDefault, session);
-    this.session = session;
+  public RollingTextBlock(boolean processByDefault, CurrentFileProvider currentFileProvider, String sessionId) {
+    super("", processByDefault, sessionId);
+    this.sessionId = sessionId;
     this.block1 = "";
     this.block2 = "";
     this.block3 = "";
     this.block4 = "";
 
-    this.sentenceHolder1 = new SentenceHolder(session, 0, true);
+    this.sentenceHolder1 = new SentenceHolder(0, true, sessionId);
     this.sentenceHolder1.setProcessedText("");
-    this.sentenceHolder2 = new SentenceHolder(session, 0, true);
+    this.sentenceHolder2 = new SentenceHolder(0, true, sessionId);
     this.sentenceHolder2.setProcessedText("");
 
     if (currentFileProvider != null) {
@@ -156,7 +156,7 @@ public class RollingTextBlock extends RawTextProcessor {
     this.block3 = predecessor.block4;
     this.block4 = nextText;
 
-    this.session = predecessor.session;
+    this.sessionId = predecessor.sessionId;
 
     this.file = predecessor.file;
     this.provider = predecessor.provider;

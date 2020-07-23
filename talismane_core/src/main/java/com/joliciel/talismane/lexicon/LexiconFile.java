@@ -15,7 +15,7 @@ import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
@@ -40,12 +40,12 @@ import com.joliciel.talismane.posTagger.PosTag;
  * @author Assaf Urieli
  *
  */
-public class LexiconFile extends CompactLexicalEntrySupport implements PosTaggerLexicon, Serializable, NeedsTalismaneSession {
+public class LexiconFile extends CompactLexicalEntrySupport implements PosTaggerLexicon, Serializable, NeedsSessionId {
   private static final long serialVersionUID = 6L;
   private static final Logger LOG = LoggerFactory.getLogger(LexiconFile.class);
   private Map<String, List<LexicalEntry>> entryMap = new PatriciaTrie<List<LexicalEntry>>();
   private Map<String, List<LexicalEntry>> lemmaEntryMap = new PatriciaTrie<List<LexicalEntry>>();
-  private transient TalismaneSession session;
+  private String sessionId;
   private transient LexicalEntryReader reader = null;
   private transient List<List<String>> exclusions;
   private transient List<String> exclusionAttributes;
@@ -59,11 +59,11 @@ public class LexiconFile extends CompactLexicalEntrySupport implements PosTagger
     super();
   }
 
-  public LexiconFile(String name, Scanner lexiconScanner, RegexLexicalEntryReader reader, TalismaneSession session) {
+  public LexiconFile(String name, Scanner lexiconScanner, RegexLexicalEntryReader reader, String sessionId) {
     super(name);
     this.lexiconScanner = lexiconScanner;
     this.reader = reader;
-    this.session = session;
+    this.sessionId = sessionId;
   }
 
   public void load() throws TalismaneException {
@@ -202,7 +202,7 @@ public class LexiconFile extends CompactLexicalEntrySupport implements PosTagger
     Set<PosTag> posTags = new TreeSet<PosTag>();
     List<LexicalEntry> entries = this.getEntries(word);
     for (LexicalEntry entry : entries) {
-      posTags.addAll(session.getPosTagMapper(this).getPosTags(entry));
+      posTags.addAll(TalismaneSession.get(sessionId).getPosTagMapper(this).getPosTags(entry));
     }
     return posTags;
   }
@@ -212,7 +212,7 @@ public class LexiconFile extends CompactLexicalEntrySupport implements PosTagger
     List<LexicalEntry> entries = this.getEntries(word);
     List<LexicalEntry> entriesForPosTag = new ArrayList<LexicalEntry>();
     for (LexicalEntry entry : entries) {
-      Set<PosTag> posTags = session.getPosTagMapper(this).getPosTags(entry);
+      Set<PosTag> posTags = TalismaneSession.get(sessionId).getPosTagMapper(this).getPosTags(entry);
       if (posTags.contains(posTag))
         entriesForPosTag.add(entry);
     }
@@ -224,7 +224,7 @@ public class LexiconFile extends CompactLexicalEntrySupport implements PosTagger
     List<LexicalEntry> entries = this.getEntriesForLemma(lemma);
     List<LexicalEntry> entriesForPosTag = new ArrayList<LexicalEntry>();
     for (LexicalEntry entry : entries) {
-      Set<PosTag> posTags = session.getPosTagMapper(this).getPosTags(entry);
+      Set<PosTag> posTags = TalismaneSession.get(sessionId).getPosTagMapper(this).getPosTags(entry);
       if (posTags.contains(posTag))
         entriesForPosTag.add(entry);
     }
@@ -250,13 +250,8 @@ public class LexiconFile extends CompactLexicalEntrySupport implements PosTagger
   }
 
   @Override
-  public TalismaneSession getTalismaneSession() {
-    return session;
-  }
-
-  @Override
-  public void setTalismaneSession(TalismaneSession talismaneSession) {
-    this.session = talismaneSession;
+  public void setSessionId(String sessionId) {
+    this.sessionId = sessionId;
   }
 
   public List<List<String>> getExclusions() {

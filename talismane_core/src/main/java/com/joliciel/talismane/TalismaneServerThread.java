@@ -37,28 +37,28 @@ import org.slf4j.LoggerFactory;
 class TalismaneServerThread extends Thread {
   private static final Logger LOG = LoggerFactory.getLogger(TalismaneServerThread.class);
   private final Socket socket;
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public TalismaneServerThread(TalismaneSession session, Socket socket) {
+  public TalismaneServerThread(Socket socket, String sessionId) {
     super("TalismaneServerThread");
     this.socket = socket;
-    this.session = session;
+    this.sessionId = sessionId;
   }
 
   @Override
   public void run() {
     try {
-      OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), session.getOutputCharset());
-      BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), session.getInputCharset()));
+      OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), TalismaneSession.get(sessionId).getOutputCharset());
+      BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), TalismaneSession.get(sessionId).getInputCharset()));
 
-      Talismane talismane = new Talismane(out, null, session);
+      Talismane talismane = new Talismane(out, null, sessionId);
       talismane.analyse(in);
-
+ 
       socket.close();
     } catch (RuntimeException e) {
       LOG.error(e.getMessage(), e);
       throw e;
-    } catch (IOException | ReflectiveOperationException | TalismaneException e) {
+    } catch (IOException | ReflectiveOperationException e) {
       LOG.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }

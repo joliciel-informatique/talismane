@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 
 import com.joliciel.talismane.AnnotatedText;
@@ -24,7 +25,7 @@ import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class SentenceDetectorTest {
+public class SentenceDetectorTest extends TalismaneTest {
 
   @Test
   public void testDetectSentences() throws Exception {
@@ -32,7 +33,7 @@ public class SentenceDetectorTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     DecisionMaker decisionMaker = new DecisionMaker() {
 
@@ -54,7 +55,7 @@ public class SentenceDetectorTest {
 
     Set<SentenceDetectorFeature<?>> features = new HashSet<>();
 
-    SentenceDetector sentenceDetector = new SentenceDetector(decisionMaker, features, session);
+    SentenceDetector sentenceDetector = new SentenceDetector(decisionMaker, features, sessionId);
 
     String text = "Before analysis. Hello Mr. Jones. How are you, Mr. Jones? After analysis.";
 
@@ -88,7 +89,7 @@ public class SentenceDetectorTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     DecisionMaker decisionMaker = new DecisionMaker() {
 
@@ -110,7 +111,7 @@ public class SentenceDetectorTest {
 
     Set<SentenceDetectorFeature<?>> features = new HashSet<>();
 
-    SentenceDetector sentenceDetector = new SentenceDetector(decisionMaker, features, session);
+    SentenceDetector sentenceDetector = new SentenceDetector(decisionMaker, features, sessionId);
 
     String text = "Before analysis. Hello Mr. Jones\nHow are you, Mr. Jones? After";
 

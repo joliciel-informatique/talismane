@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,11 +40,11 @@ import com.joliciel.talismane.rawText.Sentence;
  *
  */
 public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserOutcome>
-    implements ClassificationSolution, Comparable<TokenisedAtomicTokenSequence> {
+    implements ClassificationSolution, Comparable<TokenisedAtomicTokenSequence>, Serializable {
   private static final long serialVersionUID = 1L;
 
   private final Sentence sentence;
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
 
   private TokenSequence tokenSequence = null;
   private List<Decision> decisions = new ArrayList<Decision>();
@@ -53,22 +54,22 @@ public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserO
   double score = 1.0;
   boolean scoreCalculated = false;
 
-  public TokenisedAtomicTokenSequence(Sentence sentence, TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  public TokenisedAtomicTokenSequence(Sentence sentence, String sessionId) {
+    this.sessionId = sessionId;
     this.sentence = sentence;
   }
 
-  public TokenisedAtomicTokenSequence(Sentence sentence, int initialCapacity, TalismaneSession talismaneSession) {
+  public TokenisedAtomicTokenSequence(Sentence sentence, int initialCapacity, String sessionId) {
     super(initialCapacity);
     this.sentence = sentence;
-    this.talismaneSession = talismaneSession;
+    this.sessionId = sessionId;
   }
 
   public TokenisedAtomicTokenSequence(TokenisedAtomicTokenSequence history) {
     super(history);
     this.decisions = new ArrayList<Decision>(history.getDecisions());
     this.sentence = history.getSentence();
-    this.talismaneSession = history.talismaneSession;
+    this.sessionId = history.sessionId;
   }
 
   /**
@@ -78,7 +79,7 @@ public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserO
     if (tokenSequence == null) {
       Map<Integer, TaggedToken<TokeniserOutcome>> indexTokenMap = new HashMap<Integer, TaggedToken<TokeniserOutcome>>();
 
-      tokenSequence = new TokenSequence(sentence, this, talismaneSession);
+      tokenSequence = new TokenSequence(sentence, this, sessionId);
 
       int currentStart = 0;
       int currentEnd = 0;

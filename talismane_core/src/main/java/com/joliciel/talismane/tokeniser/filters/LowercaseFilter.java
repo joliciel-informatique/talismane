@@ -29,16 +29,16 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  *
  */
 public class LowercaseFilter implements TokenFilter {
-  TalismaneSession session;
+  private final String sessionId;
 
-  public LowercaseFilter(TalismaneSession session) {
-    this.session = session;
+  public LowercaseFilter(String sessionId) {
+    this.sessionId = sessionId;
   }
 
   @Override
   public void apply(TokenSequence tokenSequence) {
     for (Token token : tokenSequence) {
-      token.setText(token.getText().toLowerCase(session.getLocale()));
+      token.setText(token.getText().toLowerCase(TalismaneSession.get(sessionId).getLocale()));
     }
   }
 

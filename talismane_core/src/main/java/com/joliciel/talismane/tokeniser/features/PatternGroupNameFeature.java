@@ -31,7 +31,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
  * @author Assaf Urieli
  *
  */
-public final class PatternGroupNameFeature extends AbstractCachableFeature<TokenPatternMatch, String>implements StringFeature<TokenPatternMatch> {
+public final class PatternGroupNameFeature extends AbstractCachableFeature<TokenPatternMatch, String> implements StringFeature<TokenPatternMatch> {
   public PatternGroupNameFeature() {
   }
 

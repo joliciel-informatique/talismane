@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,17 +58,17 @@ public class SentenceDetectorEvaluator {
 
   private static final int NUM_CHARS = 30;
 
-  public SentenceDetectorEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+  public SentenceDetectorEvaluator(Reader evalReader, File outDir, String sessionId)
       throws IOException, ClassNotFoundException, ReflectiveOperationException {
     if (outDir != null)
       outDir.mkdirs();
 
-    Config config = session.getConfig();
-    this.sentenceDetector = SentenceDetector.getInstance(session);
-    Config sentenceConfig = config.getConfig("talismane.core." + session.getId() + ".sentence-detector");
-    this.corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(evalReader, sentenceConfig.getConfig("input"), session);
+    Config config = ConfigFactory.load();
+    this.sentenceDetector = SentenceDetector.getInstance(sessionId);
+    Config sentenceConfig = config.getConfig("talismane.core." + sessionId + ".sentence-detector");
+    this.corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(evalReader, sentenceConfig.getConfig("input"), sessionId);
 
-    File sentenceErrorFile = new File(outDir, session.getBaseName() + "_errors.txt");
+    File sentenceErrorFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_errors.txt");
     this.errorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sentenceErrorFile, false), "UTF8"));
   }
 
@@ -80,7 +81,7 @@ public class SentenceDetectorEvaluator {
    * @param session
    */
   public SentenceDetectorEvaluator(SentenceDetector sentenceDetector, SentenceDetectorAnnotatedCorpusReader corpusReader, Writer errorWriter,
-      TalismaneSession session) {
+      String sessionId) {
     this.sentenceDetector = sentenceDetector;
     this.corpusReader = corpusReader;
     this.errorWriter = errorWriter;

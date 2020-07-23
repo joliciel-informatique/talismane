@@ -33,7 +33,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<TokenWrapper, Y>implements TokenFeature<Y> {
+public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<TokenWrapper, Y> implements TokenFeature<Y> {
   @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(AbstractTokenFeature.class);
   private TokenAddressFunction<TokenWrapper> addressFunction;

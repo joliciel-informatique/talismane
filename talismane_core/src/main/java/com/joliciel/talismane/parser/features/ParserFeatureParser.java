@@ -27,7 +27,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
@@ -60,11 +60,11 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 public class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrapper> {
   private static final Logger LOG = LoggerFactory.getLogger(ParserFeatureParser.class);
 
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
 
-  public ParserFeatureParser(TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
-    this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+  public ParserFeatureParser(String sessionId) {
+    this.sessionId = sessionId;
+    this.setExternalResourceFinder(TalismaneSession.get(sessionId).getExternalResourceFinder());
   }
 
   public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors) {
@@ -113,12 +113,12 @@ public class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguratio
             String[] transitionCodes = transitionCode.substring(1).split(";");
             transitions = new HashSet<Transition>();
             for (String code : transitionCodes) {
-              Transition oneTransition = talismaneSession.getTransitionSystem().getTransitionForCode(code);
+              Transition oneTransition = TalismaneSession.get(sessionId).getTransitionSystem().getTransitionForCode(code);
               transitions.add(oneTransition);
             }
             transition = transitions.iterator().next();
           } else {
-            transition = talismaneSession.getTransitionSystem().getTransitionForCode(transitionCode);
+            transition = TalismaneSession.get(sessionId).getTransitionSystem().getTransitionForCode(transitionCode);
           }
 
         }
@@ -321,8 +321,8 @@ public class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguratio
 
   @Override
   public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
-    if (feature instanceof NeedsTalismaneSession) {
-      ((NeedsTalismaneSession) feature).setTalismaneSession(talismaneSession);
+    if (feature instanceof NeedsSessionId) {
+      ((NeedsSessionId) feature).setSessionId(sessionId);
     }
   }
 

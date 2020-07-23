@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,13 +94,13 @@ public class PatternTokeniser extends Tokeniser {
 
   private final List<ClassificationObserver> observers;
 
-  public PatternTokeniser(TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
-    super(session);
-    Config config = session.getConfig();
-    Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
+  public PatternTokeniser(String sessionId) throws IOException, TalismaneException, ReflectiveOperationException {
+    super(sessionId);
+    Config config = ConfigFactory.load();
+    Config tokeniserConfig = config.getConfig("talismane.core." + sessionId + ".tokeniser");
     this.beamWidth = tokeniserConfig.getInt("beam-width");
 
-    String configPath = "talismane.core." + session.getId() + ".tokeniser.model";
+    String configPath = "talismane.core." + sessionId + ".tokeniser.model";
     String modelFilePath = config.getString(configPath);
     LOG.debug("Getting tokeniser model from " + modelFilePath);
     ClassificationModel tokeniserModel = modelMap.get(modelFilePath);
@@ -112,7 +113,7 @@ public class PatternTokeniser extends Tokeniser {
 
     this.decisionMaker = tokeniserModel.getDecisionMaker();
 
-    TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
+    TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(sessionId);
     Collection<ExternalResource<?>> externalResources = tokeniserModel.getExternalResources();
     if (externalResources != null) {
       for (ExternalResource<?> externalResource : externalResources) {
@@ -120,12 +121,12 @@ public class PatternTokeniser extends Tokeniser {
       }
     }
     this.features = featureParser.getTokenPatternMatchFeatureSet(tokeniserModel.getFeatureDescriptors());
-    this.tokeniserPatternManager = new TokeniserPatternManager(tokeniserModel.getDescriptors().get(PATTERN_DESCRIPTOR_KEY), session);
+    this.tokeniserPatternManager = new TokeniserPatternManager(tokeniserModel.getDescriptors().get(PATTERN_DESCRIPTOR_KEY), sessionId);
     this.observers = new ArrayList<>();
 
     boolean includeDetails = tokeniserConfig.getBoolean("output.include-details");
     if (includeDetails) {
-      String detailsFilePath = session.getBaseName() + "_tokeniser_details.txt";
+      String detailsFilePath = TalismaneSession.get(sessionId).getBaseName() + "_tokeniser_details.txt";
       File detailsFile = new File(detailsFilePath);
       detailsFile.delete();
       ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
@@ -134,8 +135,8 @@ public class PatternTokeniser extends Tokeniser {
   }
 
   PatternTokeniser(DecisionMaker decisionMaker, TokeniserPatternManager tokeniserPatternManager, Set<TokenPatternMatchFeature<?>> features, int beamWidth,
-      TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
-    super(session);
+      String sessionId) throws IOException, TalismaneException, ReflectiveOperationException {
+    super(sessionId);
     this.decisionMaker = decisionMaker;
     this.beamWidth = beamWidth;
     this.features = features;
@@ -296,7 +297,7 @@ public class PatternTokeniser extends Tokeniser {
 
       // initially create a heap with a single, empty sequence
       PriorityQueue<TokenisedAtomicTokenSequence> heap = new PriorityQueue<TokenisedAtomicTokenSequence>();
-      TokenisedAtomicTokenSequence emptySequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getTalismaneSession());
+      TokenisedAtomicTokenSequence emptySequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getSessionId());
       heap.add(emptySequence);
 
       for (int i = 0; i < initialSequence.listWithWhiteSpace().size(); i++) {
@@ -506,7 +507,7 @@ public class PatternTokeniser extends Tokeniser {
       }
     } else {
       sequences = new ArrayList<TokenisedAtomicTokenSequence>();
-      TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getTalismaneSession());
+      TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getSessionId());
       int i = 0;
       for (Token token : initialSequence.listWithWhiteSpace()) {
         Decision decision = defaultDecisions.get(i++);

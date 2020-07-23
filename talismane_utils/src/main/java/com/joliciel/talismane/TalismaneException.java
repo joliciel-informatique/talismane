@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
-public class TalismaneException extends Exception {
+public class TalismaneException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   public TalismaneException() {

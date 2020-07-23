@@ -28,6 +28,7 @@ import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.output.ParseConfigurationProcessor;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * Modifies a corpus in simple ways, by replacing labels with other ones, or
@@ -56,9 +57,9 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 
   private static final String WILDCARD = "*";
 
-  public CorpusModifier(TalismaneSession session) throws IOException {
-    Config config = session.getConfig();
-    List<String> commandList = config.getStringList("talismane.extensions." + session.getId() + ".corpus-modifier.rules");
+  public CorpusModifier(String sessionId) throws IOException {
+    Config config = ConfigFactory.load();
+    List<String> commandList = config.getStringList("talismane.extensions." + sessionId + ".corpus-modifier.rules");
     for (String command : commandList) {
       if (!command.startsWith("#")) {
         ModifyCommand modifyCommand = new ModifyCommand();

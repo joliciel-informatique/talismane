@@ -54,15 +54,15 @@ public interface LanguageDetectorAnnotatedCorpusReader extends AnnotatedCorpusRe
    * @throws ReflectiveOperationException
    *           if the corpus-reader class could not be instantiated
    */
-  public static LanguageDetectorAnnotatedCorpusReader getCorpusReader(Config config, TalismaneSession session)
+  public static LanguageDetectorAnnotatedCorpusReader getCorpusReader(Config config, String sessionId)
       throws IOException, ReflectiveOperationException {
     String className = config.getString("corpus-reader");
 
     @SuppressWarnings("unchecked")
     Class<? extends LanguageDetectorAnnotatedCorpusReader> clazz = (Class<? extends LanguageDetectorAnnotatedCorpusReader>) Class.forName(className);
-    Constructor<? extends LanguageDetectorAnnotatedCorpusReader> cons = clazz.getConstructor(Config.class, TalismaneSession.class);
+    Constructor<? extends LanguageDetectorAnnotatedCorpusReader> cons = clazz.getConstructor(Config.class, String.class);
 
-    LanguageDetectorAnnotatedCorpusReader corpusReader = cons.newInstance(config, session);
+    LanguageDetectorAnnotatedCorpusReader corpusReader = cons.newInstance(config, sessionId);
 
     return corpusReader;
   }

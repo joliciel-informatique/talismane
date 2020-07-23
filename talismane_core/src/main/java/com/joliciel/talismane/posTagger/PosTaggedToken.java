@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,23 +49,24 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedTokenWrapper, HasFeatureCache {
-  private Map<String, FeatureResult<?>> featureResults = new HashMap<>();
+public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedTokenWrapper, HasFeatureCache, Serializable {
+  private static final long serialVersionUID = 1L;
+  
+  private transient Map<String, FeatureResult<?>> featureResults = new HashMap<>();
 
-  private List<LexicalEntry> lexicalEntries = null;
-  private boolean lemmaFetched = false;
-  private String lemma = null;
-  private String comment = "";
-  private String morphologyForCoNLL = null;
+  private transient List<LexicalEntry> lexicalEntries = null;
+  private transient boolean lemmaFetched = false;
+  private transient String lemma = null;
+  private transient String comment = "";
+  private transient String morphologyForCoNLL = null;
+  
+  private final String sessionId;
 
-  private TalismaneSession session;
-
-  PosTaggedToken(PosTaggedToken taggedTokenToClone) {
-    super(taggedTokenToClone);
+  PosTaggedToken(PosTaggedToken taggedTokenToClone, Token token) {
+    super(taggedTokenToClone, token);
     this.featureResults = taggedTokenToClone.featureResults;
     this.lexicalEntries = taggedTokenToClone.lexicalEntries;
-
-    this.session = taggedTokenToClone.session;
+    this.sessionId = taggedTokenToClone.sessionId;
   }
 
   /**
@@ -78,9 +80,9 @@ public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedToke
    *          the decision used to tag it
    * @throws UnknownPosTagException
    */
-  public PosTaggedToken(Token token, Decision decision, TalismaneSession talismaneSession) throws UnknownPosTagException {
-    super(token, decision, talismaneSession.getPosTagSet().getPosTag(decision.getOutcome()));
-    this.session = talismaneSession;
+  public PosTaggedToken(Token token, Decision decision, String sessionId) throws UnknownPosTagException {
+    super(token, decision, TalismaneSession.get(sessionId).getPosTagSet().getPosTag(decision.getOutcome()));
+    this.sessionId = sessionId;
   }
 
   /**
@@ -88,9 +90,9 @@ public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedToke
    */
   public List<LexicalEntry> getLexicalEntries() {
     if (lexicalEntries == null) {
-      lexicalEntries = this.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
+      lexicalEntries = TalismaneSession.get(sessionId).getMergedLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
       if (lexicalEntries.size() == 0) {
-        lexicalEntries = this.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getToken().getText().toLowerCase(this.session.getLocale()),
+        lexicalEntries = TalismaneSession.get(sessionId).getMergedLexicon().findLexicalEntries(this.getToken().getText().toLowerCase(TalismaneSession.get(sessionId).getLocale()),
             this.getTag());
       }
     }
@@ -130,8 +132,8 @@ public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedToke
     return this;
   }
 
-  public PosTaggedToken clonePosTaggedToken() {
-    PosTaggedToken posTaggedToken = new PosTaggedToken(this);
+  public PosTaggedToken clonePosTaggedToken(Token token) {
+    PosTaggedToken posTaggedToken = new PosTaggedToken(this, token);
     return posTaggedToken;
   }
 
@@ -155,7 +157,7 @@ public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedToke
       if (explicitLemma != null) {
         this.lemma = explicitLemma;
       } else if (lemmaType != null && lemmaType.equals("originalLower")) {
-        this.lemma = this.getToken().getOriginalText().toLowerCase(this.session.getLocale());
+        this.lemma = this.getToken().getOriginalText().toLowerCase(TalismaneSession.get(sessionId).getLocale());
       } else if (this.getLexicalEntries().size() > 0) {
         this.lemma = this.getLexicalEntries().get(0).getLemma();
       }
@@ -168,7 +170,7 @@ public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedToke
    * Like {@link #getLemma()} but encoded for the CoNLL output format.
    */
   public String getLemmaForCoNLL() {
-    return session.getCoNLLFormatter().toCoNLL(this.getLemma());
+    return TalismaneSession.get(sessionId).getCoNLLFormatter().toCoNLL(this.getLemma());
   }
 
   /**
@@ -187,14 +189,6 @@ public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedToke
    */
   public int getIndex() {
     return this.getToken().getIndex();
-  }
-
-  public TalismaneSession getTalismaneSession() {
-    return session;
-  }
-
-  public void setTalismaneSession(TalismaneSession talismaneSession) {
-    this.session = talismaneSession;
   }
 
   /**

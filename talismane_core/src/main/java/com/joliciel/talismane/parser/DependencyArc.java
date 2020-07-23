@@ -20,6 +20,8 @@ package com.joliciel.talismane.parser;
 
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
+import java.io.Serializable;
+
 /**
  * A dependency arc, indicating a dependency relationship between two pos-tagged
  * tokens, one of which is the head and one of which is the dependent, with a
@@ -28,7 +30,9 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class DependencyArc implements Comparable<DependencyArc> {
+public class DependencyArc implements Comparable<DependencyArc>, Serializable {
+  private static final long serialVersionUID = 1L;
+
   private final PosTaggedToken head;
   private final PosTaggedToken dependent;
   private final String label;

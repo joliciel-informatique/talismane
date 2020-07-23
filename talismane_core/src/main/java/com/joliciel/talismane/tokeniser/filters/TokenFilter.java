@@ -38,11 +38,10 @@ public interface TokenFilter {
 
   /**
    * Load a filter by it's class name. The filter must implement a
-   * single-argument constructor taking a {@link TalismaneSession}, and must
+   * single-argument constructor taking a ({@link String} sessionId), and must
    * implement the {@link TokenFilter} interface.
    * 
    * @param className
-   * @param session
    * @return the filter loaded
    * @throws IOException
    * @throws TalismaneException
@@ -50,7 +49,7 @@ public interface TokenFilter {
    *           does not have the required constructor
    * @throws ReflectiveOperationException
    */
-  public static TokenFilter loadFilter(String className, TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
+  public static TokenFilter loadFilter(String className, String sessionId) throws IOException, TalismaneException, ReflectiveOperationException {
     TokenFilter filter = null;
 
     @SuppressWarnings("rawtypes")
@@ -65,12 +64,12 @@ public interface TokenFilter {
 
     if (cons == null) {
       try {
-        cons = clazz.getConstructor(TalismaneSession.class);
+        cons = clazz.getConstructor(String.class);
       } catch (NoSuchMethodException e) {
         // do nothing
       }
       if (cons != null) {
-        filter = cons.newInstance(session);
+        filter = cons.newInstance(sessionId);
       } else {
         throw new TalismaneException("No constructor found with correct signature for: " + className);
       }

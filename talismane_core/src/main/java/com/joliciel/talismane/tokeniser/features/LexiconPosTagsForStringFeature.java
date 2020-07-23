@@ -25,7 +25,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
@@ -45,12 +45,12 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>
-    implements StringCollectionFeature<TokenWrapper>, NeedsTalismaneSession {
+    implements StringCollectionFeature<TokenWrapper>, NeedsSessionId {
   @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagsForStringFeature.class);
   private StringFeature<TokenWrapper> wordToCheckFeature;
 
-  TalismaneSession talismaneSession;
+  String sessionId;
 
   public LexiconPosTagsForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature) {
     this.wordToCheckFeature = wordToCheckFeature;
@@ -73,7 +73,7 @@ public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<L
     if (wordToCheckResult != null) {
       String wordToCheck = wordToCheckResult.getOutcome();
       List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-      PosTaggerLexicon lexicon = talismaneSession.getMergedLexicon();
+      PosTaggerLexicon lexicon = TalismaneSession.get(sessionId).getMergedLexicon();
       Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
 
       for (PosTag posTag : posTags) {
@@ -94,12 +94,7 @@ public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<L
   }
 
   @Override
-  public TalismaneSession getTalismaneSession() {
-    return talismaneSession;
-  }
-
-  @Override
-  public void setTalismaneSession(TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  public void setSessionId(String sessionId) {
+    this.sessionId = sessionId;
   }
 }

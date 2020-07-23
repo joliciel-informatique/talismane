@@ -18,23 +18,22 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.joliciel.talismane.Annotation;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneTest;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TokenSequenceTest {
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class TokenSequenceTest extends TalismaneTest {
   private static final Logger LOG = LoggerFactory.getLogger(TokenSequenceTest.class);
 
   @Test
@@ -43,10 +42,10 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
-    final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan.", talismaneSession);
+    final String sessionId = "test";
+    final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan.", sessionId);
 
-    TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.findDefaultTokens();
 
     assertEquals(14, tokenSequence.listWithWhiteSpace().size());
@@ -146,10 +145,10 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
-    final Sentence sentence = new Sentence("The quick brown fox.", talismaneSession);
+    final String sessionId = "test";
+    final Sentence sentence = new Sentence("The quick brown fox.", sessionId);
 
-    TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.addToken(16, 19); // fox
     tokenSequence.addToken(4, 9); // quick
     tokenSequence.addToken(4, 9); // quick - should be ignored
@@ -184,11 +183,11 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
-    final Sentence sentence = new Sentence("Write to me at joe.schome@test.com, otherwise go to http://test.com.", talismaneSession);
+    final Sentence sentence = new Sentence("Write to me at joe.schome@test.com, otherwise go to http://test.com.", sessionId);
 
     final List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
     Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Write to me at ".length(), "Write to me at joe.schome@test.com".length(),
@@ -200,7 +199,7 @@ public class TokenSequenceTest {
 
     sentence.addAnnotations(placeholders);
 
-    TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.findDefaultTokens();
 
     assertEquals(19, tokenSequence.listWithWhiteSpace().size());
@@ -315,11 +314,11 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
-    final Sentence sentence = new Sentence("Il t’aime.", talismaneSession);
+    final Sentence sentence = new Sentence("Il t’aime.", sessionId);
 
     final List<Annotation<StringAttribute>> annotations = new ArrayList<>();
     Annotation<StringAttribute> annotation1 = new Annotation<>("Il ".length(), "Il t’aime".length(), new StringAttribute("phrase", "verbal"), labels);
@@ -339,7 +338,7 @@ public class TokenSequenceTest {
     sentence.addAnnotations(annotations);
     sentence.addAnnotations(placeholders);
 
-    TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.findDefaultTokens();
 
     LOG.debug(tokenSequence.listWithWhiteSpace().toString());
@@ -413,11 +412,11 @@ public class TokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
-    final Sentence sentence = new Sentence("Pakistan International Airlines Company", talismaneSession);
+    final Sentence sentence = new Sentence("Pakistan International Airlines Company", sessionId);
 
     final List<Annotation<StringAttribute>> annotations = new ArrayList<>();
     Annotation<StringAttribute> annotation1 = new Annotation<>("".length(), "Pakistan".length(), new StringAttribute("namedEntity", "place"), labels);
@@ -448,7 +447,7 @@ public class TokenSequenceTest {
     annotations.add(annotation4);
     sentence.addAnnotations(annotations);
 
-    TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.findDefaultTokens();
 
     LOG.debug(tokenSequence.listWithWhiteSpace().toString());

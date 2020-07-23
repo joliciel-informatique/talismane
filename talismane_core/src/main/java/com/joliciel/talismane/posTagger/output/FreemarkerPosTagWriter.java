@@ -31,6 +31,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,19 +68,20 @@ public class FreemarkerPosTagWriter implements PosTagSequenceProcessor {
   private final Writer writer;
   private int sentenceNumber = 0;
 
-  public FreemarkerPosTagWriter(File outDir, TalismaneSession session) throws IOException {
+  public FreemarkerPosTagWriter(File outDir, String sessionId) throws IOException {
     this(new BufferedWriter(
-        new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + "_pos.txt"), false), session.getOutputCharset())), session);
+        new OutputStreamWriter(new FileOutputStream(new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_pos.txt"), false),
+          TalismaneSession.get(sessionId).getOutputCharset())), sessionId);
   }
 
-  public FreemarkerPosTagWriter(Writer writer, TalismaneSession session) throws IOException {
+  public FreemarkerPosTagWriter(Writer writer, String sessionId) throws IOException {
     this.writer = writer;
 
-    Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
+    Config config = ConfigFactory.load();
+    Config posTaggerConfig = config.getConfig("talismane.core." + sessionId + ".pos-tagger");
 
     Reader templateReader = null;
-    String configPath = "talismane.core." + session.getId() + ".pos-tagger.output.template";
+    String configPath = "talismane.core." + sessionId + ".pos-tagger.output.template";
     if (config.hasPath(configPath)) {
       templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
     } else {
@@ -115,7 +117,7 @@ public class FreemarkerPosTagWriter implements PosTagSequenceProcessor {
     this.template = this.getTemplate(templateReader);
   }
 
-  public FreemarkerPosTagWriter(Reader templateReader, Writer writer, TalismaneSession session) throws IOException, TalismaneException {
+  public FreemarkerPosTagWriter(Reader templateReader, Writer writer, String sessionId) throws IOException, TalismaneException {
     this.writer = writer;
     this.template = this.getTemplate(templateReader);
   }

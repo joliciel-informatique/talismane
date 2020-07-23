@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +42,11 @@ public class Parsers {
   private static final Logger LOG = LoggerFactory.getLogger(Parsers.class);
   private static final Map<String, Parser> parserMap = new HashMap<>();
 
-  public static Parser getParser(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException, ReflectiveOperationException {
-    Parser parser = null;
-    if (session.getId() != null)
-      parser = parserMap.get(session.getId());
+  public static Parser getParser(String sessionId) throws IOException, TalismaneException, ClassNotFoundException, ReflectiveOperationException {
+    Parser parser = parserMap.get(sessionId);
     if (parser == null) {
-      Config config = session.getConfig();
-      Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+      Config config = ConfigFactory.load();
+      Config parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
       String className = parserConfig.getString("parser");
 
       @SuppressWarnings("rawtypes")
@@ -62,19 +61,18 @@ public class Parsers {
 
       if (cons == null) {
         try {
-          cons = clazz.getConstructor(TalismaneSession.class);
+          cons = clazz.getConstructor(String.class);
         } catch (NoSuchMethodException e) {
           // do nothing
         }
         if (cons != null) {
-          parser = cons.newInstance(session);
+          parser = cons.newInstance(sessionId);
         } else {
           throw new TalismaneException("No constructor found with correct signature for: " + className);
         }
       }
 
-      if (session.getId() != null)
-        parserMap.put(session.getId(), parser);
+      parserMap.put(sessionId, parser);
     }
     return parser.cloneParser();
   }

@@ -62,8 +62,8 @@ public class PosTagLexicalCoverageTester implements PosTagEvaluationObserver {
 
   private final File fScoreFile;
 
-  public PosTagLexicalCoverageTester(File outDir, TalismaneSession session) {
-    this.fScoreFile = new File(outDir, session.getBaseName() + ".lexiconCoverage.csv");
+  public PosTagLexicalCoverageTester(File outDir, String sessionId) {
+    this.fScoreFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + ".lexiconCoverage.csv");
   }
 
   @Override

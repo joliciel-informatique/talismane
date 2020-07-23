@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,36 +60,36 @@ public class ParserEvaluator {
   private final Tokeniser tokeniser;
 
   private final List<ParseEvaluationObserver> observers;
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public ParserEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+  public ParserEvaluator(Reader evalReader, File outDir, String sessionId)
       throws ClassNotFoundException, IOException, ReflectiveOperationException, TalismaneException {
-    this.session = session;
-    Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+    this.sessionId = sessionId;
+    Config config = ConfigFactory.load();
+    Config parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
 
-    this.observers = ParseEvaluationObserver.getObservers(outDir, session);
-    this.corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("input"), session);
+    this.observers = ParseEvaluationObserver.getObservers(outDir, sessionId);
+    this.corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("input"), sessionId);
 
-    this.parser = Parsers.getParser(session);
+    this.parser = Parsers.getParser(sessionId);
 
     Module startModule = Module.valueOf(evalConfig.getString("start-module"));
     if (startModule == Module.tokeniser) {
-      tokeniser = Tokeniser.getInstance(session);
+      tokeniser = Tokeniser.getInstance(sessionId);
     } else {
       tokeniser = null;
     }
     if (startModule == Module.tokeniser || startModule == Module.posTagger) {
-      posTagger = PosTaggers.getPosTagger(session);
+      posTagger = PosTaggers.getPosTagger(sessionId);
     } else {
       posTagger = null;
     }
   }
 
   public ParserEvaluator(ParserAnnotatedCorpusReader corpusReader, Parser parser, PosTagger posTagger, Tokeniser tokeniser, boolean propagateTokeniserBeam,
-      boolean propagateBeam, TalismaneSession session) {
-    this.session = session;
+      boolean propagateBeam, String sessionId) {
+    this.sessionId = sessionId;
     this.corpusReader = corpusReader;
     this.parser = parser;
     this.posTagger = posTagger;
@@ -116,7 +117,7 @@ public class ParserEvaluator {
         Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
 
         // annotate the sentence for pre token filters
-        for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
+        for (SentenceAnnotator annotator : TalismaneSession.get(sessionId).getSentenceAnnotators()) {
           annotator.annotate(sentence);
           if (LOG.isTraceEnabled()) {
             LOG.trace("TokenFilter: " + annotator);

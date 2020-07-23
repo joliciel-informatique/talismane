@@ -36,7 +36,8 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public final class BetweenCountIf extends AbstractParseConfigurationFeature<Integer>implements IntegerFeature<ParseConfigurationWrapper> {
+public final class BetweenCountIf extends AbstractParseConfigurationFeature<Integer>
+    implements IntegerFeature<ParseConfigurationWrapper> {
   private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1;
   private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2;
   private BooleanFeature<ParseConfigurationAddress> criterion;

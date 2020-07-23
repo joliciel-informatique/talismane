@@ -31,6 +31,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,18 +66,19 @@ public class FreemarkerSentenceWriter implements SentenceProcessor {
   private final Writer writer;
   private int sentenceNumber = 0;
 
-  public FreemarkerSentenceWriter(File outDir, TalismaneSession session) throws IOException, TalismaneException {
+  public FreemarkerSentenceWriter(File outDir, String sessionId) throws IOException, TalismaneException {
     this(new BufferedWriter(
-        new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + "_sent.txt"), false), session.getOutputCharset())), session);
+        new OutputStreamWriter(new FileOutputStream(new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_sent.txt"), false), 
+          TalismaneSession.get(sessionId).getOutputCharset())), sessionId);
   }
 
-  public FreemarkerSentenceWriter(Writer writer, TalismaneSession session) throws IOException, TalismaneException {
+  public FreemarkerSentenceWriter(Writer writer, String sessionId) throws IOException, TalismaneException {
     this.writer = writer;
 
-    Config config = session.getConfig();
+    Config config = ConfigFactory.load();
 
     Reader templateReader = null;
-    String configPath = "talismane.core." + session.getId() + ".sentence-detector.output.template";
+    String configPath = "talismane.core." + sessionId + ".sentence-detector.output.template";
     if (config.hasPath(configPath)) {
       templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
     } else {
@@ -91,7 +93,7 @@ public class FreemarkerSentenceWriter implements SentenceProcessor {
     this.template = this.getTemplate(templateReader);
   }
 
-  public FreemarkerSentenceWriter(Reader templateReader, Writer writer, TalismaneSession session) throws IOException, TalismaneException {
+  public FreemarkerSentenceWriter(Reader templateReader, Writer writer, String sessionId) throws IOException, TalismaneException {
     this.writer = writer;
     this.template = this.getTemplate(templateReader);
   }

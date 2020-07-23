@@ -7,13 +7,14 @@ import java.io.File;
 import java.util.List;
 import java.util.Scanner;
 
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class LexiconFileTest {
+public class LexiconFileTest extends TalismaneTest {
 
   @Test
   public void testLexiconFileLoad() throws Exception {
@@ -21,14 +22,14 @@ public class LexiconFileTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     File glaffFile = new File("src/test/resources/lexicons/glaff-1.2.1_regex.txt");
     Scanner regexScanner = new Scanner(glaffFile, "UTF-8");
     RegexLexicalEntryReader reader = new RegexLexicalEntryReader(regexScanner);
     File lexFile = new File("src/test/resources/lexicons/glaff-1.2.1_letterD.txt");
     Scanner lexiconScanner = new Scanner(lexFile, "UTF-8");
-    LexiconFile lexiconFile = new LexiconFile("glaffD", lexiconScanner, reader, session);
+    LexiconFile lexiconFile = new LexiconFile("glaffD", lexiconScanner, reader, sessionId);
 
     lexiconFile.load();
 

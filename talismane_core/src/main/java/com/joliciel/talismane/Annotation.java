@@ -40,7 +40,8 @@ import java.util.Set;
  * @param <T>
  *          the data added by this annotation
  */
-public final class Annotation<T extends Serializable> implements Comparable<Annotation<?>> {
+public final class Annotation<T extends Serializable> implements Comparable<Annotation<?>>, Serializable {
+  private static final long serialVersionUID = 1L;
   private final int start;
   private final int end;
   private final T data;

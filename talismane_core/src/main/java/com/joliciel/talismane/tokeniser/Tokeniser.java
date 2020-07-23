@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,26 +67,26 @@ public abstract class Tokeniser implements Annotator<Sentence> {
   private static final Map<String, Tokeniser> tokeniserMap = new HashMap<>();
   private static final Map<String, Pattern> tokenSeparatorMap = new HashMap<>();
 
-  private final TalismaneSession session;
+  private final String sessionId;
   private final List<TokenFilter> filters;
 
-  public Tokeniser(TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
-    this.session = session;
+  public Tokeniser(String sessionId) throws IOException, TalismaneException, ReflectiveOperationException {
+    this.sessionId = sessionId;
 
-    Config config = session.getConfig();
+    Config config = ConfigFactory.load();
 
     this.filters = new ArrayList<>();
 
-    String configPath = "talismane.core." + session.getId() + ".tokeniser.filters";
+    String configPath = "talismane.core." + sessionId + ".tokeniser.filters";
     List<String> filterDescriptors = config.getStringList(configPath);
     for (String descriptor : filterDescriptors) {
-      TokenFilter filter = TokenFilter.loadFilter(descriptor, session);
+      TokenFilter filter = TokenFilter.loadFilter(descriptor, sessionId);
       this.filters.add(filter);
     }
   }
 
   protected Tokeniser(Tokeniser tokeniser) {
-    this.session = tokeniser.session;
+    this.sessionId = tokeniser.sessionId;
     this.filters = tokeniser.filters;
   }
 
@@ -110,7 +111,7 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    */
 
   public List<TokenSequence> tokenise(String text) throws TalismaneException, IOException {
-    Sentence sentence = new Sentence(text, session);
+    Sentence sentence = new Sentence(text, sessionId);
     return this.tokenise(sentence);
   }
 
@@ -158,7 +159,7 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    */
 
   public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text) throws TalismaneException, IOException {
-    Sentence sentence = new Sentence(text, session);
+    Sentence sentence = new Sentence(text, sessionId);
     return this.tokeniseWithDecisions(sentence);
   }
 
@@ -176,7 +177,7 @@ public abstract class Tokeniser implements Annotator<Sentence> {
   public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence, String... labels) throws TalismaneException, IOException {
     // Initially, separate the sentence into tokens using the separators
     // provided
-    TokenSequence tokenSequence = new TokenSequence(sentence, this.session);
+    TokenSequence tokenSequence = new TokenSequence(sentence, this.sessionId);
     tokenSequence.findDefaultTokens();
 
     List<TokenisedAtomicTokenSequence> sequences = this.tokeniseInternal(tokenSequence, sentence);
@@ -222,17 +223,10 @@ public abstract class Tokeniser implements Annotator<Sentence> {
     // nothing to do here
   }
 
-  protected TalismaneSession getTalismaneSession() {
-    return session;
-  }
-
   public abstract Tokeniser cloneTokeniser();
 
   /**
    * Build a tokeniser using the configuration provided.
-   * 
-   * @param session
-   *          current session
    * @return a tokeniser to be used - each call returns a separate tokeniser
    * @throws IOException
    *           if problems occurred reading the model
@@ -240,13 +234,11 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    * @throws TalismaneException
    * @throws ReflectiveOperationException
    */
-  public static Tokeniser getInstance(TalismaneSession session) throws IOException, ClassNotFoundException, TalismaneException, ReflectiveOperationException {
-    Tokeniser tokeniser = null;
-    if (session.getId() != null)
-      tokeniser = tokeniserMap.get(session.getId());
+  public static Tokeniser getInstance(String sessionId) throws IOException, ClassNotFoundException, TalismaneException, ReflectiveOperationException {
+    Tokeniser tokeniser = tokeniserMap.get(sessionId);
     if (tokeniser == null) {
-      Config config = session.getConfig();
-      Config tokeniserConfig = config.getConfig("talismane.core." + session.getId() + ".tokeniser");
+      Config config = ConfigFactory.load();
+      Config tokeniserConfig = config.getConfig("talismane.core." + sessionId + ".tokeniser");
 
       String className = tokeniserConfig.getString("tokeniser");
 
@@ -262,19 +254,18 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 
       if (cons == null) {
         try {
-          cons = clazz.getConstructor(TalismaneSession.class);
+          cons = clazz.getConstructor(String.class);
         } catch (NoSuchMethodException e) {
           // do nothing
         }
         if (cons != null) {
-          tokeniser = cons.newInstance(session);
+          tokeniser = cons.newInstance(sessionId);
         } else {
           throw new TalismaneException("No constructor found with correct signature for: " + className);
         }
       }
 
-      if (session.getId() != null)
-        tokeniserMap.put(session.getId(), tokeniser);
+      tokeniserMap.put(sessionId, tokeniser);
     }
 
     return tokeniser.cloneTokeniser();
@@ -283,13 +274,13 @@ public abstract class Tokeniser implements Annotator<Sentence> {
   /**
    * A pattern matching default separators for tokens.
    */
-  public static Pattern getTokenSeparators(TalismaneSession session) {
-    Pattern tokenSeparators = tokenSeparatorMap.get(session.getId());
+  public static Pattern getTokenSeparators(String sessionId) {
+    Pattern tokenSeparators = tokenSeparatorMap.get(sessionId);
     if (tokenSeparators == null) {
-      Config config = session.getConfig();
-      String separatorRegex = config.getString("talismane.core." + session.getId() + ".tokeniser.separators");
+      Config config = ConfigFactory.load();
+      String separatorRegex = config.getString("talismane.core." + sessionId + ".tokeniser.separators");
       tokenSeparators = Pattern.compile(separatorRegex, Pattern.UNICODE_CHARACTER_CLASS);
-      tokenSeparatorMap.put(session.getId(), tokenSeparators);
+      tokenSeparatorMap.put(sessionId, tokenSeparators);
     }
     return tokenSeparators;
   }
@@ -299,9 +290,9 @@ public abstract class Tokeniser implements Annotator<Sentence> {
    * overlap any token boundaries, except on the unlikely occurrence when a
    * token placeholder cut a token in the middle of two non-separators.
    */
-  public static List<String> bruteForceTokenise(CharSequence text, TalismaneSession session) {
+  public static List<String> bruteForceTokenise(CharSequence text, String sessionId) {
     List<String> tokens = new ArrayList<>();
-    Pattern separatorPattern = Tokeniser.getTokenSeparators(session);
+    Pattern separatorPattern = Tokeniser.getTokenSeparators(sessionId);
     Matcher matcher = separatorPattern.matcher(text);
     TIntSet separatorMatches = new TIntHashSet();
     while (matcher.find())
@@ -321,5 +312,9 @@ public abstract class Tokeniser implements Annotator<Sentence> {
       tokens.add(text.subSequence(currentPos, text.length()).toString());
 
     return tokens;
+  }
+
+  public String getSessionId() {
+    return sessionId;
   }
 }

@@ -22,10 +22,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,7 +186,7 @@ public class Talismane {
   private final boolean stopOnError;
 
   private final Config config;
-  private final TalismaneSession session;
+  private final String sessionId;
   private final Module startModule;
   private final Module endModule;
 
@@ -206,16 +208,16 @@ public class Talismane {
    * @param outDir
    *          a directory for writing any additional output files specified in
    *          the configuration
-   * @param session
+   * @param sessionId
    * @throws IOException
    * @throws ReflectiveOperationException
    * @throws TalismaneException
    *           if start module comes after end module in the configuration.
    */
-  public Talismane(Writer writer, File outDir, TalismaneSession session) throws IOException, ReflectiveOperationException, TalismaneException {
-    this.session = session;
-    this.config = session.getConfig();
-    Config analyseConfig = config.getConfig("talismane.core." + session.getId() + ".analysis");
+  public Talismane(Writer writer, File outDir, String sessionId) throws IOException, ReflectiveOperationException, TalismaneException {
+    this.sessionId = sessionId;
+    this.config = ConfigFactory.load();
+    Config analyseConfig = config.getConfig("talismane.core." + sessionId + ".analysis");
 
     this.startModule = Module.valueOf(analyseConfig.getString("start-module"));
     this.endModule = Module.valueOf(analyseConfig.getString("end-module"));
@@ -226,54 +228,54 @@ public class Talismane {
 
     this.processByDefault = analyseConfig.getBoolean("process-by-default");
     this.stopOnError = analyseConfig.getBoolean("stop-on-error");
-    this.sentenceCount = config.getInt("talismane.core." + session.getId() + ".input.sentence-count");
+    this.sentenceCount = config.getInt("talismane.core." + sessionId + ".input.sentence-count");
     boolean outputIntermediateModules = analyseConfig.getBoolean("output-intermediate-modules");
 
     if (this.endModule == Module.sentenceDetector) {
-      this.sentenceProcessors = SentenceProcessor.getProcessors(writer, outDir, session);
+      this.sentenceProcessors = SentenceProcessor.getProcessors(writer, outDir, sessionId);
     } else
       if (outputIntermediateModules && this.startModule.compareTo(Module.sentenceDetector) <= 0 && this.endModule.compareTo(Module.sentenceDetector) >= 0) {
-      this.sentenceProcessors = SentenceProcessor.getProcessors(null, outDir, session);
+      this.sentenceProcessors = SentenceProcessor.getProcessors(null, outDir, sessionId);
     } else {
       this.sentenceProcessors = new ArrayList<>();
     }
     if (this.endModule == Module.tokeniser) {
-      this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(writer, outDir, session);
+      this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(writer, outDir, sessionId);
     } else if (outputIntermediateModules && this.startModule.compareTo(Module.tokeniser) <= 0 && this.endModule.compareTo(Module.tokeniser) >= 0) {
-      this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(null, outDir, session);
+      this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(null, outDir, sessionId);
     } else {
       this.tokenSequenceProcessors = new ArrayList<>();
     }
     if (this.endModule == Module.posTagger) {
-      this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(writer, outDir, session);
+      this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(writer, outDir, sessionId);
     } else if (outputIntermediateModules && this.startModule.compareTo(Module.posTagger) <= 0 && this.endModule.compareTo(Module.posTagger) >= 0) {
-      this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(null, outDir, session);
+      this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(null, outDir, sessionId);
     } else {
       this.posTagSequenceProcessors = new ArrayList<>();
     }
     if (this.endModule == Module.parser
         || (outputIntermediateModules && this.startModule.compareTo(Module.parser) <= 0 && this.endModule.compareTo(Module.parser) >= 0)) {
-      this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(writer, outDir, session);
+      this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(writer, outDir, sessionId);
     } else if (outputIntermediateModules && this.startModule.compareTo(Module.parser) <= 0 && this.endModule.compareTo(Module.parser) >= 0) {
-      this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(null, outDir, session);
+      this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(null, outDir, sessionId);
     } else {
       this.parseConfigurationProcessors = new ArrayList<>();
     }
 
     if (this.needsSentenceDetector())
-      sentenceDetector = SentenceDetector.getInstance(session);
+      sentenceDetector = SentenceDetector.getInstance(sessionId);
     else
       sentenceDetector = null;
     if (this.needsTokeniser())
-      tokeniser = Tokeniser.getInstance(session);
+      tokeniser = Tokeniser.getInstance(sessionId);
     else
       tokeniser = null;
     if (this.needsPosTagger())
-      posTagger = PosTaggers.getPosTagger(session);
+      posTagger = PosTaggers.getPosTagger(sessionId);
     else
       posTagger = null;
     if (this.needsParser())
-      parser = Parsers.getParser(session);
+      parser = Parsers.getParser(sessionId);
     else
       parser = null;
 
@@ -297,13 +299,13 @@ public class Talismane {
       PosTagAnnotatedCorpusReader posTagCorpusReader = null;
 
       if (this.startModule.equals(Module.posTagger)) {
-        tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core." + session.getId() + ".tokeniser.input"),
-            session);
+        tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core." + sessionId + ".tokeniser.input"),
+            sessionId);
       }
 
       if (this.startModule.equals(Module.parser)) {
-        posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core." + session.getId() + ".pos-tagger.input"),
-            session);
+        posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core." + sessionId + ".pos-tagger.input"),
+          sessionId);
       }
 
       LinkedList<String> textSegments = new LinkedList<String>();
@@ -316,10 +318,11 @@ public class Talismane {
       int sentenceCount = 0;
 
       CurrentFileProvider currentFileProvider = reader instanceof CurrentFileProvider ? (CurrentFileProvider) reader : null;
-      RollingTextBlock rollingTextBlock = new RollingTextBlock(this.processByDefault, session, currentFileProvider);
+      RollingTextBlock rollingTextBlock = new RollingTextBlock(this.processByDefault, currentFileProvider, sessionId);
 
       int endBlockCharacterCount = 0;
 
+      URI currentURI = null;
       File currentFile = null;
 
       while (!finished) {
@@ -348,7 +351,7 @@ public class Talismane {
           }
 
           // Jump out if we have 3 consecutive end-block characters.
-          if (c == session.getEndBlockCharacter()) {
+          if (c == TalismaneSession.get(sessionId).getEndBlockCharacter()) {
             endBlockCharacterCount++;
             if (endBlockCharacterCount == 3) {
               LOG.info("Three consecutive end-block characters. Exiting.");
@@ -359,9 +362,9 @@ public class Talismane {
           }
 
           // have sentence detector
-          if (finished || (Character.isWhitespace(c) && c != '\r' && c != '\n' && stringBuilder.length() > session.getBlockSize())
-              || c == session.getEndBlockCharacter()) {
-            if (c == session.getEndBlockCharacter())
+          if (finished || (Character.isWhitespace(c) && c != '\r' && c != '\n' && stringBuilder.length() > TalismaneSession.get(sessionId).getBlockSize())
+              || c == TalismaneSession.get(sessionId).getEndBlockCharacter()) {
+            if (c == TalismaneSession.get(sessionId).getEndBlockCharacter())
               stringBuilder.append(c);
             if (stringBuilder.length() > 0) {
               String textSegment = stringBuilder.toString();
@@ -369,7 +372,7 @@ public class Talismane {
 
               textSegments.add(textSegment);
             } // is the current block > 0 characters?
-            if (c == session.getEndBlockCharacter()) {
+            if (c == TalismaneSession.get(sessionId).getEndBlockCharacter()) {
               textSegments.addLast("");
             }
           } // is there a next block available?
@@ -386,7 +389,7 @@ public class Talismane {
             textSegments.addLast("");
           }
 
-          if (c != session.getEndBlockCharacter())
+          if (c != TalismaneSession.get(sessionId).getEndBlockCharacter())
             stringBuilder.append(c);
 
           while (textSegments.size() > 0) {
@@ -398,7 +401,7 @@ public class Talismane {
             // annotate block 3 with raw text filters
             AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
 
-            for (RawTextAnnotator textAnnotator : session.getTextAnnotators()) {
+            for (RawTextAnnotator textAnnotator : TalismaneSession.get(sessionId).getTextAnnotators()) {
               textAnnotator.annotate(rawTextBlock);
             }
 
@@ -453,10 +456,11 @@ public class Talismane {
             sentence = sentences.poll();
             LOG.debug("Sentence: " + sentence);
 
-            for (SentenceAnnotator annotator : session.getSentenceAnnotators())
+            for (SentenceAnnotator annotator : TalismaneSession.get(sessionId).getSentenceAnnotators())
               annotator.annotate(sentence);
 
-            if (sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
+            if (sentence.getFileURI() != null && !sentence.getFileURI().equals(currentURI)) {
+              currentURI = sentence.getFileURI();
               currentFile = sentence.getFile();
               LOG.debug("Setting current file to " + currentFile.getPath());
               if (writer instanceof CurrentFileObserver)

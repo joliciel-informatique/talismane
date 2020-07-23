@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneSession;
@@ -15,34 +16,29 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import mockit.NonStrict;
-import mockit.NonStrictExpectations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class LowercaseKnownFirstWordFilterTest {
+public class LowercaseKnownFirstWordFilterTest extends TalismaneTest {
 
   @Test
-  public void testReplace(@NonStrict final Diacriticizer diacriticizer) throws Exception {
-    new NonStrictExpectations() {
-      {
-        diacriticizer.diacriticize("J'");
-        returns(new HashSet<>(Arrays.asList("j'")));
-        diacriticizer.diacriticize("Il");
-        returns(new HashSet<>(Arrays.asList("il")));
-      }
-    };
+  public void testReplace() throws Exception {
+    Diacriticizer diacriticizer = mock(Diacriticizer.class);
+    when(diacriticizer.diacriticize("J'")).thenReturn(new HashSet<>(Arrays.asList("j'")));
+    when(diacriticizer.diacriticize("Il")).thenReturn(new HashSet<>(Arrays.asList("il")));
 
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
-    session.setDiacriticizer(diacriticizer);
+    final String sessionId = "test";
+    TalismaneSession.get(sessionId).setDiacriticizer(diacriticizer);
 
-    LowercaseKnownFirstWordFilter filter = new LowercaseKnownFirstWordFilter(session);
+    LowercaseKnownFirstWordFilter filter = new LowercaseKnownFirstWordFilter(sessionId);
 
     String text = "J'avais oublié : Il est Malade.";
-    Sentence sentence = new Sentence(text, session);
-    TokenSequence tokenSequence = new TokenSequence(sentence, session);
+    Sentence sentence = new Sentence(text, sessionId);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.addToken("".length(), "J'".length());
     tokenSequence.addToken("J'".length(), "J'avais".length());
     tokenSequence.addToken("J'avais ".length(), "J'avais oublié".length());
@@ -65,28 +61,24 @@ public class LowercaseKnownFirstWordFilterTest {
   }
 
   @Test
-  public void testReplaceLongWord(@NonStrict final Diacriticizer diacriticizer) throws Exception {
-    new NonStrictExpectations() {
-      {
-        diacriticizer.diacriticize("Aujourd'hui");
-        returns(new HashSet<>(Arrays.asList("aujourd'hui")));
-        diacriticizer.diacriticize("Parce que");
-        returns(new HashSet<>(Arrays.asList("parce que")));
-      }
-    };
+  public void testReplaceLongWord() throws Exception {
+    Diacriticizer diacriticizer = mock(Diacriticizer.class);
+    when(diacriticizer.diacriticize("Aujourd'hui")).thenReturn(new HashSet<>(Arrays.asList("aujourd'hui")));
+    when(diacriticizer.diacriticize("Parce que")).thenReturn(new HashSet<>(Arrays.asList("parce que")));
 
+    
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
-    session.setDiacriticizer(diacriticizer);
+    final String sessionId = "test";
+    TalismaneSession.get(sessionId).setDiacriticizer(diacriticizer);
 
-    LowercaseKnownFirstWordFilter filter = new LowercaseKnownFirstWordFilter(session);
+    LowercaseKnownFirstWordFilter filter = new LowercaseKnownFirstWordFilter(sessionId);
 
     String text = "Aujourd'hui il vient. Parce que...";
-    Sentence sentence = new Sentence(text, session);
-    TokenSequence tokenSequence = new TokenSequence(sentence, session);
+    Sentence sentence = new Sentence(text, sessionId);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.addToken("".length(), "Aujourd'hui".length());
     tokenSequence.addToken("Aujourd'hui ".length(), "Aujourd'hui il".length());
     tokenSequence.addToken("Aujourd'hui il ".length(), "Aujourd'hui il vient".length());
@@ -107,24 +99,21 @@ public class LowercaseKnownFirstWordFilterTest {
   }
 
   @Test
-  public void testReplace3(@NonStrict final Diacriticizer diacriticizer) throws Exception {
-    new NonStrictExpectations() {
-      {
-      }
-    };
-
+  public void testReplace3() throws Exception {
+    Diacriticizer diacriticizer = mock(Diacriticizer.class);
+ 
     System.setProperty("config.file", "src/test/resources/test.conf");
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
-    session.setDiacriticizer(diacriticizer);
+    final String sessionId = "test";
+    TalismaneSession.get(sessionId).setDiacriticizer(diacriticizer);
 
-    LowercaseKnownFirstWordFilter filter = new LowercaseKnownFirstWordFilter(session);
+    LowercaseKnownFirstWordFilter filter = new LowercaseKnownFirstWordFilter(sessionId);
 
     String text = "Georges est là.";
-    Sentence sentence = new Sentence(text, session);
-    TokenSequence tokenSequence = new TokenSequence(sentence, session);
+    Sentence sentence = new Sentence(text, sessionId);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.addToken("".length(), "Georges".length());
     tokenSequence.addToken("Georges ".length(), "Georges est".length());
     tokenSequence.addToken("Georges est ".length(), "Georges est là".length());

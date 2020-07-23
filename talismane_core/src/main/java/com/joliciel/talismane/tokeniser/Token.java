@@ -56,7 +56,9 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
  * @author Assaf Urieli
  *
  */
-public class Token implements TokenWrapper {
+public class Token implements TokenWrapper, Serializable {
+  private static final long serialVersionUID = 1L;
+  
   /**
    * An imaginary word that can be placed at the start of the sentence to
    * simplify algorithms.
@@ -73,9 +75,9 @@ public class Token implements TokenWrapper {
   private int index;
   private int indexWithWhiteSpace;
   private TokenSequence tokenSequence;
-  private Set<PosTag> possiblePosTags;
-  private Map<PosTag, Integer> frequencies;
-  private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
+  private transient Set<PosTag> possiblePosTags;
+  private transient Map<PosTag, Integer> frequencies;
+  private transient Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
   private boolean separator;
   private final boolean whiteSpace;
   private List<TokenPatternMatch> matches = null;
@@ -99,11 +101,10 @@ public class Token implements TokenWrapper {
   private double probability = -1;
   private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
 
-  private final PosTaggerLexicon lexicon;
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
 
   Token(Token tokenToClone) {
-    this.talismaneSession = tokenToClone.talismaneSession;
+    this.sessionId = tokenToClone.sessionId;
     this.analysisText = tokenToClone.analysisText;
     this.text = tokenToClone.text;
     this.originalText = tokenToClone.originalText;
@@ -123,12 +124,10 @@ public class Token implements TokenWrapper {
     this.lineNumber = tokenToClone.lineNumber;
     this.columnNumber = tokenToClone.columnNumber;
     this.attributes = tokenToClone.attributes;
-
-    this.lexicon = tokenToClone.lexicon;
   }
 
-  public Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon, TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  public Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, String sessionId) {
+    this.sessionId = sessionId;
     this.analysisText = null;
     this.text = null;
     this.originalText = text;
@@ -147,8 +146,6 @@ public class Token implements TokenWrapper {
       this.whiteSpace = true;
     else
       this.whiteSpace = false;
-
-    this.lexicon = lexicon;
   }
 
   /**
@@ -248,7 +245,7 @@ public class Token implements TokenWrapper {
    */
   public Set<PosTag> getPossiblePosTags() throws TalismaneException {
     if (possiblePosTags == null) {
-      possiblePosTags = lexicon.findPossiblePosTags(this.getAnalyisText());
+      possiblePosTags = TalismaneSession.get(sessionId).getMergedLexicon().findPossiblePosTags(this.getAnalyisText());
     }
 
     return possiblePosTags;
@@ -574,7 +571,7 @@ public class Token implements TokenWrapper {
 
   public String getTextForCoNLL() {
     if (conllText == null) {
-      conllText = talismaneSession.getCoNLLFormatter().toCoNLL(originalText);
+      conllText = TalismaneSession.get(sessionId).getCoNLLFormatter().toCoNLL(originalText);
     }
     return conllText;
   }
@@ -590,7 +587,7 @@ public class Token implements TokenWrapper {
     }
     List<LexicalEntry> lexicalEntries = this.lexicalEntryMap.get(posTag);
     if (lexicalEntries == null) {
-      lexicalEntries = lexicon.findLexicalEntries(this.getText(), posTag);
+      lexicalEntries = TalismaneSession.get(sessionId).getMergedLexicon().findLexicalEntries(this.getText(), posTag);
       this.lexicalEntryMap.put(posTag, lexicalEntries);
     }
     LexicalEntry bestEntry = null;
@@ -628,7 +625,7 @@ public class Token implements TokenWrapper {
    * Like {@link #getOriginalLemma()} but formatted for CoNLL
    */
   public String getOriginalLemmaForCoNLL() {
-    return talismaneSession.getCoNLLFormatter().toCoNLL(originalLemma);
+    return TalismaneSession.get(sessionId).getCoNLLFormatter().toCoNLL(originalLemma);
   }
 
   public void setOriginalLemma(String originalLemma) {

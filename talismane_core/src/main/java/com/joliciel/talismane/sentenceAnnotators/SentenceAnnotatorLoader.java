@@ -43,23 +43,23 @@ public class SentenceAnnotatorLoader {
 
   private static final Logger LOG = LoggerFactory.getLogger(SentenceAnnotatorLoader.class);
 
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
   private final Set<String> registeredNames = new HashSet<>();
   private final Map<String, SentenceAnnotatorFactory<?>> registeredFactories = new HashMap<>();
 
   private static final Map<String, SentenceAnnotatorLoader> instances = new HashMap<>();
 
-  public static SentenceAnnotatorLoader getInstance(TalismaneSession talismaneSession) {
-    SentenceAnnotatorLoader factory = instances.get(talismaneSession.getId());
+  public static SentenceAnnotatorLoader getInstance(String sessionId) {
+    SentenceAnnotatorLoader factory = instances.get(sessionId);
     if (factory == null) {
-      factory = new SentenceAnnotatorLoader(talismaneSession);
-      instances.put(talismaneSession.getId(), factory);
+      factory = new SentenceAnnotatorLoader(sessionId);
+      instances.put(sessionId, factory);
     }
     return factory;
   }
 
-  private SentenceAnnotatorLoader(TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  private SentenceAnnotatorLoader(String sessionId) {
+    this.sessionId = sessionId;
     registeredNames.add(RegexAttributeAnnotator.class.getSimpleName());
     registeredNames.add(RegexTokenAnnotator.class.getSimpleName());
   }
@@ -156,11 +156,11 @@ public class SentenceAnnotatorLoader {
 
       SentenceAnnotator filter = null;
       if (className.equals(RegexTokenAnnotator.class.getSimpleName())) {
-        filter = new RegexTokenAnnotator(descriptor, defaultParams, talismaneSession);
+        filter = new RegexTokenAnnotator(descriptor, defaultParams, sessionId);
       } else if (className.equals(RegexAttributeAnnotator.class.getSimpleName())) {
-        filter = new RegexAttributeAnnotator(descriptor, defaultParams, talismaneSession);
+        filter = new RegexAttributeAnnotator(descriptor, defaultParams, sessionId);
       } else if (this.registeredFactories.containsKey(className)) {
-        filter = this.registeredFactories.get(className).construct(descriptor, defaultParams, talismaneSession);
+        filter = this.registeredFactories.get(className).construct(descriptor, defaultParams, sessionId);
       } else {
         throw new SentenceAnnotatorLoadException("Unknown sentence annotator class: " + className);
       }

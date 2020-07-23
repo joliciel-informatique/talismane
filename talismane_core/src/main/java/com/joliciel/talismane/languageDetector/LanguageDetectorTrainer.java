@@ -61,10 +61,10 @@ public class LanguageDetectorTrainer {
   private final ClassificationEventStream eventStream;
   private final Map<String, List<String>> descriptors;
 
-  public LanguageDetectorTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
-    Config config = session.getConfig();
-    this.languageConfig = config.getConfig("talismane.core." + session.getId() + ".language-detector");
-    this.session = session;
+  public LanguageDetectorTrainer(String sessionId) throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
+    Config config = ConfigFactory.load();
+    this.languageConfig = config.getConfig("talismane.core." + sessionId + ".language-detector");
+    this.session = TalismaneSession.get(sessionId);
     this.modelFile = new File(languageConfig.getString("model"));
 
     this.descriptors = new HashMap<>();
@@ -81,7 +81,8 @@ public class LanguageDetectorTrainer {
       }
     }
     descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-    LanguageDetectorAnnotatedCorpusReader corpusReader = LanguageDetectorAnnotatedCorpusReader.getCorpusReader(languageConfig.getConfig("train"), session);
+    LanguageDetectorAnnotatedCorpusReader corpusReader = LanguageDetectorAnnotatedCorpusReader.getCorpusReader(languageConfig.getConfig("train"),
+      sessionId);
 
     LanguageDetectorFeatureFactory featureParser = new LanguageDetectorFeatureFactory();
     Set<LanguageDetectorFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
@@ -112,9 +113,8 @@ public class LanguageDetectorTrainer {
 
     Config config = ConfigFactory.load();
     String sessionId = "";
-    TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
 
-    LanguageDetectorTrainer trainer = new LanguageDetectorTrainer(talismaneSession);
+    LanguageDetectorTrainer trainer = new LanguageDetectorTrainer(sessionId);
     trainer.train();
   }
 }

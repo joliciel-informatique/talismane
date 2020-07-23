@@ -21,11 +21,11 @@ package com.joliciel.talismane;
 import java.util.Locale;
 
 public class GenericRules implements LinguisticRules {
-  TalismaneSession talismaneSession;
+  String sessionId;
 
-  public GenericRules(TalismaneSession talismaneSession) {
+  public GenericRules(String sessionId) {
     super();
-    this.talismaneSession = talismaneSession;
+    this.sessionId = sessionId;
   }
 
   @Override
@@ -74,7 +74,7 @@ public class GenericRules implements LinguisticRules {
       }
     }
 
-    Locale locale = this.talismaneSession.getLocale();
+    Locale locale = TalismaneSession.get(sessionId).getLocale();
     if (locale.getLanguage().equals("fr")) {
       if (word.equals(":") || word.equals("?") || word.equals("!"))
         return true;
@@ -91,7 +91,7 @@ public class GenericRules implements LinguisticRules {
 
   @Override
   public String makeAdjectiveSingular(String adjective) throws TalismaneException {
-    Locale locale = this.talismaneSession.getLocale();
+    Locale locale = TalismaneSession.get(sessionId).getLocale();
     if (locale.getLanguage().equals("fr")) {
       String result = adjective;
       if (adjective.endsWith("aux")) {
@@ -107,7 +107,7 @@ public class GenericRules implements LinguisticRules {
 
   @Override
   public char[] getLowercaseOptionsWithDiacritics(char c) {
-    Locale locale = this.talismaneSession.getLocale();
+    Locale locale = TalismaneSession.get(sessionId).getLocale();
     char[] lowerCaseChars = null;
     if (locale.getLanguage().equals("fr")) {
       switch (c) {

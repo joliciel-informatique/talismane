@@ -1,62 +1,44 @@
 package com.joliciel.talismane.lexicon;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 
-import mockit.NonStrict;
-import mockit.NonStrictExpectations;
+import java.util.*;
 
-public class DiacriticizerTest {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class DiacriticizerTest extends TalismaneTest {
 
   @Test
-  public void testDiacriticize(@NonStrict final Lexicon lexicon) {
+  public void testDiacriticize() {
 
-    new NonStrictExpectations() {
-      LexicalEntry l1, l2, l3, l4, l5, l6, l7, l8, l9;
+    final Lexicon lexicon = mock(Lexicon.class);
+    final LexicalEntry l1 = mock(LexicalEntry.class);
+    final LexicalEntry l2 = mock(LexicalEntry.class);
+    final LexicalEntry l3 = mock(LexicalEntry.class);
+    final LexicalEntry l4 = mock(LexicalEntry.class);
+    final LexicalEntry l5 = mock(LexicalEntry.class);
+    final LexicalEntry l6 = mock(LexicalEntry.class);
+    final LexicalEntry l7 = mock(LexicalEntry.class);
+    final LexicalEntry l8 = mock(LexicalEntry.class);
+    final LexicalEntry l9 = mock(LexicalEntry.class);
+    List<LexicalEntry> lexicalEntries = Arrays.asList(l1, l2, l3, l4, l5, l6, l7, l8, l9);
+    
 
-      {
-        List<LexicalEntry> lexicalEntries = new ArrayList<LexicalEntry>();
-        lexicalEntries.add(l1);
-        lexicalEntries.add(l2);
-        lexicalEntries.add(l3);
-        lexicalEntries.add(l4);
-        lexicalEntries.add(l5);
-        lexicalEntries.add(l6);
-        lexicalEntries.add(l7);
-        lexicalEntries.add(l8);
-        lexicalEntries.add(l9);
-
-        l1.getWord();
-        returns("mangé");
-        l2.getWord();
-        returns("mange");
-        l3.getWord();
-        returns("mangée");
-        l4.getWord();
-        returns("SARL");
-        l5.getWord();
-        returns("bala");
-        l6.getWord();
-        returns("bàlà");
-        l7.getWord();
-        returns("bàla");
-        l8.getWord();
-        returns("a");
-        l9.getWord();
-        returns("à");
-        lexicon.getAllEntries();
-        returns(lexicalEntries.iterator());
-      }
-    };
+    when(l1.getWord()).thenReturn("mangé");
+    when(l2.getWord()).thenReturn("mange");
+    when(l3.getWord()).thenReturn("mangée");
+    when(l4.getWord()).thenReturn("SARL");
+    when(l5.getWord()).thenReturn("bala");
+    when(l6.getWord()).thenReturn("bàlà");
+    when(l7.getWord()).thenReturn("bàla");
+    when(l8.getWord()).thenReturn("a");
+    when(l9.getWord()).thenReturn("à");
+    
+    when(lexicon.getAllEntries()).thenReturn(lexicalEntries.iterator());
 
     Diacriticizer diacriticizer = new Diacriticizer();
     diacriticizer.setLocale(Locale.FRENCH);
@@ -122,22 +104,15 @@ public class DiacriticizerTest {
   }
 
   @Test
-  public void testUnattachedCombiningDiacritic(@NonStrict final Lexicon lexicon) {
+  public void testUnattachedCombiningDiacritic() {
+    final Lexicon lexicon = mock(Lexicon.class);
+    final LexicalEntry l1 = mock(LexicalEntry.class);
 
-    new NonStrictExpectations() {
-      LexicalEntry l1;
+    List<LexicalEntry> lexicalEntries = Arrays.asList(l1);
 
-      {
-        List<LexicalEntry> lexicalEntries = new ArrayList<LexicalEntry>();
-        lexicalEntries.add(l1);
-
-        l1.getWord();
-        returns("mangé");
-
-        lexicon.getAllEntries();
-        returns(lexicalEntries.iterator());
-      }
-    };
+    when(l1.getWord()).thenReturn("mangé");
+    
+    when(lexicon.getAllEntries()).thenReturn(lexicalEntries.iterator());
 
     Diacriticizer diacriticizer = new Diacriticizer();
     diacriticizer.setLocale(Locale.FRENCH);

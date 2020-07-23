@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneSession;
@@ -13,7 +14,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class LexiconReaderTest {
+public class LexiconReaderTest extends TalismaneTest {
 
   @Test
   public void testReadLexicons() throws Exception {
@@ -21,9 +22,9 @@ public class LexiconReaderTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
-    PosTaggerLexicon lexicon = session.getMergedLexicon();
+    PosTaggerLexicon lexicon = TalismaneSession.get(sessionId).getMergedLexicon();
 
     List<LexicalEntry> entries = lexicon.getEntries("dame");
     for (LexicalEntry entry : entries) {
@@ -31,7 +32,7 @@ public class LexiconReaderTest {
     }
     assertEquals(9, entries.size());
 
-    PosTagSet posTagSet = session.getPosTagSet();
+    PosTagSet posTagSet = TalismaneSession.get(sessionId).getPosTagSet();
 
     entries = lexicon.findLexicalEntries("dame", posTagSet.getPosTag("NC"));
     for (LexicalEntry entry : entries) {
@@ -44,6 +45,8 @@ public class LexiconReaderTest {
 
     assertEquals(4, posTags.size());
 
+    System.clearProperty("config.file");
+    ConfigFactory.invalidateCaches();
   }
 
 }

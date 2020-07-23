@@ -41,8 +41,8 @@ public class SimpleTokeniser extends Tokeniser {
   @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(SimpleTokeniser.class);
 
-  public SimpleTokeniser(TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
-    super(session);
+  public SimpleTokeniser(String sessionId) throws IOException, TalismaneException, ReflectiveOperationException {
+    super(sessionId);
   }
 
   SimpleTokeniser(SimpleTokeniser tokeniser) {
@@ -54,7 +54,7 @@ public class SimpleTokeniser extends Tokeniser {
     List<TokenisedAtomicTokenSequence> sequences = null;
 
     sequences = new ArrayList<TokenisedAtomicTokenSequence>();
-    TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getTalismaneSession());
+    TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getSessionId());
     for (Token token : initialSequence.listWithWhiteSpace()) {
       Decision tokeniserDecision = new Decision(TokeniserOutcome.SEPARATE.name());
       TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<TokeniserOutcome>(token, tokeniserDecision,

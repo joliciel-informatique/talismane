@@ -26,6 +26,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,15 +53,15 @@ public class ParserFScoreCalculator implements ParseEvaluationObserver {
   private final Writer writer;
   private final boolean projective;
 
-  public ParserFScoreCalculator(File outDir, TalismaneSession session) throws IOException {
-    Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+  public ParserFScoreCalculator(File outDir, String sessionId) throws IOException {
+    Config config = ConfigFactory.load();
+    Config parserConfig = config.getConfig("talismane.core." + sessionId+ ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
     this.projective = evalConfig.getBoolean("projective");
     this.labeledEvaluation = evalConfig.getBoolean("labeled-evaluation");
 
-    File fscoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
-    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fscoreFile, false), session.getCsvCharset()));
+    File fscoreFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + ".fscores.csv");
+    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fscoreFile, false), TalismaneSession.get(sessionId).getCsvCharset()));
   }
 
   @Override

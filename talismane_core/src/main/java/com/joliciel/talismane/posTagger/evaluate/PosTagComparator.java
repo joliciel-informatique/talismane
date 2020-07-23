@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,16 +31,16 @@ public class PosTagComparator {
 
   private final List<PosTagEvaluationObserver> observers;
 
-  public PosTagComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
+  public PosTagComparator(Reader referenceReader, Reader evalReader, File outDir, String sessionId)
       throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
-    Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
+    Config config = ConfigFactory.load();
+    Config posTaggerConfig = config.getConfig("talismane.core." + sessionId + ".pos-tagger");
 
-    this.referenceCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(referenceReader, posTaggerConfig.getConfig("input"), session);
+    this.referenceCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(referenceReader, posTaggerConfig.getConfig("input"), sessionId);
 
-    this.evaluationCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("evaluate"), session);
+    this.evaluationCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("evaluate"), sessionId);
 
-    this.observers = PosTagEvaluationObserver.getObservers(outDir, session);
+    this.observers = PosTagEvaluationObserver.getObservers(outDir, sessionId);
   }
 
   /**

@@ -69,14 +69,14 @@ public class TokeniserPatternManager {
   private final List<String> testPatterns;
 
   private List<TokenPattern> parsedTestPatterns;
-  private final TalismaneSession session;
+  private final String sessionId;
 
   /**
    * Reads separator defaults and test patterns from a list of strings.
    */
-  public TokeniserPatternManager(List<String> patternDescriptors, TalismaneSession session) {
+  public TokeniserPatternManager(List<String> patternDescriptors, String sessionId) {
     this.descriptors = patternDescriptors;
-    this.session = session;
+    this.sessionId = sessionId;
 
     String[] separatorDecisions = new String[] { SeparatorDecision.IS_NOT_SEPARATOR.toString(), SeparatorDecision.IS_SEPARATOR_AFTER.toString(),
         SeparatorDecision.IS_SEPARATOR_BEFORE.toString() };
@@ -146,7 +146,7 @@ public class TokeniserPatternManager {
           pattern = parts[2];
         }
 
-        TokenPattern parsedPattern = new TokenPattern(pattern, Tokeniser.getTokenSeparators(session));
+        TokenPattern parsedPattern = new TokenPattern(pattern, Tokeniser.getTokenSeparators(sessionId));
         if (name != null)
           parsedPattern.setName(name);
         if (groupName != null)
@@ -166,7 +166,7 @@ public class TokeniserPatternManager {
 
     // Assign each separator its default value
     TokeniserOutcome nextOutcome = TokeniserOutcome.SEPARATE;
-    Pattern tokenSeparators = Tokeniser.getTokenSeparators(session);
+    Pattern tokenSeparators = Tokeniser.getTokenSeparators(sessionId);
     for (Token token : tokenSequence.listWithWhiteSpace()) {
 
       TokeniserOutcome outcome = null;

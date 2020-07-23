@@ -30,9 +30,9 @@ public class ParseTimeByLengthObserver implements ParseEvaluationObserver {
 
   private long startTime;
 
-  public ParseTimeByLengthObserver(File outDir, TalismaneSession session) throws FileNotFoundException {
-    File timePerTokenFile = new File(outDir, session.getBaseName() + ".timePerToken.csv");
-    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false), session.getCsvCharset()));
+  public ParseTimeByLengthObserver(File outDir, String sessionId) throws FileNotFoundException {
+    File timePerTokenFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + ".timePerToken.csv");
+    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false), TalismaneSession.get(sessionId).getCsvCharset()));
   }
 
   @Override

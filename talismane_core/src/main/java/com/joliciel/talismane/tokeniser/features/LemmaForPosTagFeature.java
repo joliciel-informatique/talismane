@@ -21,7 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
@@ -38,10 +38,10 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class LemmaForPosTagFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper>, NeedsTalismaneSession {
+public final class LemmaForPosTagFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper>, NeedsSessionId {
   StringFeature<TokenWrapper>[] posTagCodeFeatures;
 
-  TalismaneSession talismaneSession;
+  String sessionId;
 
   @SafeVarargs
   public LemmaForPosTagFeature(StringFeature<TokenWrapper>... posTagCodeFeatures) {
@@ -81,7 +81,7 @@ public final class LemmaForPosTagFeature extends AbstractTokenFeature<String>imp
     }
 
     for (String posTagCode : posTagCodes) {
-      PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagCode);
+      PosTag posTag = TalismaneSession.get(sessionId).getPosTagSet().getPosTag(posTagCode);
 
       LexicalEntry lexicalEntry = token.getLexicalEntry(posTag);
       if (lexicalEntry != null) {
@@ -94,12 +94,7 @@ public final class LemmaForPosTagFeature extends AbstractTokenFeature<String>imp
   }
 
   @Override
-  public TalismaneSession getTalismaneSession() {
-    return talismaneSession;
-  }
-
-  @Override
-  public void setTalismaneSession(TalismaneSession talismaneSession) {
-    this.talismaneSession = talismaneSession;
+  public void setSessionId(String sessionId) {
+    this.sessionId = sessionId;
   }
 }
