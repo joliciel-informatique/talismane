@@ -57,15 +57,15 @@ public interface PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorpusRea
    * @throws ReflectiveOperationException
    *           if the corpus-reader class could not be instantiated
    */
-  public static PosTagAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+  public static PosTagAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, String sessionId)
       throws IOException, ReflectiveOperationException {
     String className = config.getString("corpus-reader");
 
     @SuppressWarnings("unchecked")
     Class<? extends PosTagAnnotatedCorpusReader> clazz = (Class<? extends PosTagAnnotatedCorpusReader>) Class.forName(className);
-    Constructor<? extends PosTagAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+    Constructor<? extends PosTagAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, String.class);
 
-    PosTagAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+    PosTagAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, sessionId);
     if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
       ((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
     }

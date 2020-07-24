@@ -41,8 +41,8 @@ public class PretokenisedSequence extends TokenSequence {
     super(sequenceToClone);
   }
 
-  public PretokenisedSequence(Sentence sentence, TalismaneSession talismaneSession) {
-    super(sentence, talismaneSession);
+  public PretokenisedSequence(Sentence sentence, String sessionId) {
+    super(sentence, sessionId);
   }
 
   /**

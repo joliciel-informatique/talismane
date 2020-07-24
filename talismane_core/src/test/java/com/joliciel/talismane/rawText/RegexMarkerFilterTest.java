@@ -1,23 +1,20 @@
 package com.joliciel.talismane.rawText;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.List;
-
+import com.joliciel.talismane.AnnotatedText;
+import com.joliciel.talismane.Annotation;
+import com.joliciel.talismane.TalismaneTest;
+import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
+import com.joliciel.talismane.rawText.RawTextMarker.RawTextSkipMarker;
+import com.joliciel.talismane.tokeniser.StringAttribute;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.AnnotatedText;
-import com.joliciel.talismane.Annotation;
-import com.joliciel.talismane.rawText.RawTextMarkType;
-import com.joliciel.talismane.rawText.RawTextMarker;
-import com.joliciel.talismane.rawText.RawTextRegexAnnotator;
-import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
-import com.joliciel.talismane.rawText.RawTextMarker.RawTextSkipMarker;
-import com.joliciel.talismane.tokeniser.StringAttribute;
+import java.util.List;
 
-public class RegexMarkerFilterTest {
+import static org.junit.Assert.assertEquals;
+
+public class RegexMarkerFilterTest extends TalismaneTest {
   private static final Logger LOG = LoggerFactory.getLogger(RegexMarkerFilterTest.class);
 
   @Test

@@ -80,7 +80,7 @@ public class LexiconDeserializer {
       config = ConfigFactory.load();
     }
 
-    TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
+    TalismaneSession talismaneSession = TalismaneSession.get(sessionId);
 
     List<String> words = options.valuesOf(wordsOption);
 

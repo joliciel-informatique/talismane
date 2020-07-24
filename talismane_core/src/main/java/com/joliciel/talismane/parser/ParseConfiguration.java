@@ -18,17 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.Serializable;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +46,9 @@ import com.joliciel.talismane.rawText.Sentence;
  * 
  * @author Assaf Urieli
  */
-public final class ParseConfiguration implements Comparable<ParseConfiguration>, ClassificationSolution, ParseConfigurationWrapper, HasFeatureCache {
-
+public final class ParseConfiguration implements Comparable<ParseConfiguration>, ClassificationSolution, ParseConfigurationWrapper, HasFeatureCache, Serializable {
+  private static final long serialVersionUID = 1L;
+  
   private static final Logger LOG = LoggerFactory.getLogger(ParseConfiguration.class);
 
   private PosTagSequence posTagSequence;
@@ -89,7 +81,7 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
   @SuppressWarnings("rawtypes")
   private ScoringStrategy scoringStrategy;
 
-  private Map<String, FeatureResult<?>> featureCache = new HashMap<String, FeatureResult<?>>();
+  private transient Map<String, FeatureResult<?>> featureCache = new HashMap<String, FeatureResult<?>>();
 
   private long createDate = System.currentTimeMillis();
 
@@ -701,4 +693,20 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
     return lastProbApplied;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ParseConfiguration that = (ParseConfiguration) o;
+    return useGeometricMeanForProbs == that.useGeometricMeanForProbs &&
+      posTagSequence.equals(that.posTagSequence) &&
+      transitions.equals(that.transitions) &&
+      decisions.equals(that.decisions) &&
+      scoringStrategy.equals(that.scoringStrategy);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(posTagSequence, useGeometricMeanForProbs, transitions, decisions, scoringStrategy);
+  }
 }

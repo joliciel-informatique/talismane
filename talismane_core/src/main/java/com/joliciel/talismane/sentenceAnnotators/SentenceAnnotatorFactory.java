@@ -30,8 +30,8 @@ public interface SentenceAnnotatorFactory<T extends SentenceAnnotator> {
    *          the descriptor for this particular annotator
    * @param defaultParams
    *          any default parameters providing default values for this annotator
-   * @param session
-   *          the current Talismane session
+   * @param sessionId
+   *          the current Talismane session id
    */
-  public T construct(String descriptor, Map<String, String> defaultParams, TalismaneSession session);
+  public T construct(String descriptor, Map<String, String> defaultParams, String sessionId);
 }

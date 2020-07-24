@@ -18,19 +18,18 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneTest;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.rawText.Sentence;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TokenisedAtomicTokenSequenceTest {
+import static org.junit.Assert.assertEquals;
+
+public class TokenisedAtomicTokenSequenceTest extends TalismaneTest {
   private static final Logger LOG = LoggerFactory.getLogger(TokenisedAtomicTokenSequenceTest.class);
 
   @Test
@@ -39,8 +38,8 @@ public class TokenisedAtomicTokenSequenceTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession talismaneSession = new TalismaneSession(config, "test");
-    final Sentence sentence = new Sentence("Je n'ai pas encore l'ourang-outan.", talismaneSession);
+    final String sessionId = "test";
+    final Sentence sentence = new Sentence("Je n'ai pas encore l'ourang-outan.", sessionId);
 
     TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] { TokeniserOutcome.SEPARATE, // Je
         TokeniserOutcome.SEPARATE, // _
@@ -60,9 +59,9 @@ public class TokenisedAtomicTokenSequenceTest {
         TokeniserOutcome.SEPARATE // .
     };
 
-    TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, talismaneSession);
+    TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, sessionId);
 
-    TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
     tokenSequence.findDefaultTokens();
 
     int i = 0;

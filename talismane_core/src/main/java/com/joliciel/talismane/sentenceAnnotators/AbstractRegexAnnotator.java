@@ -76,15 +76,15 @@ public abstract class AbstractRegexAnnotator implements RegexAnnotator {
   private boolean excluded = false;
   private final boolean singleToken;
   private final Map<String, String> parameters = new HashMap<>();
-  private final TalismaneSession session;
+  private final String sessionId;
 
   /**
    * A constructor with the minimum required data. This is the constructor to be
    * used when creating annotators directly in code.
    */
   public AbstractRegexAnnotator(String regex, int groupIndex, boolean caseSensitive, boolean diacricticSensitive, boolean autoWordBoundaries,
-      boolean singleToken, TalismaneSession session) throws SentenceAnnotatorLoadException {
-    this.session = session;
+      boolean singleToken, String sessionId) throws SentenceAnnotatorLoadException {
+    this.sessionId = sessionId;
     this.regex = regex;
     this.groupIndex = groupIndex;
     this.caseSensitive = caseSensitive;
@@ -105,14 +105,12 @@ public abstract class AbstractRegexAnnotator implements RegexAnnotator {
    *          parameters are either handled here, or added as token attributes
    * @param singleToken
    *          whether this annotator identifies a single token's boundaries
-   * @param session
-   *          the current talismane session
    * 
    * @throws SentenceAnnotatorLoadException
    */
   public AbstractRegexAnnotator(String descriptor, Map<String, String> defaultParams, Set<String> handledParameters, boolean singleToken,
-      TalismaneSession session) throws SentenceAnnotatorLoadException {
-    this.session = session;
+      String sessionId) throws SentenceAnnotatorLoadException {
+    this.sessionId = sessionId;
     this.singleToken = singleToken;
 
     String[] tabs = descriptor.split("\t");
@@ -391,7 +389,7 @@ public abstract class AbstractRegexAnnotator implements RegexAnnotator {
         firstParam = false;
       }
 
-      WordList wordList = session.getWordListFinder().getWordList(wordListName);
+      WordList wordList = TalismaneSession.get(sessionId).getWordListFinder().getWordList(wordListName);
       if (wordList == null)
         throw new SentenceAnnotatorLoadException("Unknown word list: " + wordListName);
 

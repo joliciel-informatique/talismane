@@ -38,7 +38,7 @@ public abstract class AbstractAnnotatedCorpusReader implements AnnotatedCorpusRe
   private final int crossValidationSize;
   private final int includeIndex;
   private final int excludeIndex;
-  protected final TalismaneSession session;
+  protected final String sessionId;
 
   /**
    * Add attributes as specified in the config to the corpus reader. Recognises
@@ -55,8 +55,8 @@ public abstract class AbstractAnnotatedCorpusReader implements AnnotatedCorpusRe
    * @param config
    *          the local config for this corpus reader (local namespace)
    */
-  public AbstractAnnotatedCorpusReader(Config config, TalismaneSession session) {
-    this.session = session;
+  public AbstractAnnotatedCorpusReader(Config config, String sessionId) {
+    this.sessionId = sessionId;
     this.maxSentenceCount = config.getInt("sentence-count");
     this.startSentence = config.getInt("start-sentence");
     this.crossValidationSize = config.getInt("cross-validation.fold-count");

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,20 +60,20 @@ public class PosTaggerEvaluator {
 
   private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
 
-  public PosTaggerEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+  public PosTaggerEvaluator(Reader evalReader, File outDir, String sessionId)
       throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
-    Config config = session.getConfig();
-    this.observers = PosTagEvaluationObserver.getObservers(outDir, session);
+    Config config = ConfigFactory.load();
+    this.observers = PosTagEvaluationObserver.getObservers(outDir, sessionId);
 
-    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
+    Config posTaggerConfig = config.getConfig("talismane.core." + sessionId + ".pos-tagger");
 
-    this.corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("input"), session);
+    this.corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("input"), sessionId);
 
-    this.posTagger = PosTaggers.getPosTagger(session);
+    this.posTagger = PosTaggers.getPosTagger(sessionId);
 
     Module startModule = Module.valueOf(posTaggerConfig.getString("evaluate.start-module"));
     if (startModule == Module.tokeniser)
-      this.tokeniser = Tokeniser.getInstance(session);
+      this.tokeniser = Tokeniser.getInstance(sessionId);
     else
       this.tokeniser = null;
   }
@@ -87,7 +88,7 @@ public class PosTaggerEvaluator {
    *          if not null, evaluate tokenisation as well.
    * @param session
    */
-  public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser, TalismaneSession session) {
+  public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser, String sessionId) {
     this.posTagger = posTagger;
     this.corpusReader = corpusReader;
     this.tokeniser = tokeniser;

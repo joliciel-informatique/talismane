@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +42,11 @@ public class PosTaggers {
   private static final Logger LOG = LoggerFactory.getLogger(PosTaggers.class);
   private static final Map<String, PosTagger> posTaggerMap = new HashMap<>();
 
-  public static PosTagger getPosTagger(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException, ReflectiveOperationException {
-    PosTagger posTagger = null;
-    if (session.getId() != null)
-      posTagger = posTaggerMap.get(session.getId());
+  public static PosTagger getPosTagger(String sessionId) throws ReflectiveOperationException {
+    PosTagger posTagger = posTaggerMap.get(sessionId);
     if (posTagger == null) {
-      Config config = session.getConfig();
-      Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
+      Config config = ConfigFactory.load();
+      Config posTaggerConfig = config.getConfig("talismane.core." + sessionId + ".pos-tagger");
       String className = posTaggerConfig.getString("pos-tagger");
 
       @SuppressWarnings("rawtypes")
@@ -62,19 +61,18 @@ public class PosTaggers {
 
       if (cons == null) {
         try {
-          cons = clazz.getConstructor(TalismaneSession.class);
+          cons = clazz.getConstructor(String.class);
         } catch (NoSuchMethodException e) {
           // do nothing
         }
         if (cons != null) {
-          posTagger = cons.newInstance(session);
+          posTagger = cons.newInstance(sessionId);
         } else {
           throw new TalismaneException("No constructor found with correct signature for: " + className);
         }
       }
 
-      if (session.getId() != null)
-        posTaggerMap.put(session.getId(), posTagger);
+      posTaggerMap.put(sessionId, posTagger);
     }
     return posTagger.clonePosTagger();
   }

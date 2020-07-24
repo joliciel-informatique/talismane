@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneTest;
 import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneSession;
@@ -24,7 +25,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class LexicalAttributeFeatureTest {
+public class LexicalAttributeFeatureTest extends TalismaneTest {
 
   @Test
   public void testCheckInternal() throws Exception {
@@ -32,13 +33,13 @@ public class LexicalAttributeFeatureTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
-    Sentence sentence = new Sentence("une dame", session);
-    TokenSequence tokenSequence = new TokenSequence(sentence, session);
-    Token token = new Token("dame", tokenSequence, 1, "une ".length(), "une dame".length(), session.getMergedLexicon(), session);
+    Sentence sentence = new Sentence("une dame", sessionId);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
+    Token token = new Token("dame", tokenSequence, 1, "une ".length(), "une dame".length(), sessionId);
     Decision decision = new Decision("NC", 1.0);
-    final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, session);
+    final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, sessionId);
 
     PosTaggedTokenAddressFunction<PosTaggerContext> addressFunction = new AbstractPosTaggedTokenAddressFunction() {
       @Override
@@ -68,13 +69,13 @@ public class LexicalAttributeFeatureTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
-    Sentence sentence = new Sentence("je demande", session);
-    TokenSequence tokenSequence = new TokenSequence(sentence, session);
-    Token token = new Token("demande", tokenSequence, 1, "je ".length(), "je demande".length(), session.getMergedLexicon(), session);
+    Sentence sentence = new Sentence("je demande", sessionId);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
+    Token token = new Token("demande", tokenSequence, 1, "je ".length(), "je demande".length(), sessionId);
     Decision decision = new Decision("V", 1.0);
-    final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, session);
+    final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, sessionId);
 
     PosTaggedTokenAddressFunction<PosTaggerContext> addressFunction = new AbstractPosTaggedTokenAddressFunction() {
       @Override
@@ -106,13 +107,13 @@ public class LexicalAttributeFeatureTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
-    Sentence sentence = new Sentence("blah", session);
-    TokenSequence tokenSequence = new TokenSequence(sentence, session);
-    Token token = new Token("blah", tokenSequence, 1, "".length(), "blah".length(), session.getMergedLexicon(), session);
+    Sentence sentence = new Sentence("blah", sessionId);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
+    Token token = new Token("blah", tokenSequence, 1, "".length(), "blah".length(), sessionId);
     Decision decision = new Decision("V", 1.0);
-    final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, session);
+    final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, sessionId);
 
     PosTaggedTokenAddressFunction<PosTaggerContext> addressFunction = new AbstractPosTaggedTokenAddressFunction() {
       @Override

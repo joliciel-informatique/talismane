@@ -70,7 +70,7 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 
   /**
    * In addition to the values read in
-   * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
+   * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, String)}
    * , reads the following setting from the config:<br/>
    * - predict-transitions: whether or not an attempt should be made to predict
    * transitions<br/>
@@ -78,9 +78,9 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
    * @throws TalismaneException
    * @throws ReflectiveOperationException
    */
-  public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session)
+  public ParserRegexBasedCorpusReader(Reader reader, Config config, String sessionId)
       throws IOException, TalismaneException, ReflectiveOperationException {
-    super(reader, config, session);
+    super(reader, config, sessionId);
     this.predictTransitions = config.getBoolean("predict-transitions");
   }
 
@@ -96,7 +96,7 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
       PosTaggedToken rootToken = posTagSequence.prependRoot();
       idTokenMap.put(0, rootToken);
 
-      TransitionSystem transitionSystem = session.getTransitionSystem();
+      TransitionSystem transitionSystem = TalismaneSession.get(sessionId).getTransitionSystem();
       Set<DependencyArc> dependencies = new TreeSet<>();
       for (CorpusLine dataLine : corpusLines) {
         int headIndex = 0;
@@ -202,13 +202,13 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
   @Override
   public Map<String, String> getCharacteristics() {
     Map<String, String> attributes = super.getCharacteristics();
-    attributes.put("transitionSystem", session.getTransitionSystem().getClass().getSimpleName());
+    attributes.put("transitionSystem", TalismaneSession.get(sessionId).getTransitionSystem().getClass().getSimpleName());
 
     return attributes;
   }
 
   protected String readWord(String rawWord) {
-    return session.getCoNLLFormatter().fromCoNLL(rawWord);
+    return TalismaneSession.get(sessionId).getCoNLLFormatter().fromCoNLL(rawWord);
   }
 
   /**

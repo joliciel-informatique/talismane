@@ -56,7 +56,7 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
   private static final Logger LOG = LoggerFactory.getLogger(RawTextProcessor.class);
   private SentenceHolder sentenceHolder;
   private List<Annotation<SentenceBoundary>> sentenceBoundaries = new ArrayList<>();
-  private final TalismaneSession session;
+  private final String sessionId;
   private static Pattern newlinePattern = Pattern.compile("\r\n|[\r\n]");
   private final Stack<Boolean> shouldProcessStack;
   private final Stack<Boolean> shouldOutputStack;
@@ -83,9 +83,9 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 
   private static final int NUM_CHARS = 30;
 
-  protected RawTextProcessor(CharSequence text, boolean processByDefault, TalismaneSession session) {
+  protected RawTextProcessor(CharSequence text, boolean processByDefault, String sessionId) {
     super(text, 0, text.length(), Collections.emptyList());
-    this.session = session;
+    this.sessionId = sessionId;
 
     this.shouldProcessStack = new Stack<>();
     this.shouldProcessStack.push(processByDefault);
@@ -98,7 +98,7 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
   protected RawTextProcessor(RawTextProcessor predecessor, CharSequence text, int analysisStart, int analysisEnd, List<Annotation<?>> annotations,
       int originalStartIndex) {
     super(text, analysisStart, analysisEnd, annotations);
-    this.session = predecessor.session;
+    this.sessionId = predecessor.sessionId;
 
     this.shouldOutputStack = predecessor.shouldOutputStack;
     this.shouldProcessStack = predecessor.shouldProcessStack;
@@ -188,7 +188,7 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
       LOG.trace("marks: " + markMap.toString());
     }
 
-    SentenceHolder sentenceHolder = new SentenceHolder(session, originalIndexProcessed, finalBlock);
+    SentenceHolder sentenceHolder = new SentenceHolder(originalIndexProcessed, finalBlock, sessionId);
 
     // find any newlines
     sentenceHolder.addNewline(leftoverNewline, lineNumber - 1);
@@ -709,12 +709,12 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
     // position 0.
     if (currentHolder.getOriginalTextSegments().size() > 0) {
       if (leftover == null) {
-        leftover = new Sentence("", currentFile, session);
+        leftover = new Sentence("", currentFile, sessionId);
       }
       StringBuilder segmentsToInsert = new StringBuilder();
 
       if (leftover.getLeftoverOriginalText().length() > 0)
-        segmentsToInsert.append(session.getOutputDivider());
+        segmentsToInsert.append(TalismaneSession.get(sessionId).getOutputDivider());
 
       for (String originalTextSegment : currentHolder.getOriginalTextSegments().values()) {
         segmentsToInsert.append(originalTextSegment);

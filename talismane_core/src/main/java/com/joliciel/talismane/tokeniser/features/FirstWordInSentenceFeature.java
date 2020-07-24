@@ -35,7 +35,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  * @author Assaf Urieli
  *
  */
-public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
   static Pattern integerPattern = Pattern.compile("\\d+");
 
   public FirstWordInSentenceFeature() {

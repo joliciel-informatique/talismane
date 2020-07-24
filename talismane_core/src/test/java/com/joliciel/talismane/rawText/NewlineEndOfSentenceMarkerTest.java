@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneTest;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +17,13 @@ import com.joliciel.talismane.rawText.NewlineEndOfSentenceMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSkipMarker;
 
-public class NewlineEndOfSentenceMarkerTest {
+public class NewlineEndOfSentenceMarkerTest extends TalismaneTest {
   private static final Logger LOG = LoggerFactory.getLogger(NewlineEndOfSentenceMarkerTest.class);
+
+  @Before
+  public void beforeTest() throws Exception {
+    TalismaneSession.clearSessions();
+  }
 
   @Test
   public void testApply() throws Exception {

@@ -53,8 +53,8 @@ public class TextPerLineCorpusReader extends AbstractAnnotatedCorpusReader imple
   private Map<Locale, Reader> readerMap;
   private Iterator<Locale> localeIterator;
 
-  public TextPerLineCorpusReader(Config config, TalismaneSession session) throws IOException {
-    super(config, session);
+  public TextPerLineCorpusReader(Config config, String sessionId) throws IOException {
+    super(config, sessionId);
     String configPath = "language-corpus-map";
     InputStream languageCorpusMapFile = ConfigUtils.getFileFromConfig(config, configPath);
     try (Scanner languageCorpusMapScanner = new Scanner(new BufferedReader(new InputStreamReader(languageCorpusMapFile, "UTF-8")))) {
@@ -66,7 +66,7 @@ public class TextPerLineCorpusReader extends AbstractAnnotatedCorpusReader imple
         Locale locale = Locale.forLanguageTag(parts[0]);
         String corpusPath = parts[1];
         InputStream corpusFile = new FileInputStream(new File(corpusPath));
-        Reader corpusReader = new BufferedReader(new InputStreamReader(corpusFile, session.getInputCharset().name()));
+        Reader corpusReader = new BufferedReader(new InputStreamReader(corpusFile, TalismaneSession.get(sessionId).getInputCharset().name()));
         readerMap.put(locale, corpusReader);
       }
     }
@@ -74,8 +74,8 @@ public class TextPerLineCorpusReader extends AbstractAnnotatedCorpusReader imple
     this.localeIterator = readerMap.keySet().iterator();
   }
 
-  public TextPerLineCorpusReader(Map<Locale, Reader> readerMap, TalismaneSession session) {
-    super(null, session);
+  public TextPerLineCorpusReader(Map<Locale, Reader> readerMap, String sessionId) {
+    super(null, sessionId);
     this.readerMap = readerMap;
     this.localeIterator = readerMap.keySet().iterator();
   }

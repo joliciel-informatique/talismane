@@ -33,7 +33,8 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public final class ValencyFeature extends AbstractParseConfigurationFeature<Integer>implements IntegerFeature<ParseConfigurationWrapper> {
+public final class ValencyFeature extends AbstractParseConfigurationFeature<Integer>
+    implements IntegerFeature<ParseConfigurationWrapper> {
   private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 
   public ValencyFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {

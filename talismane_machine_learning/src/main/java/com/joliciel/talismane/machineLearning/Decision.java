@@ -18,9 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A single probabilised decision used to construct a particular solution.
@@ -28,7 +30,9 @@ import java.util.List;
  * @author Assaf Urieli
  *
  */
-public class Decision implements Comparable<Decision> {
+public class Decision implements Comparable<Decision>, Serializable {
+  private static final long serialVersionUID = 1L;
+  
   private static final DecimalFormat df = new DecimalFormat("0.0000");
   private final String outcome;
   private final double score;
@@ -149,4 +153,17 @@ public class Decision implements Comparable<Decision> {
     return "Decision [" + outcome + "," + df.format(probability) + "]";
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Decision decision = (Decision) o;
+    return Double.compare(decision.probability, probability) == 0 &&
+      outcome.equals(decision.outcome);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(outcome, probability);
+  }
 }

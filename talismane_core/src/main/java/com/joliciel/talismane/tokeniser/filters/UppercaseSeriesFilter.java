@@ -35,10 +35,10 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  *
  */
 public class UppercaseSeriesFilter implements TokenFilter {
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public UppercaseSeriesFilter(TalismaneSession session) {
-    this.session = session;
+  public UppercaseSeriesFilter(String sessionId) {
+    this.sessionId = sessionId;
   }
 
   @Override
@@ -82,14 +82,14 @@ public class UppercaseSeriesFilter implements TokenFilter {
 
   void checkSequence(List<Token> upperCaseSequence) {
     for (Token token : upperCaseSequence) {
-      token.setText(getKnownWord(this.session, token.getText()));
+      token.setText(getKnownWord(this.sessionId, token.getText()));
     }
   }
 
-  public static String getKnownWord(TalismaneSession session, String word) {
+  public static String getKnownWord(String sessionId, String word) {
     String knownWord = word;
     boolean foundWord = false;
-    Diacriticizer diacriticizer = session.getDiacriticizer();
+    Diacriticizer diacriticizer = TalismaneSession.get(sessionId).getDiacriticizer();
     Set<String> lowercaseForms = diacriticizer.diacriticize(word);
     if (lowercaseForms.size() > 0) {
       knownWord = lowercaseForms.iterator().next();
@@ -97,7 +97,7 @@ public class UppercaseSeriesFilter implements TokenFilter {
     }
     if (!foundWord) {
       if (word.length() > 0) {
-        knownWord = word.substring(0, 1) + word.substring(1).toLowerCase(session.getLocale());
+        knownWord = word.substring(0, 1) + word.substring(1).toLowerCase(TalismaneSession.get(sessionId).getLocale());
       }
     }
     return knownWord;

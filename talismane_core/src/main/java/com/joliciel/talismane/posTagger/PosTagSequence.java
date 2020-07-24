@@ -1,7 +1,9 @@
 package com.joliciel.talismane.posTagger;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  * @author Assaf Urieli
  *
  */
-public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparable<PosTagSequence>, ClassificationSolution {
+public class PosTagSequence extends ArrayList<PosTaggedToken> implements Comparable<PosTagSequence>, ClassificationSolution, Serializable {
   private static final Logger LOG = LoggerFactory.getLogger(PosTagSequence.class);
   private static final long serialVersionUID = 1L;
   private double score = 0.0;
@@ -35,7 +37,7 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
   private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 
   private TokenSequence tokenSequence;
-  private final TalismaneSession talismaneSession;
+  private final String sessionId;
 
   /**
    * Construct an empty pos-tag sequence, based on a given {@link TokenSequence}
@@ -46,33 +48,32 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
    */
   public PosTagSequence(TokenSequence tokenSequence) {
     super(tokenSequence.size());
-    this.talismaneSession = tokenSequence.getTalismaneSession();
+    this.sessionId = tokenSequence.getSessionId();
     this.tokenSequence = tokenSequence;
     this.initialize();
   }
 
   PosTagSequence(PosTagSequence history) {
     super(history.size() + 1);
-    this.talismaneSession = history.getTalismaneSession();
+    this.sessionId = history.sessionId;
 
     for (PosTaggedToken posTaggedToken : history)
       this.addPosTaggedToken(posTaggedToken);
     this.decisions.addAll(history.getDecisions());
-    this.tokenSequence = history.getTokenSequence();
+    this.tokenSequence = history.tokenSequence;
 
     this.initialize();
   }
 
   PosTagSequence(PosTagSequence clone, boolean fromClone) {
-    this.talismaneSession = clone.getTalismaneSession();
+    this.sessionId = clone.sessionId;
     this.tokenSequence = clone.getTokenSequence().cloneTokenSequence();
     this.initialize();
 
     this.setScoringStrategy(clone.getScoringStrategy());
     int i = 0;
     for (PosTaggedToken posTaggedToken : clone) {
-      PosTaggedToken newPosTaggedToken = posTaggedToken.clonePosTaggedToken();
-      newPosTaggedToken.setToken(this.getTokenSequence().get(i++));
+      PosTaggedToken newPosTaggedToken = posTaggedToken.clonePosTaggedToken(this.getTokenSequence().get(i++));
       this.add(newPosTaggedToken);
     }
     this.decisions.addAll(clone.getDecisions());
@@ -155,7 +156,7 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
 
       Decision rootDecision = new Decision(PosTag.ROOT_POS_TAG.getCode());
       try {
-        rootToken = new PosTaggedToken(emptyToken, rootDecision, talismaneSession);
+        rootToken = new PosTaggedToken(emptyToken, rootDecision, this.sessionId);
       } catch (UnknownPosTagException e) {
         // should never happen
         LOG.error(e.getMessage(), e);
@@ -226,53 +227,6 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
   }
 
   /**
-   * Remove all pos-tagged tokens that are empty and whose tag is null.
-   * 
-   * @throws TalismaneException
-   */
-  public void removeEmptyPosTaggedTokens() throws TalismaneException {
-    boolean haveEmptyTokens = false;
-    for (PosTaggedToken posTaggedToken : this) {
-      if (posTaggedToken.getToken().isEmpty() && posTaggedToken.getTag().isEmpty()) {
-        haveEmptyTokens = true;
-        break;
-      }
-    }
-
-    if (haveEmptyTokens) {
-      List<PosTaggedToken> cloneList = new ArrayList<PosTaggedToken>();
-      this.tokenSequence = this.tokenSequence.cloneTokenSequence();
-
-      List<Token> emptyTokensToRemove = new ArrayList<Token>();
-      int i = 0;
-      for (PosTaggedToken posTaggedToken : this) {
-        Token token = tokenSequence.get(i++);
-        if (posTaggedToken.getToken().isEmpty() && posTaggedToken.getTag().isEmpty()) {
-          if (LOG.isDebugEnabled())
-            LOG.debug("Removing null empty pos-tagged token at position " + posTaggedToken.getToken().getStartIndex() + ": " + posTaggedToken);
-          emptyTokensToRemove.add(token);
-        } else {
-          PosTaggedToken clonedTaggedToken = posTaggedToken.clonePosTaggedToken();
-          cloneList.add(clonedTaggedToken);
-        }
-      }
-
-      for (Token token : emptyTokensToRemove) {
-        this.tokenSequence.removeEmptyToken(token);
-      }
-
-      i = 0;
-      for (PosTaggedToken posTaggedToken : cloneList) {
-        posTaggedToken.setToken(this.tokenSequence.get(i++));
-      }
-
-      this.clear();
-      this.addAll(cloneList);
-      this.string = null;
-    }
-  }
-
-  /**
    * Make a deep clone of this pos-tag sequence.
    */
   public PosTagSequence clonePosTagSequence() {
@@ -280,8 +234,19 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
     return clone;
   }
 
-  protected TalismaneSession getTalismaneSession() {
-    return talismaneSession;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    PosTagSequence that = (PosTagSequence) o;
+    return decisions.equals(that.decisions) &&
+      tokenSequence.equals(that.tokenSequence) &&
+      sessionId.equals(that.sessionId);
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), decisions, tokenSequence, sessionId);
+  }
 }

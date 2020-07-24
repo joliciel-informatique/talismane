@@ -21,6 +21,8 @@ package com.joliciel.talismane.posTagger.evaluate;
 import java.io.File;
 import java.util.List;
 
+import com.joliciel.talismane.Talismane;
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,16 +50,16 @@ public class PosTagFScoreCalculator implements PosTagEvaluationObserver {
   private final File fScoreUnknownInLexiconFile;
   private final File fScoreKnownInLexiconFile;
 
-  public PosTagFScoreCalculator(File outDir, TalismaneSession session) {
-    Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
+  public PosTagFScoreCalculator(File outDir, String sessionId) {
+    Config config = ConfigFactory.load();
+    Config posTaggerConfig = config.getConfig("talismane.core." + sessionId + ".pos-tagger");
     Config evalConfig = posTaggerConfig.getConfig("evaluate");
 
-    this.fScoreFile = new File(outDir, session.getBaseName() + "_fscores.csv");
+    this.fScoreFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_fscores.csv");
 
     if (evalConfig.getBoolean("include-unknown-word-results")) {
-      this.fScoreUnknownInLexiconFile = new File(outDir, session.getBaseName() + "_unknown.csv");
-      this.fScoreKnownInLexiconFile = new File(outDir, session.getBaseName() + "_known.csv");
+      this.fScoreUnknownInLexiconFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_unknown.csv");
+      this.fScoreKnownInLexiconFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_known.csv");
     } else {
       this.fScoreUnknownInLexiconFile = null;
       this.fScoreKnownInLexiconFile = null;

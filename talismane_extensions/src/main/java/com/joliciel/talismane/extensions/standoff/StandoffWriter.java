@@ -72,13 +72,14 @@ public class StandoffWriter implements ParseConfigurationProcessor, CurrentFileO
 
   private final String punctuationDepLabel;
 
-  public StandoffWriter(File outDir, TalismaneSession session) throws IOException {
-    this(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + ".ann"), false), session.getOutputCharset())),
-        session);
+  public StandoffWriter(File outDir, String sessionId) throws IOException {
+    this(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outDir, TalismaneSession.get(sessionId).getBaseName() + ".ann"), false),
+        TalismaneSession.get(sessionId).getOutputCharset())),
+        sessionId);
   }
 
-  public StandoffWriter(Writer writer, TalismaneSession session) throws IOException {
-    punctuationDepLabel = session.getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
+  public StandoffWriter(Writer writer, String sessionId) throws IOException {
+    punctuationDepLabel = TalismaneSession.get(sessionId).getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
     this.writer = writer;
     Configuration cfg = new Configuration(new Version(2, 3, 23));
     cfg.setCacheStorage(new NullCacheStorage());

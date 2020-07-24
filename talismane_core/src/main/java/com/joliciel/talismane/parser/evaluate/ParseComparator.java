@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,16 +50,16 @@ public class ParseComparator {
 
   private final List<ParseEvaluationObserver> observers;
 
-  public ParseComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
+  public ParseComparator(Reader referenceReader, Reader evalReader, File outDir, String sessionId)
       throws ClassNotFoundException, IOException, ReflectiveOperationException, TalismaneException {
-    Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+    Config config = ConfigFactory.load();
+    Config parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
 
-    this.referenceCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(referenceReader, parserConfig.getConfig("input"), session);
+    this.referenceCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(referenceReader, parserConfig.getConfig("input"), sessionId);
 
-    this.evaluationCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("evaluate"), session);
+    this.evaluationCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("evaluate"), sessionId);
 
-    this.observers = ParseEvaluationObserver.getObservers(outDir, session);
+    this.observers = ParseEvaluationObserver.getObservers(outDir, sessionId);
   }
 
   public ParseComparator(ParserAnnotatedCorpusReader referenceCorpusReader, ParserAnnotatedCorpusReader evaluationCorpusReader) {

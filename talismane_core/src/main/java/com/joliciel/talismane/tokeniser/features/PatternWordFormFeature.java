@@ -34,7 +34,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
  * @author Assaf Urieli
  *
  */
-public final class PatternWordFormFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
+public final class PatternWordFormFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
   StringFeature<TokenWrapper> tokenPatternFeature;
   private Map<String, TokenPattern> patternMap;
 

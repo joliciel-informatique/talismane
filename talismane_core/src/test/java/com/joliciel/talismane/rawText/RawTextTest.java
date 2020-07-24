@@ -1,15 +1,8 @@
 package com.joliciel.talismane.rawText;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneTest;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
@@ -17,8 +10,14 @@ import com.joliciel.talismane.rawText.RawTextMarker.RawTextSkipMarker;
 import com.joliciel.talismane.sentenceDetector.SentenceBoundary;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.junit.Test;
 
-public class RawTextTest {
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class RawTextTest extends TalismaneTest {
 
   @Test
   public void testGetProcessedText() throws Exception {
@@ -26,11 +25,11 @@ public class RawTextTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
     String text = "1 2 3<skip>skip</skip> 4<skip>skip</skip> five";
-    RawText rawText = new RawText(text, true, session);
+    RawText rawText = new RawText(text, true, sessionId);
 
     List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
     skips.add(new Annotation<>("1 2 3".length(), "1 2 3<skip>skip</skip>".length(), new RawTextSkipMarker("me"), labels));
@@ -53,11 +52,11 @@ public class RawTextTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
     String text = "Sentence 1<sent/>Sentence 2. Sentence 3. Sentence 4.";
-    RawText textBlock = new RawText(text, true, session);
+    RawText textBlock = new RawText(text, true, sessionId);
 
     // we add a sentence break annotation to the raw text (as if it was
     // added by a filter)
@@ -133,11 +132,11 @@ public class RawTextTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
     String text = "Mr. Jones and <skip/>Mrs. Smith.";
-    RawText textBlock = new RawText(text, true, session);
+    RawText textBlock = new RawText(text, true, sessionId);
 
     List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreaks = new ArrayList<>();
 

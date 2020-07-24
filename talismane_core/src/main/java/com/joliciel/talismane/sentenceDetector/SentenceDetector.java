@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,16 +80,14 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 
   private final DecisionMaker decisionMaker;
   private final Set<SentenceDetectorFeature<?>> features;
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public static SentenceDetector getInstance(TalismaneSession session) throws IOException, ClassNotFoundException {
-    SentenceDetector sentenceDetector = null;
-    if (session.getId() != null)
-      sentenceDetector = sentenceDetectorMap.get(session.getId());
+  public static SentenceDetector getInstance(String sessionId) throws IOException, ClassNotFoundException {
+    SentenceDetector sentenceDetector = sentenceDetectorMap.get(sessionId);
     if (sentenceDetector == null) {
-      Config config = session.getConfig();
+      Config config = ConfigFactory.load();
 
-      String configPath = "talismane.core." + session.getId() + ".sentence-detector.model";
+      String configPath = "talismane.core." + sessionId + ".sentence-detector.model";
       String modelFilePath = config.getString(configPath);
       ClassificationModel sentenceModel = modelMap.get(modelFilePath);
       if (sentenceModel == null) {
@@ -98,24 +97,23 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
         modelMap.put(modelFilePath, sentenceModel);
       }
 
-      sentenceDetector = new SentenceDetector(sentenceModel, session);
+      sentenceDetector = new SentenceDetector(sentenceModel, sessionId);
 
-      if (session.getId() != null)
-        sentenceDetectorMap.put(session.getId(), sentenceDetector);
+      sentenceDetectorMap.put(sessionId, sentenceDetector);
     }
     return sentenceDetector.cloneSentenceDetector();
   }
 
-  public SentenceDetector(DecisionMaker decisionMaker, Set<SentenceDetectorFeature<?>> features, TalismaneSession session) {
+  public SentenceDetector(DecisionMaker decisionMaker, Set<SentenceDetectorFeature<?>> features, String sessionId) {
     this.decisionMaker = decisionMaker;
     this.features = features;
-    this.session = session;
+    this.sessionId = sessionId;
   }
 
-  public SentenceDetector(ClassificationModel sentenceModel, TalismaneSession session) {
-    this.session = session;
+  public SentenceDetector(ClassificationModel sentenceModel, String sessionId) {
+    this.sessionId = sessionId;
 
-    SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(session);
+    SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(sessionId);
 
     Collection<ExternalResource<?>> externalResources = sentenceModel.getExternalResources();
     if (externalResources != null) {
@@ -131,7 +129,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
   }
 
   SentenceDetector(SentenceDetector sentenceDetector) {
-    this.session = sentenceDetector.session;
+    this.sessionId = sentenceDetector.sessionId;
     this.features = new HashSet<>(sentenceDetector.features);
     this.decisionMaker = sentenceDetector.decisionMaker;
   }
@@ -195,8 +193,8 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 
     // Share one token sequence for all possible boundaries, to avoid tokenising
     // multiple times
-    Sentence sentence = new Sentence(text.getText(), session);
-    TokenSequence tokenSequence = new TokenSequence(sentence, session);
+    Sentence sentence = new Sentence(text.getText(), sessionId);
+    TokenSequence tokenSequence = new TokenSequence(sentence, sessionId);
 
     List<PossibleSentenceBoundary> boundaries = new ArrayList<>();
     for (int possibleBoundary : possibleBoundaries) {

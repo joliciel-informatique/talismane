@@ -34,7 +34,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class CountIfFeature extends AbstractTokenFeature<Integer>implements IntegerFeature<TokenWrapper> {
+public final class CountIfFeature extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper> {
   private BooleanFeature<TokenWrapper> criterion;
   private IntegerFeature<TokenWrapper> startIndexFeature = null;
   private IntegerFeature<TokenWrapper> endIndexFeature = null;

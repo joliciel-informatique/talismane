@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.Serializable;
+
 /**
  * A marker interface for various tags that can be added on to a token by
  * various learners (tokeniser, pos tagger, etc.)
@@ -25,5 +27,5 @@ package com.joliciel.talismane.tokeniser;
  * @author Assaf Urieli
  *
  */
-public interface TokenTag {
+public interface TokenTag extends Serializable {
 }

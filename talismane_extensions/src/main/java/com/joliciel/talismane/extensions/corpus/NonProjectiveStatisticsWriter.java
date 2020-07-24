@@ -49,7 +49,7 @@ public class NonProjectiveStatisticsWriter implements ParseConfigurationProcesso
   private final Writer writer3;
 
   @SuppressWarnings("unused")
-  private final TalismaneSession session;
+  private final String sessionId;
   private int totalCount = 0;
   private int nonProjectiveCount = 0;
   private int nonProjectiveNodeCount = 0;
@@ -59,19 +59,19 @@ public class NonProjectiveStatisticsWriter implements ParseConfigurationProcesso
   private int[] gapDegreeCounts = new int[10];
   private int[] edgeDegreeCounts = new int[10];
 
-  public NonProjectiveStatisticsWriter(File outDir, TalismaneSession session) throws IOException {
-    this.session = session;
-    File csvFile = new File(outDir, session.getBaseName() + "_nproj.csv");
+  public NonProjectiveStatisticsWriter(File outDir, String sessionId) throws IOException {
+    this.sessionId = sessionId;
+    File csvFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_nproj.csv");
     csvFile.delete();
     csvFile.createNewFile();
     writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 
-    File csvFile2 = new File(outDir, session.getBaseName() + "_nprojnodes.csv");
+    File csvFile2 = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_nprojnodes.csv");
     csvFile2.delete();
     csvFile2.createNewFile();
     writer2 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile2, false), "UTF8"));
 
-    File csvFile3 = new File(outDir, session.getBaseName() + "_nprojedges.csv");
+    File csvFile3 = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_nprojedges.csv");
     csvFile3.delete();
     csvFile3.createNewFile();
     writer3 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile3, false), "UTF8"));

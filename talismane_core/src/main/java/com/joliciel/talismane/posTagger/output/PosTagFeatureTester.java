@@ -17,6 +17,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,14 +44,14 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
   private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<>();
   private final Writer writer;
 
-  public PosTagFeatureTester(File outDir, TalismaneSession session) throws IOException {
-    Config config = session.getConfig();
-    Config posTaggerConfig = config.getConfig("talismane.core." + session.getId() + ".pos-tagger");
+  public PosTagFeatureTester(File outDir, String sessionId) throws IOException {
+    Config config = ConfigFactory.load();
+    Config posTaggerConfig = config.getConfig("talismane.core." + sessionId + ".pos-tagger");
 
-    File file = new File(outDir, session.getBaseName() + "_posTagFeatureTest.txt");
-    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+    File file = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_posTagFeatureTest.txt");
+    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), TalismaneSession.get(sessionId).getOutputCharset()));
 
-    String configPath = "talismane.core." + session.getId() + ".pos-tagger.train.features";
+    String configPath = "talismane.core." + sessionId + ".pos-tagger.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
@@ -62,7 +63,7 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
       }
     }
 
-    PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
+    PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(sessionId);
     this.posTaggerFeatures = featureParser.getFeatureSet(featureDescriptors);
     this.testWords = new HashSet<>(posTaggerConfig.getStringList("output.test-words"));
   }

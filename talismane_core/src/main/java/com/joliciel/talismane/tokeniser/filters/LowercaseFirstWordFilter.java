@@ -12,13 +12,13 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  * is in all caps.
  */
 public class LowercaseFirstWordFilter implements TokenFilter {
-  private final TalismaneSession session;
+  private final String sessionId;
 
   private static final Pattern alphaPattern = Pattern.compile("\\p{L}.*", Pattern.UNICODE_CHARACTER_CLASS);
   private static final Pattern punctuation = Pattern.compile("[:;]", Pattern.UNICODE_CHARACTER_CLASS);
 
-  public LowercaseFirstWordFilter(TalismaneSession session) {
-    this.session = session;
+  public LowercaseFirstWordFilter(String sessionId) {
+    this.sessionId = sessionId;
   }
 
   @Override
@@ -28,7 +28,7 @@ public class LowercaseFirstWordFilter implements TokenFilter {
       String word = token.getText();
       if (lowerNextWord && alphaPattern.matcher(word).matches()) {
         if (Character.isUpperCase(word.charAt(0)) && (word.length() == 1 || !word.equals(word.toUpperCase()))) {
-          Set<String> possibleWords = session.getDiacriticizer().diacriticize(word);
+          Set<String> possibleWords = TalismaneSession.get(sessionId).getDiacriticizer().diacriticize(word);
           if (possibleWords.size() > 0)
             token.setText(possibleWords.iterator().next());
           else

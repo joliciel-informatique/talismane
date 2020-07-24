@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
@@ -94,9 +94,9 @@ public class TokenFeatureParser {
     container.addFeatureClass("WordForm", TokenWordFormFeature.class);
   }
 
-  public static void injectDependencies(@SuppressWarnings("rawtypes") Feature feature, TalismaneSession talismaneSession) {
-    if (feature instanceof NeedsTalismaneSession) {
-      ((NeedsTalismaneSession) feature).setTalismaneSession(talismaneSession);
+  public static void injectDependencies(@SuppressWarnings("rawtypes") Feature feature, String sessionId) {
+    if (feature instanceof NeedsSessionId) {
+      ((NeedsSessionId) feature).setSessionId(sessionId);
     }
   }
 

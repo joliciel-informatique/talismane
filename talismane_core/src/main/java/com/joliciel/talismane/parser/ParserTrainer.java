@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,20 +58,20 @@ import com.typesafe.config.Config;
 public class ParserTrainer {
   private static final Logger LOG = LoggerFactory.getLogger(ParserTrainer.class);
 
-  private final TalismaneSession session;
+  private final String sessionId;
   private final Config parserConfig;
   private final File modelFile;
   private final ClassificationEventStream eventStream;
   private final Map<String, List<String>> descriptors;
 
-  public ParserTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
-    Config config = session.getConfig();
-    this.parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
-    this.session = session;
+  public ParserTrainer(Reader reader, String sessionId) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+    Config config = ConfigFactory.load();
+    this.parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
+    this.sessionId = sessionId;
     this.modelFile = new File(parserConfig.getString("model"));
     this.descriptors = new HashMap<>();
 
-    String configPath = "talismane.core." + session.getId() + ".parser.train.features";
+    String configPath = "talismane.core." + sessionId + ".parser.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
@@ -82,17 +83,17 @@ public class ParserTrainer {
       }
     }
     descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-    ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader, parserConfig.getConfig("train"), session);
+    ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader, parserConfig.getConfig("train"), sessionId);
 
     // add descriptors for various filters
     // these are for reference purpose only, as we no longer read filters
     // out of the model
-    List<List<String>> sentenceAnnotatorDescriptors = session.getSentenceAnnotatorDescriptors();
+    List<List<String>> sentenceAnnotatorDescriptors = TalismaneSession.get(sessionId).getSentenceAnnotatorDescriptors();
     for (int i = 0; i < sentenceAnnotatorDescriptors.size(); i++) {
       descriptors.put(SentenceAnnotatorLoader.SENTENCE_ANNOTATOR_DESCRIPTOR_KEY + i, sentenceAnnotatorDescriptors.get(i));
     }
 
-    ParserFeatureParser featureParser = new ParserFeatureParser(session);
+    ParserFeatureParser featureParser = new ParserFeatureParser(sessionId);
     Set<ParseConfigurationFeature<?>> features = featureParser.getFeatures(featureDescriptors);
 
     boolean skipImpossibleSentences = parserConfig.getBoolean("train.skip-impossible-sentences");
@@ -104,7 +105,7 @@ public class ParserTrainer {
     ClassificationModelTrainer trainer = factory.constructTrainer(parserConfig.getConfig("train.machine-learning"));
 
     ClassificationModel model = trainer.trainModel(eventStream, descriptors);
-    model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
+    model.setExternalResources(TalismaneSession.get(sessionId).getExternalResourceFinder().getExternalResources());
 
     File modelDir = modelFile.getParentFile();
     if (modelDir != null)

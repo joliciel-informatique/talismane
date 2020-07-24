@@ -45,8 +45,8 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  *
  */
 public class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
-  public SentenceDetectorFeatureParser(TalismaneSession talismaneSession) {
-    this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+  public SentenceDetectorFeatureParser(String sessionId) {
+    this.setExternalResourceFinder(TalismaneSession.get(sessionId).getExternalResourceFinder());
   }
 
   public Set<SentenceDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) {

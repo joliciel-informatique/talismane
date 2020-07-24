@@ -18,25 +18,24 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.joliciel.talismane.Annotation;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneTest;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class PatternTokeniserTest {
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class PatternTokeniserTest extends TalismaneTest {
   private static final Logger LOG = LoggerFactory.getLogger(PatternTokeniserTest.class);
 
   @Test
@@ -45,11 +44,11 @@ public class PatternTokeniserTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
-    final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan sur www.google.com.", session);
+    final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan sur www.google.com.", sessionId);
     List<Annotation<TokenPlaceholder>> annotations = new ArrayList<>();
     Annotation<TokenPlaceholder> annotation = new Annotation<TokenPlaceholder>("Je n'ai pas l'ourang-outan sur ".length(),
         "Je n'ai pas l'ourang-outan sur www.google.com".length(), new TokenPlaceholder("URL", ""), labels);
@@ -60,8 +59,8 @@ public class PatternTokeniserTest {
     tokeniserPatterns.add("IS_NOT_SEPARATOR -_");
     tokeniserPatterns.add("IS_SEPARATOR_AFTER '");
 
-    TokeniserPatternManager patternManager = new TokeniserPatternManager(tokeniserPatterns, session);
-    PatternTokeniser tokeniser = new PatternTokeniser(null, patternManager, null, 1, session);
+    TokeniserPatternManager patternManager = new TokeniserPatternManager(tokeniserPatterns, sessionId);
+    PatternTokeniser tokeniser = new PatternTokeniser(null, patternManager, null, 1, sessionId);
     List<TokenSequence> tokenSequences = tokeniser.tokenise(sentence);
     TokenSequence tokenSequence = tokenSequences.get(0);
     LOG.debug(tokenSequence.toString());

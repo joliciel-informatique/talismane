@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
+import java.util.Objects;
+
 /**
  * Create a dependency where Stack[0] depends on Buffer[0], and pop Stack[0].
  * Example: in "the fish", create a "determinant" dependency det(fish,the), and
@@ -33,6 +35,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class LeftArcEagerTransition extends AbstractTransition implements Transition {
+  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(LeftArcEagerTransition.class);
   private String label;
   private String name;
@@ -93,5 +96,19 @@ public class LeftArcEagerTransition extends AbstractTransition implements Transi
   @Override
   public boolean doesReduce() {
     return true;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    LeftArcEagerTransition that = (LeftArcEagerTransition) o;
+    return label.equals(that.label);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), label);
   }
 }

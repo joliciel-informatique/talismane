@@ -37,7 +37,7 @@ public class QuoteNormaliser implements TokenFilter {
   Pattern singleQuotes = Pattern.compile("[‘’]");
   Pattern dashes = Pattern.compile("[‒–—―]");
 
-  public QuoteNormaliser(TalismaneSession session) {
+  public QuoteNormaliser(String sessionId) {
   }
 
   @Override

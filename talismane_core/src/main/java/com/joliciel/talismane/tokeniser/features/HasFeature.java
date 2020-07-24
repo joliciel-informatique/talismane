@@ -29,7 +29,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
  * @author Assaf Urieli
  *
  */
-public final class HasFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+public final class HasFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
   BooleanFeature<TokenWrapper> criterion;
 
   public HasFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {

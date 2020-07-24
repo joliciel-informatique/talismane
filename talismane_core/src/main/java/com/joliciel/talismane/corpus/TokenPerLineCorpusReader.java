@@ -82,16 +82,16 @@ public class TokenPerLineCorpusReader extends AbstractAnnotatedCorpusReader impl
    * @throws ReflectiveOperationException
    *           if a TokenFilter cannot be built
    */
-  public TokenPerLineCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException, ReflectiveOperationException {
-    super(config, session);
+  public TokenPerLineCorpusReader(Reader reader, Config config, String sessionId) throws IOException, TalismaneException {
+    super(config, sessionId);
     this.regex = config.getString("input-pattern");
     this.scanner = new Scanner(reader);
 
     String configPath = "sentence-file";
     if (config.hasPath(configPath)) {
       InputStream sentenceReaderFile = ConfigUtils.getFileFromConfig(config, configPath);
-      Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, session.getInputCharset()));
-      SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader, config, session);
+      Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, TalismaneSession.get(sessionId).getInputCharset()));
+      SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader, config, sessionId);
       this.sentenceReader = sentenceReader;
     } else {
       this.sentenceReader = null;
@@ -113,7 +113,7 @@ public class TokenPerLineCorpusReader extends AbstractAnnotatedCorpusReader impl
       CorpusRule corpusRule = new CorpusRule(ruleConfig);
       corpusRules.add(corpusRule);
     }
-    this.corpusLineReader = new CorpusLineReader(regex, this.getRequiredElements(), corpusRules, lexicalEntryReader, session);
+    this.corpusLineReader = new CorpusLineReader(regex, this.getRequiredElements(), corpusRules, lexicalEntryReader, sessionId);
 
     configPath = "sentence-rules";
     sentenceRules = new ArrayList<>();
@@ -324,7 +324,7 @@ public class TokenPerLineCorpusReader extends AbstractAnnotatedCorpusReader impl
             if (sentenceReader != null && sentenceReader.hasNextSentence()) {
               sentence = sentenceReader.nextSentence();
             } else {
-              LinguisticRules rules = session.getLinguisticRules();
+              LinguisticRules rules = TalismaneSession.get(sessionId).getLinguisticRules();
               if (rules == null)
                 throw new TalismaneException("Linguistic rules have not been set.");
 
@@ -338,9 +338,9 @@ public class TokenPerLineCorpusReader extends AbstractAnnotatedCorpusReader impl
                   text += " ";
                 text += word;
               }
-              sentence = new Sentence(text, currentFile, session);
+              sentence = new Sentence(text, currentFile, sessionId);
             }
-            for (SentenceAnnotator sentenceAnnotator : session.getSentenceAnnotators()) {
+            for (SentenceAnnotator sentenceAnnotator : TalismaneSession.get(sessionId).getSentenceAnnotators()) {
               sentenceAnnotator.annotate(sentence);
             }
 

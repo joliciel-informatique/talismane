@@ -29,12 +29,14 @@ import java.util.List;
  * @author Assaf Urieli
  *
  */
-public class AnnotatedText {
+public class AnnotatedText implements Serializable {
+  private static final long serialVersionUID = 1L;
+  
   private final CharSequence text;
   private final int analysisStart;
   private final int analysisEnd;
   private List<Annotation<?>> annotations;
-  private final List<AnnotationObserver> observers = new ArrayList<>();
+  private transient List<AnnotationObserver> observers = new ArrayList<>();
 
   /**
    * Construct an annotated text with no annotations, and analysis start at text
@@ -122,7 +124,7 @@ public class AnnotatedText {
    */
   public <T extends Serializable> void addAnnotations(List<Annotation<T>> annotations) {
     if (annotations.size() > 0) {
-      for (AnnotationObserver observer : observers) {
+      for (AnnotationObserver observer : this.getObservers()) {
         observer.beforeAddAnnotations(this, annotations);
       }
       List<Annotation<?>> newAnnotations = new ArrayList<>(this.annotations.size() + annotations.size());
@@ -131,7 +133,7 @@ public class AnnotatedText {
       Collections.sort(newAnnotations);
       this.annotations = Collections.unmodifiableList(newAnnotations);
 
-      for (AnnotationObserver observer : observers) {
+      for (AnnotationObserver observer : this.getObservers()) {
         observer.afterAddAnnotations(this);
       }
 
@@ -142,7 +144,7 @@ public class AnnotatedText {
    * Add an observer to be notified of annotation events.
    */
   public void addObserver(AnnotationObserver observer) {
-    this.observers.add(observer);
+    this.getObservers().add(observer);
   }
 
   /**
@@ -158,5 +160,13 @@ public class AnnotatedText {
       }
     }
     return typedAnnotations;
+  }
+  
+  private List<AnnotationObserver> getObservers() {
+    // Fix in case of deserialization
+    if (this.observers == null) {
+      this.observers = new ArrayList<>();
+    }
+    return this.observers;
   }
 }

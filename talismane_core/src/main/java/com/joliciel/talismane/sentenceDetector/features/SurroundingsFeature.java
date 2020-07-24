@@ -40,7 +40,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class SurroundingsFeature extends AbstractSentenceDetectorFeature<String>implements StringFeature<PossibleSentenceBoundary> {
+public final class SurroundingsFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
   Pattern number = Pattern.compile("\\d+");
   IntegerFeature<PossibleSentenceBoundary> nFeature;
 

@@ -43,12 +43,13 @@ import com.joliciel.talismane.parser.output.FreemarkerParseWriter;
  */
 public class StandoffSentenceWriter extends FreemarkerParseWriter {
 
-  public StandoffSentenceWriter(File outDir, TalismaneSession session) throws IOException, TalismaneException {
-    this(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + ".txt"), false), session.getOutputCharset())),
-        session);
+  public StandoffSentenceWriter(File outDir, String sessionId) throws IOException, TalismaneException {
+    this(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outDir, TalismaneSession.get(sessionId).getBaseName() + ".txt"), false),
+        TalismaneSession.get(sessionId).getOutputCharset())),
+        sessionId);
   }
 
-  public StandoffSentenceWriter(Writer writer, TalismaneSession session) throws IOException, TalismaneException {
-    super(new BufferedReader(new InputStreamReader(StandoffSentenceWriter.class.getResourceAsStream("standoffSentences.ftl"))), writer, session);
+  public StandoffSentenceWriter(Writer writer, String sessionId) throws IOException, TalismaneException {
+    super(new BufferedReader(new InputStreamReader(StandoffSentenceWriter.class.getResourceAsStream("standoffSentences.ftl"))), writer, sessionId);
   }
 }

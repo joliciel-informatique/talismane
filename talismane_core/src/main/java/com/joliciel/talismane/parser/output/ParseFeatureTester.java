@@ -34,6 +34,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,13 +58,13 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
   private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<>();
   private final Writer writer;
 
-  public ParseFeatureTester(File outDir, TalismaneSession session) throws IOException {
-    Config config = session.getConfig();
+  public ParseFeatureTester(File outDir, String sessionId) throws IOException {
+    Config config = ConfigFactory.load();
 
-    File file = new File(outDir, session.getBaseName() + "_parseFeatureTest.txt");
-    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+    File file = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_parseFeatureTest.txt");
+    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), TalismaneSession.get(sessionId).getOutputCharset()));
 
-    String configPath = "talismane.core." + session.getId() + ".parser.train.features";
+    String configPath = "talismane.core." + sessionId + ".parser.train.features";
     InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
     List<String> featureDescriptors = new ArrayList<>();
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
@@ -75,11 +76,11 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
       }
     }
 
-    ParserFeatureParser featureParser = new ParserFeatureParser(session);
+    ParserFeatureParser featureParser = new ParserFeatureParser(sessionId);
     this.parseFeatures = featureParser.getFeatures(featureDescriptors);
   }
 
-  public ParseFeatureTester(Set<ParseConfigurationFeature<?>> parseFeatures, Writer writer, TalismaneSession session) throws IOException {
+  public ParseFeatureTester(Set<ParseConfigurationFeature<?>> parseFeatures, Writer writer, String sessionId) throws IOException {
     this.parseFeatures = parseFeatures;
     this.writer = writer;
   }

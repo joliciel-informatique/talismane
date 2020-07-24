@@ -35,7 +35,8 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public final class DependencyLabelFeature extends AbstractParseConfigurationAddressFeature<String>implements StringFeature<ParseConfigurationWrapper> {
+public final class DependencyLabelFeature extends AbstractParseConfigurationAddressFeature<String>
+    implements StringFeature<ParseConfigurationWrapper> {
 
   public DependencyLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
     super(addressFunction);

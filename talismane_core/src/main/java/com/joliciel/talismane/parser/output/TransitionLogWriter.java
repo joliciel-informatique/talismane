@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.Talismane;
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,15 +55,15 @@ public class TransitionLogWriter implements ParseConfigurationProcessor, ParseEv
 
   private final Set<String> errorLabels;
 
-  public TransitionLogWriter(File outDir, TalismaneSession session) throws IOException {
-    File csvFile = new File(outDir, session.getBaseName() + "_transitions.csv");
+  public TransitionLogWriter(File outDir, String sessionId) throws IOException {
+    File csvFile = new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_transitions.csv");
     csvFile.delete();
     csvFile.createNewFile();
 
-    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
+    this.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), TalismaneSession.get(sessionId).getCsvCharset()));
 
-    Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+    Config config = ConfigFactory.load();
+    Config parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
     Config evalConfig = parserConfig.getConfig("evaluate");
     this.errorLabels = new HashSet<>(evalConfig.getStringList("error-labels"));
   }

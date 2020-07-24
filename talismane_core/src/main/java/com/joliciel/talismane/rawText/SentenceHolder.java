@@ -51,20 +51,19 @@ class SentenceHolder {
   private File file = null;
   private final boolean endOfBlock;
 
-  private final TalismaneSession session;
+  private final String sessionId;
 
   /**
    * Construct a sentence holder.
-   * 
-   * @param session
+   *
    * @param originalStartIndex
    *          where does this sentence holder start in the original text
    * @param endOfBlock
    *          if this is an end-of-block, then any leftover text will be added
    *          to a final complete sentence
    */
-  public SentenceHolder(TalismaneSession session, int originalStartIndex, boolean endOfBlock) {
-    this.session = session;
+  public SentenceHolder(int originalStartIndex, boolean endOfBlock, String sessionId) {
+    this.sessionId = sessionId;
     this.originalStartIndex = originalStartIndex;
     this.endOfBlock = endOfBlock;
   }
@@ -209,7 +208,7 @@ class SentenceHolder {
           sb.append(text.charAt(j));
       }
 
-      Sentence sentence = new Sentence(sb.toString(), originalTextSegments, originalIndexes, !isLeftover, this.newlines, file, session);
+      Sentence sentence = new Sentence(sb.toString(), originalTextSegments, originalIndexes, !isLeftover, this.newlines, file, sessionId);
       sentence.setLeftoverOriginalText(leftoverOriginalText);
 
       if (LOG.isTraceEnabled()) {
@@ -270,7 +269,7 @@ class SentenceHolder {
     if (existingText == null) {
       this.originalTextSegments.put(index, segment);
     } else {
-      this.originalTextSegments.put(index, existingText + session.getOutputDivider() + segment);
+      this.originalTextSegments.put(index, existingText + TalismaneSession.get(sessionId).getOutputDivider() + segment);
     }
   }
 

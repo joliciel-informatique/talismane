@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.Serializable;
+
 /**
  * A strategy for scoring a given solution, in view of the decisions made and
  * the underlying solutions.
@@ -25,7 +27,7 @@ package com.joliciel.talismane.machineLearning;
  * @author Assaf Urieli
  *
  */
-public interface ScoringStrategy<T extends Solution> {
+public interface ScoringStrategy<T extends Solution> extends Serializable {
   /**
    * Calculate the score of a given solution.
    */

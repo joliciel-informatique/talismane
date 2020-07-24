@@ -31,6 +31,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,19 +70,20 @@ public class FreemarkerParseWriter implements ParseConfigurationProcessor {
   private int relationCount = 0;
   private int characterCount = 0;
 
-  public FreemarkerParseWriter(File outDir, TalismaneSession session) throws IOException {
+  public FreemarkerParseWriter(File outDir, String sessionId) throws IOException {
     this(new BufferedWriter(
-        new OutputStreamWriter(new FileOutputStream(new File(outDir, session.getBaseName() + "_dep.txt"), false), session.getOutputCharset())), session);
+        new OutputStreamWriter(new FileOutputStream(new File(outDir, TalismaneSession.get(sessionId).getBaseName() + "_dep.txt"), false),
+          TalismaneSession.get(sessionId).getOutputCharset())), sessionId);
   }
 
-  public FreemarkerParseWriter(Writer writer, TalismaneSession session) throws IOException {
-    Config config = session.getConfig();
-    Config parserConfig = config.getConfig("talismane.core." + session.getId() + ".parser");
+  public FreemarkerParseWriter(Writer writer, String sessionId) throws IOException {
+    Config config = ConfigFactory.load();
+    Config parserConfig = config.getConfig("talismane.core." + sessionId + ".parser");
 
     this.writer = writer;
 
     Reader templateReader = null;
-    String configPath = "talismane.core." + session.getId() + ".parser.output.template";
+    String configPath = "talismane.core." + sessionId + ".parser.output.template";
     if (config.hasPath(configPath)) {
       templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
     } else {
@@ -117,7 +119,7 @@ public class FreemarkerParseWriter implements ParseConfigurationProcessor {
     this.template = this.getTemplate(templateReader);
   }
 
-  public FreemarkerParseWriter(Reader templateReader, Writer writer, TalismaneSession session) throws IOException, TalismaneException {
+  public FreemarkerParseWriter(Reader templateReader, Writer writer, String sessionId) throws IOException, TalismaneException {
     this.writer = writer;
     this.template = this.getTemplate(templateReader);
   }

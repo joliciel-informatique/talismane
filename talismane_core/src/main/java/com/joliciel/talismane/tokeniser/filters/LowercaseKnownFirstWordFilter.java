@@ -38,10 +38,10 @@ public class LowercaseKnownFirstWordFilter implements TokenFilter {
   public static final String noUppercasePunctuationRegex = "[,]";
 
   private static final Pattern noUppercasePunctuation = Pattern.compile(noUppercasePunctuationRegex);
-  private final TalismaneSession session;
+  private final String sessionId;
 
-  public LowercaseKnownFirstWordFilter(TalismaneSession session) {
-    this.session = session;
+  public LowercaseKnownFirstWordFilter(String sessionId) {
+    this.sessionId = sessionId;
   }
 
   @Override
@@ -63,13 +63,13 @@ public class LowercaseKnownFirstWordFilter implements TokenFilter {
       if (lowerCaseNextWord) {
         char firstChar = token.getText().charAt(0);
         if (Character.isUpperCase(firstChar)) {
-          Set<String> possibleWords = session.getDiacriticizer().diacriticize(token.getText());
+          Set<String> possibleWords = TalismaneSession.get(sessionId).getDiacriticizer().diacriticize(token.getText());
           if (possibleWords.size() > 0)
             token.setText(possibleWords.iterator().next());
         } // next word starts with an upper-case
         lowerCaseNextWord = false;
       } // should we lower-case the next word?
-      if (Tokeniser.getTokenSeparators(session).matcher(token.getText()).matches() && !noUppercasePunctuation.matcher(token.getText()).matches()) {
+      if (Tokeniser.getTokenSeparators(sessionId).matcher(token.getText()).matches() && !noUppercasePunctuation.matcher(token.getText()).matches()) {
         lowerCaseNextWord = true;
       }
     } // next token

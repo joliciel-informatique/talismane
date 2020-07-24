@@ -1,15 +1,8 @@
 package com.joliciel.talismane.rawText;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneTest;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
@@ -17,8 +10,14 @@ import com.joliciel.talismane.rawText.RawTextMarker.RawTextSkipMarker;
 import com.joliciel.talismane.sentenceDetector.SentenceBoundary;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.junit.Test;
 
-public class RollingTextBlockTest {
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class RollingTextBlockTest extends TalismaneTest {
 
   @Test
   public void testRoll() throws Exception {
@@ -26,11 +25,11 @@ public class RollingTextBlockTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
-    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
+    RollingTextBlock textBlock = new RollingTextBlock(true, null, sessionId);
     textBlock = textBlock.roll("One ");
     List<Annotation<String>> annotations = new ArrayList<>();
     annotations.add(new Annotation<String>(0, "One".length(), "1", labels));
@@ -87,11 +86,11 @@ public class RollingTextBlockTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
-    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
+    RollingTextBlock textBlock = new RollingTextBlock(true, null, sessionId);
     textBlock = textBlock.roll("1 ");
     textBlock = textBlock.roll("2 ");
     textBlock = textBlock.roll("3<skip>skip</skip> 4<sk");
@@ -131,11 +130,11 @@ public class RollingTextBlockTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
-    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
+    RollingTextBlock textBlock = new RollingTextBlock(true, null, sessionId);
     textBlock = textBlock.roll("1 ");
     textBlock = textBlock.roll("2 ");
     textBlock = textBlock.roll("3<skip>skip</skip> 4<sk");
@@ -169,11 +168,11 @@ public class RollingTextBlockTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
-    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
+    RollingTextBlock textBlock = new RollingTextBlock(true, null, sessionId);
     textBlock = textBlock.roll("Sentence 1<sent/>Sentence 2. Sentence");
     textBlock = textBlock.roll(" 3.");
 
@@ -298,12 +297,12 @@ public class RollingTextBlockTest {
     ConfigFactory.invalidateCaches();
     final Config config = ConfigFactory.load();
 
-    final TalismaneSession session = new TalismaneSession(config, "test");
+    final String sessionId = "test";
 
     String[] labels = new String[0];
 
     // String text = "I see Mr. Jones and <skip/>Mrs. Smith.";
-    RollingTextBlock textBlock = new RollingTextBlock(true, session, null);
+    RollingTextBlock textBlock = new RollingTextBlock(true, null, sessionId);
     textBlock = textBlock.roll("I see ");
     textBlock = textBlock.roll("Mr. Jones ");
     textBlock = textBlock.roll("and <sk");

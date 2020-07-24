@@ -37,7 +37,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class AndRangeFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+public final class AndRangeFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
   private BooleanFeature<TokenWrapper> criterion;
   private IntegerFeature<TokenWrapper> startFeature;
   private IntegerFeature<TokenWrapper> endFeature;
