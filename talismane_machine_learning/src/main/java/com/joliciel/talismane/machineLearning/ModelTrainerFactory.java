@@ -40,7 +40,7 @@ public class ModelTrainerFactory {
    * root is equivalent to the talismane.machine-learning key in reference.conf
    */
   public ClassificationModelTrainer constructTrainer(Config config) {
-    config.checkValid(ConfigFactory.defaultReference().getConfig("talismane.machine-learning"));
+    config.checkValid(ConfigFactory.defaultReference().getConfig("talismane.machine-learning.generic"));
     MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("algorithm"));
     ClassificationModelTrainer modelTrainer = null;
     switch (algorithm) {

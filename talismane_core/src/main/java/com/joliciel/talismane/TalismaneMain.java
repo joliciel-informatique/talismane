@@ -41,6 +41,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.joliciel.talismane.utils.io.SingleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -956,7 +957,7 @@ public class TalismaneMain {
     }
 
     InputStream inFile = new FileInputStream(file);
-    return new BufferedReader(new InputStreamReader(inFile, TalismaneSession.get(sessionId).getInputCharset()));
+    return new SingleFileReader(file, new InputStreamReader(inFile, TalismaneSession.get(sessionId).getInputCharset()));
   }
 
   private static Writer getWriter(File outFile, File inFile, boolean keepDirectoryStructure, Reader reader, String sessionId) throws IOException {
