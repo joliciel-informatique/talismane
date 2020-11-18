@@ -12,13 +12,13 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 	<modules>
-		<module>../talismane_core</module>
-		<module>../talismane_machine_learning</module>
-		<module>../talismane_utils</module>
-		<module>../talismane_fr</module>
-		<module>../talismane_extensions</module>
-		<module>../talismane_examples</module>
-		<module>../talismane_distribution</module>
+		<module>talismane_core</module>
+		<module>talismane_machine_learning</module>
+		<module>talismane_utils</module>
+		<module>talismane_fr</module>
+		<module>talismane_extensions</module>
+		<module>talismane_examples</module>
+		<module>talismane_distribution</module>
 	</modules>
 	<distributionManagement>
 		<snapshotRepository>

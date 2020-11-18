@@ -2,6 +2,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>talismane-examples</artifactId>
+  <parent>
+    <groupId>com.joliciel.talismane</groupId>
+    <artifactId>talismane-parent</artifactId>
+    <version>6.1.0-SNAPSHOT</version>
+  </parent>
   <build>
     <plugins>
       <plugin>
@@ -33,12 +38,6 @@
       </plugin>
     </plugins>
   </build>
-  <parent>
-    <groupId>com.joliciel.talismane</groupId>
-    <artifactId>talismane-parent</artifactId>
-    <version>6.1.0-SNAPSHOT</version>
-    <relativePath>../talismane_parent</relativePath>
-  </parent>
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
