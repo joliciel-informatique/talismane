@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/joliciel-informatique/talismane.png?branch=master)](https://travis-ci.org/joliciel-informatique/talismane)
 
-Talismane is a natural language processing framework with sentence detector, tokeniser, pos-tagger and dependency syntax parser. Current available language packs include French and English.
+Talismane is a natural language processing framework with sentence detector, tokeniser, pos-tagger and dependency syntax parser. Current available language packs include French (standard and [Universal Dependencies](https://github.com/joliciel-informatique/talismane/wiki/Analysing-French-Universal-Dependencies)) and English.
 
 **Sample input:**
 > Les amoureux qui se bécotent sur les bancs publics ont des petites gueules bien sympathiques.
