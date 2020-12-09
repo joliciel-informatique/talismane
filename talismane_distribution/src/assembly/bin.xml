@@ -29,6 +29,9 @@
     <fileSet>
       <directory>../talismane_core/languagePacks</directory>
       <outputDirectory>languagePacks</outputDirectory>
+      <excludes>
+        <exclude>**/*.zip</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
 </assembly>
