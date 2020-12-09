@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.joliciel.talismane.utils.io.SingleFileReader;
+import joptsimple.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,9 +93,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import ch.qos.logback.core.joran.spi.JoranException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
 
 /**
  * Direct entry point for Talismane from the command line.
@@ -105,11 +103,195 @@ import joptsimple.OptionSpec;
 public class TalismaneMain {
   private static final Logger LOG = LoggerFactory.getLogger(TalismaneMain.class);
 
+  // ##################################################
+  // Start of option parser initialization
+  //
+  // Initialization of the option parser outside the constructor, to allow subclasses to extend it through "getOptionParser()"
+  // all the while making the various OptionSpecs available to the "execute(String[] args)" method.
+  private final OptionParser parser = new OptionParser();
+  private final OptionSpecBuilder analyseSpec = parser.accepts("analyse", "analyse text");
+  private final OptionSpecBuilder trainSpec = parser.accepts("train", "train model").availableUnless("analyse");
+  private final OptionSpecBuilder evaluateSpec = parser.accepts("evaluate", "evaluate annotated corpus").availableUnless("analyse", "train");
+  private final OptionSpecBuilder compareSpec = parser.accepts("compare", "compare two annotated corpora").availableUnless("analyse", "train", "evaluate");
+  private final OptionSpecBuilder processSpec = parser.accepts("process", "process annotated corpus").availableUnless("analyse", "train", "evaluate", "compare");
+  private final AbstractOptionSpec<Void> helpSpec = parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("analyse", "train", "evaluate", "compare", "process").forHelp();
+
+  private final OptionSpec<String> sessionIdOption = parser.accepts("sessionId", "the current session id - configuration read as talismane.core.[sessionId]")
+      .requiredIf("analyse", "train", "evaluate", "compare", "process").withRequiredArg().ofType(String.class);
+
+  private final OptionSpec<Module> moduleOption = parser.accepts("module", "training / evaluation / processing module: " + Arrays.toString(Module.values()))
+      .requiredIf("train", "process").availableIf("train", "evaluate", "compare", "process").withRequiredArg().ofType(Module.class);
+  private final OptionSpec<Module> startModuleOption = parser.accepts("startModule", "where to start analysis (or evaluation): " + Arrays.toString(Module.values()))
+      .availableIf("analyse", "evaluate").withRequiredArg().ofType(Module.class);
+  private final OptionSpec<Module> endModuleOption = parser.accepts("endModule", "where to end analysis: " + Arrays.toString(Module.values())).availableIf("analyse")
+      .withRequiredArg().ofType(Module.class);
+
+  private final OptionSpec<Mode> modeOption = parser.accepts("mode", "execution mode: " + Arrays.toString(Mode.values())).availableIf("analyse").withRequiredArg()
+      .ofType(Mode.class);
+  private final OptionSpec<Integer> portOption = parser.accepts("port", "which port to listen on").availableIf("analyse").withRequiredArg().ofType(Integer.class);
+
+  private final OptionSpec<File> inFileOption = parser.accepts("inFile", "input file or directory").withRequiredArg().ofType(File.class);
+  private final OptionSpec<File> outFileOption = parser.accepts("outFile", "output file or directory (when inFile is a directory)").withRequiredArg().ofType(File.class);
+  private final OptionSpec<File> outDirOption = parser.accepts("outDir", "output directory (for writing evaluation and analysis files other than the standard output)")
+      .withRequiredArg().ofType(File.class);
+
+  private final OptionSpec<Boolean> keepDirStructureOption = parser
+      .accepts("keepDirStructure",
+          "for analyse and process: if true, and inFile is a directory," + " outFile will be generated as a directory"
+              + " and the inFile directory structure will be maintained")
+      .availableIf("analyse", "process").availableIf(inFileOption).withRequiredArg().ofType(Boolean.class);
+
+  private final OptionSpec<String> inputPatternOption = parser.accepts("inputPattern", "input pattern").withRequiredArg().ofType(String.class);
+  private final OptionSpec<File> inputPatternFileOption = parser.accepts("inputPatternFile", "input pattern file").availableUnless(inputPatternOption).withRequiredArg()
+      .ofType(File.class);
+  private final OptionSpec<String> evalPatternOption = parser.accepts("evalPattern", "input pattern for evaluation").availableIf("evaluate", "compare").withRequiredArg()
+      .ofType(String.class);
+  private final OptionSpec<File> evalPatternFileOption = parser.accepts("evalPatternFile", "input pattern file for evaluation").availableUnless(evalPatternOption)
+      .withRequiredArg().ofType(File.class);
+
+  private final OptionSpec<String> localeOption = parser.accepts("locale", "locale").withRequiredArg().ofType(String.class);
+  private final OptionSpec<String> encodingOption = parser.accepts("encoding", "encoding for input and output").withRequiredArg().ofType(String.class);
+  private final OptionSpec<String> inputEncodingOption = parser.accepts("inputEncoding", "encoding for input").withRequiredArg().ofType(String.class);
+  private final OptionSpec<String> outputEncodingOption = parser.accepts("outputEncoding", "encoding for output").withRequiredArg().ofType(String.class);
+
+  private final OptionSpec<File> languageModelOption = parser.accepts("languageModel", "statistical model for language recognition").withRequiredArg().ofType(File.class);
+  private final OptionSpec<File> sentenceModelOption = parser.accepts("sentenceModel", "statistical model for sentence detection").withRequiredArg().ofType(File.class);
+  private final OptionSpec<File> tokeniserModelOption = parser.accepts("tokeniserModel", "statistical model for tokenisation").withRequiredArg().ofType(File.class);
+  private final OptionSpec<File> posTaggerModelOption = parser.accepts("posTaggerModel", "statistical model for pos-tagging").withRequiredArg().ofType(File.class);
+  private final OptionSpec<File> parserModelOption = parser.accepts("parserModel", "statistical model for dependency parsing").withRequiredArg().ofType(File.class);
+  private final OptionSpec<File> lexiconOption = parser.accepts("lexicon", "semi-colon delimited list of pre-compiled lexicon files").withRequiredArg().ofType(File.class)
+      .withValuesSeparatedBy(';');
+
+  private final OptionSpec<File> textAnnotatorsOption = parser.accepts("textAnnotators", "semi-colon delimited list of files containing text annotators").withRequiredArg()
+      .ofType(File.class).withValuesSeparatedBy(';');
+  private final OptionSpec<File> sentenceAnnotatorsOption = parser.accepts("sentenceAnnotators", "semi-colon delimited list of files containing sentence annotators")
+      .withRequiredArg().ofType(File.class).withValuesSeparatedBy(';');
+
+  private final OptionSpec<String> newlineOption = parser
+      .accepts("newline", "how to handle newlines: " + "options are SPACE (will be replaced by a space) " + "and SENTENCE_BREAK (will break sentences)")
+      .availableIf("analyse").withRequiredArg().ofType(String.class);
+
+  private final OptionSpec<Boolean> processByDefaultOption = parser
+      .accepts("processByDefault",
+          "If true, the input file is processed from the very start (e.g. TXT files)."
+              + "If false, we wait until a text filter tells us to start processing (e.g. XML files).")
+      .availableIf("analyse").withRequiredArg().ofType(Boolean.class);
+
+  private final OptionSpec<Integer> blockSizeOption = parser
+      .accepts("blockSize", "The block size to use when applying filters - if a text filter regex goes beyond the blocksize, Talismane will fail.")
+      .availableIf("analyse").withRequiredArg().ofType(Integer.class);
+
+  private final OptionSpec<Integer> sentenceCountOption = parser.accepts("sentenceCount", "max sentences to process").withRequiredArg().ofType(Integer.class);
+  private final OptionSpec<Integer> startSentenceOption = parser.accepts("startSentence", "first sentence index to process").withRequiredArg().ofType(Integer.class);
+  private final OptionSpec<Integer> crossValidationSizeOption = parser.accepts("crossValidationSize", "number of cross-validation folds").availableIf("train", "evaluate")
+      .withRequiredArg().ofType(Integer.class);
+  private final OptionSpec<Integer> includeIndexOption = parser.accepts("includeIndex", "cross-validation index to include for evaluation").availableIf("evaluate")
+      .withRequiredArg().ofType(Integer.class);
+  private final OptionSpec<Integer> excludeIndexOption = parser.accepts("excludeIndex", "cross-validation index to exclude for training").availableIf("train")
+      .withRequiredArg().ofType(Integer.class);
+
+  private final OptionSpec<BuiltInTemplate> builtInTemplateOption = parser
+      .accepts("builtInTemplate", "pre-defined output template: " + Arrays.toString(BuiltInTemplate.values())).availableUnless("train").withRequiredArg()
+      .ofType(BuiltInTemplate.class);
+
+  private final OptionSpec<File> templateOption = parser.accepts("template", "user-defined template for output").availableUnless("train", "builtInTemplate")
+      .withRequiredArg().ofType(File.class);
+
+  private final OptionSpec<File> posTaggerRulesOption = parser.accepts("posTaggerRules", "semi-colon delimited list of files containing pos-tagger rules")
+      .availableIf("analyse", "evaluate").withRequiredArg().ofType(File.class).withValuesSeparatedBy(';');
+  private final OptionSpec<File> parserRulesOption = parser.accepts("parserRules", "semi-colon delimited list of files containing parser rules")
+      .availableIf("analyse", "evaluate").withRequiredArg().ofType(File.class).withValuesSeparatedBy(';');
+
+  private final OptionSpec<String> suffixOption = parser.accepts("suffix", "suffix to all output files").withRequiredArg().ofType(String.class);
+  private final OptionSpec<String> outputDividerOption = parser
+      .accepts("outputDivider", "a string to insert between sections marked for output (e.g. XML tags to be kept in the analysed output)."
+          + " The String NEWLINE is interpreted as \"\n\". Otherwise, used literally.")
+      .availableIf("analyse").withRequiredArg().ofType(String.class);
+
+  private final OptionSpec<Integer> beamWidthOption = parser.accepts("beamWidth", "beam width in pos-tagger and parser beam search").availableIf("analyse", "evaluate")
+      .withRequiredArg().ofType(Integer.class);
+  private final OptionSpec<Integer> tokeniserBeamWidthOption = parser.accepts("tokeniserBeamWidth", "beam width in tokeniser beam search")
+      .availableIf("analyse", "evaluate").withRequiredArg().ofType(Integer.class);
+  private final OptionSpec<Boolean> propagateBeamOption = parser.accepts("propagateBeam", "should we propagate the pos-tagger beam to the parser")
+      .availableIf("analyse", "evaluate").withRequiredArg().ofType(Boolean.class);
+
+  private final OptionSpec<Integer> maxParseAnalysisTimeOption = parser
+      .accepts("maxParseAnalysisTime", "how long we will attempt to parse a sentence before leaving the parse as is, in seconds")
+      .availableIf("analyse", "evaluate").withRequiredArg().ofType(Integer.class);
+  private final OptionSpec<Integer> minFreeMemoryOption = parser.accepts("minFreeMemory", "minimum amount of remaining free memory to continue a parse, in kilobytes")
+      .availableIf("analyse", "evaluate").withRequiredArg().ofType(Integer.class);
+  private final OptionSpec<Boolean> earlyStopOption = parser.accepts("earlyStop", "stop as soon as the beam contains n terminal configurations")
+      .availableIf("analyse", "evaluate").withRequiredArg().ofType(Boolean.class);
+
+  private final OptionSpec<File> evalFileOption = parser.accepts("evalFile", "evaluation corpus file").availableIf("evaluate", "compare").withRequiredArg()
+      .ofType(File.class);
+
+  private final OptionSpec<String> csvSeparatorOption = parser.accepts("csvSeparator", "CSV file separator in output").withRequiredArg().ofType(String.class);
+  private final OptionSpec<String> csvEncodingOption = parser.accepts("csvEncoding", "CSV file encoding in output").withRequiredArg().ofType(String.class);
+  private final OptionSpec<String> csvLocaleOption = parser.accepts("csvLocale", "CSV file locale in output").withRequiredArg().ofType(String.class);
+
+  private final OptionSpec<Boolean> includeUnknownWordResultsOption = parser
+      .accepts("includeUnknownWordResults",
+          "if true, will add files ending with \"_unknown.csv\" and \"_known.csv\" splitting pos-tagging f-scores into known and unknown words")
+      .availableIf("evaluate").withRequiredArg().ofType(Boolean.class);
+  private final  OptionSpec<Boolean> includeLexiconCoverageOption = parser
+      .accepts("includeUnknownWordResults", "if true, will add a file ending with \".lexiconCoverage.csv\" giving lexicon word coverage")
+      .availableIf("evaluate").withRequiredArg().ofType(Boolean.class);
+
+  private final OptionSpec<Boolean> labeledEvaluationOption = parser
+      .accepts("labeledEvaluation", "if true, takes both governor and dependency label into account when determining errors").availableIf("evaluate")
+      .withRequiredArg().ofType(Boolean.class);
+
+  private final OptionSpec<ProcessingOption> processingOption = parser.accepts("option", "process command option: " + Arrays.toString(ProcessingOption.values()))
+      .availableIf("process").withRequiredArg().ofType(ProcessingOption.class);
+  private final OptionSpec<File> lexicalEntryRegexOption = parser.accepts("lexicalEntryRegex", "file describing regex for reading lexical entries in the corpus")
+      .withRequiredArg().ofType(File.class);
+
+  private final OptionSpec<File> featuresOption = parser.accepts("features", "a file containing the training feature descriptors").availableIf("train", "process")
+      .withRequiredArg().ofType(File.class);
+  private final OptionSpec<File> tokeniserPatternsOption = parser.accepts("tokeniserPatterns", "a file containing the patterns for tokeniser training")
+      .availableIf("train", "process").withRequiredArg().ofType(File.class);
+  private final OptionSpec<File> sentenceFileOption = parser
+      .accepts("sentenceFile", "the text of sentences represented by the tokenised input is provided by this file, one sentence per line").withRequiredArg()
+      .ofType(File.class);
+  private final OptionSpec<File> languageCorpusMapOption = parser
+      .accepts("languageCorpusMap", "a file giving a mapping of languages to corpora for langauge-detection training").availableIf("train").withRequiredArg()
+      .ofType(File.class);
+  private final OptionSpec<PredictTransitions> predictTransitionsOption = parser.accepts("predictTransitions",
+      "should the transitions leading to the corpus dependencies be predicted - normally only required for training (leave at \"depends\"). Options are: "
+          + Arrays.toString(PredictTransitions.values()))
+      .withRequiredArg().ofType(PredictTransitions.class);
+  private final OptionSpec<String> testWordsOption = parser.accepts("testWords", "comma-delimited test words for pos-tagger feature tester").availableIf("process")
+      .withRequiredArg().ofType(String.class).withValuesSeparatedBy(',');
+
+  private final OptionSpec<MachineLearningAlgorithm> algorithmOption = parser
+      .accepts("algorithm", "machine learning algorithm: " + Arrays.toString(MachineLearningAlgorithm.values())).availableIf("train").withRequiredArg()
+      .ofType(MachineLearningAlgorithm.class);
+  private final OptionSpec<Integer> cutoffOption = parser.accepts("cutoff", "in how many distinct events should a feature appear in order to get included in the model?")
+      .availableIf("train").withRequiredArg().ofType(Integer.class);
+  private final OptionSpec<Double> linearSVMEpsilonOption = parser.accepts("linearSVMEpsilon", "parameter epsilon, typical values are 0.01, 0.05, 0.1, 0.5")
+      .availableIf("train").withRequiredArg().ofType(Double.class);
+  private final OptionSpec<Double> linearSVMCostOption = parser.accepts("linearSVMCost", "parameter C, typical values are powers of 2, from 2^-5 to 2^5")
+      .availableIf("train").withRequiredArg().ofType(Double.class);
+  private final OptionSpec<Boolean> oneVsRestOption = parser
+      .accepts("oneVsRest", "should we treat each outcome explicity as one vs. rest, allowing for an event to have multiple outcomes?").availableIf("train")
+      .withRequiredArg().ofType(Boolean.class);
+  private final OptionSpec<Integer> iterationsOption = parser.accepts("iterations", "the number of training iterations (MaxEnt, Perceptron)").availableIf("train")
+      .withRequiredArg().ofType(Integer.class);
+
+  private final OptionSpec<File> logConfigFileSpec = parser.accepts("logConfigFile", "logback configuration file").withRequiredArg().ofType(File.class);
+
+  // End of option parser initialization
+  // ##################################################
+  
   public static void main(String[] args) throws Exception {
     TalismaneMain talismaneMain = new TalismaneMain();
     talismaneMain.execute(args);
   }
 
+  public TalismaneMain() {
+  }
+  
   /**
    * Execute by processing command line options with a given default config.
    *
@@ -137,180 +319,7 @@ public class TalismaneMain {
         return;
       }
     }
-
-    OptionParser parser = new OptionParser();
-
-    parser.accepts("analyse", "analyse text");
-    parser.accepts("train", "train model").availableUnless("analyse");
-    parser.accepts("evaluate", "evaluate annotated corpus").availableUnless("analyse", "train");
-    parser.accepts("compare", "compare two annotated corpora").availableUnless("analyse", "train", "evaluate");
-    parser.accepts("process", "process annotated corpus").availableUnless("analyse", "train", "evaluate", "compare");
-    parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("analyse", "train", "evaluate", "compare", "process").forHelp();
-
-    OptionSpec<String> sessionIdOption = parser.accepts("sessionId", "the current session id - configuration read as talismane.core.[sessionId]")
-        .requiredIf("analyse", "train", "evaluate", "compare", "process").withRequiredArg().ofType(String.class);
-
-    OptionSpec<Module> moduleOption = parser.accepts("module", "training / evaluation / processing module: " + Arrays.toString(Module.values()))
-        .requiredIf("train", "process").availableIf("train", "evaluate", "compare", "process").withRequiredArg().ofType(Module.class);
-    OptionSpec<Module> startModuleOption = parser.accepts("startModule", "where to start analysis (or evaluation): " + Arrays.toString(Module.values()))
-        .availableIf("analyse", "evaluate").withRequiredArg().ofType(Module.class);
-    OptionSpec<Module> endModuleOption = parser.accepts("endModule", "where to end analysis: " + Arrays.toString(Module.values())).availableIf("analyse")
-        .withRequiredArg().ofType(Module.class);
-
-    OptionSpec<Mode> modeOption = parser.accepts("mode", "execution mode: " + Arrays.toString(Mode.values())).availableIf("analyse").withRequiredArg()
-        .ofType(Mode.class);
-    OptionSpec<Integer> portOption = parser.accepts("port", "which port to listen on").availableIf("analyse").withRequiredArg().ofType(Integer.class);
-
-    OptionSpec<File> inFileOption = parser.accepts("inFile", "input file or directory").withRequiredArg().ofType(File.class);
-    OptionSpec<File> outFileOption = parser.accepts("outFile", "output file or directory (when inFile is a directory)").withRequiredArg().ofType(File.class);
-    OptionSpec<File> outDirOption = parser.accepts("outDir", "output directory (for writing evaluation and analysis files other than the standard output)")
-        .withRequiredArg().ofType(File.class);
-
-    OptionSpec<Boolean> keepDirStructureOption = parser
-        .accepts("keepDirStructure",
-            "for analyse and process: if true, and inFile is a directory," + " outFile will be generated as a directory"
-                + " and the inFile directory structure will be maintained")
-        .availableIf("analyse", "process").availableIf(inFileOption).withRequiredArg().ofType(Boolean.class);
-
-    OptionSpec<String> inputPatternOption = parser.accepts("inputPattern", "input pattern").withRequiredArg().ofType(String.class);
-    OptionSpec<File> inputPatternFileOption = parser.accepts("inputPatternFile", "input pattern file").availableUnless(inputPatternOption).withRequiredArg()
-        .ofType(File.class);
-    OptionSpec<String> evalPatternOption = parser.accepts("evalPattern", "input pattern for evaluation").availableIf("evaluate", "compare").withRequiredArg()
-        .ofType(String.class);
-    OptionSpec<File> evalPatternFileOption = parser.accepts("evalPatternFile", "input pattern file for evaluation").availableUnless(evalPatternOption)
-        .withRequiredArg().ofType(File.class);
-
-    OptionSpec<String> localeOption = parser.accepts("locale", "locale").withRequiredArg().ofType(String.class);
-    OptionSpec<String> encodingOption = parser.accepts("encoding", "encoding for input and output").withRequiredArg().ofType(String.class);
-    OptionSpec<String> inputEncodingOption = parser.accepts("inputEncoding", "encoding for input").withRequiredArg().ofType(String.class);
-    OptionSpec<String> outputEncodingOption = parser.accepts("outputEncoding", "encoding for output").withRequiredArg().ofType(String.class);
-
-    OptionSpec<File> languageModelOption = parser.accepts("languageModel", "statistical model for language recognition").withRequiredArg().ofType(File.class);
-    OptionSpec<File> sentenceModelOption = parser.accepts("sentenceModel", "statistical model for sentence detection").withRequiredArg().ofType(File.class);
-    OptionSpec<File> tokeniserModelOption = parser.accepts("tokeniserModel", "statistical model for tokenisation").withRequiredArg().ofType(File.class);
-    OptionSpec<File> posTaggerModelOption = parser.accepts("posTaggerModel", "statistical model for pos-tagging").withRequiredArg().ofType(File.class);
-    OptionSpec<File> parserModelOption = parser.accepts("parserModel", "statistical model for dependency parsing").withRequiredArg().ofType(File.class);
-    OptionSpec<File> lexiconOption = parser.accepts("lexicon", "semi-colon delimited list of pre-compiled lexicon files").withRequiredArg().ofType(File.class)
-        .withValuesSeparatedBy(';');
-
-    OptionSpec<File> textAnnotatorsOption = parser.accepts("textAnnotators", "semi-colon delimited list of files containing text annotators").withRequiredArg()
-        .ofType(File.class).withValuesSeparatedBy(';');
-    OptionSpec<File> sentenceAnnotatorsOption = parser.accepts("sentenceAnnotators", "semi-colon delimited list of files containing sentence annotators")
-        .withRequiredArg().ofType(File.class).withValuesSeparatedBy(';');
-
-    OptionSpec<String> newlineOption = parser
-        .accepts("newline", "how to handle newlines: " + "options are SPACE (will be replaced by a space) " + "and SENTENCE_BREAK (will break sentences)")
-        .availableIf("analyse").withRequiredArg().ofType(String.class);
-
-    OptionSpec<Boolean> processByDefaultOption = parser
-        .accepts("processByDefault",
-            "If true, the input file is processed from the very start (e.g. TXT files)."
-                + "If false, we wait until a text filter tells us to start processing (e.g. XML files).")
-        .availableIf("analyse").withRequiredArg().ofType(Boolean.class);
-
-    OptionSpec<Integer> blockSizeOption = parser
-        .accepts("blockSize", "The block size to use when applying filters - if a text filter regex goes beyond the blocksize, Talismane will fail.")
-        .availableIf("analyse").withRequiredArg().ofType(Integer.class);
-
-    OptionSpec<Integer> sentenceCountOption = parser.accepts("sentenceCount", "max sentences to process").withRequiredArg().ofType(Integer.class);
-    OptionSpec<Integer> startSentenceOption = parser.accepts("startSentence", "first sentence index to process").withRequiredArg().ofType(Integer.class);
-    OptionSpec<Integer> crossValidationSizeOption = parser.accepts("crossValidationSize", "number of cross-validation folds").availableIf("train", "evaluate")
-        .withRequiredArg().ofType(Integer.class);
-    OptionSpec<Integer> includeIndexOption = parser.accepts("includeIndex", "cross-validation index to include for evaluation").availableIf("evaluate")
-        .withRequiredArg().ofType(Integer.class);
-    OptionSpec<Integer> excludeIndexOption = parser.accepts("excludeIndex", "cross-validation index to exclude for training").availableIf("train")
-        .withRequiredArg().ofType(Integer.class);
-
-    OptionSpec<BuiltInTemplate> builtInTemplateOption = parser
-        .accepts("builtInTemplate", "pre-defined output template: " + Arrays.toString(BuiltInTemplate.values())).availableUnless("train").withRequiredArg()
-        .ofType(BuiltInTemplate.class);
-
-    OptionSpec<File> templateOption = parser.accepts("template", "user-defined template for output").availableUnless("train", "builtInTemplate")
-        .withRequiredArg().ofType(File.class);
-
-    OptionSpec<File> posTaggerRulesOption = parser.accepts("posTaggerRules", "semi-colon delimited list of files containing pos-tagger rules")
-        .availableIf("analyse", "evaluate").withRequiredArg().ofType(File.class).withValuesSeparatedBy(';');
-    OptionSpec<File> parserRulesOption = parser.accepts("parserRules", "semi-colon delimited list of files containing parser rules")
-        .availableIf("analyse", "evaluate").withRequiredArg().ofType(File.class).withValuesSeparatedBy(';');
-
-    OptionSpec<String> suffixOption = parser.accepts("suffix", "suffix to all output files").withRequiredArg().ofType(String.class);
-    OptionSpec<String> outputDividerOption = parser
-        .accepts("outputDivider", "a string to insert between sections marked for output (e.g. XML tags to be kept in the analysed output)."
-            + " The String NEWLINE is interpreted as \"\n\". Otherwise, used literally.")
-        .availableIf("analyse").withRequiredArg().ofType(String.class);
-
-    OptionSpec<Integer> beamWidthOption = parser.accepts("beamWidth", "beam width in pos-tagger and parser beam search").availableIf("analyse", "evaluate")
-        .withRequiredArg().ofType(Integer.class);
-    OptionSpec<Integer> tokeniserBeamWidthOption = parser.accepts("tokeniserBeamWidth", "beam width in tokeniser beam search")
-        .availableIf("analyse", "evaluate").withRequiredArg().ofType(Integer.class);
-    OptionSpec<Boolean> propagateBeamOption = parser.accepts("propagateBeam", "should we propagate the pos-tagger beam to the parser")
-        .availableIf("analyse", "evaluate").withRequiredArg().ofType(Boolean.class);
-
-    OptionSpec<Integer> maxParseAnalysisTimeOption = parser
-        .accepts("maxParseAnalysisTime", "how long we will attempt to parse a sentence before leaving the parse as is, in seconds")
-        .availableIf("analyse", "evaluate").withRequiredArg().ofType(Integer.class);
-    OptionSpec<Integer> minFreeMemoryOption = parser.accepts("minFreeMemory", "minimum amount of remaining free memory to continue a parse, in kilobytes")
-        .availableIf("analyse", "evaluate").withRequiredArg().ofType(Integer.class);
-    OptionSpec<Boolean> earlyStopOption = parser.accepts("earlyStop", "stop as soon as the beam contains n terminal configurations")
-        .availableIf("analyse", "evaluate").withRequiredArg().ofType(Boolean.class);
-
-    OptionSpec<File> evalFileOption = parser.accepts("evalFile", "evaluation corpus file").availableIf("evaluate", "compare").withRequiredArg()
-        .ofType(File.class);
-
-    OptionSpec<String> csvSeparatorOption = parser.accepts("csvSeparator", "CSV file separator in output").withRequiredArg().ofType(String.class);
-    OptionSpec<String> csvEncodingOption = parser.accepts("csvEncoding", "CSV file encoding in output").withRequiredArg().ofType(String.class);
-    OptionSpec<String> csvLocaleOption = parser.accepts("csvLocale", "CSV file locale in output").withRequiredArg().ofType(String.class);
-
-    OptionSpec<Boolean> includeUnknownWordResultsOption = parser
-        .accepts("includeUnknownWordResults",
-            "if true, will add files ending with \"_unknown.csv\" and \"_known.csv\" splitting pos-tagging f-scores into known and unknown words")
-        .availableIf("evaluate").withRequiredArg().ofType(Boolean.class);
-    OptionSpec<Boolean> includeLexiconCoverageOption = parser
-        .accepts("includeUnknownWordResults", "if true, will add a file ending with \".lexiconCoverage.csv\" giving lexicon word coverage")
-        .availableIf("evaluate").withRequiredArg().ofType(Boolean.class);
-
-    OptionSpec<Boolean> labeledEvaluationOption = parser
-        .accepts("labeledEvaluation", "if true, takes both governor and dependency label into account when determining errors").availableIf("evaluate")
-        .withRequiredArg().ofType(Boolean.class);
-
-    OptionSpec<ProcessingOption> processingOption = parser.accepts("option", "process command option: " + Arrays.toString(ProcessingOption.values()))
-        .availableIf("process").withRequiredArg().ofType(ProcessingOption.class);
-    OptionSpec<File> lexicalEntryRegexOption = parser.accepts("lexicalEntryRegex", "file describing regex for reading lexical entries in the corpus")
-        .withRequiredArg().ofType(File.class);
-
-    OptionSpec<File> featuresOption = parser.accepts("features", "a file containing the training feature descriptors").availableIf("train", "process")
-        .withRequiredArg().ofType(File.class);
-    OptionSpec<File> tokeniserPatternsOption = parser.accepts("tokeniserPatterns", "a file containing the patterns for tokeniser training")
-        .availableIf("train", "process").withRequiredArg().ofType(File.class);
-    OptionSpec<File> sentenceFileOption = parser
-        .accepts("sentenceFile", "the text of sentences represented by the tokenised input is provided by this file, one sentence per line").withRequiredArg()
-        .ofType(File.class);
-    OptionSpec<File> languageCorpusMapOption = parser
-        .accepts("languageCorpusMap", "a file giving a mapping of languages to corpora for langauge-detection training").availableIf("train").withRequiredArg()
-        .ofType(File.class);
-    OptionSpec<PredictTransitions> predictTransitionsOption = parser.accepts("predictTransitions",
-        "should the transitions leading to the corpus dependencies be predicted - normally only required for training (leave at \"depends\"). Options are: "
-            + Arrays.toString(PredictTransitions.values()))
-        .withRequiredArg().ofType(PredictTransitions.class);
-    OptionSpec<String> testWordsOption = parser.accepts("testWords", "comma-delimited test words for pos-tagger feature tester").availableIf("process")
-        .withRequiredArg().ofType(String.class).withValuesSeparatedBy(',');
-
-    OptionSpec<MachineLearningAlgorithm> algorithmOption = parser
-        .accepts("algorithm", "machine learning algorithm: " + Arrays.toString(MachineLearningAlgorithm.values())).availableIf("train").withRequiredArg()
-        .ofType(MachineLearningAlgorithm.class);
-    OptionSpec<Integer> cutoffOption = parser.accepts("cutoff", "in how many distinct events should a feature appear in order to get included in the model?")
-        .availableIf("train").withRequiredArg().ofType(Integer.class);
-    OptionSpec<Double> linearSVMEpsilonOption = parser.accepts("linearSVMEpsilon", "parameter epsilon, typical values are 0.01, 0.05, 0.1, 0.5")
-        .availableIf("train").withRequiredArg().ofType(Double.class);
-    OptionSpec<Double> linearSVMCostOption = parser.accepts("linearSVMCost", "parameter C, typical values are powers of 2, from 2^-5 to 2^5")
-        .availableIf("train").withRequiredArg().ofType(Double.class);
-    OptionSpec<Boolean> oneVsRestOption = parser
-        .accepts("oneVsRest", "should we treat each outcome explicity as one vs. rest, allowing for an event to have multiple outcomes?").availableIf("train")
-        .withRequiredArg().ofType(Boolean.class);
-    OptionSpec<Integer> iterationsOption = parser.accepts("iterations", "the number of training iterations (MaxEnt, Perceptron)").availableIf("train")
-        .withRequiredArg().ofType(Integer.class);
-
-    OptionSpec<File> logConfigFileSpec = parser.accepts("logConfigFile", "logback configuration file").withRequiredArg().ofType(File.class);
+    
 
     OptionSet options = parser.parse(args);
     if (args.length == 0 || options.has("help")) {
@@ -979,5 +988,13 @@ public class TalismaneMain {
       return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), TalismaneSession.get(sessionId).getOutputCharset()));
     }
 
+  }
+
+  public OptionParser getOptionParser() {
+    return parser;
+  }
+
+  public OptionSpec<String> getSessionIdOption() {
+    return sessionIdOption;
   }
 }
