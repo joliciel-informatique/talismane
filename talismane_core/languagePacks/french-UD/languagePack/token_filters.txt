@@ -9,38 +9,42 @@ RegexTokenAnnotator	\b((((http)|(https)|(ftp)|(irc)|(ircs)|(gopher)|(telnet)|(nn
 RegexTokenAnnotator	\bi\.e\.\B	posTag=ADP	lemmaType=originalLower
 RegexTokenAnnotator	\be\.g\.\B	posTag=ADP	lemmaType=originalLower
 RegexTokenAnnotator	\bpeut-[êe]tre\b	replacement=peut-être	lemma=peut-être	posTag=ADV
+#RegexTokenAnnotator	\bparce que\b	replacement=parce que	lemma=parce que	posTag=SCONJ
+#RegexTokenAnnotator	\bparce qu['’]	replacement=parce que	lemma=parce que	posTag=SCONJ
 
 ########################
 #### Pronouns ##########
 ########################
-RegexTokenAnnotator	\b(-t-elle)(?!\-)\b	replacement=elle	group=1
-RegexTokenAnnotator	\b(-t-elles)(?!\-)\b	replacement=elles	group=1
-RegexTokenAnnotator	\b(-t-il)(?!\-)\b	replacement=il	group=1
-RegexTokenAnnotator	\b(-t-ils)(?!\-)\b	replacement=ils	group=1
-RegexTokenAnnotator	\b(-t-on)(?!\-)\b	replacement=on	group=1
-RegexTokenAnnotator	\b(-ce)(?!\-)\b	replacement=ce	group=1
-RegexTokenAnnotator	\b(-je)(?!\-)\b	replacement=je	group=1
-RegexTokenAnnotator	\b(-en)(?!\-)\b	replacement=en	group=1
-RegexTokenAnnotator	\b(-la)(?!\-)\b	replacement=la	group=1
-RegexTokenAnnotator	\b(-le)(?!\-)\b	replacement=le	group=1
-RegexTokenAnnotator	\b(-les)(?!\-)\b	replacement=les	group=1
-RegexTokenAnnotator	\b(-leur)(?!\-)\b	replacement=leur	group=1
-RegexTokenAnnotator	\b(-lui)(?!\-)\b	replacement=lui	group=1
-RegexTokenAnnotator	\b(-moi)(?!\-)\b	replacement=moi	group=1
-RegexTokenAnnotator	\b(-nous)(?!\-)\b	replacement=nous	group=1
-RegexTokenAnnotator	\b(-toi)(?!\-)\b	replacement=toi	group=1
-RegexTokenAnnotator	\b(-tu)(?!\-)\b	replacement=tu	group=1	posTag=PRON
-RegexTokenAnnotator	\b(-y)(?!\-)\b	replacement=y	group=1
-RegexTokenAnnotator	\b(-elle)(?!\-)\b	replacement=elle	group=1
-RegexTokenAnnotator	\b(-elles)(?!\-)\b	replacement=elles	group=1
-RegexTokenAnnotator	\b(-il)(?!\-)\b	replacement=il	group=1
-RegexTokenAnnotator	\b(-ils)(?!\-)\b	replacement=ils	group=1
-RegexTokenAnnotator	\b(-on)(?!\-)\b	replacement=on	group=1
-RegexTokenAnnotator	\b(?!rendez)\w+(-vous)(?!\-)\b	replacement=vous	group=1
-RegexTokenAnnotator	\b(-m['’])(?!\-)\b	replacement=moi	group=1
-RegexTokenAnnotator	\b(-t['’])(?!\-)\b	replacement=toi	group=1
-RegexTokenAnnotator	\b\w+(-\w+)*-(?!(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y|elle|elles|il|ils|on|vous|m|t))\w+\b
-RegexTokenAnnotator	\b(\w+(-\w+)*)-(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y|elle|elles|il|ils|on|vous|m|t)\b	group=1
+RegexTokenAnnotator	\b(-t-elle)\b	replacement=elle	group=1
+RegexTokenAnnotator	\b(-t-elles)\b	replacement=elles	group=1
+RegexTokenAnnotator	\b(-t-il)\b	replacement=il	group=1
+RegexTokenAnnotator	\b(-t-ils)\b	replacement=ils	group=1
+RegexTokenAnnotator	\b(-t-on)\b	replacement=on	group=1
+RegexTokenAnnotator	\b(-t-en)\b	replacement=en	group=1
+RegexTokenAnnotator	\b(-ce)\b	replacement=ce	group=1
+RegexTokenAnnotator	\b(-je)\b	replacement=je	group=1
+RegexTokenAnnotator	\b(-en)\b	replacement=en	group=1
+RegexTokenAnnotator	\b(-la)\b	replacement=la	group=1
+RegexTokenAnnotator	\b(-le)\b	replacement=le	group=1
+RegexTokenAnnotator	\b(-les)\b	replacement=les	group=1
+RegexTokenAnnotator	\b(-leur)\b	replacement=leur	group=1
+RegexTokenAnnotator	\b(-lui)\b	replacement=lui	group=1
+RegexTokenAnnotator	\b(-moi)\b	replacement=moi	group=1
+RegexTokenAnnotator	\b(-nous)\b	replacement=nous	group=1
+RegexTokenAnnotator	\b(-toi)\b	replacement=toi	group=1
+RegexTokenAnnotator	\b(-tu)\b	replacement=tu	group=1
+RegexTokenAnnotator	\b(-y)\b	replacement=y	group=1
+RegexTokenAnnotator	\b(-elle)\b	replacement=elle	group=1
+RegexTokenAnnotator	\b(-elles)\b	replacement=elles	group=1
+#RegexTokenAnnotator	\b(-il)\b	replacement=il	group=1
+RegexTokenAnnotator	\b(-ils)\b	replacement=ils	group=1
+RegexTokenAnnotator	\b(-on)\b	replacement=on	group=1
+RegexTokenAnnotator	\b(?!rendez)\w+(-vous)\b	replacement=vous	group=1
+RegexTokenAnnotator	\b(-m['’])\b	replacement=moi	group=1
+RegexTokenAnnotator	\b(-t['’])\b	replacement=toi	group=1
+
+# Otherwise, normal dashes are assumed to always join words into a single token
+RegexTokenAnnotator	\b(\w+)-(?!(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y|elle|elles|il|ils|on|vous|m|t)\b)(\w+)\b
 
 
 ###################
