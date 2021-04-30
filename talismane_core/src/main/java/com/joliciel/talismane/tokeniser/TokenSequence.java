@@ -220,7 +220,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
    * correct on the component tokens, and so that all attributes are correctly
    * assigned to component tokens from the containing sentence.
    */
-  private void reindex() {
+  public void reindex() {
     int i = 0;
     for (Token token : this.listWithWhiteSpace) {
       token.setIndexWithWhiteSpace(i++);

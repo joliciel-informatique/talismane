@@ -189,6 +189,7 @@ public class PosTagSequence extends ArrayList<PosTaggedToken> implements Compara
       }
       this.remove(0);
       tokenSequence.setWithRoot(false);
+      tokenSequence.reindex();
     }
   }
 
