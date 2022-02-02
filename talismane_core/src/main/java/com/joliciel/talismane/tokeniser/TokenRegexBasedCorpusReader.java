@@ -25,12 +25,12 @@ import com.typesafe.config.Config;
 /**
  * A corpus reader that expects one token per line, and analyses the line
  * content based on a regex supplied during construction, via a
- * {@link CorpusLineReader}.<br/>
+ * {@link CorpusLineReader}.<br>
  * 
- * The following placeholders are required:<br/>
- * {@link CorpusElement#TOKEN} <br/>
+ * The following placeholders are required:<br>
+ * {@link CorpusElement#TOKEN} <br>
  * These are included surrounded by % signs on both sides, and without the
- * prefix "CorpusElement."<br/>
+ * prefix "CorpusElement."<br>
  * 
  * Example (note that the regex is applied to one line, so no endline is
  * necessary):
@@ -51,12 +51,12 @@ public class TokenRegexBasedCorpusReader extends TokenPerLineCorpusReader implem
 
   /**
    * Add attributes as specified in the config to the corpus reader. Recognises
-   * the attributes:<br/>
+   * the attributes:<br>
    * - input-pattern: the pattern to match corpus line elements, see class
-   * description.<br/>
-   * - sentence-file: where to read the correctly formatted sentences<br/>
+   * description.<br>
+   * - sentence-file: where to read the correctly formatted sentences<br>
    * - corpus-lexical-entry-regex: how to read the lexical entries, see
-   * {@link RegexLexicalEntryReader}<br/>
+   * {@link RegexLexicalEntryReader}<br>
    * 
    * @param config
    *          the local config for this corpus reader (local namespace)

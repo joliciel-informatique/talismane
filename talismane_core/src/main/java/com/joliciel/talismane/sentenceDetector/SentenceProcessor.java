@@ -48,15 +48,15 @@ public interface SentenceProcessor extends Closeable {
 
   /**
    * Collect the processors specified in the configuration key
-   * talismane.core.[sessionId].sentence-detector.output.processors.<br/>
-   * <br/>
+   * talismane.core.[sessionId].sentence-detector.output.processors.<br>
+   * <br>
    * Each processor must implement this interface and must have a constructor
-   * matching one of the following signatures:<br/>
-   * - ( {@link File} outputDir, {@link String} sessionId)<br/>
-   * - ( {@link String} sessionId)<br/>
-   * <br/>
-   * Optionally, it can have a constructor with the following signature:<br/>
-   * - ( {@link Writer} writer, {@link String} sessionId)<br/>
+   * matching one of the following signatures:<br>
+   * - ( {@link File} outputDir, {@link String} sessionId)<br>
+   * - ( {@link String} sessionId)<br>
+   * <br>
+   * Optionally, it can have a constructor with the following signature:<br>
+   * - ( {@link Writer} writer, {@link String} sessionId)<br>
    * If a writer is provided here, then the first processor with the above
    * constructor will be given the writer.
    * 

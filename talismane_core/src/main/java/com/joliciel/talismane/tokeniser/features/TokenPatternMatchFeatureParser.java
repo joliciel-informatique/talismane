@@ -37,7 +37,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 
 /**
- * Parses feature descriptors specific to tokenising based on patterns. <br/>
+ * Parses feature descriptors specific to tokenising based on patterns. <br>
  * The list of available features is given in
  * {@link #addFeatureClasses(FeatureClassContainer)}.
  * 
@@ -87,14 +87,14 @@ public class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenP
 
   /**
    * Add token pattern feature classes to the container provided, including:
-   * <br/>
-   * - CurrentPattern: {@link PatternNameFeature}<br/>
-   * - CurrentGroup: {@link PatternGroupNameFeature}<br/>
-   * - PatternOffset: {@link PatternMatchOffsetAddressFunction}<br/>
-   * - PatternWordForm: {@link PatternMatchWordFormFeature}<br/>
-   * - PatternIndexInSentence: {@link PatternMatchIndexInSentenceFeature}<br/>
+   * <br>
+   * - CurrentPattern: {@link PatternNameFeature}<br>
+   * - CurrentGroup: {@link PatternGroupNameFeature}<br>
+   * - PatternOffset: {@link PatternMatchOffsetAddressFunction}<br>
+   * - PatternWordForm: {@link PatternMatchWordFormFeature}<br>
+   * - PatternIndexInSentence: {@link PatternMatchIndexInSentenceFeature}<br>
    * - All definitions in
-   * {@link TokenFeatureParser#addFeatureClasses(FeatureClassContainer)}<br/>
+   * {@link TokenFeatureParser#addFeatureClasses(FeatureClassContainer)}<br>
    */
   @Override
   public void addFeatureClasses(FeatureClassContainer container) {

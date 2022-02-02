@@ -37,8 +37,8 @@ import com.joliciel.talismane.utils.StringUtils;
  * matrices for different configurations, where each configuration has a
  * different file name but is located in the same directory, this class
  * generates a single CSV file per directory comparing the accuracy scores of
- * all of the different matrices.<br/>
- * <br/>
+ * all of the different matrices.<br>
+ * <br>
  * If rows are found indicating it is a parser f-score, an additional column is
  * added for the UAS.
  * 

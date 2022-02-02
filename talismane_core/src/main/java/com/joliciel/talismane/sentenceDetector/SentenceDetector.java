@@ -61,7 +61,7 @@ import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
- * Detects sentence boundaries within an annotated text. <br/>
+ * Detects sentence boundaries within an annotated text. <br>
  * 
  * 
  * @author Assaf Urieli
@@ -143,18 +143,18 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
    * Detect sentences within an annotated text. Sentences are added in the form
    * of an Annotation around a {@link SentenceBoundary}, with the start position
    * (relative to the start of the annotated text) at the start of the sentence
-   * and the end position immediately after the end of the sentence. <br/>
-   * <br/>
+   * and the end position immediately after the end of the sentence. <br>
+   * <br>
    * Sentence boundaries will not be detected within any annotation of type
    * {@link RawTextNoSentenceBreakMarker}, nor will they be detected before or
    * after the {@link AnnotatedText#getAnalysisStart()} and
-   * {@link AnnotatedText#getAnalysisEnd()} respectively. <br/>
-   * <br/>
+   * {@link AnnotatedText#getAnalysisEnd()} respectively. <br>
+   * <br>
    * If the text contained existing {@link SentenceBoundary} annotations before
    * analysis start, the first sentence will begin where the last existing
    * annotation ended. Otherwise, the first boundary will begin at position 0.
-   * <br/>
-   * <br/>
+   * <br>
+   * <br>
    * If the text's analysis end is equal to the text length, it is assumed that
    * the text end is a sentence boundary. In this case, an additional sentence
    * is added starting at the final detected boundary and ending at text end.

@@ -45,9 +45,9 @@ public class CorpusRule {
   }
 
   /**
-   * Reads "criteria" and "actions" from a configuration.<br/>
+   * Reads "criteria" and "actions" from a configuration.<br>
    * "criteria" is a map of {@link CorpusElement} to regex, which need to match
-   * the full value of the element.<br/>
+   * the full value of the element.<br>
    * "actions" is a map of {@link CorpusElement} to values, which will be
    * updated when the rule is matched.
    */

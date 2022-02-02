@@ -38,8 +38,6 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * found in a lexical entry associated with this pos-tagged token.
  * 
  * @author Assaf Urieli
- *
- * @param <T>
  */
 public abstract class AbstractLexicalAttributeFeature<T> extends AbstractPosTaggedTokenFeature<T, List<WeightedOutcome<String>>>
     implements StringCollectionFeature<T> {

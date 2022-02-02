@@ -24,7 +24,7 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
 
 /**
  * An annotator applied to a single sentence, after processing (e.g. no
- * duplicate white space, etc.). It can add the following annotations:<br/>
+ * duplicate white space, etc.). It can add the following annotations:<br>
  * <ul>
  * <li>{@link TokenPlaceholder} for a deterministic token boundary.</li>
  * <li>{@link TokenAttribute} for an arbitrary attribute added to any fully

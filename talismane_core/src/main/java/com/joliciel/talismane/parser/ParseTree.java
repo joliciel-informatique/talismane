@@ -182,11 +182,11 @@ public class ParseTree implements Serializable {
   }
 
   /**
-   * Non-projectivity: is this tree well nested?<br/>
+   * Non-projectivity: is this tree well nested?<br>
    * Two sub-trees are called disjoint if neither of their heads dominates the
-   * other.<br/>
+   * other.<br>
    * They interleave if there exist leaves l1, r1 ∈ T1 and l2, r2 ∈ T2, such
-   * that l1 &lt; l2 &lt; r1 &lt; r2.<br/>
+   * that l1 &lt; l2 &lt; r1 &lt; r2.<br>
    * A tree is well nested if none of its disjoint subtrees interleave.
    */
   public boolean isWellNested() {

@@ -66,7 +66,7 @@ public class PosTaggerStatisticsWriter implements PosTagSequenceProcessor {
   private final PosTaggerStatistics referenceStats;
 
   /**
-   * Statistics will be written to a file with the extension "_stats.csv".<br/>
+   * Statistics will be written to a file with the extension "_stats.csv".<br>
    * Statistics will be stored for future reference in "_stats.zip".
    * 
    * @throws ClassNotFoundException

@@ -52,11 +52,11 @@ import freemarker.template.TemplateException;
 import freemarker.template.Version;
 
 /**
- * Processes tokeniser output by writing via a freemarker template.<br/>
+ * Processes tokeniser output by writing via a freemarker template.<br>
  * Will either use the built-in template specified in
  * talismane.core.[sessionId].tokeniser.output.built-in-template, or any other
  * template specified in talismane.core.[sessionId].tokeniser.output.template.
- * <br/>
+ * <br>
  * If no writer is specified, will write to a file with the suffix "_tok.txt".
  * 
  * @author Assaf Urieli

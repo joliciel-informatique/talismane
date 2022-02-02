@@ -40,8 +40,8 @@ import com.joliciel.talismane.utils.io.CurrentFileProvider;
  * right. If we attempt to apply filters to a single block only, we might not
  * match a regex that crosses the block boundaries at its start or end. We
  * therefore apply filters to a single block at a time, but provide context to
- * the left and right.<br/>
- * <br/>
+ * the left and right.<br>
+ * <br>
  * In the case of raw text filters, e.g. XML filters which tell the system which
  * parts of the file to analyse, or which correct XML encoding issues (e.g. &lt;
  * becomes &amp;lt;), we always apply these filters to the 3rd sub-block, with
@@ -53,8 +53,8 @@ import com.joliciel.talismane.utils.io.CurrentFileProvider;
  * with analysis ending at the end of block 3. Annotations added to this object
  * will automatically get added to the parent RollingTextBlock. This system
  * ensures that blocks 1, 2 and 3 have always been "processed" (with block 4
- * serving only as context for correct processing of block 3). <br/>
- * <br/>
+ * serving only as context for correct processing of block 3). <br>
+ * <br>
  * Sentence detection has to be performed on processed text, since the training
  * corpus is of course a simple text corpus and we cannot apply probabilistic
  * decisions on a formatted file, such as XML. But sentence detection also needs
@@ -64,9 +64,9 @@ import com.joliciel.talismane.utils.io.CurrentFileProvider;
  * right context. The object required for sentence detection can be requested
  * through {@link #getProcessedText()}. Annotations added to this object will
  * automatically get added to the parent RollingTextBlock, hence enabling
- * sentence extraction.<br/>
- * <br/>
- * <br/>
+ * sentence extraction.<br>
+ * <br>
+ * <br>
  * Typical usage:
  * 
  * <pre>
@@ -180,17 +180,17 @@ public class RollingTextBlock extends RawTextProcessor {
   }
 
   /**
-   * Creates a new RollingTextBlock.<br/>
+   * Creates a new RollingTextBlock.<br>
    * Moves block2 → block1, block3 → block2, block4 → block3, and nextText →
-   * block4.<br/>
-   * <br/>
+   * block4.<br>
+   * <br>
    * All existing annotations have their start and end decremented by
    * block1.length(). If the new start &lt; 0, start = 0, if new end &lt; 0,
-   * annotation dropped.<br/>
-   * <br/>
+   * annotation dropped.<br>
+   * <br>
    * If the current block3 has not yet been processed, it is processed when
    * rolling, thus ensuring that we always have blocks 1, 2 and 3 processed.
-   * <br/>
+   * <br>
    * 
    * @param nextText
    *          the next text segment to add onto this rolling text block

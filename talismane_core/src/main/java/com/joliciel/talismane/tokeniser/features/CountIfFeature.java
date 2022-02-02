@@ -26,10 +26,10 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Counts the tokens within a certain range matching a certain criterion.<br/>
- * The range is given in absolute indexes.<br/>
- * If start &gt; end, returns null.<br/>
- * If no end is provided, assumes it should go till end of sentence.<br/>
+ * Counts the tokens within a certain range matching a certain criterion.<br>
+ * The range is given in absolute indexes.<br>
+ * If start &gt; end, returns null.<br>
+ * If no end is provided, assumes it should go till end of sentence.<br>
  * 
  * @author Assaf Urieli
  *

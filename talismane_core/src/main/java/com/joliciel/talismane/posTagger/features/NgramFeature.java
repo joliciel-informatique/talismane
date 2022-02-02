@@ -27,9 +27,9 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
- * Retrieves the tags assigned to the previous N tokens.<br/>
+ * Retrieves the tags assigned to the previous N tokens.<br>
  * Will only return results if the current index &gt;= N-2 (to avoid multiple
- * start tokens).<br/>
+ * start tokens).<br>
  * This ensures that we don't repeat exactly the same information in 4-grams,
  * trigrams, bigrams, etc.
  * 

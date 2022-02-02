@@ -64,8 +64,8 @@ import com.typesafe.config.Config;
 
 /**
  * A non-deterministic parser implementing transition based parsing, using a
- * Shift-Reduce algorithm.<br/>
- * See Nivre 2008 for details on the algorithm for the deterministic case.</br>
+ * Shift-Reduce algorithm.<br>
+ * See Nivre 2008 for details on the algorithm for the deterministic case.
  * 
  * @author Assaf Urieli
  *

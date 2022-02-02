@@ -21,15 +21,15 @@ package com.joliciel.talismane.stats;
 import java.math.BigInteger;
 
 /**
- * From http://www.merriampark.com/comb.htm<br/>
+ * From http://www.merriampark.com/comb.htm<br>
  * 
- * Combination Generator<br/>
- * by Michael Gilleland<br/>
+ * Combination Generator<br>
+ * by Michael Gilleland<br>
  * 
  * The CombinationGenerator Java class systematically generates all combinations
  * of n elements, taken r at a time. The algorithm is described by Kenneth H.
  * Rosen, Discrete Mathematics and Its Applications, 2nd edition (NY:
- * McGraw-Hill, 1991), pp. 284-286.<br/>
+ * McGraw-Hill, 1991), pp. 284-286.<br>
  * 
  * The class is very easy to use. Suppose that you wish to generate all possible
  * three-letter combinations of the letters "a", "b", "c", "d", "e", "f", "g".
@@ -37,7 +37,7 @@ import java.math.BigInteger;
  * getNext () method until there are no more combinations left. The getNext ()
  * method returns an array of integers, which tell you the order in which to
  * arrange your original array of letters. Here is a snippet of code which
- * illustrates how to use the CombinationGenerator class.<br/>
+ * illustrates how to use the CombinationGenerator class.<br>
  * 
  * <pre>
  * String[] elements = { "a", "b", "c", "d", "e", "f", "g" };

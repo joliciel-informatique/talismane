@@ -25,7 +25,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns a token offset from the current token by a certain offset.<br/>
+ * Returns a token offset from the current token by a certain offset.<br>
  * Returns null if the offset goes outside the token sequence.
  * 
  * @author Assaf Urieli

@@ -38,11 +38,11 @@ public class DependencyLabelSet {
   private String punctuationLabel = null;
 
   /**
-   * Load a dependency label set from a scanner with the following format: <br/>
-   * Empty lines or lines starting with # are ignored.<br/>
-   * Other lines an have up to three tabs.<br/>
-   * Tab 1: the label<br/>
-   * Tab 2: the description (optional)<br/>
+   * Load a dependency label set from a scanner with the following format: <br>
+   * Empty lines or lines starting with # are ignored.<br>
+   * Other lines an have up to three tabs.<br>
+   * Tab 1: the label<br>
+   * Tab 2: the description (optional)<br>
    * Tab 3: the word "Punctuation", if the current label is the generic label
    * for punctuation (optional, may only appear once).
    * 

@@ -1,7 +1,7 @@
 package com.joliciel.talismane.examples;
 
 /**
- * Optional entry point for examples. Usage:<br/>
+ * Optional entry point for examples. Usage:<br>
  * 
  * <pre>
  * java -Xmx2G -jar talismane-examples-X.X.Xb.jar &lt;class name&gt; &lt;arguments ...&gt;
@@ -9,7 +9,7 @@ package com.joliciel.talismane.examples;
  * 
  * 2
  * 
- * Example:<br/>
+ * Example:<br>
  * 
  * <pre>
  * java -Xmx2G -jar talismane-examples-X.X.Xb.jar TalismaneAPITest --sessionId=fr --example=2

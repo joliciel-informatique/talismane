@@ -27,12 +27,12 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Tests all tokens within a certain range for a certain criterion, and returns
- * true only if all of them satisfy the criterion.<br/>
- * Start and end are absolute indexes.<br/>
+ * true only if all of them satisfy the criterion.<br>
+ * Start and end are absolute indexes.<br>
  * If either refer to a postion outside of the token sequence, will test all
- * valid tokens only.<br/>
- * If no tokens are tested, will return null.<br/>
- * If any test returns null, will return null.<br/>
+ * valid tokens only.<br>
+ * If no tokens are tested, will return null.<br>
+ * If any test returns null, will return null.<br>
  * 
  * @author Assaf Urieli
  *

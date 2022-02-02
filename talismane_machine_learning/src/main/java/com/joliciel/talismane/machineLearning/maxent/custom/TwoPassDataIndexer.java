@@ -119,9 +119,9 @@ public class TwoPassDataIndexer extends AbstractDataIndexer {
   }
 
   /**
-   * Reads events from <tt>eventStream</tt> into a linked list. The predicates
+   * Reads events from <code>eventStream</code> into a linked list. The predicates
    * associated with each event are counted and any which occur at least
-   * <tt>cutoff</tt> times are added to the <tt>predicatesInOut</tt> map along
+   * <code>cutoff</code> times are added to the <code>predicatesInOut</code> map along
    * with a unique integer index.
    *
    * @param eventStream

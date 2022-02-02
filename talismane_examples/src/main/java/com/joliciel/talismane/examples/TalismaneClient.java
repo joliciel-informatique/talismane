@@ -27,27 +27,27 @@ import java.nio.charset.Charset;
 
 /**
  * A class showing how to communicate with Talismane running in client/server
- * mode.<br/>
- * Before running this class, start Talismane in server mode via:<br/>
+ * mode.<br>
+ * Before running this class, start Talismane in server mode via:<br>
  * 
  * <pre>
  * java -Xmx2G -Dconfig.file=[languagePackConfigFile] -jar talismane-core-X.X.Xb.jar mode=server encoding=UTF-8
  * </pre>
  * 
  * Next, assuming you have compiled the present project via javac, try the
- * following command<br/>
+ * following command<br>
  * 
  * <pre>
  * java com.joliciel.talismane.examples.TalismaneClient localhost 7272
  * </pre>
  * 
  * Type as many sentences as you like (note that a Windows console might not
- * handle accents very well).<br/>
+ * handle accents very well).<br>
  * When you're finished, type a carriage return without any text. At this point,
- * the server will analyse the sentences.<br/>
+ * the server will analyse the sentences.<br>
  * 
  * You can try the same command several times, showing that the server is in
- * listening mode.<br/>
+ * listening mode.<br>
  * 
  * @author Assaf Urieli
  *

@@ -63,8 +63,8 @@ import com.typesafe.config.Config;
 /**
  * The compound pattern tokeniser first splits the text into individual tokens
  * based on a list of separators, each of which is assigned a default value for
- * that separator. <br/>
- * <br/>
+ * that separator. <br>
+ * <br>
  * The tokeniser then takes a list of patterns, and for each pattern in the
  * list, tries to match it to a sequence of tokens within the sentence. If a
  * match is found, a join/separate decision is taken for the sequence as a
@@ -72,8 +72,8 @@ import com.typesafe.config.Config;
  * overlapping sequences, if the join/separate decision would result in default
  * decisions for the entire sequence, we only mark the first interval in the
  * sequence, and allow another pattern to match the remaining tokens. Otherwise,
- * we skip all tokens in this sequence before trying to match. <br/>
- * <br/>
+ * we skip all tokens in this sequence before trying to match. <br>
+ * <br>
  * The motivation for this pattern tokeniser is to concentrate training and
  * decisions on difficult cases, rather than blurring the training model with
  * oodles of obvious cases.

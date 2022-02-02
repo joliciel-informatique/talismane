@@ -30,7 +30,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 /**
  * Retrieves the token offset from the current token by <i>n</i> (in the linear
  * sentence), where <i>n</i> can be negative (before the current token) or
- * positive (after the current token).<br/>
+ * positive (after the current token).<br>
  * The "current token" is returned by the address function.
  * 
  * @author Assaf Urieli

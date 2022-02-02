@@ -44,8 +44,8 @@ import com.joliciel.talismane.utils.StringUtils;
 /**
  * A parent class for RegexAnnotator implementations, which knows how to
  * construct the Pattern using the various attributes set and the initial regex,
- * and how to apply the regex to get the matching placeholders.<br/>
- * <br/>
+ * and how to apply the regex to get the matching placeholders.<br>
+ * <br>
  * The following parameters are recognised:
  * <ul>
  * <li>group: see {@link RegexAnnotator#getGroupIndex()}</li>
@@ -55,8 +55,8 @@ import com.joliciel.talismane.utils.StringUtils;
  * <li>autoWordBoundaries: see {@link RegexAnnotator#isAutoWordBoundaries()}
  * </li>
  * </ul>
- * <br/>
- * <br/>
+ * <br>
+ * <br>
  * Any additional unrecognised parameters are assumed to be token attributes.
  * 
  * @author Assaf Urieli
