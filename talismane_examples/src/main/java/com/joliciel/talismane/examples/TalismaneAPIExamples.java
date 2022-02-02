@@ -45,9 +45,9 @@ import joptsimple.OptionSpec;
 
 /**
  * A class showing how to analyse a sentence using the Talismane API and an
- * existing language pack.<br/>
+ * existing language pack.<br>
  * 
- * Usage (barring the classpath, which must include Talismane jars):<br/>
+ * Usage (barring the classpath, which must include Talismane jars):<br>
  * 
  * <pre>
  * java -Dconfig.file=[languagePackConfigFile] com.joliciel.talismane.examples.TalismaneAPITest

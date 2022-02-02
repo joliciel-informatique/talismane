@@ -26,7 +26,7 @@ import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns true if token word is any one of the words provided.<br/>
+ * Returns true if token word is any one of the words provided.<br>
  * 
  * @author Assaf Urieli
  *

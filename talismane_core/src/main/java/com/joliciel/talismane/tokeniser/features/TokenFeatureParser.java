@@ -33,35 +33,35 @@ import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 public class TokenFeatureParser {
 
   /**
-   * Add token feature classes to the container provided, including:<br/>
-   * - AndRange: {@link AndRangeFeature}<br/>
-   * - BackwardSearch: {@link BackwardSearchFeature}<br/>
-   * - CountIf: {@link CountIfFeature}<br/>
-   * - FirstWordInCompound: {@link FirstWordInCompoundFeature}<br/>
-   * - FirstWordInSentence: {@link FirstWordInSentenceFeature}<br/>
-   * - ForwardSearch: {@link ForwardSearchFeature}<br/>
-   * - Has: {@link HasFeature}<br/>
-   * - HasClosedClassesOnly: {@link HasClosedClassesOnlyFeature}<br/>
-   * - IfThenElse: {@link IfThenElseTokenAddressFeature}<br/>
-   * - LastWordInCompound: {@link LastWordInCompoundFeature}<br/>
-   * - LastWordInSentence: {@link LastWordInSentenceFeature}<br/>
-   * - LemmaForPosTag: {@link LemmaForPosTagFeature}<br/>
-   * - LexiconAllPosTags: {@link LexiconAllPosTagsFeature}<br/>
-   * - LexiconPosTag: {@link LexiconPosTagFeature}<br/>
-   * - LexiconPosTagForString: {@link LexiconPosTagForStringFeature}<br/>
-   * - LexiconPosTags: {@link LexiconPosTagsFeature}<br/>
-   * - LexiconPosTagsForString: {@link LexiconPosTagsForStringFeature}<br/>
-   * - NLetterPrefix: {@link NLetterPrefixFeature}<br/>
-   * - NLetterSuffix: {@link NLetterSuffixFeature}<br/>
-   * - Offset: {@link TokenOffsetAddressFunction}<br/>
-   * - OrRange: {@link OrRangeFeature}<br/>
-   * - PosTagSet: {@link PosTagSetFeature}<br/>
-   * - Regex: {@link RegexFeature}<br/>
-   * - TokenAt: {@link TokenAtAddressFunction}<br/>
-   * - TokenIndex: {@link TokenIndexFeature}<br/>
-   * - UnknownWord: {@link UnknownWordFeature}<br/>
-   * - Word: {@link WordFeature}<br/>
-   * - WordForm: {@link TokenWordFormFeature}<br/>
+   * Add token feature classes to the container provided, including:<br>
+   * - AndRange: {@link AndRangeFeature}<br>
+   * - BackwardSearch: {@link BackwardSearchFeature}<br>
+   * - CountIf: {@link CountIfFeature}<br>
+   * - FirstWordInCompound: {@link FirstWordInCompoundFeature}<br>
+   * - FirstWordInSentence: {@link FirstWordInSentenceFeature}<br>
+   * - ForwardSearch: {@link ForwardSearchFeature}<br>
+   * - Has: {@link HasFeature}<br>
+   * - HasClosedClassesOnly: {@link HasClosedClassesOnlyFeature}<br>
+   * - IfThenElse: {@link IfThenElseTokenAddressFeature}<br>
+   * - LastWordInCompound: {@link LastWordInCompoundFeature}<br>
+   * - LastWordInSentence: {@link LastWordInSentenceFeature}<br>
+   * - LemmaForPosTag: {@link LemmaForPosTagFeature}<br>
+   * - LexiconAllPosTags: {@link LexiconAllPosTagsFeature}<br>
+   * - LexiconPosTag: {@link LexiconPosTagFeature}<br>
+   * - LexiconPosTagForString: {@link LexiconPosTagForStringFeature}<br>
+   * - LexiconPosTags: {@link LexiconPosTagsFeature}<br>
+   * - LexiconPosTagsForString: {@link LexiconPosTagsForStringFeature}<br>
+   * - NLetterPrefix: {@link NLetterPrefixFeature}<br>
+   * - NLetterSuffix: {@link NLetterSuffixFeature}<br>
+   * - Offset: {@link TokenOffsetAddressFunction}<br>
+   * - OrRange: {@link OrRangeFeature}<br>
+   * - PosTagSet: {@link PosTagSetFeature}<br>
+   * - Regex: {@link RegexFeature}<br>
+   * - TokenAt: {@link TokenAtAddressFunction}<br>
+   * - TokenIndex: {@link TokenIndexFeature}<br>
+   * - UnknownWord: {@link UnknownWordFeature}<br>
+   * - Word: {@link WordFeature}<br>
+   * - WordForm: {@link TokenWordFormFeature}<br>
    */
   public static void addFeatureClasses(FeatureClassContainer container) {
     container.addFeatureClass("AndRange", AndRangeFeature.class);

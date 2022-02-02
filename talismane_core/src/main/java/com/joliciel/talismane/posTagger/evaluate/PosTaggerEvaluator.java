@@ -86,7 +86,6 @@ public class PosTaggerEvaluator {
    * 
    * @param tokeniser
    *          if not null, evaluate tokenisation as well.
-   * @param session
    */
   public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser, String sessionId) {
     this.posTagger = posTagger;

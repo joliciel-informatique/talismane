@@ -50,7 +50,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 
 /**
- * The central class for parsing a descriptor containing parser features.<br/>
+ * The central class for parsing a descriptor containing parser features.<br>
  * The list of available features is given in
  * {@link #addFeatureClasses(FeatureClassContainer)}.
  * 
@@ -150,33 +150,33 @@ public class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguratio
   }
 
   /**
-   * Adds the following feature class mappings:<br/>
-   * - AncestorSearch: {@link AncestorSearchFeature}<br/>
-   * - BackwardSearch: {@link BackwardSearchFeature}<br/>
-   * - BetweenCountIf: {@link BetweenCountIf}<br/>
-   * - Buffer: {@link AddressFunctionBuffer}<br/>
-   * - Dep: {@link AddressFunctionDep}<br/>
-   * - DepCountIf: {@link DependencyCountIf}<br/>
-   * - DepLabel: {@link DependencyLabelFeature}<br/>
-   * - DependencyLabel: {@link DependencyLabelFeature}<br/>
-   * - DepLabelSet: {@link DependencyLabelSetFeature}<br/>
-   * - DepSearch: {@link DependencySearchFeature}<br/>
-   * - Distance: {@link DistanceFeature}<br/>
-   * - ForwardSearch: {@link ForwardSearchFeature}<br/>
-   * - Head: {@link AddressFunctionHead}<br/>
-   * - LDep: {@link AddressFunctionLDep}<br/>
-   * - Offset: {@link AddressFunctionOffset}<br/>
-   * - Placeholder: {@link ImplicitAddressFeature}<br/>
-   * - RDep: {@link AddressFunctionRDep}<br/>
-   * - Seq: {@link AddressFunctionSequence}<br/>
-   * - Stack: {@link AddressFunctionStack}<br/>
-   * - StackSearch: {@link StackSearchFeature}<br/>
-   * - TokenSearch: {@link TokenSearchFeature}<br/>
-   * - Valency: {@link ValencyFeature}<br/>
-   * - Valency: {@link ValencyByLabelFeature}<br/>
+   * Adds the following feature class mappings:<br>
+   * - AncestorSearch: {@link AncestorSearchFeature}<br>
+   * - BackwardSearch: {@link BackwardSearchFeature}<br>
+   * - BetweenCountIf: {@link BetweenCountIf}<br>
+   * - Buffer: {@link AddressFunctionBuffer}<br>
+   * - Dep: {@link AddressFunctionDep}<br>
+   * - DepCountIf: {@link DependencyCountIf}<br>
+   * - DepLabel: {@link DependencyLabelFeature}<br>
+   * - DependencyLabel: {@link DependencyLabelFeature}<br>
+   * - DepLabelSet: {@link DependencyLabelSetFeature}<br>
+   * - DepSearch: {@link DependencySearchFeature}<br>
+   * - Distance: {@link DistanceFeature}<br>
+   * - ForwardSearch: {@link ForwardSearchFeature}<br>
+   * - Head: {@link AddressFunctionHead}<br>
+   * - LDep: {@link AddressFunctionLDep}<br>
+   * - Offset: {@link AddressFunctionOffset}<br>
+   * - Placeholder: {@link ImplicitAddressFeature}<br>
+   * - RDep: {@link AddressFunctionRDep}<br>
+   * - Seq: {@link AddressFunctionSequence}<br>
+   * - Stack: {@link AddressFunctionStack}<br>
+   * - StackSearch: {@link StackSearchFeature}<br>
+   * - TokenSearch: {@link TokenSearchFeature}<br>
+   * - Valency: {@link ValencyFeature}<br>
+   * - Valency: {@link ValencyByLabelFeature}<br>
    * - All definitions in
    * {@link PosTaggerFeatureParser#addPosTaggedTokenFeatureClasses(FeatureClassContainer)}
-   * <br/>
+   * <br>
    */
   @Override
   public void addFeatureClasses(FeatureClassContainer container) {

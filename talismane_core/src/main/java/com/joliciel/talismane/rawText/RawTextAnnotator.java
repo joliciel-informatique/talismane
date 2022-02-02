@@ -24,7 +24,7 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
 
 /**
  * An annotator for a block of raw text. It can add the following annotations:
- * <br/>
+ * <br>
  * <ul>
  * <li>{@link RawTextMarker} to mark sections to skip, encoding to fix (e.g.
  * replace &amp;quot; with a quote, sections to output, deterministic sentence

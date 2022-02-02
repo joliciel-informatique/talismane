@@ -30,14 +30,14 @@ import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * An external resource read from a text file.<br/>
- * The first line must be "Type: KeyValue". <br/>
- * The default name will be the filename.<br/>
+ * An external resource read from a text file.<br>
+ * The first line must be "Type: KeyValue". <br>
+ * The default name will be the filename.<br>
  * If a line starts with the string "Name: ", the default name will be replaced
- * by this name.<br/>
- * All lines starting with # are skipped.<br/>
- * Any other line will be broken up by tabs:<br/>
- * One tab per key component, and the last tab is the class.<br/>
+ * by this name.<br>
+ * All lines starting with # are skipped.<br>
+ * Any other line will be broken up by tabs:<br>
+ * One tab per key component, and the last tab is the class.<br>
  * 
  * @author Assaf Urieli
  *

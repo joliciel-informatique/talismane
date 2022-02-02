@@ -50,13 +50,13 @@ public interface PosTagEvaluationObserver {
 
   /**
    * Collect the observers specified in the configuration key
-   * talismane.core.[sessionId].pos-tagger.evaluate.observers.<br/>
-   * <br/>
+   * talismane.core.[sessionId].pos-tagger.evaluate.observers.<br>
+   * <br>
    * Each processor must implement this interface and must have a constructor
-   * matching one of the following signatures:<br/>
-   * - ( {@link File} outputDir, {@link String} sessionId)<br/>
-   * - ( {@link String} sessionId)<br/>
-   * <br/>
+   * matching one of the following signatures:<br>
+   * - ( {@link File} outputDir, {@link String} sessionId)<br>
+   * - ( {@link String} sessionId)<br>
+   * <br>
    * 
    * @param outDir
    *          directory in which to write the various outputs

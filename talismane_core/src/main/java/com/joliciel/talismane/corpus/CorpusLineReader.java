@@ -41,12 +41,12 @@ import com.joliciel.talismane.lexicon.WritableLexicalEntry;
 
 /**
  * A corpus reader that expects one token per line, and analyses the line
- * content based on a regex supplied during construction.<br/>
- * <br/>
+ * content based on a regex supplied during construction.<br>
+ * <br>
  * The regex contains placeholders, indicated by %, the name of a
  * {@link CorpusElement}, and another %. For example: %TOKEN% for the
- * {@link CorpusElement#TOKEN}.<br/>
- * <br/>
+ * {@link CorpusElement#TOKEN}.<br>
+ * <br>
  * Inside this regex, the placeholders will be replaced by
  * {@link CorpusElement#getReplacement()}, prior to applying the regex to each
  * line read.

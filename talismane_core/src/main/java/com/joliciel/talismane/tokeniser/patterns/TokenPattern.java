@@ -31,36 +31,36 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
  * A pattern for analysing whether a particular token is likely to have a
- * TokeniserDecision different from the default for this token.<br/>
+ * TokeniserDecision different from the default for this token.<br>
  * When matching a TokeniserPattern, we check if any set of n tokens in a
- * TokenSequence matches it.<br/>
+ * TokenSequence matches it.<br>
  * If so, all of the tokens inside the set are to be tested further, unless they
- * have been marked with {} as not for further testing.<br/>
+ * have been marked with {} as not for further testing.<br>
  * The TokeniserPattern will always match an exact number of tokens in a
- * TokenSequence.<br/>
+ * TokenSequence.<br>
  * The number of tokens <i>n</i> to be matched is calculated from the number of
- * separators explicitly included in the TokeniserPattern.<br/>
+ * separators explicitly included in the TokeniserPattern.<br>
  * For example, the pattern "parce que" and "parce qu'" need to be listed
  * separately, as the second one has an additional separator. They can be given
- * the same name, to ensure they are handled as one statistical group.<br/>
+ * the same name, to ensure they are handled as one statistical group.<br>
  * This regexp on which this is built similar to a standard Pattern, but with
- * some limits:<br/>
+ * some limits:<br>
  * The only permissible regular expression symbols for now are: . + ( ) | [ ] ^
- * \d \D \s \p \b \z and any of these escaped with a backslash.<br/>
+ * \d \D \s \p \b \z and any of these escaped with a backslash.<br>
  * The \p symbol has a special meaning: any separator (punctuation or
- * whitespace).<br/>
+ * whitespace).<br>
  * The \b symbol has a special meaning: whitespace, sentence start or sentence
- * end.<br/>
+ * end.<br>
  * The repeated wildcard .+ is always assumed to represent a single
- * non-separating token.<br/>
+ * non-separating token.<br>
  * Groups separated by the | operator must be surrounded by (). They should not
  * contain any separators, so that the number of tokens to be tested is always
- * constant (create separate TokeniserPattern if absolutely required).<br/>
+ * constant (create separate TokeniserPattern if absolutely required).<br>
  * Groups in the [] operator must either contain only separators, or only
- * non-separators.<br/>
+ * non-separators.<br>
  * The { } symbols have a special meaning: around set of tokens, they are taken
  * to mean that these tokens are only there to give context, and should not be
- * tested further to override the default.<br/>
+ * tested further to override the default.<br>
  * The \p, \s and \b symbols are always assumed to be inside curly brackets (no
  * further testing)
  * 

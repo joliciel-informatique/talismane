@@ -44,14 +44,14 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 
 /**
  * A token is a single parsing unit, which can have dependents and a governor.
- * <br/>
+ * <br>
  * A token is more-or-less equivalent to a word, although punctuation (and in
- * some case white space) count as tokens as well.<br/>
+ * some case white space) count as tokens as well.<br>
  * Some languages may consider compound words (e.g. "of course") as a single
  * token, and some may insert empty tokens into sentences (e.g. when a single
- * token represents two POS tags downstream, such as "auquel" in French).<br/>
+ * token represents two POS tags downstream, such as "auquel" in French).<br>
  * Some languages may break a single word up into multiple tokens (e.g. biblical
- * or modern Hebrew for the coordinating conjunction "ve").<br/>
+ * or modern Hebrew for the coordinating conjunction "ve").<br>
  * 
  * @author Assaf Urieli
  *
@@ -152,9 +152,9 @@ public class Token implements TokenWrapper, Serializable {
    * This token's text for analysis purposes. In some cases, the analysis text
    * might group together different tokens into a single equivalence class, for
    * example, you may wish to analyse all numbers identically by assigning the
-   * analysis text to "999".<br/>
-   * If the token's analysis text has been set, it will be returned.<br/>
-   * Else, if the token's text has been set, it will be returned.<br/>
+   * analysis text to "999".<br>
+   * If the token's analysis text has been set, it will be returned.<br>
+   * Else, if the token's text has been set, it will be returned.<br>
    * Else, the original text is returned.
    */
 
@@ -172,8 +172,8 @@ public class Token implements TokenWrapper, Serializable {
 
   /**
    * The token's processed text, after corrections for encoding/spelling etc.
-   * <br/>
-   * If the token's text has been set, it will be returned.<br/>
+   * <br>
+   * If the token's text has been set, it will be returned.<br>
    * Else, the original text is returned.
    * 
    * @return

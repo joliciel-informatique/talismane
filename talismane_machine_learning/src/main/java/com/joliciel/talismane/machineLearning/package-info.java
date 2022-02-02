@@ -7,7 +7,7 @@
  * based on a
  * {@link com.joliciel.talismane.machineLearning.ClassificationEventStream}
  * which consists of a stream of
- * {@link com.joliciel.talismane.machineLearning.ClassificationEvent}.<br/>
+ * {@link com.joliciel.talismane.machineLearning.ClassificationEvent}.<br>
  * This model provides a
  * {@link com.joliciel.talismane.machineLearning.DecisionMaker} capable of
  * returning a list of {@link com.joliciel.talismane.machineLearning.Decision}

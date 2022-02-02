@@ -23,9 +23,9 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
- * A PosTaggerRule is specified by a boolean feature and a PosTag.<br/>
+ * A PosTaggerRule is specified by a boolean feature and a PosTag.<br>
  * If the boolean feature evaluates to true, the token will automatically be
- * assigned the PosTag in question, without taking any further decisions.<br/>
+ * assigned the PosTag in question, without taking any further decisions.<br>
  * Negative rules are also possible: in this case, the PosTag in question is
  * eliminated from the set of possible PosTags (unless no other PosTags are
  * possible).

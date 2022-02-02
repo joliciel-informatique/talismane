@@ -21,7 +21,7 @@ package com.joliciel.talismane.rawText;
 /**
  * A marker that can be applied at a certain character position in the text,
  * indicating whether processing should stop or start again, and whether a hard
- * sentence break should be applied.<br/>
+ * sentence break should be applied.<br>
  * Note that declaration order is important, since SENTENCE_BREAK needs to be
  * processed after POP_SKIP for the identical position.
  * 

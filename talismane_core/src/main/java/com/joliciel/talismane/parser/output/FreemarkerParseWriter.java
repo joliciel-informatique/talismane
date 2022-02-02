@@ -55,7 +55,7 @@ import freemarker.template.Version;
  * Processes parser output by writing via a freemarker template. Will either use
  * the built-in template specified in
  * talismane.core.[sessionId].parser.output.built-in-template, or any other
- * template specified in talismane.core.[sessionId].parser.output.template.<br/>
+ * template specified in talismane.core.[sessionId].parser.output.template.<br>
  * If no writer is specified, will write to a file with the suffix "_dep.txt".
  * 
  * @author Assaf Urieli

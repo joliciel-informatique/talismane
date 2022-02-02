@@ -26,12 +26,12 @@ import com.joliciel.talismane.TalismaneMain;
 import com.joliciel.talismane.extensions.standoff.ConllFileSplitter;
 
 /**
- * Extensions use a command-line identical to {@link TalismaneMain}.<br/>
- * <br/>
+ * Extensions use a command-line identical to {@link TalismaneMain}.<br>
+ * <br>
  * To use extensions, various configuration settings need to be updated to refer
  * to the classes in this package, and in some cases fill in their specific
- * configuration settings. See the reference.conf file for details.<br/>
- * <br/>
+ * configuration settings. See the reference.conf file for details.<br>
+ * <br>
  * The current exception is the --splitConllFile command, which has it's own
  * command line. See {@link ConllFileSplitter} for details.
  * 

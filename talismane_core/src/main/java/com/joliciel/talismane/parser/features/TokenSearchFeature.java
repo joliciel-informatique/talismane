@@ -31,20 +31,20 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Returns the first token in a given range which matches a certain criterion,
- * or null if no such token is found.<br/>
+ * or null if no such token is found.<br>
  * If a start index is provided as a second argument, will start looking at this
- * index.<br/>
+ * index.<br>
  * If an end index is provided as a third argument, will continue until the end
- * index.<br/>
+ * index.<br>
  * All indexes must be &lt;= the current history size, otherwise only valid
- * indexes will be looked at.<br/>
+ * indexes will be looked at.<br>
  * If start index &gt;= end index, will look backwards, otherwise will look
- * forwards.<br/>
+ * forwards.<br>
  * A stopCriterion can be provided, in which case the search will stop as soon
  * as the stop criterion is hit. In this case, the find criterion is always
- * checked before the stop criterion.<br/>
+ * checked before the stop criterion.<br>
  * The user can indicate whether to find the first or the last occurrence
- * (default is first).<br/>
+ * (default is first).<br>
  * The user can indicate a set of skip criteria, which indicate portions of the
  * sentence to be skipped. These are organised in pairs, where the first item in
  * the pair indicates start skip, and the second item in the pair indicates end

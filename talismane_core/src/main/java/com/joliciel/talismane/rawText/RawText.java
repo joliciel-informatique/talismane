@@ -22,8 +22,8 @@ import com.joliciel.talismane.TalismaneSession;
 
 /**
  * An annotated text which can be filtered and sentence-detected, after which we
- * can retrieve the resulting sentences. <br/>
- * <br/>
+ * can retrieve the resulting sentences. <br>
+ * <br>
  * Typical usage:
  * 
  * <pre>

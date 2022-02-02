@@ -26,10 +26,10 @@ import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.parser.Transition;
 
 /**
- * A ParserRule is specified by a boolean feature and a Transition.<br/>
+ * A ParserRule is specified by a boolean feature and a Transition.<br>
  * If the boolean feature evaluates to true, the configuration will
  * automatically be assigned the Transition in question, without taking any
- * further decisions.<br/>
+ * further decisions.<br>
  * Negative rules are also possible: in this case, the Transition in question is
  * eliminated from the set of possible Transitions (unless no other Transitions
  * are possible).

@@ -45,13 +45,13 @@ import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
 /**
- * A Tokeniser splits a sentence up into tokens (parsing units).<br/>
- * <br/>
+ * A Tokeniser splits a sentence up into tokens (parsing units).<br>
+ * <br>
  * It adds annotations of type {@link TokenBoundary} to the sentence, which are
- * guaranteed not to overlap.<br/>
- * <br/>
+ * guaranteed not to overlap.<br>
+ * <br>
  * The Tokeniser must recognise the following annotations in the sentence
- * provided:<br/>
+ * provided:<br>
  * <ul>
  * <li>{@link TokenPlaceholder}: will get replaced by a token.</li>
  * <li>{@link TokenAttribute}: will add attributes to all tokens contained

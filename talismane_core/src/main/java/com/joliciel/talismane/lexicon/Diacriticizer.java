@@ -162,7 +162,7 @@ public class Diacriticizer implements Serializable {
    * undecorated lowercase or uppercase. If the original letter is in the
    * lowercase, it must remain identical. If the original letter is a decorated
    * uppercase, the equivalent letter must be the decorated lowercase or
-   * uppercase.<br/>
+   * uppercase.<br>
    * Thus, for a french glossary, "MANGE" will return "mangé" and "mange", "A"
    * will return "à" and "a", "À" will return only "à", and "a" will return only
    * "a".

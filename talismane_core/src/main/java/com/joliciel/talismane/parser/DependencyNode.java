@@ -30,12 +30,12 @@ import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
 
 /**
  * A partial sub-tree of a syntax analysis, which might not contain all of the
- * dependents of the parent node.<br/>
+ * dependents of the parent node.<br>
  * 
  * It is is constructed little by little, adding dependents using the
  * {@link #addDependent(DependencyNode)} or
  * {@link #addDependent(PosTaggedToken)} methods - typical usage would be the
- * construction of noun phrases for terminology extraction.<br/>
+ * construction of noun phrases for terminology extraction.<br>
  * 
  * @author Assaf Urieli
  *
@@ -208,7 +208,7 @@ public class DependencyNode implements Comparable<DependencyNode> {
   }
 
   /**
-   * Language-specific depth as a typical user would expect to see it.<br/>
+   * Language-specific depth as a typical user would expect to see it.<br>
    * In French, for example, a preposition and its object would thus be a single
    * layer of depth, equivalent to a single adjective when modifying a noun. A
    * determinent would not add to its governor's depth.

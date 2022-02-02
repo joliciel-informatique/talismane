@@ -31,15 +31,15 @@ import com.joliciel.talismane.utils.RegexUtils;
 /**
  * A regex annotator which tokenises the matched group as a single separate
  * token, and offers the possibility of a replacement string to replace the
- * token text.<br/>
- * <br/>
+ * token text.<br>
+ * <br>
  * In addition to the parameters recognised by {@link AbstractRegexAnnotator},
  * recognises:
  * <ul>
  * <li>replacement: see {@link #getReplacement()}.</li>
  * <li>analysisText: see {@link #getAnalysisText()}.</li>
  * </ul>
- * <br/>
+ * <br>
  * 
  * @author Assaf Urieli
  *

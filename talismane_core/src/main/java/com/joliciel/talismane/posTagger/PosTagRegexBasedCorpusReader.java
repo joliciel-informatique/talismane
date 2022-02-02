@@ -44,12 +44,12 @@ import com.typesafe.config.Config;
 /**
  * A corpus reader that expects one pos-tagged token per line, and analyses the
  * line content based on a regex supplied during construction, via a
- * {@link CorpusLineReader}.<br/>
+ * {@link CorpusLineReader}.<br>
  * 
- * The following placeholders are required:<br/>
- * {@link CorpusElement#TOKEN}, {@link CorpusElement#POSTAG}. <br/>
+ * The following placeholders are required:<br>
+ * {@link CorpusElement#TOKEN}, {@link CorpusElement#POSTAG}. <br>
  * These are included surrounded by % signs on both sides, and without the
- * prefix "CorpusElement."<br/>
+ * prefix "CorpusElement."<br>
  * 
  * Example (note that the regex is applied to one line, so no endline is
  * necessary):

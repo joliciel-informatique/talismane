@@ -29,13 +29,13 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
  * Returns the first token in a given range which matches a certain criterion,
- * or null if no such token is found.<br/>
+ * or null if no such token is found.<br>
  * If a start index is provided as a second argument, will start looking at this
- * index, otherwise at the current token's index-1.<br/>
+ * index, otherwise at the current token's index-1.<br>
  * If an end index is provided as a third argument, will continue until the end
- * index, otherwise until token 0.<br/>
+ * index, otherwise until token 0.<br>
  * All indexes must be &lt;= the current history size, otherwise only valid
- * indexes will be looked at.<br/>
+ * indexes will be looked at.<br>
  * If start index &gt;= end index, will look backwards, otherwise will look
  * forwards.
  * 

@@ -78,7 +78,6 @@ public class SentenceDetectorEvaluator {
    * @param corpusReader
    *          for reading manually separated sentences from a corpus
    * @param errorWriter
-   * @param session
    */
   public SentenceDetectorEvaluator(SentenceDetector sentenceDetector, SentenceDetectorAnnotatedCorpusReader corpusReader, Writer errorWriter,
       String sessionId) {
