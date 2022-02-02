@@ -34,11 +34,11 @@ import com.typesafe.config.ConfigFactory;
 
 /**
  * Transforms a non-projective corpus to a projective corpus by attaching
- * non-projective arcs to a projective head.<br/>
+ * non-projective arcs to a projective head.<br>
  * Does not write any output directly - this needs to be taken care of by
- * another ParseConfigurationProcessor.<br/>
- * <br/>
- * The strategy for selecting the projective head is as follows:<br/>
+ * another ParseConfigurationProcessor.<br>
+ * <br>
+ * The strategy for selecting the projective head is as follows:<br>
  * <ul>
  * <li>A non-projective relationship involves two arcs which cross each other.
  * Let D<sub>1</sub> and D<sub>2</sub> be the dependents of these arcs.</li>

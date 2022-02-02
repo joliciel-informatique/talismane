@@ -53,7 +53,7 @@ public class CompactLexicalEntrySupport implements Serializable {
 
   /**
    * Get or create a byte array used to uniquely represent this attribute value.
-   * <br/>
+   * <br>
    * The last byte is guaranteed to be positive (e.g. bit 8 is 0). All other
    * bytes are guaranteed to be negative (e.g. bit 8 is 1).
    */

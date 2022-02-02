@@ -25,7 +25,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * Checks whether a given pos-tagged token meets a certain criterion.<br/>
+ * Checks whether a given pos-tagged token meets a certain criterion.<br>
  * 
  * @author Assaf Urieli
  *

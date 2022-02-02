@@ -18,8 +18,8 @@ import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 /**
  * A sequence of tokens. Note: by default, List iteration and associated methods
  * will only return non-whitespace tokens. For a list that includes whitespace
- * tokens, use the listWithWhiteSpace() method.<br/>
- * <br/>
+ * tokens, use the listWithWhiteSpace() method.<br>
+ * <br>
  * Only a single attribute of a given key can be added per token. If two
  * attribute placeholders overlap and assign the same key, the one with the
  * lower start index is privileged for all tokens, and the other one is skipped
@@ -406,7 +406,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
   /**
    * Cleans out any collections of modifications, so that any modifications
-   * after this clean slate can be viewed.<br/>
+   * after this clean slate can be viewed.<br>
    * If run before applying filters, will enable the client code to detect any
    * tokens added by the filters.
    * 

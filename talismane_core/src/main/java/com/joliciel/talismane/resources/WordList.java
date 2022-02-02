@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * An external word list read from a text file.<br/>
- * The first line must be "Type: WordList". <br/>
- * The default name will be the filename.<br/>
+ * An external word list read from a text file.<br>
+ * The first line must be "Type: WordList". <br>
+ * The default name will be the filename.<br>
  * If a line starts with the string "Name: ", the default name will be replaced
- * by this name.<br/>
- * All lines starting with # are skipped.<br/>
+ * by this name.<br>
+ * All lines starting with # are skipped.<br>
  * All other lines contain words.
  * 
  * @author Assaf Urieli

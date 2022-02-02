@@ -27,10 +27,10 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Returns the first token preceding this one which matches a certain criterion,
- * or null if no such token is found.<br/>
+ * or null if no such token is found.<br>
  * The user may optionally provide absolute indexes to limit the search. By
  * default, the start index is the current token index-1, and the end index is
- * 0.<br/>
+ * 0.<br>
  * If start index &lt; end index, returns null.
  * 
  * @author Assaf Urieli

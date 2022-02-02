@@ -70,17 +70,15 @@ public class TokenPerLineCorpusReader extends AbstractAnnotatedCorpusReader impl
 
   /**
    * Add attributes as specified in the config to the corpus reader. Recognises
-   * the attributes:<br/>
+   * the attributes:<br>
    * - input-pattern: the pattern to match corpus line elements, see class
-   * description.<br/>
-   * - sentence-file: where to read the correctly formatted sentences<br/>
+   * description.<br>
+   * - sentence-file: where to read the correctly formatted sentences<br>
    * - corpus-lexical-entry-regex: how to read the lexical entries, see
-   * {@link RegexLexicalEntryReader}<br/>
+   * {@link RegexLexicalEntryReader}<br>
    * 
    * @param config
    *          the local config for this corpus reader (local namespace)
-   * @throws ReflectiveOperationException
-   *           if a TokenFilter cannot be built
    */
   public TokenPerLineCorpusReader(Reader reader, Config config, String sessionId) throws IOException, TalismaneException {
     super(config, sessionId);

@@ -38,24 +38,24 @@ import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 
 /**
  * The TokeniserPatternManager will read patterns from a list of strings,
- * typically stored in a file.<br/>
- * <br/>
+ * typically stored in a file.<br>
+ * <br>
  * The list of strings should contain default decisions for the various
- * separators, in lines as follows:<br/>
- * IS_NOT_SEPARATOR -<br/>
- * IS_SEPARATOR_AFTER '<br/>
- * IS_SEPARATOR_BEFORE<br/>
+ * separators, in lines as follows:<br>
+ * IS_NOT_SEPARATOR -<br>
+ * IS_SEPARATOR_AFTER '<br>
+ * IS_SEPARATOR_BEFORE<br>
  * All other separators are assumed to separate tokens on both sides
- * (IS_SEPARATOR)<br/>
- * <br/>
- * Next, it should contain a list of patterns.<br/>
+ * (IS_SEPARATOR)<br>
+ * <br>
+ * Next, it should contain a list of patterns.<br>
  * Optionally, each pattern can be preceded by a user-friendly name and a tab.
- * <br/>
+ * <br>
  * Patterns are used to check if any set of n atomic tokens in a sentence
  * matches it. If so, all of the separators inside the set are tested further.
- * <br/>
+ * <br>
  * More information on patterns can be found in the {@link TokenPattern} class.
- * <br/>
+ * <br>
  * 
  * @author Assaf Urieli
  *

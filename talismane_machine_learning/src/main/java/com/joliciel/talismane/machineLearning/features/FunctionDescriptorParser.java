@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor.FunctionDescriptorType;
 
 /**
- * A parser for textual function descriptors.<br/>
+ * A parser for textual function descriptors.<br>
  * If the descriptor contains a double-quote delimited string, this string can
  * contain \" and \\, which will escape " and \. Any other occurrences of \ will
  * not be escaped.

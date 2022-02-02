@@ -32,16 +32,16 @@ import com.typesafe.config.ConfigFactory;
 
 /**
  * Modifies a corpus in simple ways, by replacing labels with other ones, or
- * removing dependencies.<br/>
- * Each rule has the following format<br/>
- * GOVPOS\tGOV\tDEPPOS\tDEP\tLABEL\tACTION\tNEWLABEL<br/>
- * Where GOVPOS is the governor's pos-tag, or * for any.<br/>
- * GOV is the governor's word form, or * for any.<br/>
- * DEPPOS is the dependent's pos-tag, or * for any<br/>
- * DEP is the dependent's word form, or * for any<br/>
- * LABEL is the current label, or * for any<br/>
- * ACTION is either Replace or Remove<br/>
- * NEWLABEL is a new label, only required if action is Replace.<br/>
+ * removing dependencies.<br>
+ * Each rule has the following format<br>
+ * GOVPOS\tGOV\tDEPPOS\tDEP\tLABEL\tACTION\tNEWLABEL<br>
+ * Where GOVPOS is the governor's pos-tag, or * for any.<br>
+ * GOV is the governor's word form, or * for any.<br>
+ * DEPPOS is the dependent's pos-tag, or * for any<br>
+ * DEP is the dependent's word form, or * for any<br>
+ * LABEL is the current label, or * for any<br>
+ * ACTION is either Replace or Remove<br>
+ * NEWLABEL is a new label, only required if action is Replace.<br>
  * Any line starting with # is ignored.
  * 
  * @author Assaf Urieli

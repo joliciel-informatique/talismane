@@ -30,10 +30,10 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 
 /**
  * Returns a token offset from the TokeniserPattern containing the present
- * token.<br/>
+ * token.<br>
  * This allows us to find the word preceding a given compound candidate, or
- * following a given compound candidate.<br/>
- * Returns null if the offset goes outside the token sequence.<br/>
+ * following a given compound candidate.<br>
+ * Returns null if the offset goes outside the token sequence.<br>
  * 
  * @author Assaf Urieli
  *

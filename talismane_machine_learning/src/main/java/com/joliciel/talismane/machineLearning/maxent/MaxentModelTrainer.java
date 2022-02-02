@@ -39,7 +39,7 @@ import opennlp.model.EventStream;
 import opennlp.model.MaxentModel;
 
 /**
- * Trains a MaxEnt machine learning model for a given CorpusEventStream.<br/>
+ * Trains a MaxEnt machine learning model for a given CorpusEventStream.<br>
  * Uses the Apache OpenNLP OpenMaxent implementation.
  * 
  * @author Assaf Urieli

@@ -66,7 +66,7 @@ public class CorpusStatisticsWriter implements ParseConfigurationProcessor {
   private final CorpusStatistics referenceStats;
 
   /**
-   * Statistics will be written to a file with the extension "_stats.csv".<br/>
+   * Statistics will be written to a file with the extension "_stats.csv".<br>
    * Statistics will be stored for future reference in "_stats.zip".
    * 
    * @throws ClassNotFoundException

@@ -40,7 +40,7 @@ import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * A token with a postag tagged onto it.<br/>
+ * A token with a postag tagged onto it.<br>
  * Note: this class naturally implements {@link PosTaggerContext} since if a
  * token has already been pos-tagged, the once before it have been pos-tagged as
  * well. This allows us to use the same features on the token currently being
@@ -138,9 +138,9 @@ public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedToke
   }
 
   /**
-   * This pos-tagged token's lemma, or null if no lemma found.<br/>
+   * This pos-tagged token's lemma, or null if no lemma found.<br>
    * If there are multiple lexical entries, the first one's lemma is returned.
-   * <br/>
+   * <br>
    * If all possible lemmas are required, they need to be retrieved from
    * {@link #getLexicalEntries()}.
    */

@@ -30,12 +30,12 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Examines the atomic tokens from <i>n</i> before the boundary to <i>n</i>
- * after the boundary.<br/>
- * For each token, if it is whitespace, adds " " to the result.<br/>
- * If it is a separator, adds the original separator to the result.<br/>
+ * after the boundary.<br>
+ * For each token, if it is whitespace, adds " " to the result.<br>
+ * If it is a separator, adds the original separator to the result.<br>
  * If it is a capitalised word, adds, "W", "Wo" or "Word", depending on whether
- * the word is 1 letter, 2 letters, or more.<br/>
- * Otherwise adds "word" to the result.<br/>
+ * the word is 1 letter, 2 letters, or more.<br>
+ * Otherwise adds "word" to the result.<br>
  * 
  * @author Assaf Urieli
  *

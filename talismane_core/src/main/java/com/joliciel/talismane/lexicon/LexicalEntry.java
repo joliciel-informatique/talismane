@@ -113,11 +113,11 @@ public interface LexicalEntry extends Serializable {
   public String getMorphology();
 
   /**
-   * Get any attribute for this lexical entry, as a String.<br/>
+   * Get any attribute for this lexical entry, as a String.<br>
    * If the attribute is a {@link LexicalAttribute}, it will return the
-   * corresponding attribute.<br/>
+   * corresponding attribute.<br>
    * If it is a String, will try to match it to an existing OtherAttribute, and
-   * return the corresponding value.<br/>
+   * return the corresponding value.<br>
    * If the attribute is a List, the items will be joined together into a single
    * pipe-delimited String.
    */

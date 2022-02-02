@@ -38,7 +38,7 @@ import com.joliciel.talismane.utils.JolicielException;
 /**
  * An abstract base class for feature parsers, which simplifies the parsing by
  * performing reflection on the feature classes corresponding to function names.
- * <br/>
+ * <br>
  * The list of available features is given in
  * {@link #addFeatureClasses(FeatureClassContainer)}.
  * 
@@ -768,79 +768,79 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 
   /**
    * Add all feature classes supported by this parser via calls to
-   * addFeatureClass.<br/>
+   * addFeatureClass.<br>
    * Note: for a given classname which is mapped to two different classes, one
    * with IntegerFeature and one with DoubleFeature arguments, the version with
    * the IntegerFeature arguments should always be added first. This is only
    * required if the class returns a different type of feature result (e.g. int
-   * or double) depending on the arguments provided. <br/>
+   * or double) depending on the arguments provided. <br>
    * 
-   * Adds the following mappings before sub-class mappings: <br/>
-   * • -: {@link MinusIntegerOperator}<br/>
-   * • -: {@link MinusOperator}<br/>
-   * • +: {@link PlusIntegerOperator}<br/>
-   * • +: {@link PlusOperator}<br/>
-   * • *: {@link MultiplyIntegerOperator}<br/>
-   * • *: {@link MultiplyOperator}<br/>
-   * • /: {@link DivideOperator}<br/>
-   * • %: {@link ModuloOperator}<br/>
-   * • ==: {@link EqualsOperatorForString}<br/>
-   * • ==: {@link EqualsOperatorForInteger}<br/>
-   * • ==: {@link EqualsOperatorForDouble}<br/>
-   * • ==: {@link EqualsOperatorForBoolean}<br/>
-   * • !=: {@link NotEqualsOperator}<br/>
-   * • &gt;: {@link GreaterThanIntegerOperator}<br/>
-   * • &gt;: {@link GreaterThanOperator}<br/>
-   * • &gt;=: {@link GreaterThanOrEqualsIntegerOperator}<br/>
-   * • &gt;=: {@link GreaterThanOrEqualsOperator}<br/>
-   * • &lt;: {@link LessThanIntegerOperator}<br/>
-   * • &lt;: {@link LessThanOperator}<br/>
-   * • &lt;=: {@link LessThanOrEqualsIntegerOperator}<br/>
-   * • &lt;=: {@link LessThanOrEqualsOperator}<br/>
-   * • &amp;: {@link AndFeatureAllowNulls}<br/>
-   * • &amp;&amp;: {@link AndFeature}<br/>
-   * • |: {@link OrFeatureAllowNulls}<br/>
-   * • ||: {@link ConcatenateFeature}<br/>
-   * • ||: {@link OrFeature}<br/>
-   * • And: {@link AndFeature}<br/>
-   * • AndAllowNulls: {@link AndFeatureAllowNulls}<br/>
-   * • Concat: {@link ConcatenateFeature}<br/>
-   * • ConcatWithNulls: {@link ConcatenateWithNullsFeature}<br/>
-   * • EndsWith: {@link EndsWithFeature}<br/>
-   * • ExternalResource: {@link ExternalResourceFeature}<br/>
-   * • ExternalResourceDouble: {@link ExternalResourceDoubleFeature}<br/>
-   * • Graduate: {@link GraduateFeature}<br/>
-   * • IfThenElse: {@link IfThenElseStringFeature}<br/>
-   * • IfThenElse: {@link IfThenElseIntegerFeature}<br/>
-   * • IfThenElse: {@link IfThenElseDoubleFeature}<br/>
-   * • IfThenElse: {@link IfThenElseBooleanFeature}<br/>
-   * • InSet: {@link StringInSetFeature}<br/>
-   * • Integer: {@link IntegerLiteralFeatureWrapper}<br/>
-   * • Inverse: {@link InverseFeature}<br/>
-   * • IsNull: {@link IsNullFeature}<br/>
+   * Adds the following mappings before sub-class mappings: <br>
+   * • -: {@link MinusIntegerOperator}<br>
+   * • -: {@link MinusOperator}<br>
+   * • +: {@link PlusIntegerOperator}<br>
+   * • +: {@link PlusOperator}<br>
+   * • *: {@link MultiplyIntegerOperator}<br>
+   * • *: {@link MultiplyOperator}<br>
+   * • /: {@link DivideOperator}<br>
+   * • %: {@link ModuloOperator}<br>
+   * • ==: {@link EqualsOperatorForString}<br>
+   * • ==: {@link EqualsOperatorForInteger}<br>
+   * • ==: {@link EqualsOperatorForDouble}<br>
+   * • ==: {@link EqualsOperatorForBoolean}<br>
+   * • !=: {@link NotEqualsOperator}<br>
+   * • &gt;: {@link GreaterThanIntegerOperator}<br>
+   * • &gt;: {@link GreaterThanOperator}<br>
+   * • &gt;=: {@link GreaterThanOrEqualsIntegerOperator}<br>
+   * • &gt;=: {@link GreaterThanOrEqualsOperator}<br>
+   * • &lt;: {@link LessThanIntegerOperator}<br>
+   * • &lt;: {@link LessThanOperator}<br>
+   * • &lt;=: {@link LessThanOrEqualsIntegerOperator}<br>
+   * • &lt;=: {@link LessThanOrEqualsOperator}<br>
+   * • &amp;: {@link AndFeatureAllowNulls}<br>
+   * • &amp;&amp;: {@link AndFeature}<br>
+   * • |: {@link OrFeatureAllowNulls}<br>
+   * • ||: {@link ConcatenateFeature}<br>
+   * • ||: {@link OrFeature}<br>
+   * • And: {@link AndFeature}<br>
+   * • AndAllowNulls: {@link AndFeatureAllowNulls}<br>
+   * • Concat: {@link ConcatenateFeature}<br>
+   * • ConcatWithNulls: {@link ConcatenateWithNullsFeature}<br>
+   * • EndsWith: {@link EndsWithFeature}<br>
+   * • ExternalResource: {@link ExternalResourceFeature}<br>
+   * • ExternalResourceDouble: {@link ExternalResourceDoubleFeature}<br>
+   * • Graduate: {@link GraduateFeature}<br>
+   * • IfThenElse: {@link IfThenElseStringFeature}<br>
+   * • IfThenElse: {@link IfThenElseIntegerFeature}<br>
+   * • IfThenElse: {@link IfThenElseDoubleFeature}<br>
+   * • IfThenElse: {@link IfThenElseBooleanFeature}<br>
+   * • InSet: {@link StringInSetFeature}<br>
+   * • Integer: {@link IntegerLiteralFeatureWrapper}<br>
+   * • Inverse: {@link InverseFeature}<br>
+   * • IsNull: {@link IsNullFeature}<br>
    * • MultivaluedExternalResource: {@link MultivaluedExternalResourceFeature}
-   * <br/>
-   * • Normalise: {@link NormaliseFeature}<br/>
-   * • Not: {@link NotFeature}<br/>
-   * • NullIf: {@link NullIfStringFeature}<br/>
-   * • NullIf: {@link NullIfIntegerFeature}<br/>
-   * • NullIf: {@link NullIfDoubleFeature}<br/>
-   * • NullIf: {@link NullIfBooleanFeature}<br/>
-   * • NullToFalse: {@link NullToFalseFeature}<br/>
-   * • OnlyTrue: {@link OnlyTrueFeature}<br/>
-   * • Or: {@link OrFeature}<br/>
-   * • OrAllowNulls: {@link OrFeatureAllowNulls}<br/>
-   * • Round: {@link RoundFeature}<br/>
-   * • StartsWith: {@link StartsWithFeature}<br/>
-   * • ToString: {@link ToStringFeature}<br/>
-   * • ToStringAllowNulls: {@link ToStringAllowNullsFeature}<br/>
-   * • Truncate: {@link TruncateFeature}<br/>
-   * <br/>
+   * <br>
+   * • Normalise: {@link NormaliseFeature}<br>
+   * • Not: {@link NotFeature}<br>
+   * • NullIf: {@link NullIfStringFeature}<br>
+   * • NullIf: {@link NullIfIntegerFeature}<br>
+   * • NullIf: {@link NullIfDoubleFeature}<br>
+   * • NullIf: {@link NullIfBooleanFeature}<br>
+   * • NullToFalse: {@link NullToFalseFeature}<br>
+   * • OnlyTrue: {@link OnlyTrueFeature}<br>
+   * • Or: {@link OrFeature}<br>
+   * • OrAllowNulls: {@link OrFeatureAllowNulls}<br>
+   * • Round: {@link RoundFeature}<br>
+   * • StartsWith: {@link StartsWithFeature}<br>
+   * • ToString: {@link ToStringFeature}<br>
+   * • ToStringAllowNulls: {@link ToStringAllowNullsFeature}<br>
+   * • Truncate: {@link TruncateFeature}<br>
+   * <br>
    * 
-   * And the following after subclass mappings: <br/>
-   * • IfThenElse: {@link IfThenElseGenericFeature}<br/>
-   * • NullIf: {@link NullIfGenericFeature}<br/>
-   * <br/>
+   * And the following after subclass mappings: <br>
+   * • IfThenElse: {@link IfThenElseGenericFeature}<br>
+   * • NullIf: {@link NullIfGenericFeature}<br>
+   * <br>
    */
   public abstract void addFeatureClasses(FeatureClassContainer container);
 

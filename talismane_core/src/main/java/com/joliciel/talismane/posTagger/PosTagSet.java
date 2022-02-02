@@ -37,23 +37,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>
  * A tag set to be used for pos tagging. The default format for reading a
  * PosTagSet from a file is as follows:
- * </p>
- * <p>
+ * <br>
  * All lines starting with # are ignored. The first line read is the PosTagSet
  * name. The second line read is the PosTagSet locale.
- * </p>
+ * <br>
  * All further lines are postags, in a tab delimited format shown below:
- * </p>
+ * <br>
  * 
  * <pre>
  * PosTag description PosTagOpenClassIndicator
  * </pre>
- * <p>
+ * <br>
  * For example:
- * </p>
+ * <br>
  * 
  * <pre>
  * # Example of a PosTagSet file
@@ -82,13 +80,13 @@ public class PosTagSet implements Serializable {
 
   /**
    * Loads a PosTagSet from a file or list of strings. The file has the
-   * following format: <BR/>
-   * First row: PosTagSet name<BR/>
-   * Second row: PosTagSet ISO 2 letter language code<BR/>
-   * Remaining rows:<BR/>
-   * PosTagCode tab description tab OPEN/CLOSED<BR/>
-   * e.g.<BR/>
-   * ADJ adjectif OPEN<BR/>
+   * following format: <br>
+   * First row: PosTagSet name<br>
+   * Second row: PosTagSet ISO 2 letter language code<br>
+   * Remaining rows:<br>
+   * PosTagCode tab description tab OPEN/CLOSED<br>
+   * e.g.<br>
+   * ADJ adjectif OPEN<br>
    */
   public PosTagSet(File file) throws IOException {
     try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")))) {

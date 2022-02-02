@@ -51,10 +51,10 @@ import freemarker.template.TemplateException;
 import freemarker.template.Version;
 
 /**
- * Processes sentence detector output by writing via a freemarker template.<br/>
+ * Processes sentence detector output by writing via a freemarker template.<br>
  * Will use the template specified in
  * talismane.core.[sessionId].sentence-detector.output.template if provided,
- * otherwise the default sentence_template.ftl.<br/>
+ * otherwise the default sentence_template.ftl.<br>
  * If no writer is specified, will write to a file with the suffix "_sent.txt".
  * 
  * @author Assaf Urieli

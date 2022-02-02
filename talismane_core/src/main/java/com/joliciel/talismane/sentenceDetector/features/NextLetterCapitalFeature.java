@@ -26,13 +26,13 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * In the following descriptions, the current boundary is surrounded by square
- * brackets.<br/>
- * Returns "CapitalAfterInitial" for any pattern like: W[.] Shakespeare<br/>
+ * brackets.<br>
+ * Returns "CapitalAfterInitial" for any pattern like: W[.] Shakespeare<br>
  * Returns "CapitalAfterQuote" for any pattern like: blah di blah[.]
- * " Hello <i>or</i> blah di blah[.] "Hello<br/>
- * Returns "CapitalAfterDash" for any pattern like: blah di blah[.] - Hello<br/>
- * Returns "true" for any other pattern like: "blah di blah[.] Hello<br/>
- * Returns "false" otherwise.<br/>
+ * " Hello <i>or</i> blah di blah[.] "Hello<br>
+ * Returns "CapitalAfterDash" for any pattern like: blah di blah[.] - Hello<br>
+ * Returns "true" for any other pattern like: "blah di blah[.] Hello<br>
+ * Returns "false" otherwise.<br>
  * Note that there MUST be whitespace between the separator and the capital
  * letter for it to be considered a capital letter.
  * 

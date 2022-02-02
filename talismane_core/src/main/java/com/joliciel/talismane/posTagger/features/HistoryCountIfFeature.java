@@ -28,11 +28,11 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
  * Counts the pos-tagged tokens within a certain range matching a certain
- * criterion.<br/>
- * The range is given in absolute indexes.<br/>
- * If start &gt; end, returns null.<br/>
+ * criterion.<br>
+ * The range is given in absolute indexes.<br>
+ * If start &gt; end, returns null.<br>
  * If no end is provided, assumes it should go till end of the current history.
- * <br/>
+ * <br>
  * 
  * @author Assaf Urieli
  *

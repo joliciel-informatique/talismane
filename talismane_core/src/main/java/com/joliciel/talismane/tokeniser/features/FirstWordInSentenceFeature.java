@@ -28,7 +28,7 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
- * Returns true if this is the first word in the sentence.<br/>
+ * Returns true if this is the first word in the sentence.<br>
  * Will skip initial punctuation (e.g. quotation marks) or numbered lists,
  * returning true for the first word following such constructs.
  * 

@@ -31,18 +31,18 @@ import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * An external resource read from a text file.<br/>
- * The default name will be the filename.<br/>
- * The first line must be "Type: KeyMultiValue". <br/>
+ * An external resource read from a text file.<br>
+ * The default name will be the filename.<br>
+ * The first line must be "Type: KeyMultiValue". <br>
  * If a line starts with the string "Name: ", the default name will be replaced
- * by this name.<br/>
- * All lines starting with # are skipped.<br/>
- * Any other line will be broken up by tabs:<br/>
+ * by this name.<br>
+ * All lines starting with # are skipped.<br>
+ * Any other line will be broken up by tabs:<br>
  * For multi-valued resources, the second-to-last tab is the class, the last tab
- * is the weight.<br/>
- * All previous tabs are considered to be key components.<br/>
+ * is the weight.<br>
+ * All previous tabs are considered to be key components.<br>
  * The same set of key components can have multiple classes with different
- * weights.<br/>
+ * weights.<br>
  * 
  * @author Assaf Urieli
  *

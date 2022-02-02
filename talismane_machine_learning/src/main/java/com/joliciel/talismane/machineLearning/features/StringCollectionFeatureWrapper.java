@@ -28,11 +28,11 @@ import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
  * A top-level wrapper for a feature which refers to one or more
- * StringCollectionFeatures internally.<br/>
+ * StringCollectionFeatures internally.<br>
  * It is responsible for analysing the collection feature and passing the
- * resulting values one at a time to the wrapped feature.<br/>
+ * resulting values one at a time to the wrapped feature.<br>
  * The collection of results is converted to a List of WeightedOutcome of
- * String, and then returned.<br/>
+ * String, and then returned.<br>
  * 
  * @author Assaf Urieli
  *

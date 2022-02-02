@@ -34,8 +34,8 @@ import com.typesafe.config.ConfigFactory;
 public class ModelTrainerFactory {
   /**
    * Get a classification model trainer corresponding to a given outcome type
-   * and a given algorithm.<br/>
-   * <br/>
+   * and a given algorithm.<br>
+   * <br>
    * It is assumed the config file passed will be a local configuration, whose
    * root is equivalent to the talismane.machine-learning key in reference.conf
    */

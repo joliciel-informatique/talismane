@@ -42,14 +42,14 @@ import com.typesafe.config.Config;
 /**
  * A corpus reader that expects one pos-tagged token with dependency info per
  * line, and analyses the line content based on a regex supplied during
- * construction, via a {@link CorpusLineReader}.<br/>
+ * construction, via a {@link CorpusLineReader}.<br>
  * 
- * The following placeholders are required:<br/>
+ * The following placeholders are required:<br>
  * {@link CorpusElement#INDEX}, {@link CorpusElement#TOKEN},
  * {@link CorpusElement#POSTAG}, {@link CorpusElement#LABEL},
- * {@link CorpusElement#GOVERNOR}. <br/>
+ * {@link CorpusElement#GOVERNOR}. <br>
  * These are included surrounded by % signs on both sides, and without the
- * prefix "CorpusElement."<br/>
+ * prefix "CorpusElement."<br>
  * 
  * Example (note that the regex is applied to one line, so no endline is
  * necessary):
@@ -71,9 +71,9 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
   /**
    * In addition to the values read in
    * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, String)}
-   * , reads the following setting from the config:<br/>
+   * , reads the following setting from the config:<br>
    * - predict-transitions: whether or not an attempt should be made to predict
-   * transitions<br/>
+   * transitions<br>
    * 
    * @throws TalismaneException
    * @throws ReflectiveOperationException

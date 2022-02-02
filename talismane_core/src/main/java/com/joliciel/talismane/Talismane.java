@@ -62,15 +62,15 @@ import com.typesafe.config.Config;
  * A class for processing a stream of data using a reader via
  * {@link #analyse(Reader)}, and creating various outputs, with formats as
  * defined by the configuration, with their location specified in the
- * constructor.<br/>
- * <br/>
+ * constructor.<br>
+ * <br>
  * The processing will go from {@link #getStartModule()} to
- * {@link #getEndModule()}. Not thread-safe.<br/>
- * <br/>
+ * {@link #getEndModule()}. Not thread-safe.<br>
+ * <br>
  * Processing will stop when the reader finishes reading, or when three
  * consecutive {@link TalismaneSession#getEndBlockCharacter()} are encountered.
- * <br/>
- * <br/>
+ * <br>
+ * <br>
  * 
  * @author Assaf Urieli
  *
