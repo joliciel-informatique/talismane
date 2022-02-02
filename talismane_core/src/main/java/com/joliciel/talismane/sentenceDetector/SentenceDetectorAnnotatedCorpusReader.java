@@ -26,6 +26,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.corpus.AnnotatedCorpusReader;
 import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.typesafe.config.Config;
@@ -50,6 +51,13 @@ public interface SentenceDetectorAnnotatedCorpusReader extends AnnotatedCorpusRe
    * Is the last sentence read the start of a new paragraph?
    */
   public abstract boolean isNewParagraph();
+
+  /**
+   * Builds the reader configured at "talismane.core.[sessionId].sentence-detector.input"
+   */
+  static SentenceDetectorAnnotatedCorpusReader getConfiguredReader(Reader reader, Config config, String sessionId) throws ReflectiveOperationException, IOException {
+    return getCorpusReader(reader, config.getConfig("talismane.core." + sessionId + ".sentence-detector.input"), sessionId);
+  }
 
   /**
    * Builds an annotated corpus reader for a particular Reader and Config, where

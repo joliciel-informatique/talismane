@@ -46,6 +46,13 @@ public interface ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusReader
   public abstract ParseConfiguration nextConfiguration() throws TalismaneException, IOException;
 
   /**
+   * Builds the reader configured at "talismane.core.[sessionId].pos-tagger.input"
+   */
+  static ParserAnnotatedCorpusReader getConfiguredReader(Reader reader, Config config, String sessionId) throws ReflectiveOperationException, IOException {
+    return getCorpusReader(reader, config.getConfig("talismane.core." + sessionId + ".pos-tagger.input"), sessionId);
+  }
+
+  /**
    * Builds an annotated corpus reader for a particular Reader and Config, where
    * the config is the local namespace. For configuration example, see
    * talismane.core.generic.tokeniser.input in reference.conf.
