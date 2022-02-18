@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 
+import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,13 @@ public interface TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotate
    * @throws IOException
    */
   public abstract TokenSequence nextTokenSequence() throws TalismaneException, IOException;
+
+  /**
+   * Builds the reader configured at "talismane.core.[sessionId].tokeniser.input"
+   */
+  static TokeniserAnnotatedCorpusReader getConfiguredReader(Reader reader, Config config, String sessionId) throws ReflectiveOperationException, IOException {
+    return getCorpusReader(reader, config.getConfig("talismane.core." + sessionId + ".tokeniser.input"), sessionId);
+  }
 
   /**
    * Builds an annotated corpus reader for a particular Reader and Config, where

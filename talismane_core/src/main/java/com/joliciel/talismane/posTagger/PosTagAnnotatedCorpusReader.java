@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
@@ -44,6 +45,13 @@ public interface PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorpusRea
    * @throws IOException
    */
   public abstract PosTagSequence nextPosTagSequence() throws TalismaneException, IOException;
+
+  /**
+   * Builds the reader configured at "talismane.core.[sessionId].parser.input"
+   */
+  static PosTagAnnotatedCorpusReader getConfiguredReader(Reader reader, Config config, String sessionId) throws ReflectiveOperationException, IOException {
+    return getCorpusReader(reader, config.getConfig("talismane.core." + sessionId + ".parser.input"), sessionId);
+  }
 
   /**
    * Builds an annotated corpus reader for a particular Reader and Config, where

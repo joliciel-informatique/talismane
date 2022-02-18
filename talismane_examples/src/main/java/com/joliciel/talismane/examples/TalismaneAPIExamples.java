@@ -18,14 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.examples;
 
+import java.io.StringReader;
 import java.util.List;
 
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseTree;
-import com.joliciel.talismane.parser.Parser;
-import com.joliciel.talismane.parser.Parsers;
+import com.joliciel.talismane.parser.*;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggers;
@@ -78,8 +76,10 @@ public class TalismaneAPIExamples {
 
     if (example == 1)
       example1(sessionId);
-    else
+    else if (example == 2)
       example2(sessionId);
+    else
+      example3(sessionId);
   }
 
   /**
@@ -110,8 +110,9 @@ public class TalismaneAPIExamples {
    */
   public static void example2(String sessionId) throws Exception {
     String text = "Les gens qui voient de travers pensent que les bancs verts qu'on voit sur les trottoirs "
-        + "sont faits pour les impotents ou les ventripotents. " + "Mais c'est une absurdité, car, à la vérité, ils sont là, c'est notoire, "
-        + "pour accueillir quelque temps les amours débutants.";
+            + "sont faits pour les impotents ou les ventripotents. "
+            + "Mais c'est une absurdité, car, à la vérité, ils sont là, c'est notoire, "
+            + "pour accueillir quelque temps les amours débutants.";
 
     RawText rawText = new RawText(text, true, sessionId);
 
@@ -159,6 +160,39 @@ public class TalismaneAPIExamples {
       ParseTree parseTree = new ParseTree(parseConfiguration, true);
       System.out.println(parseTree);
     }
-
   }
+
+
+  /**
+   * An example reading pre-parsed text, and transforming the parse configuration into a parseTree.
+   */
+  public static void example3(String sessionId) throws Exception {
+    String text = "1	Les	les	DET	DET	n=p|	2	det	2	det\n" +
+            "2	amoureux	amoureux	NC	NC	g=m|	10	suj	10	suj\n" +
+            "3	qui	qui	PROREL	PROREL	n=s|	5	suj	5	suj\n" +
+            "4	se	se	CLR	CLR	n=p|p=3|	5	aff	5	aff\n" +
+            "5	bécotent	bécoter	V	V	n=p|t=PS|p=3|	2	mod_rel	2	mod_rel\n" +
+            "6	sur	sur	P	P		5	mod	5	mod\n" +
+            "7	les	les	DET	DET	n=p|	8	det	8	det\n" +
+            "8	bancs	banc	NC	NC	n=p|g=m|	6	prep	6	prep\n" +
+            "9	publics	public	ADJ	ADJ	n=p|g=m|	8	mod	8	mod\n" +
+            "10	ont	avoir	V	V	n=p|t=P|p=3|	0	root	0	root\n" +
+            "11	des	des	DET	DET	n=p|	13	det	13	det\n" +
+            "12	petites	petit	ADJ	ADJ	n=p|g=f|	13	mod	13	mod\n" +
+            "13	gueules	gueule	NC	NC	n=p|	10	obj	10	obj\n" +
+            "14	bien	bien	ADV	ADV		15	mod	15	mod\n" +
+            "15	sympathiques	sympathique	ADJ	ADJ	n=p|	13	mod	13	mod\n" +
+            "16	.	.	PONCT	PONCT		15	ponct	15	ponct\n";
+
+    // read the analysis
+    StringReader reader = new StringReader(text);
+    Config config = ConfigFactory.load();
+    ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getConfiguredReader(reader, config, sessionId);
+    while(corpusReader.hasNextSentence()) {
+      ParseConfiguration parseConfiguration = corpusReader.nextConfiguration();
+      ParseTree parseTree = new ParseTree(parseConfiguration, true);
+      System.out.println(parseTree);
+    }
+  }
+
 }

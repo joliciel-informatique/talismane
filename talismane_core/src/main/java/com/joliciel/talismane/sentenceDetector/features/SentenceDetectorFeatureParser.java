@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
@@ -45,7 +46,10 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  *
  */
 public class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
+  private final String sessionId;
+
   public SentenceDetectorFeatureParser(String sessionId) {
+    this.sessionId = sessionId;
     this.setExternalResourceFinder(TalismaneSession.get(sessionId).getExternalResourceFinder());
   }
 
@@ -118,7 +122,9 @@ public class SentenceDetectorFeatureParser extends AbstractFeatureParser<Possibl
 
   @Override
   public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
-    // no dependencies to inject
+    if (feature instanceof NeedsSessionId) {
+      ((NeedsSessionId) feature).setSessionId(sessionId);
+    }
   }
 
   private static class SentenceDetectorFeatureWrapper<T> extends AbstractFeature<PossibleSentenceBoundary, T>
