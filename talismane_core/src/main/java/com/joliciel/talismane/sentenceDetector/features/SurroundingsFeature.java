@@ -20,6 +20,7 @@ package com.joliciel.talismane.sentenceDetector.features;
 
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
@@ -27,6 +28,8 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.Token;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * Examines the atomic tokens from <i>n</i> before the boundary to <i>n</i>
@@ -40,9 +43,10 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class SurroundingsFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
+public final class SurroundingsFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary>, NeedsSessionId {
   Pattern number = Pattern.compile("\\d+");
   IntegerFeature<PossibleSentenceBoundary> nFeature;
+  private boolean languageHasUppercaseLetters;
 
   public SurroundingsFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {
     this.nFeature = nFeature;
@@ -72,7 +76,11 @@ public final class SurroundingsFeature extends AbstractSentenceDetectorFeature<S
           } else if (i == maxToken + 1) {
             categoryString = "Word";
           } else if ((0 - i) % 2 == 0 || (maxToken - i) % 2 == 1) {
-            categoryString = "word";
+            if (languageHasUppercaseLetters) {
+              categoryString = "word";
+            } else {
+              categoryString = "Word";
+            }
           } else {
             categoryString = " ";
           }
@@ -97,7 +105,7 @@ public final class SurroundingsFeature extends AbstractSentenceDetectorFeature<S
       categoryString = token.getOriginalText();
     else if (number.matcher(token.getText()).matches())
       categoryString = "1";
-    else if (Character.isUpperCase(token.getOriginalText().charAt(0))) {
+    else if (!languageHasUppercaseLetters || Character.isUpperCase(token.getOriginalText().charAt(0))) {
       if (token.getOriginalText().length() == 1)
         categoryString = "W";
       else if (token.getOriginalText().length() == 2)
@@ -109,4 +117,10 @@ public final class SurroundingsFeature extends AbstractSentenceDetectorFeature<S
     return categoryString;
   }
 
+  @Override
+  public void setSessionId(String sessionId) {
+    String sentenceDetectorPath = "talismane.core." + sessionId + ".sentence-detector";
+    Config config = ConfigFactory.load().getConfig(sentenceDetectorPath);
+    this.languageHasUppercaseLetters = config.getBoolean("language-has-uppercase-letters");
+  }
 }

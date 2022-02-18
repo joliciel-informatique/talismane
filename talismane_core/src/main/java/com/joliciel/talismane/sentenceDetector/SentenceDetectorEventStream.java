@@ -28,13 +28,13 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -61,12 +61,14 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
   private int realBoundary = -1;
   private LinkedList<String> sentences = new LinkedList<String>();
   int minCharactersAfterBoundary = 50;
+  private final Pattern possibleBoundaryPattern;
 
   public SentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader, Set<SentenceDetectorFeature<?>> features,
       String sessionId) {
     this.corpusReader = corpusReader;
     this.features = features;
     this.sessionId = sessionId;
+    this.possibleBoundaryPattern = SentenceDetector.getPossibleBoundaryPattern(sessionId);
   }
 
   @Override
@@ -144,7 +146,7 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
         break;
       }
       if (currentSentence != null) {
-        Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(currentSentence);
+        Matcher matcher = possibleBoundaryPattern.matcher(currentSentence);
 
         while (matcher.find()) {
           possibleBoundaries.add(previousSentence.length() + matcher.start());
