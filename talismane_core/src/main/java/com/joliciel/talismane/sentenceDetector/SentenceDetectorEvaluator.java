@@ -136,7 +136,7 @@ public class SentenceDetectorEvaluator {
       String text = previousSentence + sentence + moreText;
       AnnotatedText annotatedText = new AnnotatedText(text, previousSentence.length(), previousSentence.length() + sentence.length(), new ArrayList<>());
 
-      Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text);
+      Matcher matcher = sentenceDetector.getPossibleBoundaryPattern().matcher(text);
       List<Integer> possibleBoundaries = new ArrayList<Integer>();
 
       while (matcher.find()) {
@@ -159,7 +159,7 @@ public class SentenceDetectorEvaluator {
         fScoreCalculator.increment(expected, guessed);
 
         String boundaryCharacter = "" + text.charAt(possibleBoundary - 1);
-        Matcher boundaryMatcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(boundaryCharacter);
+        Matcher boundaryMatcher = sentenceDetector.getPossibleBoundaryPattern().matcher(boundaryCharacter);
         if (!boundaryMatcher.matches())
           boundaryCharacter = "OTHER";
         FScoreCalculator<SentenceDetectorOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(boundaryCharacter);

@@ -18,11 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector.features;
 
+import com.joliciel.talismane.NeedsSessionId;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.Token;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * Returns true if the current token is "." and the previous token is a capital
@@ -31,7 +34,9 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class InitialsFeature extends AbstractSentenceDetectorFeature<Boolean> implements BooleanFeature<PossibleSentenceBoundary> {
+public final class InitialsFeature extends AbstractSentenceDetectorFeature<Boolean> implements BooleanFeature<PossibleSentenceBoundary>, NeedsSessionId {
+  private boolean languageHasUppercaseLetters;
+
   @Override
   public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
     FeatureResult<Boolean> result = null;
@@ -45,7 +50,7 @@ public final class InitialsFeature extends AbstractSentenceDetectorFeature<Boole
 
       String isInitial = null;
 
-      if (previousToken != null && Character.isUpperCase(previousToken.getOriginalText().charAt(0))) {
+      if (previousToken != null && (!languageHasUppercaseLetters || Character.isUpperCase(previousToken.getOriginalText().charAt(0)))) {
         if (previousToken.getOriginalText().length() == 1)
           isInitial = "true";
       }
@@ -58,4 +63,10 @@ public final class InitialsFeature extends AbstractSentenceDetectorFeature<Boole
     return result;
   }
 
+  @Override
+  public void setSessionId(String sessionId) {
+    String sentenceDetectorPath = "talismane.core." + sessionId + ".sentence-detector";
+    Config config = ConfigFactory.load().getConfig(sentenceDetectorPath);
+    this.languageHasUppercaseLetters = config.getBoolean("language-has-uppercase-letters");
+  }
 }

@@ -42,7 +42,6 @@ import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -68,10 +67,6 @@ import com.typesafe.config.Config;
  *
  */
 public class SentenceDetector implements Annotator<AnnotatedText> {
-  /**
-   * A list of possible sentence-end boundaries.
-   */
-  public static final Pattern POSSIBLE_BOUNDARIES = Pattern.compile("[\\.\\?\\!\"\\)\\]\\}»—―”″\n]");
 
   private static final Logger LOG = LoggerFactory.getLogger(SentenceDetector.class);
 
@@ -81,6 +76,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
   private final DecisionMaker decisionMaker;
   private final Set<SentenceDetectorFeature<?>> features;
   private final String sessionId;
+  private final Pattern possibleBoundaryPattern;
 
   public static SentenceDetector getInstance(String sessionId) throws IOException, ClassNotFoundException {
     SentenceDetector sentenceDetector = sentenceDetectorMap.get(sessionId);
@@ -108,6 +104,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
     this.decisionMaker = decisionMaker;
     this.features = features;
     this.sessionId = sessionId;
+    this.possibleBoundaryPattern = getPossibleBoundaryPattern(sessionId);
   }
 
   public SentenceDetector(ClassificationModel sentenceModel, String sessionId) {
@@ -126,12 +123,14 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 
     this.features = parser.getFeatureSet(sentenceModel.getFeatureDescriptors());
     this.decisionMaker = sentenceModel.getDecisionMaker();
+    this.possibleBoundaryPattern = getPossibleBoundaryPattern(sessionId);
   }
 
   SentenceDetector(SentenceDetector sentenceDetector) {
     this.sessionId = sentenceDetector.sessionId;
     this.features = new HashSet<>(sentenceDetector.features);
     this.decisionMaker = sentenceDetector.decisionMaker;
+    this.possibleBoundaryPattern = sentenceDetector.possibleBoundaryPattern;
   }
 
   @Override
@@ -169,7 +168,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 
     List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreakMarkers = text.getAnnotations(RawTextNoSentenceBreakMarker.class);
 
-    Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text.getText());
+    Matcher matcher = possibleBoundaryPattern.matcher(text.getText());
     List<Integer> possibleBoundaries = new ArrayList<>();
     while (matcher.find()) {
       if (matcher.start() >= text.getAnalysisStart() && matcher.start() < text.getAnalysisEnd()) {
@@ -288,5 +287,16 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 
   public SentenceDetector cloneSentenceDetector() {
     return new SentenceDetector(this);
+  }
+
+  public Pattern getPossibleBoundaryPattern() {
+    return possibleBoundaryPattern;
+  }
+
+  public static Pattern getPossibleBoundaryPattern(String sessionId) {
+    String sentenceDetectorPath = "talismane.core." + sessionId + ".sentence-detector";
+    Config config = ConfigFactory.load().getConfig(sentenceDetectorPath);
+    String possibleBoundariesRegex = config.getString("possible-boundaries");
+    return Pattern.compile(possibleBoundariesRegex);
   }
 }
