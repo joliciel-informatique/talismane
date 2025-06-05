@@ -1,6 +1,9 @@
 ![Talismane Logo](https://raw.githubusercontent.com/wiki/joliciel-informatique/talismane/pics/TalismaneLogo300px.png)
 
-[![Build Status](https://travis-ci.org/joliciel-informatique/talismane.png?branch=master)](https://travis-ci.org/joliciel-informatique/talismane)
+**Talismane is no longer being maintained.**
+You might consider using Spacy as a replacement: https://spacy.io/
+
+----------------------------------------------------------------------------
 
 Talismane is a natural language processing framework with sentence detector, tokeniser, pos-tagger and dependency syntax parser. Current available language packs include French (standard and [Universal Dependencies](https://github.com/joliciel-informatique/talismane/wiki/Analysing-French-Universal-Dependencies)) and English.
 
